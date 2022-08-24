@@ -3,9 +3,7 @@ import { Socket } from 'node:net';
 
 /** Base class for an playeraccount */
 export class Client extends EventEmitter {
-    public constructor(name: string, password: string): Client;
-    private #name: string;
-    private #password: string;
+    public constructor(name: string, password: string);
     private _socket: Socket;
     /** Login with your credentials */
     public connect(): Promise<Client>;
@@ -14,28 +12,26 @@ export class Client extends EventEmitter {
     public players: PlayerManager;
     public on<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
     public addListener<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
-    private emit<K extends keyof ClientEvents>(eventName: K, ...args: ClientEvents[K]): boolean;
+    emit<K extends keyof ClientEvents>(eventName: K, ...args: ClientEvents[K]): boolean;
 }
 
 export class BaseManager extends EventEmitter {
     private _client: Client;
-    private constructor(client: Client): this;
+    protected constructor(client: Client);
 }
 
 export class MovementManager extends BaseManager {
-    private constructor(client: Client): this;
-    private #movements: Movement[];
+    private constructor(client: Client);
     public on<K extends keyof MovementEvents>(event: K, listener: (...args: MovementEvents[K]) => void): this;
     public addListener<K extends keyof MovementEvents>(event: K, listener: (...args: MovementEvents[K]) => void): this;
-    private emit<K extends keyof MovementEvents>(eventName: K, ...args: MovementEvents[K]): boolean;
+    emit<K extends keyof MovementEvents>(eventName: K, ...args: MovementEvents[K]): boolean;
     /** Returns all movements */
     public get(): Movement[];
     private _add_or_update(_movements: Movement[]): void;
 }
 
 export class AllianceManager extends BaseManager {
-    private constructor(client: Client): this;
-    private #alliances: Alliance[];
+    private constructor(client: Client);
     public getById(id: number): Promise<Alliance>;
     public find(name: string): Promise<Alliance>;
     private _add_or_update(_alliance: Alliance): void;
@@ -43,8 +39,7 @@ export class AllianceManager extends BaseManager {
 }
 
 export class PlayerManager extends BaseManager {
-    private constructor(client: Client): this;
-    private #players: Player[];
+    private constructor(client: Client);
     public getById(id: number): Promise<Player>;
     public find(name: string): Promise<Player>;
     private _add_or_update(_player: Player): void;
@@ -54,7 +49,7 @@ export class PlayerManager extends BaseManager {
 export type Movement = BasicMovement | ArmyAttackMovement | ArmyTravelMovement;
 
 export class BasicMovement {
-    private constructor(client: Client, data): this;
+    protected constructor(client: Client, data);
     public movementId: number;
     public movementType: number;
     public arrivalTime: Date;
@@ -71,7 +66,7 @@ export class BasicMovement {
 }
 
 export class ArmyAttackMovement extends BasicMovement {
-    private constructor(client: Client, data): this;
+    private constructor(client: Client, data);
     public army: CompactArmy;
     public armyState: number;
     public attackType: number;
@@ -81,15 +76,16 @@ export class ArmyAttackMovement extends BasicMovement {
 }
 
 export class ArmyTravelMovement extends BasicMovement {
-    private constructor(client: Client, data): this;
+    private constructor(client: Client, data);
     public army: CompactArmy;
     public goods: Good[];
 }
 
 export class Alliance {
-    private constructor(client: Client, data): this;
+    protected constructor(client: Client, data);
     public allianceId: number;
     public allianceName: string;
+    public allianceDescription: string;
     public languageId: string;
     public memberLevel: number;
     public memberList: AllianceMember[];
@@ -103,15 +99,15 @@ export class Alliance {
     public isOpenAlliance: boolean;
     public freeRenames: number;
     public might: number;
-    private _add_or_update_landmarks(landmarks: WorldmapObject[]): void;
+    private _add_or_update_landmarks(landmarks: Mapobject[]): void;
 }
 
 export class MyAlliance extends Alliance {
-
+    private constructor(client: Client, data);
 }
 
 export class AllianceMember {
-    private constructor(client: Client, data): this;
+    private constructor(client: Client, data);
     public playerId: number;
     public playerName: string;
     public playerLevel: number;
@@ -128,7 +124,7 @@ export class ChatMessage {
 }
 
 export class CompactArmy {
-    private constructor(client: Client, data): this;
+    private constructor(client: Client, data);
     public left: { unit: Unit, count: number }[];
     public middle: { unit: Unit, count: number }[];
     public right: { unit: Unit, count: number }[];
