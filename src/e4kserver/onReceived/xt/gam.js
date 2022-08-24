@@ -1,8 +1,9 @@
 const Client = require('./../../../Client');
 const Movement = require("./../../../structures/BasicMovement");
-const {Socket} = require("node:net");
+const { Socket } = require("node:net");
 const ArmyAttackMovement = require('./../../../structures/ArmyAttackMovement');
 const ArmyTravelMovement = require('./../../../structures/ArmyTravelMovement');
+const ConquerMovement = require('./../../../structures/ConquerMovement');
 
 let movements = [{
     id: 0,
@@ -62,35 +63,35 @@ let movements = [{
     },
     armyState: 0,
     lord: {
-    /*
-            id: 0,
-            wins: 0,
-            defeats: 0,
-            winSpree: 0,
-            equipments: [{
-
-            }],
-            gems: [{
+        /*
                 id: 0,
-                level: 0,
-                isUnique: false,
-                upgradeId: 0,
-                setId: 0,
-                starRarity: 0,
-                startLevel: 0,
-                reuseAssetFromEquipmentID: 0,
-                gemColorId: 0,
-                colorCode: 0,
-                effects: [{
-                    effectStaticVO: 
-                }]
-            }],
-            additionalEffects: [{}],
-            wearerId: 0,
-            type: 0,
-            pictureId: 0,
-            consecutiveLordID: 0,
-    */
+                wins: 0,
+                defeats: 0,
+                winSpree: 0,
+                equipments: [{
+    
+                }],
+                gems: [{
+                    id: 0,
+                    level: 0,
+                    isUnique: false,
+                    upgradeId: 0,
+                    setId: 0,
+                    starRarity: 0,
+                    startLevel: 0,
+                    reuseAssetFromEquipmentID: 0,
+                    gemColorId: 0,
+                    colorCode: 0,
+                    effects: [{
+                        effectStaticVO: 
+                    }]
+                }],
+                additionalEffects: [{}],
+                wearerId: 0,
+                type: 0,
+                pictureId: 0,
+                consecutiveLordID: 0,
+        */
     }
 }];
 
@@ -108,18 +109,23 @@ module.exports = {
         let i = 0;
         let _movementsArray = [];
         for (i in params.M) {
-            if(!params.M[i]) continue;
+            if (!params.M[i]) continue;
             let _movement;
             let _movObj = params.M[i];
-            switch(_movObj.M.T){
+            switch (_movObj.M.T) {
                 case 0: _movement = new ArmyAttackMovement(socket.client, _movObj); break;
                 case 2: _movement = new ArmyTravelMovement(socket.client, _movObj); break;
+                case 5: _movement = new ConquerMovement(socket.client, _movObj); break;
                 default: {
                     console.log(`Current movement (movementType ${_movObj.M.T}) isn't fully supported!`);
+                    if (socket["debug"]){
+                        console.log(_movObj);
+                        console.log(_movObj.A);
+                    }
                     _movement = new Movement(socket.client, _movObj);
                 }
             }
-            if(_movement.sourceArea !== null || _movement.movementType === 6)
+            if (_movement.sourceArea !== null || _movement.movementType === 6)
                 _movementsArray.push(_movement);
             i++;
         }

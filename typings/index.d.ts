@@ -81,6 +81,11 @@ export class ArmyTravelMovement extends BasicMovement {
     public goods: Good[];
 }
 
+export class ConquerMovement extends BasicMovement {
+    private constructor(client: Client, data);
+    public army: { unit: Unit, count: number }[];
+}
+
 export class Alliance {
     protected constructor(client: Client, data);
     public allianceId: number;

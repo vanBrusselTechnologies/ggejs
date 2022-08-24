@@ -51,29 +51,37 @@ module.exports = {
  * @param {object} _jsonResponseVO
  */
 function executeResponse(socket, _jsonResponseVO) {
-    let cmd = _jsonResponseVO.commandID.toLowerCase();
-    let handler = commands[cmd];
-    if (handler != null) {
-        let params;
-        try {
-            params = JSON.parse(_jsonResponseVO.paramArray[0]);
-        } catch (e) {
-            if (cmd == "ain") {
-                require('./../../commands/searchAllianceById.js').execute(socket, socket["_searching_alliance_id"]);
-                return;
+    try {
+        let cmd = _jsonResponseVO.commandID.toLowerCase();
+        let handler = commands[cmd];
+        if (handler != null) {
+            let params;
+            try {
+                params = JSON.parse(_jsonResponseVO.paramArray[0]);
+            } catch (e) {
+                if (cmd == "ain") {
+                    require('./../../commands/searchAllianceById.js').execute(socket, socket["_searching_alliance_id"]);
+                    return;
+                }
+                if (cmd == "gdi") {
+                    require('./../../commands/searchPlayerById').execute(socket, socket["_searching_player_id"]);
+                    return;
+                }
+                params = _jsonResponseVO.paramArray[0];
             }
-            if (cmd == "gdi") {
-                require('./../../commands/searchPlayerById').execute(socket, socket["_searching_player_id"]);
-                return;
-            }
-            params = _jsonResponseVO.paramArray[0];
+            let error = _jsonResponseVO.error;
+            handler.apply(this, [socket, error, params]);
         }
-        let error = _jsonResponseVO.error;
-        handler.apply(this, [socket, error, params]);
+        else {
+            const _params = _jsonResponseVO.paramArray.length === 0 ? "" : _jsonResponseVO.paramArray[0].substring(0, 99 - _jsonResponseVO.commandID.length);
+            if (socket["debug"])
+                console.log('[RECEIVED UNKNOWN COMMAND] ' + _jsonResponseVO.commandID + ": " + _params);
+        }
     }
-    else {
-        const _params = _jsonResponseVO.paramArray.length === 0 ? "" : _jsonResponseVO.paramArray[0].substring(0, 99 - _jsonResponseVO.commandID.length);
-        if (socket["debug"])
-            console.log('[RECEIVED UNKNOWN COMMAND] ' + _jsonResponseVO.commandID + ": " + _params);
+    catch (e) {
+        if(socket["debug"])
+            console.log("Error");
+            console.log(_jsonResponseVO);
+            console.log(e);
     }
 }
