@@ -1,5 +1,5 @@
 {
-  "name": "empirejs",
+  "name": "ggejs",
   "version": "1.0.0",
   "description": "A powerful JavaScript library for interacting with the server of Goodgame Empire: Four Kingdoms",
   "main": "./src/index.js",
@@ -23,7 +23,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/476f6f6467616d6553747564696f73/empirejs.git"
+    "url": "https://github.com/476f6f6467616d6553747564696f73/ggejs.git"
   },
   "author": "WillardvB",
   "license": "ISC",
