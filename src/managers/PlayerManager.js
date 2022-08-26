@@ -6,6 +6,7 @@ const getPlayerRankingsCommand = require('./../e4kserver/commands/getPlayerRanki
 const { WaitUntil } = require('./../tools/wait');
 
 class PlayerManager extends BaseManager {
+    #thisPlayerId = 0;
     #players = [];
     constructor(client) {
         super(client);
@@ -27,7 +28,7 @@ class PlayerManager extends BaseManager {
         return new Promise(async (resolve, reject) => {
             try {
                 let _playerId = await _getPlayerByName(this._client._socket, name);
-                if(_playerId === 0) reject("Player not found!");
+                if (_playerId === 0) reject("Player not found!");
                 let _player = await this.getById(_playerId);
                 resolve(_player);
             }
@@ -48,6 +49,20 @@ class PlayerManager extends BaseManager {
         if (!found) {
             this.#players.push(_player);
         }
+    }
+    getThisPlayer() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let _player = await this.getById(this.#thisPlayerId);
+                resolve(_player);
+            }
+            catch (e) {
+                reject(e);
+            }
+        })
+    }
+    _setThisPlayer(val) {
+        this.#thisPlayerId = val;
     }
 }
 

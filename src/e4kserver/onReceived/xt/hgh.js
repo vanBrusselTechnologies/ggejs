@@ -6,7 +6,7 @@ module.exports = {
      * @param {object} params
      */
     execute(socket, errorCode, params) {
-        if (errorCode == 114) {
+        if (errorCode === 114 || errorCode === 21) {
             return socket["__get_alliance_error"] = "Alliance not found!";
         }
         if(socket["_searching_alliance_name"] && socket["_searching_alliance_name"] !== ""){

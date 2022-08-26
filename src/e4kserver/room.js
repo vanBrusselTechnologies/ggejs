@@ -17,7 +17,6 @@ module.exports = {
         _setRoomList(data);
     },
     /**
-     * 
      * @param {object} event
      */
     onJoinRoom(socket, event) {
@@ -31,9 +30,7 @@ module.exports = {
         return _getRoom(index);
     },
     autoJoinRoom(socket) {
-        if (!_checkRoomList()) {
-            return;
-        }
+        if (!_checkRoomList()) return;
         let headers = { "t": "sys" };
         sendAction(socket, headers, "autoJoin", !!_activeRoomId ? _activeRoomId : -1, "");
     },
@@ -63,11 +60,7 @@ module.exports = {
 }
 
 function _checkRoomList() {
-    let roomListAvailable = true;
-    if (roomList == null || false) {
-        roomListAvailable = false;
-    }
-    return roomListAvailable;
+    return roomList !== null;
 }
 
 /**
@@ -86,10 +79,10 @@ function _setRoomList(data) {
         name: data[5],
         maxSpectators: 0,
         maxUsers: maxUsers,
-        temp: (_loc3_ >> 1 & 1) == true,
-        game: (_loc3_ >> 2 & 1) == true,
-        priv: (_loc3_ >> 0 & 1) == true,
-        limbo: (_loc3_ >> 3 & 1) == true,
+        temp: (_loc3_ >> 1 & 1) === true,
+        game: (_loc3_ >> 2 & 1) === true,
+        priv: (_loc3_ >> 0 & 1) === true,
+        limbo: (_loc3_ >> 3 & 1) === true,
         userCount: userCount,
         specCount: 0,
         userList: [],
@@ -106,9 +99,7 @@ function getAllRooms() {
  * @param {number} index
  */
 function _getRoom(index) {
-    if (!_checkRoomList()) {
-        return null;
-    }
+    if (!_checkRoomList()) return null;
     return roomList[index];
 }
 
@@ -142,7 +133,7 @@ function decompressInt(input) {
 function _onJoinRoom(socket, event) {
     let room = event.params["room"];
     _activeRoomId = room.id;
-    if (room.name == "Lobby") {
+    if (room.name === "Lobby") {
         sendAction(socket, { "t": "sys" }, "roundTrip", _activeRoomId, "");
     }
 }

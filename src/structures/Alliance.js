@@ -1,11 +1,15 @@
+const CapitalMapobject = require("./CapitalMapobject");
+const KingstowerMapobject = require("./KingstowerMapobject");
+const MonumentMapobject = require("./MonumentMapobject");
 const AllianceMember = require("./AllianceMember");
 
 class Alliance {
+    #landmarks = [];
     constructor(client, data) {
         this.allianceId = data.AID;
         this.allianceName = data.N;
         this.allianceDescription = parseChatJSONMessage(data.D);
-        this.languageId = data["ALL"];
+        this.languageId = data.ALL;
         this.memberLevel = data.ML;
         this.memberList = parseMembers(client, data.M, this);
         this.allianceStatusToOwnAlliance = data.DOA;
@@ -13,18 +17,27 @@ class Alliance {
         this.allianceFamePointsHighestReached = -1;
         this.canInvitedForHardPact = data.HP == 1;
         this.canInvitedForSoftPact = data.SP == 1;
-        if(data.IS)
+        if (data.IS)
             this.isSearchingMembers = data.IS;
-        this._landmarks = [];
         this.isOpenAlliance = data.IA != 0;
-        if(data.FR)
+        if (data.FR)
             this.freeRenames = data.FR;
         this.might = parseInt(data.MP);
     }
     get landmarks() {
-        console.error("get landmarks() Not Implememented");
-        //Door de leden heen gaan en de landmarks zo verzamelen(?);
-        return this._landmarks;
+        return new Promise((resolve, reject) => {
+            if (this.#landmarks.length !== 0) resolve(this.#landmarks);
+            console.error("get landmarks() Not Implememented");
+            //Door de leden heen gaan en de landmarks zo verzamelen(?);
+            reject(this._landmarks);
+        })
+    }
+    /**
+     * @private
+     * @param {(CapitalMapobject | MonumentMapobject | KingstowerMapobject)[]} value
+     */
+    set _landmarks(value) {
+        this.#landmarks = value;
     }
     _add_or_update_landmarks(landmarks) {
         console.error("_add_or_update_landmarks Not Implememented");
@@ -52,12 +65,12 @@ function parseChatJSONMessage(msgText) {
 function parseMembers(client, members, _alliance) {
     /**@type {AllianceMember[]} */
     let allianceMembers = [];
-    for(let i in members){
+    for (let i in members) {
         let _memberData = members[i];
         let _member = new AllianceMember(client, _memberData, _alliance);
         allianceMembers.push(_member);
     }
-    allianceMembers.sort((a,b) => {
+    allianceMembers.sort((a, b) => {
         if (a.allianceRank < b.allianceRank) {
             return -1;
         }

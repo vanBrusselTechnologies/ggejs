@@ -1,3 +1,4 @@
+const MyAlliance = require("./../../../structures/MyAlliance");
 const {Socket} = require("node:net");
 const Client = require('./../../../Client');
 const Alliance = require('./../../../structures/Alliance');
@@ -10,16 +11,19 @@ module.exports = {
      * @param {object} params
      */
     execute(socket, errorCode, params) {
-
-        if (errorCode == 114 || !params || !params.A || params.A == undefined) {
+        if (errorCode === 114 || !params || !params.A || params.A == undefined) {
             return socket["__get_alliance_error"] = "Alliance not found!";
         }
-        const alliance = new Alliance(socket.client, params.A);
+        let _alliance;
+        if(params.A.A)
+            _alliance = new MyAlliance(socket.client, params.A);
+        else
+            _alliance = new Alliance(socket.client, params.A);
         /**
          * @type {Client}
          */
         const client = socket.client;
-        client.alliances._add_or_update(alliance);
+        client.alliances._add_or_update(_alliance);
         socket["__alliance_found"] = true;
         socket["_searching_alliance_id"] = -1;
     }

@@ -2,23 +2,27 @@ const onJson = require('./onReceived/handlers/json.js');
 const onString = require('./onReceived/handlers/string.js');
 const onXml = require('./onReceived/handlers/xml.js');
 const xt = require('./commands/handlers/xt');
-const fs = require('fs');
+const Socket = require('node:net').Socket;
 
 let _alliances = {};
 let _players = {};
 
 let unfinishedDataString = "";
 /**
- * 
+ * @param {Socket} socket
  * @param {Buffer} data
  */
 function internal_OnData(socket, data) {
     let msg = data.toString('utf-8');
-    if (msg.startsWith("%xt%ain%1%0%{") && !(msg.charAt(msg.length - 3) == "}" && msg.charAt(msg.length - 2) == "%" && msg.charCodeAt(msg.length - 1) == 0)) {
+    if ((unfinishedDataString.startsWith("%xt%ain%1%0%{") || msg.startsWith("%xt%ain%1%0%{")) && !(msg.charAt(msg.length - 3) === "}" && msg.charAt(msg.length - 2) === "%" && msg.charCodeAt(msg.length - 1) === 0)) {
         unfinishedDataString = unfinishedDataString + msg;
         return;
     }
-    else if (!msg.startsWith("%xt%ain%") && msg.startsWith("%") && !(msg.charAt(msg.length - 2) == "%" && msg.charCodeAt(msg.length - 1) == 0)) {
+    else if ((unfinishedDataString.startsWith("%xt%gbd%1%0%{") || msg.startsWith("%xt%gbd%1%0%{")) && !(msg.charAt(msg.length - 3) === "}" && msg.charAt(msg.length - 2) === "%" && msg.charCodeAt(msg.length - 1) === 0)) {
+        unfinishedDataString = unfinishedDataString + msg;
+        return;
+    }
+    else if (!msg.startsWith("%xt%ain%") && (msg.startsWith("%") || unfinishedDataString.startsWith("%")) && !(msg.charAt(msg.length - 2) === "%" && msg.charCodeAt(msg.length - 1) === 0)) {
         unfinishedDataString = unfinishedDataString + msg;
         return;
     }
@@ -28,27 +32,27 @@ function internal_OnData(socket, data) {
     let msgChars = msg.split("");
     let _msgPart = "";
     for (let i = 0; i < msgChars.length; i++) {
-        if (msgChars[i].charCodeAt(0) == 0) {
-            if (_msgPart != "")
+        if (msgChars[i].charCodeAt(0) === 0) {
+            if (_msgPart !== "")
                 msgParts.push(_msgPart);
             _msgPart = "";
         }
         else {
             _msgPart += msgChars[i];
-            if (i == msgChars.length - 1 && _msgPart != "")
+            if (i === msgChars.length - 1 && _msgPart !== "")
                 msgParts.push(_msgPart);
         }
     }
     for (let i = 0; i < msgParts.length; i++) {
         let _msg = msgParts[i];
         let firstChar = _msg.charAt(0);
-        if (firstChar == "<") {
+        if (firstChar === "<") {
             onXml.execute(socket, _msg);
         }
-        else if (firstChar == "%") {
+        else if (firstChar === "%") {
             onString.execute(socket, _msg);
         }
-        else if (firstChar == "{") {
+        else if (firstChar === "{") {
             onJson.execute(socket, _msg);
         }
     }

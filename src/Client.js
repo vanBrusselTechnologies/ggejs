@@ -28,7 +28,7 @@ class Client extends EventEmitter {
     connect() {
         return new Promise(async (resolve, reject) => {
             try {
-                if(this._socket["__connected"]) return;
+                if (this._socket["__connected"]) return;
                 await _connect(this._socket);
                 await _login(this._socket, this.#name, this.#password);
                 this.emit('connected');
@@ -38,6 +38,9 @@ class Client extends EventEmitter {
                 reject(e);
             }
         })
+    }
+    sendChatMessage(message) {
+        require('./e4kserver/commands/sendAllianceChatMessageCommand').execute(this._socket, message);
     }
 }
 

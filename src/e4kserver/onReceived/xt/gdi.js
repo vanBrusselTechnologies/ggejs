@@ -11,7 +11,7 @@ module.exports = {
      */
     execute(socket, errorCode, params) {
 
-        if (errorCode == 21 || !params) {
+        if (errorCode === 21 || !params) {
             return socket["__get_player_error"] = "Player not found!";
         }
         const player = new Player(socket.client, params);

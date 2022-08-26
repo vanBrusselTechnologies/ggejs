@@ -50,12 +50,18 @@ class AllianceManager extends BaseManager {
             this.#alliances.push(_alliance);
         }
     }
-    get mine(){
-    //  if(this._client.players?.me?.playerId){
-    //      WaitUntil(socket, )
-    //  }
-        return null;
-    //  return this._client.
+    getMyAlliance(){
+        return new Promise(async (resolve, reject) => {
+            try {
+                let _player = await this._client.players.getThisPlayer();
+                if(!_player.allianceId) reject("You are not in an alliance!");
+                let alliance = this.getById(_player.allianceId);
+                resolve(alliance);
+            }
+            catch (e) {
+                reject(e);
+            }
+        })
     }
 }
 

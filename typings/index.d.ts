@@ -10,6 +10,7 @@ export class Client extends EventEmitter {
     public movements: MovementManager;
     public alliances: AllianceManager;
     public players: PlayerManager;
+    public sendChatMessage(message: string): void;
     public on<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
     public addListener<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
     emit<K extends keyof ClientEvents>(eventName: K, ...args: ClientEvents[K]): boolean;
@@ -34,8 +35,8 @@ export class AllianceManager extends BaseManager {
     private constructor(client: Client);
     public getById(id: number): Promise<Alliance>;
     public find(name: string): Promise<Alliance>;
-    private _add_or_update(_alliance: Alliance): void;
-    public get mine(): MyAlliance;
+    private _add_or_update(_alliance: Alliance | MyAlliance): void;
+    public getMyAlliance(): Promise<MyAlliance>;
 }
 
 export class PlayerManager extends BaseManager {
@@ -43,10 +44,11 @@ export class PlayerManager extends BaseManager {
     public getById(id: number): Promise<Player>;
     public find(name: string): Promise<Player>;
     private _add_or_update(_player: Player): void;
-    //public get me(): Player;
+    public getThisPlayer(): Promise<Player>;
+    private _setThisPlayer(val: number): void;
 }
 
-export type Movement = BasicMovement | ArmyAttackMovement | ArmyTravelMovement;
+export type Movement = BasicMovement | ArmyAttackMovement | ArmyTravelMovement | ConquerMovement;
 
 export class BasicMovement {
     protected constructor(client: Client, data);
@@ -100,15 +102,26 @@ export class Alliance {
     public canInvitedForHardPact: boolean;
     public canInvitedForSoftPact: boolean;
     public isSearchingMembers: boolean;
-    public get landmarks(): Mapobject[];
     public isOpenAlliance: boolean;
     public freeRenames: number;
     public might: number;
+    public get landmarks(): Promise<(CapitalMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject)[]>;
     private _add_or_update_landmarks(landmarks: Mapobject[]): void;
 }
 
 export class MyAlliance extends Alliance {
     private constructor(client: Client, data);
+    public isAutoWarOn: boolean;
+    public applicationAmount: number;
+    public announcement: string;
+    public aquaPoints: number;
+    public cargoPointsRanking: number;
+    public storage: Good[];
+    public statusList: AllianceStatusListItem[];
+    public capitals: CapitalMapobject[];
+    public metropols: MetropolMapobject[];
+    public kingstowers: KingstowerMapobject[];
+    public monuments: MonumentMapobject[];
 }
 
 export class AllianceMember {
@@ -119,6 +132,23 @@ export class AllianceMember {
     public paragonLevel: number;
     public alliance: Alliance;
     public allianceRank: number;
+    public donations?: AllianceDonations;
+    public activityStatus?: number;
+}
+
+export class AllianceStatusListItem {
+    private constructor(client: Client, data);
+    public allianceId: number;
+    public allianceName: string;
+    public allianceStatus: number;
+    public allianceStatusConfirmed: boolean;
+}
+
+export class AllianceDonations {
+    private constructor(client: Client, data);
+    public coins: number
+    public rubies: number;
+    public res: number;
 }
 
 export class ChatMessage {
@@ -138,8 +168,8 @@ export class CompactArmy {
 }
 
 export class Good {
-    name: string;
-    count: number;
+    public name: string;
+    public count: number;
 }
 
 export class Lord {
@@ -199,7 +229,7 @@ export class Unit {
 }
 
 //#region Mapobject
-export type Mapobject = BasicMapobject | BossDungeonMapobject | CapitalMapobject | CastleMapobject | DungeonMapobject | EmptyMapobject | InteractiveMapobject | KingstowerMapobject | MonumentMapobject | VillageMapobject;
+export type Mapobject = BasicMapobject | BossDungeonMapobject | CapitalMapobject | CastleMapobject | DungeonMapobject | EmptyMapobject | InteractiveMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject | VillageMapobject;
 
 export class BasicMapobject {
     public areaType: number;
@@ -282,6 +312,10 @@ export class MonumentMapobject extends BasicMapobject {
     public customName: string;
     public lastSpyDate?: Date;
     public kingdomId: number;
+}
+
+export class MetropolMapobject extends CapitalMapobject {
+
 }
 
 export class VillageMapobject extends BasicMapobject {
