@@ -31,6 +31,14 @@ class MovementManager extends BaseManager {
             }
         }
     }
+    _remove(_movementId){
+        for(i in this.#movements){
+            if(this.#movements[i].movementId === _movementId){
+                this.emit('movementCancelled', this.#movements[i]);
+                this.#movements.splice(i, 1);
+            }
+        }
+    }
 }
 
 /**
