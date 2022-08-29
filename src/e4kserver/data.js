@@ -14,15 +14,7 @@ let unfinishedDataString = "";
  */
 function internal_OnData(socket, data) {
     let msg = data.toString('utf-8');
-    if ((unfinishedDataString.startsWith("%xt%ain%1%0%{") || msg.startsWith("%xt%ain%1%0%{")) && !(msg.charAt(msg.length - 3) === "}" && msg.charAt(msg.length - 2) === "%" && msg.charCodeAt(msg.length - 1) === 0)) {
-        unfinishedDataString = unfinishedDataString + msg;
-        return;
-    }
-    else if ((unfinishedDataString.startsWith("%xt%gbd%1%0%{") || msg.startsWith("%xt%gbd%1%0%{")) && !(msg.charAt(msg.length - 3) === "}" && msg.charAt(msg.length - 2) === "%" && msg.charCodeAt(msg.length - 1) === 0)) {
-        unfinishedDataString = unfinishedDataString + msg;
-        return;
-    }
-    else if (!msg.startsWith("%xt%ain%") && (msg.startsWith("%") || unfinishedDataString.startsWith("%")) && !(msg.charAt(msg.length - 2) === "%" && msg.charCodeAt(msg.length - 1) === 0)) {
+    if (msg.charCodeAt(msg.length - 1) !== 0) {
         unfinishedDataString = unfinishedDataString + msg;
         return;
     }
@@ -46,15 +38,21 @@ function internal_OnData(socket, data) {
     for (let i = 0; i < msgParts.length; i++) {
         let _msg = msgParts[i];
         let firstChar = _msg.charAt(0);
-        if (firstChar === "<") {
+        let lastChar = msgParts[i].charAt(msgParts[i].length - 1);
+        if (firstChar === "<" && lastChar === ">") {
             onXml.execute(socket, _msg);
         }
-        else if (firstChar === "%") {
+        else if (firstChar === "%" && lastChar === "%") {
             onString.execute(socket, _msg);
         }
-        else if (firstChar === "{") {
+        else if (firstChar === "{" && lastChar === "}") {
             onJson.execute(socket, _msg);
         }
+        else
+            if (socket["debug"]){
+                console.log("received unfinished message!");
+                console.log(msgParts[i]);
+            }
     }
 }
 

@@ -21,5 +21,9 @@ module.exports = {
         if (handler != null) {
             handler.apply(this, [socket, event]);
         }
+        else{
+            if (socket["debug"])
+                console.log('[RECEIVED UNKNOWN EVENT] ' + JSON.stringify(event));
+        }
     }
 }

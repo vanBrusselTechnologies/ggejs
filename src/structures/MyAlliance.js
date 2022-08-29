@@ -1,6 +1,5 @@
 const AllianceStatusListItem = require("./AllianceStatusListItem");
 const Alliance = require("./Alliance");
-const AllianceMember = require("./AllianceMember");
 const Good = require("./Good");
 const AllianceDonations = require("./AllianceDonations");
 const CapitalMapobject = require("./CapitalMapobject");
@@ -52,13 +51,6 @@ function parseStatusList(client, data){
     return statusList;
 }
 
-/**
- * 
- * @param {*} client 
- * @param {*} data 
- * @param {AllianceMember[]} memberList 
- * @returns 
- */
 function parseAdditionalMemberInformation(client, data, memberList){
     for(i in data){
         for(j in memberList){

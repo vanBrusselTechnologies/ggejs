@@ -16,6 +16,7 @@ export class Client extends EventEmitter {
     emit<K extends keyof ClientEvents>(eventName: K, ...args: ClientEvents[K]): boolean;
 }
 
+//#region Managers
 export class BaseManager extends EventEmitter {
     private _client: Client;
     protected constructor(client: Client);
@@ -47,8 +48,10 @@ export class PlayerManager extends BaseManager {
     public getThisPlayer(): Promise<Player>;
     private _setThisPlayer(val: number): void;
 }
+//#endregion
 
-export type Movement = BasicMovement | ArmyAttackMovement | ArmyTravelMovement | ConquerMovement;
+//#region Movement
+export type Movement = BasicMovement | ArmyAttackMovement | ArmyTravelMovement | ConquerMovement | MarketMovement | SpyMovement;
 
 export class BasicMovement {
     protected constructor(client: Client, data);
@@ -79,8 +82,8 @@ export class ArmyAttackMovement extends BasicMovement {
 
 export class ArmyTravelMovement extends BasicMovement {
     private constructor(client: Client, data);
-    public army: CompactArmy;
-    public goods: Good[];
+    public army: { unit: Unit, count: number }[];
+    public goods?: Good[];
 }
 
 export class ConquerMovement extends BasicMovement {
@@ -88,6 +91,23 @@ export class ConquerMovement extends BasicMovement {
     public army: { unit: Unit, count: number }[];
 }
 
+export class MarketMovement extends BasicMovement {
+    private constructor(client: Client, data);
+    public goods: Good[];
+    public carriages: number;
+}
+
+export class SpyMovement extends BasicMovement {
+    private constructor(client: Client, data);
+    public spyType: number;
+    public spyCount: number;
+    public spyRisk: number;
+    public spyAccuracy?: number;
+    public sabotageDamage?: number;
+}
+//#endregion
+
+//#region Alliance
 export class Alliance {
     protected constructor(client: Client, data);
     public allianceId: number;
@@ -157,6 +177,7 @@ export class ChatMessage {
     public senderPlayerId: number;
     public senderPlayerName: string;
 }
+//#endregion
 
 export class CompactArmy {
     private constructor(client: Client, data);
@@ -165,6 +186,8 @@ export class CompactArmy {
     public right: { unit: Unit, count: number }[];
     public supportTools: { unit: Unit, count: number }[];
     public armySize: number;
+    public soldierCount: number;
+    public toolCount: number;
 }
 
 export class Good {
@@ -172,8 +195,80 @@ export class Good {
     public count: number;
 }
 
+//#region Lord and Equipment
 export class Lord {
+    public id: number;
+    public name: string;
+    public wins: number;
+    public defeats: number;
+    public winSpree: number;
+    public equipments: Equipment[] | RelicEquipment[];
+    public isRelic?: boolean;
+    public gems: Gem[] | RelicGem[];
+    public effects: Effect[];
+    public wearerId: number;
+    public pictureId: number;
+}
 
+export class Equipment {
+    public id: number;
+    public slotId: number;
+    public wearerId: number;
+    public rarityId: number;
+    public pictureId: number;
+    public canSlotGem: boolean;
+    public enhancementLevel: number;
+    public setId: number;
+    public effects: Effect[];
+    public attachedGem?: Gem;
+    public equippedLord?: Lord;
+}
+
+export class RelicEquipment {
+    public id: number;
+    public slotId: number;
+    public wearerId: number;
+    public rarityId: number;
+    public canSlotGem: boolean;
+    public enhancementLevel: number;
+    public relicTypeId: number;
+    public relicCategoryId: number;
+    public mightValue: number;
+    public effects: RelicEffect[];
+    public attachedGem?: RelicGem;
+    public equippedLord?: Lord;
+}
+
+export class Gem {
+    public id: number;
+    public setId?: number;
+    public effects: Effect[];
+    public attachedEquipment?: Equipment;
+}
+
+export class RelicGem {
+    public id: number;
+    public slotId: number;
+    public enhancementLevel: number;
+    public relicTypeId: number;
+    public relicCategoryId: number;
+    public mightValue: number;
+    public effects: RelicEffect[];
+    public attachedEquipment?: RelicEquipment;
+}
+//#endregion
+
+export class Effect {
+    public effectId: number;
+    public power: number;
+    public name: string;
+    public capId: number;
+    public uncappedPower: number;
+}
+
+export class RelicEffect extends Effect {
+    public relicEffectId: number;
+    public power: number;
 }
 
 export class Player {
@@ -222,10 +317,10 @@ export class Player {
     factionNoobProtectionEndTime?: Date;
 }
 
-
 export class Unit {
     private constructor(client: Client, wodId: number);
     public wodId: number;
+    public isSoldier: boolean;
 }
 
 //#region Mapobject
@@ -328,6 +423,8 @@ export class VillageMapobject extends BasicMapobject {
 }
 //#endregion
 
+
+//#region Events
 export interface ClientEvents {
     serverShutdown: [];
     connected: [];
@@ -337,6 +434,7 @@ export interface ClientEvents {
 export interface MovementEvents {
     movementAdd: [movement: Movement];
     movementUpdate: [oldMovement: Movement, newMovement: Movement];
+    movementCancelled: [movement: Movement];
 }
 
 export interface ConstantsEvents {
@@ -344,7 +442,12 @@ export interface ConstantsEvents {
     MOVEMENT_NEW: "movementAdd";
     MOVEMENT_ADD: "movementAdd";
     MOVEMENT_UPDATE: "movementUpdate";
+    MOVEMENT_CANCEL: "movementCancelled";
+    SERVER_SHUTDOWN: "serverShutdown";
+    CONNECTED: "connnected";
+    CHAT_MESSAGE: "chatMessage";
 }
+//#endregion
 
 export const Constants: {
     Events: ConstantsEvents;

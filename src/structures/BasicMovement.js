@@ -25,10 +25,10 @@ class BasicMovement {
         this.ownerArea = this.direction === 0 ? this.sourceArea : this.targetArea;
         this.kingdomId = data.M.KID;
         this.horseBoosterWodId = data.M.HBW;
-        if (data.M.UM) {
-            this.endWaitTime = new Date(now + (data.M.TT - data.M.PT + data.M.UM.TWD - data.M.UM.PWD) * 1000);
-            if (data.M.UM.L) {
-                this.lord = new Lord(client, data.M.UM.L);
+        if (data.UM) {
+            this.endWaitTime = new Date(now + (data.M.TT - data.M.PT + data.UM.TWD - data.UM.PWD) * 1000);
+            if (data.UM.L) {
+                this.lord = new Lord(client, data.UM.L);
             }
         }
     }

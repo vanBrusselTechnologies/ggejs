@@ -2,22 +2,48 @@ const Unit = require("./Unit");
 
 class CompactArmy {
     armySize = 0;
+    soldierCount = 0;
+    toolCount = 0;
     constructor(client, data) {
         this.left = parse(client, data.L);
         this.middle = parse(client, data.M);
         this.right = parse(client, data.R);
         this.supportTools = parse(client, data.AST);
         for (i in this.left) {
-            this.armySize += this.left[i].count;
+            let _count = this.left[i].count;
+            this.armySize += _count;
+            let _unit = this.left[i].unit;
+            if (_unit.isSoldier)
+                this.soldierCount += _count;
+            else
+                this.toolCount += _count;
         }
         for (i in this.middle) {
-            this.armySize += this.middle[i].count;
+            let _count = this.middle[i].count;
+            this.armySize += _count;
+            let _unit = this.middle[i].unit;
+            if (_unit.isSoldier)
+                this.soldierCount += _count;
+            else
+                this.toolCount += _count;
         }
         for (i in this.right) {
-            this.armySize += this.right[i].count;
+            let _count = this.right[i].count;
+            this.armySize += _count;
+            let _unit = this.right[i].unit;
+            if (_unit.isSoldier)
+                this.soldierCount += _count;
+            else
+                this.toolCount += _count;
         }
         for (i in this.supportTools) {
-            this.armySize += this.supportTools[i].count;
+            let _count = this.supportTools[i].count;
+            this.armySize += _count;
+            let _unit = this.supportTools[i].unit;
+            if (_unit.isSoldier)
+                this.soldierCount += _count;
+            else
+                this.toolCount += _count;
         }
     }
 }
@@ -25,9 +51,11 @@ class CompactArmy {
 function parse(client, obj) {
     let output = [];
     for (i in obj) {
+        let _wodId = data[i][0];
+        let _count = data[i][1];
         output.push({
-            unit: new Unit(client, obj[i][0]),
-            count: obj[i][1],
+            unit: new Unit(client, _wodId),
+            count: _count,
         });
     }
     return output;
