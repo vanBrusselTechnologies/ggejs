@@ -5,6 +5,7 @@ class CompactArmy {
     soldierCount = 0;
     toolCount = 0;
     constructor(client, data) {
+        if(!data) return;
         this.left = parse(client, data.L);
         this.middle = parse(client, data.M);
         this.right = parse(client, data.R);
@@ -48,9 +49,9 @@ class CompactArmy {
     }
 }
 
-function parse(client, obj) {
+function parse(client, data) {
     let output = [];
-    for (i in obj) {
+    for (i in data) {
         let _wodId = data[i][0];
         let _count = data[i][1];
         output.push({

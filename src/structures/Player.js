@@ -4,7 +4,7 @@ const CastleMapobject = require("./CastleMapobject");
 const KingstowerMapobject = require("./KingstowerMapobject");
 const MonumentMapobject = require("./MonumentMapobject");
 const CapitalMapobject = require("./CapitalMapobject");
-const InteractiveMabobject = require("./InteractiveMapobject");
+const InteractiveMapobject = require("./InteractiveMapobject");
 
 class Player {
     constructor(client, data) {
@@ -64,7 +64,7 @@ function parseCastleList(client, data) {
                 case 12: mapObject = new CastleMapobject(client, obj.AI); break;
                 case 3: ;
                 case 22: mapObject = new CapitalMapobject(client, obj.AI); break;
-                default: mapObject = new InteractiveMabobject(client, obj.AI); break;
+                default: mapObject = new InteractiveMapobject(client, obj.AI); break;
             }
             if (obj.OGT) mapObject["remainingOpenGateTime"] = obj.OGT;
             if (obj.OGC) mapObject["openGateCounter"] = obj.OGC;

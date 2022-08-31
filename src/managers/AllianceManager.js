@@ -7,11 +7,6 @@ const { WaitUntil } = require('./../tools/wait');
 
 class AllianceManager extends BaseManager {
     #alliances = [];
-    constructor(client) {
-        super(client);
-        this.on.bind(this);
-        this._client = client;
-    }
     getById(id) {
         return new Promise(async (resolve, reject) => {
             try {

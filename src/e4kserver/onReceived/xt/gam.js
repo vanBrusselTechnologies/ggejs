@@ -1,10 +1,10 @@
 const Client = require('./../../../Client');
-const Movement = require("./../../../structures/BasicMovement");
 const ArmyAttackMovement = require('./../../../structures/ArmyAttackMovement');
 const ArmyTravelMovement = require('./../../../structures/ArmyTravelMovement');
 const ConquerMovement = require('./../../../structures/ConquerMovement');
 const MarketMapmovement = require('./../../../structures/MarketMovement');
 const SpyMovement = require('./../../../structures/SpyMovement');
+const BasicMovement = require('./../../../structures/BasicMovement');
 
 module.exports = {
     name: "gam",
@@ -34,7 +34,7 @@ module.exports = {
                         console.log(_movObj);
                         console.log(_movObj.A);
                     }
-                    _movement = new Movement(socket.client, _movObj);
+                    _movement = new BasicMovement(socket.client, _movObj);
                 }
             }
             if (_movement.sourceArea !== null || _movement.movementType === 6)

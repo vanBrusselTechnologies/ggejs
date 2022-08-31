@@ -4,10 +4,6 @@ const BaseManager = require('./BaseManager');
 
 class MovementManager extends BaseManager {
     #movements = [];
-    constructor(client) {
-        super(client);
-        this.on.bind(this);
-    }
     get() {
         return [...this.#movements];
     }

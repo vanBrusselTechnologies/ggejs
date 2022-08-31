@@ -8,10 +8,6 @@ const { WaitUntil } = require('./../tools/wait');
 class PlayerManager extends BaseManager {
     #thisPlayerId = 0;
     #players = [];
-    constructor(client) {
-        super(client);
-        this.on.bind(this);
-    }
     getById(id) {
         return new Promise(async (resolve, reject) => {
             try {

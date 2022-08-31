@@ -10,6 +10,7 @@ export class Client extends EventEmitter {
     public movements: MovementManager;
     public alliances: AllianceManager;
     public players: PlayerManager;
+    public worldmaps: WorldmapManager;
     public sendChatMessage(message: string): void;
     public on<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
     public addListener<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
@@ -47,6 +48,11 @@ export class PlayerManager extends BaseManager {
     private _add_or_update(_player: Player): void;
     public getThisPlayer(): Promise<Player>;
     private _setThisPlayer(val: number): void;
+}
+
+export class WorldmapManager extends BaseManager {
+    private _worldmapCaches: { date: Date, worldmap: Worldmap }[];
+    public get(kingdomId: number): Promise<Worldmap>;
 }
 //#endregion
 
@@ -272,49 +278,49 @@ export class RelicEffect extends Effect {
 }
 
 export class Player {
-    playerId: number;
-    isDummy: boolean;
-    playerName: string;
-    playerLevel: number;
-    paragonLevel: number;
-    noobEndTime?: Date;
-    honor: number;
-    famePoints: number;
-    highestFamePoints: number;
-    isRuin: boolean;
-    allianceId: number;
-    allianceName: string;
-    allianceRank: number;
-    isSearchingAlliance: number;
-    peaceEndTime?: Date;
-    castles: CastleMapobject[] | CapitalMapobject[];
-    villages: {
+    public playerId: number;
+    public isDummy: boolean;
+    public playerName: string;
+    public playerLevel: number;
+    public paragonLevel: number;
+    public noobEndTime?: Date;
+    public honor: number;
+    public famePoints: number;
+    public highestFamePoints: number;
+    public isRuin: boolean;
+    public allianceId: number;
+    public allianceName: string;
+    public allianceRank: number;
+    public isSearchingAlliance: number;
+    public peaceEndTime?: Date;
+    public castles: CastleMapobject[] | CapitalMapobject[];
+    public villages: {
         public: {
             village: VillageMapobject,
             units?: { unit: Unit, count: number }[]
         }[]
         private: { privateVillageId: number, uniqueId: number }[]
     };
-    kingstowers: {
+    public kingstowers: {
         kingstower: KingstowerMapobject;
         units?: { unit: Unit, count: number }[];
     }[];
-    monuments: {
+    public monuments: {
         monument: MonumentMapobject;
         units?: { unit: Unit, count: number }[];
     }[];
-    hasPremiumFlag: boolean;
-    might: number;
-    achievementPoints: number;
-    prefixTitleId: number;
-    suffixTitleId: number;
-    relocateDurationEndTime?: Date;
-    factionId?: number;
-    factionMainCampId?: number;
-    factionIsSpectator?: boolean;
-    factionProtectionStatus?: number;
-    factionProtectionEndTime?: Date;
-    factionNoobProtectionEndTime?: Date;
+    public hasPremiumFlag: boolean;
+    public might: number;
+    public achievementPoints: number;
+    public prefixTitleId: number;
+    public suffixTitleId: number;
+    public relocateDurationEndTime?: Date;
+    public factionId?: number;
+    public factionMainCampId?: number;
+    public factionIsSpectator?: boolean;
+    public factionProtectionStatus?: number;
+    public factionProtectionEndTime?: Date;
+    public factionNoobProtectionEndTime?: Date;
 }
 
 export class Unit {
@@ -323,8 +329,27 @@ export class Unit {
     public isSoldier: boolean;
 }
 
+export class Worldmap {
+    public kingdomId: number;
+    public mapobjects: Mapobject[];
+    private _addAreaMapObjects(objs: Mapobject[]): void;
+    private _clear(): void;
+}
+
 //#region Mapobject
-export type Mapobject = BasicMapobject | BossDungeonMapobject | CapitalMapobject | CastleMapobject | DungeonMapobject | EmptyMapobject | InteractiveMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject | VillageMapobject;
+export type Mapobject = BasicMapobject | AlienInvasionMapobject | BossDungeonMapobject | CapitalMapobject | CastleMapobject | DungeonMapobject | DungeonIsleMapobject | DynamicMapobject | EmptyMapobject | InteractiveMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject | NomadInvasionMapObject | NomadKhanInvasionMapObject | ResourceIsleMapobject | VillageMapobject;
+
+export class AlienInvasionMapobject extends BasicMapobject {
+    public dungeonLevel: number;
+    public hasPeaceMode: boolean;
+    public wallLevel: number;
+    public gateLevel: number;
+    public moatLevel: number;
+    public wasRerolled: boolean;
+    public lastSpyDate?: Date;
+    public travelDistance: number;
+    public eventId: number;
+}
 
 export class BasicMapobject {
     public areaType: number;
@@ -367,6 +392,20 @@ export class DungeonMapobject extends BasicMapobject {
     public attackCount: number;
     public attackCooldownEnd?: Date;
     public kingdomId: number;
+}
+
+export class DungeonIsleMapobject extends BasicMapobject {
+    public isleId: number;
+    public lastSpyDate?: Date;
+    public attackCount: number;
+    public attackCooldownEnd?: Date;
+    public reappearDate?: Date;
+    public kingdomId: number;
+    public isVisibleOnMap: boolean;
+}
+
+export class DynamicMapobject extends BasicMapobject {
+
 }
 
 export class EmptyMapobject extends BasicMapobject {
@@ -413,6 +452,45 @@ export class MetropolMapobject extends CapitalMapobject {
 
 }
 
+export class NomadInvasionMapObject extends BasicMapobject {
+    public lastSpyDate?: Date;
+    public attackCooldownEnd?: Date;
+    public victoryCount: number;
+    public difficultyCampId: number;
+    public baseWallBonus: number;
+    public baseGateBonus: number;
+    public baseMoatBonus: number;
+    public isVisibleOnMap: boolean;
+    public eventId: number;
+    public travelDistance: number;
+}
+
+export class NomadKhanInvasionMapObject extends BasicMapobject {
+    public lastSpyDate?: Date;
+    public allianceCampId: number;
+    public attackCooldownEnd?: Date;
+    public totalCooldown: number;
+    public skipCost: number;
+    public victoryCount: number;
+    public difficultyCampId: number;
+    public baseWallBonus: number;
+    public baseGateBonus: number;
+    public baseMoatBonus: number;
+    public isVisibleOnMap: boolean;
+    public eventId: number;
+    public travelDistance: number;
+}
+
+export class ResourceIsleMapobject extends BasicMapobject {
+    public objectId: number;
+    public occupierId: number;
+    public isleId: number;
+    public customName: string;
+    public lastSpyDate?: Date;
+    public kingdomId: number;
+    public occupationFinishedDate: Date;
+}
+
 export class VillageMapobject extends BasicMapobject {
     public objectId: number;
     public occupierId: number;
@@ -451,4 +529,44 @@ export interface ConstantsEvents {
 
 export const Constants: {
     Events: ConstantsEvents;
+    Kingdom: Kingdom;
+    WorldmapArea: WorldmapArea;
+    Movement: Movement;
+}
+
+export interface Kingdom {
+    Classic: 0,
+    Icecream: 2,
+    Dessert: 1,
+    Volcano: 3,
+    Island: 4,
+    Faction: 10
+}
+
+export interface WorldmapArea {
+    Empty: 0;
+    MainCastle: 1;
+    Dungeon: 2;
+    Capital: 3;
+    Outpost: 4;
+    VillageMapobject: 10;
+    BossDungeon: 11;
+    KingdomCastle: 12;
+    AlienInvasion: 21;
+    Metropol: 22;
+    Kingstower: 23;
+    ResourceIsle: 24;
+    DungeonIsle: 25;
+    Monument: 26;
+    NomadInvasion: 27;
+    Dynamic: 31;
+    NomadKhanInvasion: 35;
+}
+
+export interface Movement {
+    Attack: 0;
+    Travel: 2;
+    Spy: 3;
+    Market: 4;
+    Conquer: 5;
 }

@@ -20,7 +20,7 @@ function _WaitUntil(socket, field, errorField = "") {
                 reject(socket[errorField]);
             }
             else {
-                await new Promise(resolve => { setTimeout(() => resolve(), 5); });
+                await new Promise(resolve => { setTimeout(() => resolve(), 1); });
                 await _WaitUntil(socket, field, errorField);
                 resolve();
             }

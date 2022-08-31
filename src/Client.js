@@ -2,9 +2,10 @@
 
 const Socket = require('node:net').Socket;
 const connection = require('./e4kserver/connection');
-const MovementManager = require('./managers/MovementManager');
 const AllianceManager = require('./managers/AllianceManager');
+const MovementManager = require('./managers/MovementManager');
 const PlayerManager = require('./managers/PlayerManager');
+const WorldmapManager = require('./managers/WorldmapManager');
 const { WaitUntil } = require('./tools/wait');
 const EventEmitter = require('node:events');
 
@@ -21,6 +22,7 @@ class Client extends EventEmitter {
             this.movements = new MovementManager(this);
             this.alliances = new AllianceManager(this);
             this.players = new PlayerManager(this);
+            this.worldmaps = new WorldmapManager(this);
             this._socket["debug"] = debug;
             this._socket["client"] = this;
         }

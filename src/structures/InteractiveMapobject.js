@@ -1,8 +1,9 @@
 const BasicMapobject = require("./BasicMapobject");
 
-class InteractiveMabobject extends BasicMapobject {
+class InteractiveMapobject extends BasicMapobject {
     constructor(client, data) {
         super(client, data);
+        if(data.length <= 3) return;
         this.objectId = data[3];
         this.ownerId = data[4];
         this.keepLevel = data[5];
@@ -24,4 +25,4 @@ class InteractiveMabobject extends BasicMapobject {
     }
 }
 
-module.exports = InteractiveMabobject;
+module.exports = InteractiveMapobject;

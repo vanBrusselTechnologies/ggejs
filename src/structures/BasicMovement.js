@@ -3,11 +3,17 @@ const CastleMapobject = require("./CastleMapobject");
 const Lord = require("./Lord");
 const DungeonMapobject = require("./DungeonMapobject");
 const CapitalMapobject = require("./CapitalMapobject");
-const InteractiveMabobject = require("./InteractiveMapobject");
+const InteractiveMapobject = require("./InteractiveMapobject");
 const VillageMapobject = require("./VillageMapobject");
 const BossDungeonMapobject = require("./BossDungeonMapobject");
 const KingstowerMapobject = require("./KingstowerMapobject");
 const MonumentMapobject = require("./MonumentMapobject");
+const AlienInvasionMapobject = require('./AlienInvasionMapobject');
+const DynamicMapobject = require('./DynamicMapobject');
+const ResourceIsleMapobject = require("./ResourceIsleMapobject");
+const DungeonIsleMapobject = require("./DungeonIsleMapobject");
+const NomadInvasionMapobject = require("./NomadInvasionMapobject");
+const NomadKhanInvasionMapobject = require("./NomadKhanInvasionMapobject");
 
 class BasicMovement {
     constructor(client, data) {
@@ -44,12 +50,18 @@ function getAreaFromInfo(client, info) {
         case 10: return new VillageMapobject(client, info);
         case 11: return new BossDungeonMapobject(client, info);
         case 12: return new CastleMapobject(client, info);
+        case 21: return new AlienInvasionMapobject(client, data);
         case 22: return new CapitalMapobject(client, info);
         case 23: return new KingstowerMapobject(client, info);
+        case 24: return new ResourceIsleMapobject(client, info);
+        case 25: return new DungeonIsleMapobject(client, info);
         case 26: return new MonumentMapobject(client, info);
+        case 27: return new NomadInvasionMapobject(client, info);
+        case 31: return new DynamicMapobject(client, data);
+        case 35: return new NomadKhanInvasionMapobject(client, info);
         default:
             console.log(`Current mapobject (areatype ${info[0]}) isn't fully supported!`);
-            return new InteractiveMabobject(client, info);
+            return new InteractiveMapobject(client, info);
     }
 }
 

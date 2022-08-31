@@ -21,6 +21,10 @@ module.exports = {
                 _allianceName = _allianceName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 return _allianceName === _name;
             });
+            if(!_alliance){
+                _alliance = leaderbord.find(x => x[0].toString() === socket["_searching_alliance_name"])
+            }
+            if(!_alliance) return socket["__get_player_error"] = "Alliance not found!";
             socket["__found_alliance_id"] =_alliance[2][0];
             socket["__alliance_found"] = true;
             socket["_searching_alliance_name"] = "";
@@ -37,6 +41,10 @@ module.exports = {
                 _playerName = _playerName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 return _playerName === _name;
             });
+            if(!_player){
+                _player = leaderbord.find(x => x[0].toString() === socket["_searching_player_name"])
+            }
+            if(!_player) return socket["__get_player_error"] = "Player not found!";
             socket["__found_player_id"] =_player[2].OID;
             socket["__player_found"] = true;
             socket["_searching_player_name"] = "";
