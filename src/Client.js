@@ -2,6 +2,7 @@
 
 const Socket = require('node:net').Socket;
 const connection = require('./e4kserver/connection');
+const e4kData = require('./e4kserver/data');
 const AllianceManager = require('./managers/AllianceManager');
 const MovementManager = require('./managers/MovementManager');
 const PlayerManager = require('./managers/PlayerManager');
@@ -25,6 +26,7 @@ class Client extends EventEmitter {
             this.worldmaps = new WorldmapManager(this);
             this._socket["debug"] = debug;
             this._socket["client"] = this;
+            addSocketListeners(this._socket);
         }
     }
     connect() {
@@ -55,6 +57,7 @@ function _connect(socket) {
         try {
             connection.connect(socket);
             await WaitUntil(socket, "__connected", "__connection_error");
+            socket["reconnecting"] = false;
             resolve();
         }
         catch (e) {
@@ -83,6 +86,38 @@ function _login(socket, name, password) {
             reject(e);
         }
     })
+}
+
+/**
+ * 
+ * @param {Socket} socket 
+ */
+function addSocketListeners(socket) {
+    socket.addListener("error", (err) => {
+        console.log("\x1b[31m[SOCKET ERROR] " + err + "\x1b[0m");
+        socket.end(() => { });
+    });
+    socket.addListener('data', (data) => { e4kData.onData(socket, data); });
+    socket.addListener('end', () => {
+        if (socket["debug"])
+            console.log("Socket Ended!");
+        socket["__connected"] = false;
+    });
+    socket.addListener('timeout', () => {
+        if (socket["debug"])
+            console.log("Socket Timeout!");
+        socket.end(() => { });
+    });
+    socket.addListener('close', hadError => {
+        if (socket["debug"])
+            console.log("Socket Closed!" + (hadError ? " Caused by error!" : ""));
+        socket["__connected"] = false;
+        if(!socket["reconnecting"]){
+            socket["reconnecting"] = true;
+            setTimeout(() => (socket.client.connect()), 300000);
+        }
+    });
+    socket.addListener('ready', () => { connection._sendVersionCheck(socket); });
 }
 
 module.exports = Client;

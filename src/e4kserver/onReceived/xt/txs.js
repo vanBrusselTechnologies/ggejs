@@ -8,6 +8,11 @@ module.exports = {
      * @param {object} params
      */
     execute(socket, errorCode, params) {
-        setTimeout(collectTaxCommand, (params.txi.TX.RT + Math.random() * 10) * 1000, socket);
+        if (socket["inTaxTimeout"]) return;
+        socket["inTaxTimeout"] = true;
+        setTimeout(function () {
+            socket["inTaxTimeout"] = false;
+            collectTaxCommand(socket);
+        }, (params.txi.TX.RT + Math.random() * 10) * 1000, socket);
     }
 }

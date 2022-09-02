@@ -13,7 +13,10 @@ module.exports = {
             let json = JSON.parse(params.shift());
             nextPingTimeout = parseInt(json.NP) * 1000;
         }
+        if(socket["inPingTimeout"]) return;
+        socket["inPingTimeout"] = true;
         setTimeout(function () {
+            socket["inPingTimeout"] = false;
            sendPingPong(socket);
         }, nextPingTimeout);
     }

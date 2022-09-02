@@ -1,4 +1,3 @@
-const e4kServerData = require('./data');
 const Socket = require("node:net").Socket;
 
 module.exports = {
@@ -7,30 +6,6 @@ module.exports = {
      * @param {Socket} _socket
      */
     connect(_socket) {
-        if (_socket.listenerCount() === 0) {
-            _socket.addListener("error", (err) => {
-                console.log("\x1b[31m[SOCKET ERROR] " + err + "\x1b[0m");
-                _socket.end(() => { });
-            });
-            _socket.addListener('data', (data) => { e4kServerData.onData(_socket, data); });
-            _socket.addListener('end', () => {
-                if (_socket["debug"])
-                    console.log("Socket Ended!");
-                _socket["__connected"] = false;
-            });
-            _socket.addListener('timeout', () => {
-                if (_socket["debug"])
-                    console.log("Socket Timeout!");
-                _socket.end(() => { });
-            });
-            _socket.addListener('close', hadError => {
-                if (_socket["debug"])
-                    console.log("Socket Closed!");
-                _socket["__connected"] = false;
-                setTimeout(() => (_socket.client.connect()), 300000);
-            });
-            _socket.addListener('ready', () => { sendVersionCheck(_socket); });
-        }
         _socket.connect(443, "e4k-live-nl1-game.goodgamestudios.com", () => { });
     },
     login(socket, name, password) {
@@ -58,6 +33,9 @@ module.exports = {
         socket["__loggedIn"] = true;
         require('./commands/pingpong.js').execute(socket);
         require('./commands/collectTaxCommand').execute(socket);
+    },
+    _sendVersionCheck(socket) {
+        sendVersionCheck(socket);
     }
 }
 

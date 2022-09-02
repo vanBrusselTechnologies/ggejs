@@ -1,4 +1,4 @@
-const {Client} = require('./../Client');
+const Client = require('./../Client');
 const {EventEmitter} = require('node:events');
 
 /**

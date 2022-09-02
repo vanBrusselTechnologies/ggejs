@@ -531,7 +531,7 @@ export const Constants: {
     Events: ConstantsEvents;
     Kingdom: Kingdom;
     WorldmapArea: WorldmapArea;
-    Movement: Movement;
+    Movement: Movements;
 }
 
 export interface Kingdom {
@@ -563,7 +563,7 @@ export interface WorldmapArea {
     NomadKhanInvasion: 35;
 }
 
-export interface Movement {
+export interface Movements {
     Attack: 0;
     Travel: 2;
     Spy: 3;
