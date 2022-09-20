@@ -1,16 +1,32 @@
+const Client = require("../Client");
 const BasicMovement = require("./BasicMovement");
 const Good = require("./Good");
 
 class MarketMovement extends BasicMovement {
+    /**
+     * 
+     * @param {Client} client 
+     * @param {object} data 
+     */
     constructor(client, data) {
         super(client, data);
-        if(data.MM)
+        if (data.MM) {
+            /** @type {Good[]} */
             this.goods = parseGoods(client, data.MM.G);
+            /** @type {number} */
             this.carriages = data.MM.C;
+        }
     }
 }
+
+/**
+ * 
+ * @param {Client} client 
+ * @param {Array} data 
+ * @returns {Good[]}
+ */
 function parseGoods(client, data) {
-    if(!data) return [];
+    if (!data) return [];
     let goods = [];
     for (i in data) {
         goods.push(new Good(client, data[i]));

@@ -5,6 +5,7 @@ const ConquerMovement = require('./../../../structures/ConquerMovement');
 const MarketMapmovement = require('./../../../structures/MarketMovement');
 const SpyMovement = require('./../../../structures/SpyMovement');
 const BasicMovement = require('./../../../structures/BasicMovement');
+const NpcAttackMovement = require('./../../../structures/NpcAttackMovement');
 
 module.exports = {
     name: "gam",
@@ -28,6 +29,7 @@ module.exports = {
                 case 3: _movement = new SpyMovement(socket.client, _movObj); break;
                 case 4: _movement = new MarketMapmovement(socket.client, _movObj); break;
                 case 5: _movement = new ConquerMovement(socket.client, _movObj); break;
+                case 11: _movement = new NpcAttackMovement(socket.client, _movObj); break;
                 default: {
                     console.log(`Current movement (movementType ${_movObj.M.T}) isn't fully supported!`);
                     if (socket["debug"]){

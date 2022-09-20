@@ -13,7 +13,7 @@ function _obj2xml(srcObj, trgObj = {}, depth = 0, objName = "") {
         trgObj.xmlStr = "<dataObj>" + this.eof;
     }
     else {
-        srcObjType = typeof srcObj === Array ? "a" : "o";
+        srcObjType = typeof srcObj === typeof [0, 1] ? "a" : "o";
         trgObj.xmlStr += "<obj t=\'" + srcObjType + "\' o=\'" + objName + "\'>";
     }
     for (var objName in srcObj) {
@@ -30,7 +30,7 @@ function _obj2xml(srcObj, trgObj = {}, depth = 0, objName = "") {
             trgObj.xmlStr += "<var n=\'" + objName + "\' t=\'" + objType.substr(0, 1) + "\'>" + _value + "</var>";
         }
         else if (objType == "object") {
-            obj2xml(_value, trgObj, depth + 1, objName);
+            _obj2xml(_value, trgObj, depth + 1, objName);
             trgObj.xmlStr += "</obj>";
         }
     }

@@ -10,6 +10,8 @@ module.exports = {
             case 0:
                 require('./../../connection.js').onLogin(socket);
                 break;
+            case 1:
+                require('./../../connection.js').onLogin(socket);
             case 2:
                 require('./../../connection.js').onLogin(socket, "AuthenticationProblem: Missing LoginData!");
                 break;

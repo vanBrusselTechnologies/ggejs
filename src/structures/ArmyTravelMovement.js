@@ -1,15 +1,29 @@
 const BasicMovement = require("./BasicMovement");
 const Good = require("./Good");
 const Unit = require("./Unit");
+const Client = require('./../Client');
 
 class ArmyTravelMovement extends BasicMovement {
+    /**
+     * 
+     * @param {Client} client 
+     * @param {*} data 
+     */
     constructor(client, data) {
         super(client, data);
+        /** @type {{ unit:Unit, count:number }[]} */
         this.army = parseArmy(client, data.A);
+        /** @type {Good[]} */
         this.goods = parseGoods(client, data.G);
     }
 }
 
+/**
+ * 
+ * @param {Client} client 
+ * @param {*} data 
+ * @returns {Good[]}
+ */
 function parseGoods(client, data) {
     let goods = []
     for (i in data) {
@@ -18,9 +32,15 @@ function parseGoods(client, data) {
     return goods;
 }
 
-function parseArmy(client, data){
+/**
+ * 
+ * @param {Client} client 
+ * @param {*} data 
+ * @returns {{ unit:Unit, count:number }[]}
+ */
+function parseArmy(client, data) {
     let army = [];
-    for(i in data){
+    for (i in data) {
         let _wodId = data[i][0];
         let _count = data[i][1];
         army.push({

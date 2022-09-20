@@ -1,12 +1,23 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
+const { Socket } = require('node:net');
+const Alliance = require('./../structures/Alliance');
+const MyAlliance = require('./../structures/MyAlliance');
 const searchAllianceByIdCommand = require('./../e4kserver/commands/searchAllianceById');
 const getAllianceRankingsCommand = require('./../e4kserver/commands/getAllianceRankings');
 const { WaitUntil } = require('./../tools/wait');
 
 class AllianceManager extends BaseManager {
+    /**
+     * @type {Alliance[]}
+     */
     #alliances = [];
+    /**
+     * 
+     * @param {number} id 
+     * @returns {Promise<Alliance>}
+     */
     getById(id) {
         return new Promise(async (resolve, reject) => {
             try {
@@ -19,11 +30,16 @@ class AllianceManager extends BaseManager {
             }
         })
     }
+    /**
+     * 
+     * @param {string} name
+     * @returns {Promise<Alliance>}
+     */
     find(name) {
         return new Promise(async (resolve, reject) => {
             try {
                 let _allianceId = await _getAllianceByName(this._client._socket, name);
-                if(_allianceId === 0) reject("Alliance not found!");
+                if (_allianceId === 0) reject("Alliance not found!");
                 let _alliance = await this.getById(_allianceId);
                 resolve(_alliance);
             }
@@ -32,6 +48,10 @@ class AllianceManager extends BaseManager {
             }
         })
     }
+    /**
+     * 
+     * @param {Alliance | MyAlliance} _alliance 
+     */
     _add_or_update(_alliance) {
         let found = false;
         for (let j in this.#alliances) {
@@ -45,11 +65,15 @@ class AllianceManager extends BaseManager {
             this.#alliances.push(_alliance);
         }
     }
-    getMyAlliance(){
+    /**
+     * 
+     * @returns {Promise<MyAlliance>}
+     */
+    getMyAlliance() {
         return new Promise(async (resolve, reject) => {
             try {
                 let _player = await this._client.players.getThisPlayer();
-                if(!_player.allianceId) reject("You are not in an alliance!");
+                if (!_player.allianceId) reject("You are not in an alliance!");
                 let alliance = this.getById(_player.allianceId);
                 resolve(alliance);
             }
@@ -60,6 +84,12 @@ class AllianceManager extends BaseManager {
     }
 }
 
+/**
+ * 
+ * @param {Socket} socket 
+ * @param {number} id 
+ * @returns {Promise<void>}
+ */
 function _getAllianceById(socket, id) {
     socket["_searching_alliance_id"] = id;
     socket["__alliance_found"] = false;
@@ -76,6 +106,12 @@ function _getAllianceById(socket, id) {
     });
 }
 
+/**
+ * 
+ * @param {Socket} socket 
+ * @param {string} name 
+ * @returns {Promise<number>}
+ */
 function _getAllianceByName(socket, name) {
     socket["_searching_alliance_name"] = name;
     socket["__alliance_found"] = false;

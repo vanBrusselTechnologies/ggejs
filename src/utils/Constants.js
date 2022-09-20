@@ -4,7 +4,7 @@ exports.Events = {
     MOVEMENT_UPDATE: "movementUpdate",
     MOVEMENT_CANCEL: "movementCancelled",
     SERVER_SHUTDOWN: "serverShutdown",
-    CONNECTED: "connnected",
+    CONNECTED: "connected",
     CHAT_MESSAGE: "chatMessage",
 }
 
@@ -31,7 +31,7 @@ exports.WorldmapArea = {
     Dungeon: 2,
     Capital: 3,
     Outpost: 4,
-    VillageMapobject: 10,
+    Village: 10,
     BossDungeon: 11,
     KingdomCastle: 12,
     AlienInvasion: 21,
@@ -43,4 +43,30 @@ exports.WorldmapArea = {
     NomadInvasion: 27,
     Dynamic: 31,
     NomadKhanInvasion: 35,
+}
+
+exports.AllianceMemberOnlineState = {
+    Online: 0,
+    InLast12Hour: 1,
+    InLast48Hour: 2,
+    InLast7Days: 3,
+    LongAgo: 4,
+    Green: 0,
+    Yellow: 1,
+    Orange: 2,
+    Red: 3,
+    Black: 4,
+}
+
+exports.AllianceRank = {
+    Leader: 0,
+    Coleader: 1,
+    Marshal: 2,
+    Treasurer: 3,
+    Diplomat: 4,
+    Recruiter: 5,
+    General: 6,
+    Sergeant: 7,
+    Member: 8,
+    Applicant: 9,
 }

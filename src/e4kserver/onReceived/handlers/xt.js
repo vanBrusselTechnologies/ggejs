@@ -59,11 +59,11 @@ function executeResponse(socket, _jsonResponseVO) {
             try {
                 params = JSON.parse(_jsonResponseVO.paramArray[0]);
             } catch (e) {
-                if (cmd == "ain") {
+                if (cmd === "ain") {
                     require('./../../commands/searchAllianceById.js').execute(socket, socket["_searching_alliance_id"]);
                     return;
                 }
-                if (cmd == "gdi") {
+                if (cmd === "gdi") {
                     require('./../../commands/searchPlayerById').execute(socket, socket["_searching_player_id"]);
                     return;
                 }
@@ -73,9 +73,9 @@ function executeResponse(socket, _jsonResponseVO) {
             handler.apply(this, [socket, error, params]);
         }
         else {
-            const _params = _jsonResponseVO.paramArray.length === 0 ? "" : _jsonResponseVO.paramArray[0].substring(0, 99 - _jsonResponseVO.commandID.length);
+            const _params = _jsonResponseVO.paramArray.length === 0 ? "" : _jsonResponseVO.paramArray[0].substring(0, 124 - _jsonResponseVO.commandID.length);
             if (socket["debug"])
-                console.log('[RECEIVED UNKNOWN COMMAND] ' + _jsonResponseVO.commandID + ": " + _params);
+                console.log('[RECEIVED UNKNOWN COMMAND] ' + _jsonResponseVO.commandID + ": " + _params.trim());
         }
     }
     catch (e) {

@@ -1,25 +1,42 @@
 'use strict'
 
+const Socket = require('node:net').Socket;
 const BaseManager = require('./BaseManager');
+const Player = require('./../structures/Player');
 const searchPlayerByIdCommand = require('./../e4kserver/commands/searchPlayerById');
 const getPlayerRankingsCommand = require('./../e4kserver/commands/getPlayerRankings');
 const { WaitUntil } = require('./../tools/wait');
 
 class PlayerManager extends BaseManager {
+    /**
+     * @type {number}
+     */
     #thisPlayerId = 0;
+    /**
+     * @type {Player[]}
+     */
     #players = [];
+    /**
+     * 
+     * @param {number} id 
+     * @returns {Promise<Player>}
+     */
     getById(id) {
         return new Promise(async (resolve, reject) => {
             try {
-                await _getPlayerById(this._client._socket, id);
-                let _player = this.#players.find(player => player.playerId === id);
+                let _player = await _getPlayerById(this._client._socket, id);
                 resolve(_player);
             }
             catch (e) {
-                reject(e);
+                reject("Player not found!");
             }
         })
     }
+    /**
+     * 
+     * @param {string} name 
+     * @returns {Promise<Player>}
+     */
     find(name) {
         return new Promise(async (resolve, reject) => {
             try {
@@ -29,10 +46,14 @@ class PlayerManager extends BaseManager {
                 resolve(_player);
             }
             catch (e) {
-                reject(e);
+                reject("Player not found!");
             }
         })
     }
+    /**
+     * 
+     * @param {Player} _player 
+     */
     _add_or_update(_player) {
         let found = false;
         for (let j in this.#players) {
@@ -46,6 +67,10 @@ class PlayerManager extends BaseManager {
             this.#players.push(_player);
         }
     }
+    /**
+     * 
+     * @returns {Promise<Player>}
+     */
     getThisPlayer() {
         return new Promise(async (resolve, reject) => {
             try {
@@ -57,20 +82,29 @@ class PlayerManager extends BaseManager {
             }
         })
     }
-    _setThisPlayer(val) {
-        this.#thisPlayerId = val;
+    /**
+     * 
+     * @param {number} id 
+     */
+    _setThisPlayer(id) {
+        this.#thisPlayerId = id;
+        this._client._socket["___this_player_id"] = id;
     }
 }
 
+/**
+ * 
+ * @param {Socket} socket 
+ * @param {number} id 
+ * @returns {Promise<Player>}
+ */
 function _getPlayerById(socket, id) {
-    socket["_searching_player_id"] = id;
-    socket["__player_found"] = false;
-    socket["__get_player_error"] = "";
+    socket[`__player_${id}_found`] = false;
     return new Promise(async (resolve, reject) => {
         try {
             searchPlayerByIdCommand.execute(socket, id);
-            await WaitUntil(socket, "__player_found", "__get_player_error");
-            resolve();
+            await WaitUntil(socket, `__player_${id}_found`, "", 2500);
+            resolve(socket[`__player_${id}_data`]);
         }
         catch (e) {
             reject(e);
@@ -78,16 +112,21 @@ function _getPlayerById(socket, id) {
     });
 }
 
+/**
+ * 
+ * @param {Socket} socket 
+ * @param {number} id 
+ * @returns {Promise<number>}
+ */
 function _getPlayerByName(socket, name) {
-    socket["_searching_player_name"] = name;
-    socket["__player_found"] = false;
-    socket["__get_player_error"] = "";
-    socket["__found_player_id"] = 0;
+    name = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    socket[`__player_${name}_found`] = false;
+    socket[`__player_${name}_id`] = 0;
     return new Promise(async (resolve, reject) => {
         try {
             getPlayerRankingsCommand.execute(socket, name);
-            await WaitUntil(socket, "__player_found", "__get_player_error");
-            resolve(socket["__found_player_id"]);
+            await WaitUntil(socket, `__player_${name}_found`, "", 2500);
+            resolve(socket[`__player_${name}_id`]);
         }
         catch (e) {
             reject(e);

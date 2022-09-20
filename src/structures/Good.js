@@ -1,3 +1,4 @@
+const Client = require('../Client');
 const currencies = require('./../data/ingame_data/currencies.json');
 
 const goodNames = {
@@ -17,6 +18,11 @@ const goodNames = {
 }
 
 class Good {
+    /**
+     * 
+     * @param {Client} client 
+     * @param {Array} data 
+     */
     constructor(client, data) {
         let _name = goodNames[data[0]];
         if(!_name) {
@@ -27,7 +33,10 @@ class Good {
                 }
             }
         }
+        if(!_name) _name = data[0];
+        /** @type {string} */
         this.name = _name;
+        /** @type {number} */
         this.count = data[1];
     }
 }

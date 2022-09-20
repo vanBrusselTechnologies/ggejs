@@ -33,6 +33,13 @@ module.exports = {
         socket["__loggedIn"] = true;
         require('./commands/pingpong.js').execute(socket);
         require('./commands/collectTaxCommand').execute(socket);
+        require('./onReceived/xt/dql').execute(socket, 0, { RDQ: [{ QID: 7 }] });//, { QID: 8 }, { QID: 9 }, { QID: 10 }] })
+        if (!socket["inDungeonInterval"]) {
+            setInterval(() => {
+                socket["inDungeonInterval"] = true;
+                require('./onReceived/xt/dql').execute(socket, 0, { RDQ: [{ QID: 7 }] });//, { QID: 8 }, { QID: 9 }, { QID: 10 }] })
+            }, 18 * 60 * 1010); // 18 minutes
+        }
     },
     _sendVersionCheck(socket) {
         sendVersionCheck(socket);

@@ -15,7 +15,7 @@ module.exports = {
             return socket["__get_alliance_error"] = "Alliance not found!";
         }
         let _alliance;
-        if(params.A.A)
+        if(params.A.A !== null && params.A.A !== undefined)
             _alliance = new MyAlliance(socket.client, params.A);
         else
             _alliance = new Alliance(socket.client, params.A);

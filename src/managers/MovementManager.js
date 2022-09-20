@@ -1,12 +1,25 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
+const Movement = require('./../structures/BasicMovement');
 
 class MovementManager extends BaseManager {
+    /**
+     * @type {Movement[]}
+     */
     #movements = [];
+    /**
+     * 
+     * @returns {Movement[]}
+     */
     get() {
+        _checkMovements(this.#movements);
         return [...this.#movements];
     }
+    /**
+     * 
+     * @param {Movement[]} _movements 
+     */
     _add_or_update(_movements) {
         _checkMovements(_movements);
         for (let i in _movements) {
@@ -27,6 +40,10 @@ class MovementManager extends BaseManager {
             }
         }
     }
+    /**
+     * 
+     * @param {number} _movementId 
+     */
     _remove(_movementId){
         for(i in this.#movements){
             if(this.#movements[i].movementId === _movementId){

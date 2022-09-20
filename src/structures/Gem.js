@@ -1,19 +1,37 @@
 const Effect = require("./Effect");
 const gems = require('./../data/ingame_data/gems.json');
+const Equipment = require("./Equipment");
+const Client = require("../Client");
 
 class Gem {
-    constructor(client, data, equipment = null) {
-        let _data = getDataFromJson(data);
-        if (!_data) { console.log(data); return; }
+    /**
+     * 
+     * @param {Client} client 
+     * @param {number} id 
+     * @param {Equipment} equipment 
+     * @returns 
+     */
+    constructor(client, id, equipment = null) {
+        let _data = getDataFromJson(id);
+        if (!_data) { console.log(id); return; }
+        /** @type {number} */
         this.id = _data.gemID;
         if (_data.setID)
+            /** @type {number} */
             this.setId = _data.setID;
+        /** @type {Effect[]} */
         this.effects = parseEffects(client, _data.effects);
         if (equipment)
+            /** @type {Equipment} */
             this.attachedEquipment = equipment;
     }
 }
 
+/**
+ * 
+ * @param {number} id 
+ * @returns {object}
+ */
 function getDataFromJson(id) {
     for (i in gems) {
         if (parseInt(gems[i].gemID) === id) {
@@ -22,6 +40,12 @@ function getDataFromJson(id) {
     }
 }
 
+/**
+ * 
+ * @param {Client} client 
+ * @param {string} _data 
+ * @returns {Effect[]}
+ */
 function parseEffects(client, _data) {
     let _effects = _data.split(",");
     let data = [];

@@ -3,26 +3,70 @@ const RelicEquipment = require("./RelicEquipment");
 const Effect = require('./Effect');
 const equipmentSets = require("./../data/ingame_data/equipment_sets.json");
 const effectCaps = require("./../data/ingame_data/effectCaps.json");
+const lords = require("./../data/ingame_data/lords.json");
+const Client = require("../Client");
+const RelicEffect = require("./RelicEffect");
+const RelicGem = require("./RelicGem");
+const Gem = require("./Gem");
 
 class Lord {
+    /**
+     * 
+     * @param {Client} client 
+     * @param {object} data 
+     * @returns 
+     */
     constructor(client, data) {
-        if (data.DLID) { if(client._socket["debug"]) console.log("received dummy lord!");console.log(data); return null; }//DummyLord => CreateAndParseDummyLord()
+        if (data.DLID) {
+            /** @type {number} */
+            this.id = data.DLID;
+            /** @type {boolean} */
+            this.isDummy = true;
+            /** @type {object} */
+            this.rawData = getDummyData(this.id);
+            /** @type {Effect[]} */
+            this.effects = parseDummyEffects(client, this.rawData.effects);
+            return;
+        }
+        /** @type {number} */
         this.id = data.ID;
+        /** @type {boolean} */
+        this.isDummy = false;
+        /** @type {number} */
         this.wins = data.W;
+        /** @type {number} */
         this.defeats = data.D;
+        /** @type {number} */
         this.winSpree = data.SPR;
+        /** @type {Equipment[] | RelicEquipment[]} */
         this.equipments = parseEquipments(client, data.EQ, this);
         if (this.equipments.length > 0) {
+            /** @type {boolean} */
             this.isRelic = data.EQ[0][11] === 3
         }
+        /** @type {Gem[] | RelicGem[]} */
         this.gems = parseGems(data.GEM, this.equipments);
+        /** @type {Effect[] | RelicEffect[]} */
         this.effects = parseEffects(client, data, this.equipments);
+        /** @type {number} */
         this.wearerId = data.WID;
+        /** @type {string} */
         this.name = data.N;
+        /** @type {number} */
         this.pictureId = data.VIS;
+        if (data.LICID)
+            /** @type {number} */
+            this.attachedCastleId = data.LICID;
     }
 }
 
+/**
+ * 
+ * @param {Client} client 
+ * @param {Array} data 
+ * @param {Lord} lord 
+ * @returns {Equipment[] | RelicEquipment[]}
+ */
 function parseEquipments(client, data, lord) {
     let _equipments = [];
     for (let i in data) {
@@ -34,7 +78,14 @@ function parseEquipments(client, data, lord) {
     return _equipments;
 }
 
+/**
+ * 
+ * @param {*} data 
+ * @param {Equipment[] | RelicEquipment[]} equipments 
+ * @returns {Gem[] | RelicGem[]}
+ */
 function parseGems(data, equipments) {
+    /** @type {Gem[] | RelicGem[]} */
     let _gems = [];
     if (data) {
         console.log("received additional gems");
@@ -50,7 +101,15 @@ function parseGems(data, equipments) {
     return _gems;
 }
 
+/**
+ * 
+ * @param {Client} client 
+ * @param {*} data 
+ * @param {Equipment[] | RelicEquipment[]} equipments 
+ * @returns {Effect[] | RelicEffect[]}
+ */
 function parseEffects(client, data, equipments) {
+    /** @type {Effect[] | RelicEffect[]} */
     let _effects = [];
     /*
      *  if(data["AIE"])
@@ -128,7 +187,68 @@ function parseEffects(client, data, equipments) {
             }
         }
     }
+    /** @type {Effect[] | RelicEffect[]} */
+    let effects = [];
+    for (let i in _effects) {
+        let _effect = _effects[i];
+        let found = false;
+        for (let j in effects) {
+            if (_effect.effectId === effects[j].effectId) {
+                found = true;
+                effects[j].power += _effect.power;
+                break;
+            }
+        }
+        if (!found) effects.push(_effect);
+    }
 
+    for (let i in effects) {
+        let _effect = effects[i];
+        _effect.uncappedPower = _effect.power;
+        for (let j in effectCaps) {
+            if (parseInt(effectCaps[j].capID) === _effect.capId) {
+                if (effectCaps[j].maxTotalBonus && parseFloat(effectCaps[j].maxTotalBonus) < _effect.power) {
+                    _effect.power = parseFloat(effectCaps[j].maxTotalBonus);
+                }
+            }
+        }
+    }
+
+    return effects;
+}
+
+/**
+ * 
+ * @param {number} id 
+ * @returns {object}
+ */
+function getDummyData(id) {
+    for (let i in lords) {
+        if (parseInt(lords[i].lordID) === id)
+            return lords[i];
+    }
+}
+
+/**
+ * 
+ * @param {Client} client 
+ * @param {string} effectsData 
+ * @returns {Effect[]}
+ */
+function parseDummyEffects(client, effectsData) {
+    if (!effectsData) return [];
+    /** @type {Effect[]} */
+    let _effects = [];
+    let __effects = effectsData.split(",");
+    let data = [];
+    for (i in __effects) {
+        data.push(__effects[i].split("&amp;"));
+    }
+    for (let i in data) {
+        _effects.push(new Effect(client, data[i]));
+    }
+    
+    /** @type {Effect[]} */
     let effects = [];
     for (let i in _effects) {
         let _effect = _effects[i];

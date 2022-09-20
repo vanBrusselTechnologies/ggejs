@@ -5,56 +5,102 @@ const AllianceDonations = require("./AllianceDonations");
 const CapitalMapobject = require("./CapitalMapobject");
 const KingstowerMapobject = require("./KingstowerMapobject");
 const MonumentMapobject = require("./MonumentMapobject");
+const Client = require("../Client");
+const AllianceMember = require("./AllianceMember");
+const MetropolMapobject = require("./MetropolMapobject");
 
 class MyAlliance extends Alliance {
-    constructor(client, data){
+    /**
+     * 
+     * @param {Client} client 
+     * @param {object} data 
+     */
+    constructor(client, data) {
         super(client, data);
+        /** @type {boolean} */
         this.isAutoWarOn = data.AW === 1;
+        /** @type {number} */
         this.applicationAmount = data.AA;
+        /** @type {string} */
         this.announcement = parseChatJSONMessage(data.A);
+        /** @type {number} */
         this.aquaPoints = data.AP;
+        /** @type {number} */
         this.cargoPointsRanking = data.AR;
+        /** @type {Good[]} */
         this.storage = parseStorage(client, data.STO);
+        /** @type {AllianceStatusListItem[]} */
         this.statusList = parseStatusList(client, data.ADL);
+        /** @type {AllianceMember[]} */
         this.memberList = parseAdditionalMemberInformation(client, data.AMI, this.memberList);
+        /** @type {CapitalMapobject[]} */
         this.capitals = parseCapitals(client, data.ACA);
+        /** @type {MetropolMapobject[]} */
         this.metropols = parseMetropols(client, data.ATC);
+        /** @type {KingstowerMapobject[]} */
         this.kingstowers = parseKingstowers(client, data.AKT);
+        /** @type {MonumentMapobject[]} */
         this.monuments = parseMonuments(client, data.AMO);
+        /** @type {(CapitalMapobject | MetropolMapobject | MonumentMapobject | KingstowerMapobject)[]} */
         this._landmarks = this.capitals.concat(this.metropols).concat(this.kingstowers).concat(this.monuments);
+        /** @type {number} */
         this.highestMight = data.HAMP;
+        /** @type {number} */
         this.highestFamePoints = data.HF;
     }
 }
 
-function parseChatJSONMessage(msgText)
-{
-    if(!msgText) return "";
-    return msgText.replace(/&percnt;/g,"%").replace(/&quot;/g,"\"").replace(/&#145;/g,"\'").replace(/<br \/>/g,"\n").replace(/&lt;/g,"<");
+/**
+ * 
+ * @param {string} msgText 
+ * @returns {string}
+ */
+function parseChatJSONMessage(msgText) {
+    if (!msgText) return "";
+    return msgText.replace(/&percnt;/g, "%").replace(/&quot;/g, "\"").replace(/&#145;/g, "\'").replace(/<br \/>/g, "\n").replace(/&lt;/g, "<");
 }
 
-function parseStorage(client, data){
+/**
+ * 
+ * @param {Client} client 
+ * @param {object} data 
+ * @returns {Good[]}
+ */
+function parseStorage(client, data) {
     let goods = []
     for (i in data) {
-        let array = [i, data[i]];
-        goods.push(new Good(client, array));
+        let _array = [i, data[i]];
+        goods.push(new Good(client, _array));
     }
     return goods;
 }
 
-function parseStatusList(client, data){
-    if(!data) return;
+/**
+ * 
+ * @param {Client} client 
+ * @param {Array} data 
+ * @returns {AllianceStatusListItem[]}
+ */
+function parseStatusList(client, data) {
+    if (!data) return;
     let statusList = [];
-    for(i in data){
+    for (i in data) {
         statusList.push(new AllianceStatusListItem(client, data[i]));
     }
     return statusList;
 }
 
-function parseAdditionalMemberInformation(client, data, memberList){
-    for(i in data){
-        for(j in memberList){
-            if(memberList[j].playerId === data[i][0]){
+/**
+ * 
+ * @param {Client} client 
+ * @param {Array} data 
+ * @param {AllianceMember[]} memberList 
+ * @returns {AllianceMember[]}
+ */
+function parseAdditionalMemberInformation(client, data, memberList) {
+    for (i in data) {
+        for (j in memberList) {
+            if (memberList[j].playerId === data[i][0]) {
                 memberList[j]["donations"] = new AllianceDonations(client, data[i]);
                 memberList[j]["activityStatus"] = data[i][4];
             }
@@ -63,34 +109,58 @@ function parseAdditionalMemberInformation(client, data, memberList){
     return memberList;
 }
 
-function parseCapitals(client, data){
+/**
+ * 
+ * @param {Client} client 
+ * @param {Array} data 
+ * @returns {CapitalMapobject[]}
+ */
+function parseCapitals(client, data) {
     let capitals = [];
-    for(i in data){
+    for (i in data) {
 
         capitals.push(new CapitalMapobject(client, data[i]));
     }
     return capitals;
 }
 
-function parseMetropols(client, data){
+/**
+ * 
+ * @param {Client} client 
+ * @param {Array} data 
+ * @returns {MetropolMapobject[]}
+ */
+function parseMetropols(client, data) {
     let metropols = [];
-    for(i in data){
-        metropols.push(new CapitalMapobject(client, data[i]));
+    for (i in data) {
+        metropols.push(new MetropolMapobject(client, data[i]));
     }
     return metropols;
 }
 
-function parseKingstowers(client, data){
+/**
+ * 
+ * @param {Client} client 
+ * @param {Array} data 
+ * @returns {KingstowerMapobject[]}
+ */
+function parseKingstowers(client, data) {
     let kingstowers = [];
-    for(i in data){
+    for (i in data) {
         kingstowers.push(new KingstowerMapobject(client, data[i]));
     }
     return kingstowers;
 }
 
-function parseMonuments(client, data){
+/**
+ * 
+ * @param {Client} client 
+ * @param {Array} data 
+ * @returns {MonumentMapobject[]}
+ */
+function parseMonuments(client, data) {
     let monuments = [];
-    for(i in data){
+    for (i in data) {
         monuments.push(new MonumentMapobject(client, data[i]));
     }
     return monuments;

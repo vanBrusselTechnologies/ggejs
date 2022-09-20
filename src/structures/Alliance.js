@@ -2,39 +2,58 @@ const CapitalMapobject = require("./CapitalMapobject");
 const KingstowerMapobject = require("./KingstowerMapobject");
 const MonumentMapobject = require("./MonumentMapobject");
 const AllianceMember = require("./AllianceMember");
+const Client = require("./../Client");
+const MetropolMapobject = require("./MetropolMapobject");
 
 class Alliance {
     #landmarks = [];
     constructor(client, data) {
+        /** @type {number} */
         this.allianceId = data.AID;
+        /** @type {string} */
         this.allianceName = data.N;
+        /** @type {string} */
         this.allianceDescription = parseChatJSONMessage(data.D);
+        /** @type {string} */
         this.languageId = data.ALL;
+        /** @type {number} */
         this.memberLevel = data.ML;
+        /** @type {AllianceMember[]} */
         this.memberList = parseMembers(client, data.M, this);
-        this.allianceStatusToOwnAlliance = data.DOA;
+        if (data.DOA)
+            /** @type {number} */
+            this.allianceStatusToOwnAlliance = data.DOA;
+        /** @type {number} */
         this.allianceFamePoints = data.CF;
+        /** @type {number} */
         this.allianceFamePointsHighestReached = -1;
+        /** @type {boolean} */
         this.canInvitedForHardPact = data.HP == 1;
+        /** @type {boolean} */
         this.canInvitedForSoftPact = data.SP == 1;
         if (data.IS)
-            this.isSearchingMembers = data.IS;
+            /** @type {boolean} */
+            this.isSearchingMembers = data.IS == 1;
+        /** @type {boolean} */
         this.isOpenAlliance = data.IA != 0;
         if (data.FR)
+            /** @type {number} */
             this.freeRenames = data.FR;
+        /** @type {number} */
         this.might = parseInt(data.MP);
     }
+    /** @returns {Promise<(CapitalMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject)[]>} */
     get landmarks() {
         return new Promise((resolve, reject) => {
             if (this.#landmarks.length !== 0) resolve(this.#landmarks);
             console.error("get landmarks() Not Implememented");
             //Door de leden heen gaan en de landmarks zo verzamelen(?);
-            reject(this._landmarks);
+            reject(this.#landmarks);
         })
     }
     /**
      * @private
-     * @param {(CapitalMapobject | MonumentMapobject | KingstowerMapobject)[]} value
+     * @param {(CapitalMapobject | MetropolMapobject | MonumentMapobject | KingstowerMapobject)[]} value
      */
     set _landmarks(value) {
         this.#landmarks = value;
@@ -49,6 +68,7 @@ module.exports = Alliance;
 /**
  * 
  * @param {string} msgText
+ * @returns {string}
  */
 function parseChatJSONMessage(msgText) {
     if (!msgText) {
@@ -58,6 +78,7 @@ function parseChatJSONMessage(msgText) {
 }
 
 /**
+ * @param {Client} client
  * @param {object[]} members
  * @param {Alliance} _alliance
  * @returns {AllianceMember[]}

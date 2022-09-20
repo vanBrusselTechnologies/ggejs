@@ -8,6 +8,7 @@ module.exports = {
      * @param {object} params
      */
     execute(socket, errorCode, params) {
+        if(!params) return;
         gam(socket, 0, { M: [params.A] });
     }
 }
