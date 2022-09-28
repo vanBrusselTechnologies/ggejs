@@ -116,7 +116,7 @@ module.exports = {
                             case 7:
                                 try {
                                     let lord = socket["generals"][0];
-                                    attackDungeon(client, socket, thisPlayer, myMainCastle, lord);
+                                    await attackDungeon(client, socket, thisPlayer, myMainCastle, lord);
                                 } catch (e) {
                                     if (socket["debug"])
                                         console.log(e);
@@ -128,8 +128,9 @@ module.exports = {
                                         x.kingdomId === 2 &&
                                         x.areaType === Constants.WorldmapArea.KingdomCastle
                                     );
+                                    if(!myKingdomCastle) break;
                                     let lord = socket["generals"][1];
-                                    attackDungeon(client, socket, thisPlayer, myKingdomCastle, lord);
+                                    await attackDungeon(client, socket, thisPlayer, myKingdomCastle, lord);
                                 } catch (e) {
                                     if (socket["debug"])
                                         console.log(e);
@@ -141,8 +142,9 @@ module.exports = {
                                         x.kingdomId === 1 &&
                                         x.areaType === Constants.WorldmapArea.KingdomCastle
                                     );
+                                    if(!myKingdomCastle) break;
                                     let lord = socket["generals"][2];
-                                    attackDungeon(client, socket, thisPlayer, myKingdomCastle, lord);
+                                    await attackDungeon(client, socket, thisPlayer, myKingdomCastle, lord);
                                 } catch (e) {
                                     if (socket["debug"])
                                         console.log(e);
@@ -154,8 +156,9 @@ module.exports = {
                                         x.kingdomId === 3 &&
                                         x.areaType === Constants.WorldmapArea.KingdomCastle
                                     );
+                                    if(!myKingdomCastle) break;
                                     let lord = socket["generals"][3];
-                                    attackDungeon(client, socket, thisPlayer, myKingdomCastle, lord);
+                                    await attackDungeon(client, socket, thisPlayer, myKingdomCastle, lord);
                                 } catch (e) {
                                     if (socket["debug"])
                                         console.log(e);
@@ -249,24 +252,24 @@ function getClosestRuinsOutpost(client, ClassicMap, myMainCastle) {
 /**
  *
  * @param {Client} client
- * @param {CastleMapobject} myKingdomCastle
+ * @param {CastleMapobject} castle
  * @param {boolean} attackable
  * @returns {Promise<DungeonMapobject>}
  */
-function getClosestDungeon(client, myKingdomCastle, attackable = true) {
+function getClosestDungeon(client, castle, attackable = true) {
     return new Promise(async (resolve, reject) => {
         try {
             /**@type {Worldmap} */
-            let worldmap = await client.worldmaps.get(myKingdomCastle.kingdomId);
+            let worldmap = await client.worldmaps.get(castle.kingdomId);
             let dungeons = worldmap.mapobjects.filter(x => x.areaType === Constants.WorldmapArea.Dungeon && (!attackable || !x.attackCooldownEnd));
             dungeons.sort((a, b) => {
-                let distanceA = getDistance(myKingdomCastle, a);
-                let distanceB = getDistance(myKingdomCastle, b);
+                let distanceA = getDistance(castle, a);
+                let distanceB = getDistance(castle, b);
                 return distanceA - distanceB;
             })
             if (dungeons.length === 0) reject("No dungeon found!");
             let targetDungeon = dungeons[0];
-            if (getDistance(myKingdomCastle, targetDungeon) > 20) reject("Target too far away");
+            if (getDistance(castle, targetDungeon) > 20) reject("Target too far away");
             resolve(targetDungeon);
         } catch (e) {
             reject(e);
