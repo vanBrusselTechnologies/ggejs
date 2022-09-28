@@ -617,12 +617,14 @@ function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, _a
                 let _rangeDefenders = dungeon.defence.troops[i].filter(x => x.unit.rangeAttack > 0);
                 if (_rangeDefenders.length > 0) {
                     let availableShields = _availableTools.filter(x => x.unit.defRangeBonus != null);
-                    let _tool = availableShields[0].unit;
-                    let _toolUseCount = Math.ceil((100 + lordRangeDefenceBonus) / _tool.defRangeBonus);
-                    _toolUseCount = Math.min(availableShields[0].count, _toolUseCount, maxToolCountOnSide - toolsUsedOnSide);
-                    if(_toolUseCount > 0) {
-                        usedTools[i].push({tool: _tool, count: _toolUseCount});
-                        availableShields[0].count -= _toolUseCount;
+                    if(availableShields.length > 0) {
+                        let _tool = availableShields[0].unit;
+                        let _toolUseCount = Math.ceil((100 + lordRangeDefenceBonus) / _tool.defRangeBonus);
+                        _toolUseCount = Math.min(availableShields[0].count, _toolUseCount, maxToolCountOnSide - toolsUsedOnSide);
+                        if (_toolUseCount > 0) {
+                            usedTools[i].push({tool: _tool, count: _toolUseCount});
+                            availableShields[0].count -= _toolUseCount;
+                        }
                     }
                 }
             }
@@ -670,12 +672,14 @@ function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, _a
                 let _rangeDefenders = dungeon.defence.troops[i].filter(x => x.unit.rangeAttack > 0);
                 if (_rangeDefenders.length > 0) {
                     let availableShields = _availableTools.filter(x => x.unit.defRangeBonus != null);
-                    let _tool = availableShields[0].unit;
-                    let _toolUseCount = Math.ceil((100 + lordRangeDefenceBonus) / _tool.defRangeBonus);
-                    _toolUseCount = Math.min(availableShields[0].count, _toolUseCount, maxToolCountOnSide - toolsUsedOnSide);
-                    if(_toolUseCount > 0) {
-                        usedTools[i].push({tool: _tool, count: _toolUseCount});
-                        availableShields[0].count -= _toolUseCount;
+                    if(availableShields.length > 0) {
+                        let _tool = availableShields[0].unit;
+                        let _toolUseCount = Math.ceil((100 + lordRangeDefenceBonus) / _tool.defRangeBonus);
+                        _toolUseCount = Math.min(availableShields[0].count, _toolUseCount, maxToolCountOnSide - toolsUsedOnSide);
+                        if (_toolUseCount > 0) {
+                            usedTools[i].push({tool: _tool, count: _toolUseCount});
+                            availableShields[0].count -= _toolUseCount;
+                        }
                     }
                 }
             }

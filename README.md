@@ -18,3 +18,7 @@ client.on('connected', () => {
 
 client.connect();
 ```
+
+## Links
+- [GitHub](https://github.com/vanBrusselGames/ggejs)
+- [npm](https://www.npmjs.com/package/ggejs)
