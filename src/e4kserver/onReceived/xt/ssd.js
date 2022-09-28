@@ -24,7 +24,7 @@ async function checkMaintenanceOver(client){
     let json = await response.json();
     if (json.toString() === "") {
         await client.connect();
-        socket.client.emit('serverShutdownOver');
+        client.emit('serverShutdownEnd');
     } else {
         setTimeout(checkMaintenanceOver, 10000);
     }

@@ -594,6 +594,7 @@ export class VillageMapobject extends BasicMapobject {
 //#region Events
 export interface ClientEvents {
     serverShutdown: [];
+    serverShutdownEnd: [];
     connected: [];
     chatMessage: [message: ChatMessage]
 }
@@ -611,7 +612,7 @@ export interface ConstantsEvents {
     MOVEMENT_UPDATE: "movementUpdate";
     MOVEMENT_CANCEL: "movementCancelled";
     SERVER_SHUTDOWN: "serverShutdown";
-    SERVER_SHUTDOWN_OVER: "serverShutdownOver";
+    SERVER_SHUTDOWN_END: "serverShutdownEnd";
     CONNECTED: "connected";
     CHAT_MESSAGE: "chatMessage";
 }
