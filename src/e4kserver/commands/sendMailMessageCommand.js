@@ -1,8 +1,8 @@
 module.exports = {
     execute(socket, receiver, subject, msg) {
         let _subject = getValideSmartFoxJSONMailMessage(subject);
-        var _msg = getValideSmartFoxJSONMailMessage(msg);
-        if (_msg && _msg != "") {
+        let _msg = getValideSmartFoxJSONMailMessage(msg);
+        if (_msg && _msg !== "") {
             let C2SSendMessageVO = {
                 params: {
                     RN: receiver,
@@ -11,17 +11,16 @@ module.exports = {
                 },
                 getCmdId: "sms"
             }
-            require('./../data').sendJsonVoSignal(socket, { "commandVO": C2SSendMessageVO, "lockConditionVO": "new DefaultLockConditionVO()" });
+            require('./../data').sendJsonVoSignal(socket, {
+                "commandVO": C2SSendMessageVO,
+                "lockConditionVO": "new DefaultLockConditionVO()"
+            });
         }
     }
 }
 
-function onSendMessage(receiver, subject, msg) {
-
-}
-
 function getValideSmartFoxJSONMailMessage(value) {
-    for (var _loc9_ in ["\\+", "#", "<", ">", "\"", "\\$"]) {
+    for (let _loc9_ in ["\\+", "#", "<", ">", "\"", "\\$"]) {
         let _loc10_ = new RegExp("\\" + _loc9_, "gs");
         value = value.replace(_loc10_, "");
     }

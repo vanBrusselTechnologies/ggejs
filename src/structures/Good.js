@@ -1,4 +1,3 @@
-const Client = require('../Client');
 const currencies = require('./../data/ingame_data/currencies.json');
 
 const goodNames = {
@@ -26,7 +25,7 @@ class Good {
     constructor(client, data) {
         let _name = goodNames[data[0]];
         if(!_name) {
-            for(i in currencies){
+            for(let i in currencies){
                 if(currencies[i].JSONKey === data[0]){
                     _name = currencies[i].Name;
                     break;

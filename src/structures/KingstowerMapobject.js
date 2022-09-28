@@ -1,4 +1,3 @@
-const Client = require("../Client");
 const BasicMapobject = require("./BasicMapobject");
 
 class KingstowerMapobject extends BasicMapobject {

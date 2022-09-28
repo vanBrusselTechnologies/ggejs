@@ -3,6 +3,7 @@ const Good = require("./../../../structures/Good");
 module.exports = {
     name: "grc",
     /**
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

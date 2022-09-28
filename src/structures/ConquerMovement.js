@@ -1,6 +1,5 @@
 const Unit = require("./Unit");
 const BasicMovement = require("./BasicMovement");
-const Client = require('./../Client');
 
 class ConquerMovement extends BasicMovement {
     /**

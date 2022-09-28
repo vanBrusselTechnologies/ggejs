@@ -1,4 +1,3 @@
-const Lord = require("./Lord");
 const RelicEffect = require("./RelicEffect");
 const RelicGem = require("./RelicGem");
 

@@ -19,6 +19,7 @@ const Player = require("./../../../structures/Player");
 module.exports = {
     name: "gaa",
     /**
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

@@ -4,7 +4,7 @@ const xml = require('./xml.js');
 
 module.exports = {
     /**
-     * 
+     * @param {Socket} socket
      * @param {string} xtName
      * @param {string} cmd
      * @param {any} paramObj
@@ -17,7 +17,7 @@ module.exports = {
 }
 
 /**
- * 
+ * @param {Socket} socket
  * @param {string} xtName
  * @param {string} cmd
  * @param {any} paramObj
@@ -28,7 +28,7 @@ function sendXtMessage(socket, xtName, cmd, paramObj, type = "xml", roomId = -1)
     if (!require('./../../room.js').checkRoomList()) {
         return;
     }
-    if (roomId == -1) {
+    if (roomId === -1) {
         roomId = require('./../../room.js').activeRoomId;
     }
     switch (type) {

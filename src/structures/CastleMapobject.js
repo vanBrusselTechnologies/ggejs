@@ -1,5 +1,4 @@
 const InteractiveMapobject = require("./InteractiveMapobject");
-const Client = require('./../Client');
 
 class CastleMapobject extends InteractiveMapobject {
     /**

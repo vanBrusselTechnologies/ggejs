@@ -1,6 +1,5 @@
 const Effect = require('./Effect');
 const relicEffectsJson = require('./../data/ingame_data/relicEffects.json');
-const Client = require('../Client');
 
 class RelicEffect extends Effect {
     /**
@@ -25,7 +24,7 @@ class RelicEffect extends Effect {
  * @returns {object}
  */
 function getDataFromJson(id){
-    for(i in relicEffectsJson){
+    for(let i in relicEffectsJson){
         if(parseInt(relicEffectsJson[i].id) === id){
             return relicEffectsJson[i];
         }

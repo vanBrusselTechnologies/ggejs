@@ -1,5 +1,3 @@
-const Socket = require("node:net").Socket;
-
 module.exports = {
     /**
      * 
@@ -24,7 +22,7 @@ module.exports = {
             console.log("\x1b[31m[API ERROR]\x1b[0m" + obj.error);
         }
     },
-    onLogin(socket, error = "") {
+    async onLogin(socket, error = "") {
         socket["__login_error"] = error;
         if (error !== "") {
             socket["__loggedIn"] = false;
@@ -33,11 +31,11 @@ module.exports = {
         socket["__loggedIn"] = true;
         require('./commands/pingpong.js').execute(socket);
         require('./commands/collectTaxCommand').execute(socket);
-        require('./onReceived/xt/dql').execute(socket, 0, { RDQ: [{ QID: 7 }] });//, { QID: 8 }, { QID: 9 }, { QID: 10 }] })
+        await require('./onReceived/xt/dql').execute(socket, 0, { RDQ: [{ QID: 7 }, { QID: 8 }, { QID: 9 }, { QID: 10 }] })
         if (!socket["inDungeonInterval"]) {
-            setInterval(() => {
+            setInterval(async () => {
                 socket["inDungeonInterval"] = true;
-                require('./onReceived/xt/dql').execute(socket, 0, { RDQ: [{ QID: 7 }] });//, { QID: 8 }, { QID: 9 }, { QID: 10 }] })
+                await require('./onReceived/xt/dql').execute(socket, 0, { RDQ: [{ QID: 7 }, { QID: 8 }, { QID: 9 }, { QID: 10 }] })
             }, 18 * 60 * 1010); // 18 minutes
         }
     },

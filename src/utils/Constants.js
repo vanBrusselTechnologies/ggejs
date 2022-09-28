@@ -4,6 +4,7 @@ exports.Events = {
     MOVEMENT_UPDATE: "movementUpdate",
     MOVEMENT_CANCEL: "movementCancelled",
     SERVER_SHUTDOWN: "serverShutdown",
+    SERVER_SHUTDOWN_OVER: "serverShutdownOver",
     CONNECTED: "connected",
     CHAT_MESSAGE: "chatMessage",
 }

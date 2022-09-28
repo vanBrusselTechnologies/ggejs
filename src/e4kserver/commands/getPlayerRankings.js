@@ -1,7 +1,7 @@
 module.exports = {
     name: "hgh",
     /**
-     * 
+     * @param {Socket} socket
      * @param {string} searchValue
      * @param {"might" | "honor" | "loot" | "achievementPoints"} rankingType
      */

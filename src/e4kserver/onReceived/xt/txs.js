@@ -3,7 +3,7 @@ const { execute: collectTaxCommand } = require('./../../commands/collectTaxComma
 module.exports = {
     name: "txs",
     /**
-     * 
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

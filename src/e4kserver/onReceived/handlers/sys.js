@@ -12,7 +12,7 @@ for (const file of commandsFiles) {
 
 module.exports = {
     /**
-     * 
+     * @param {Socket} socket
      * @param {object} event
      */
     onResponse(socket, event) {

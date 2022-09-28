@@ -3,7 +3,7 @@ const { execute: gam } = require('./gam');
 module.exports = {
     name: "crm",
     /**
-     * 
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

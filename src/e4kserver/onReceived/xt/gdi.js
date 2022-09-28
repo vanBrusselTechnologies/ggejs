@@ -1,5 +1,3 @@
-const {Socket} = require("node:net");
-const Client = require('./../../../Client');
 const Player = require('./../../../structures/Player');
 
 module.exports = {

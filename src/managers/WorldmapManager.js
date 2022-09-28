@@ -1,21 +1,28 @@
 'use strict'
 
-const Socket = require('node:net').Socket;
 const BaseManager = require('./BaseManager');
-const Client = require('./../Client');
 const getWorldmapCommand = require('./../e4kserver/commands/getWorldmapCommand');
-const { WaitUntil } = require('./../tools/wait');
+const {WaitUntil} = require('./../tools/wait');
 const Worldmap = require('../structures/Worldmap');
 
-const worldmapSizes = [13, 10];
+const worldmapSizes = [13, 11];
 const worldmapLeftTop = [0, 0];
 let worldmapRightBottom = [1000, 1000];
 const cacheSec = 30;
 
 class WorldmapManager extends BaseManager {
+    _worldmapCaches = {
+        0: {date: new Date(0), worldmap: new Worldmap(this._client, 0)},
+        2: {date: new Date(0), worldmap: new Worldmap(this._client, 2)},
+        1: {date: new Date(0), worldmap: new Worldmap(this._client, 1)},
+        3: {date: new Date(0), worldmap: new Worldmap(this._client, 3)},
+        4: {date: new Date(0), worldmap: new Worldmap(this._client, 4)},
+        10: {date: new Date(0), worldmap: new Worldmap(this._client, 10)}
+    };
+
     /**
-     * 
-     * @param {Client} client 
+     *
+     * @param {Client} client
      */
     constructor(client) {
         super(client)
@@ -23,17 +30,10 @@ class WorldmapManager extends BaseManager {
             client._socket[`__worldmap_${i}_found`] = false;
         client._socket[`__worldmap_${10}_found`] = false;
     }
-    _worldmapCaches = {
-        0: { date: new Date(0), worldmap: new Worldmap() },
-        2: { date: new Date(0), worldmap: new Worldmap() },
-        1: { date: new Date(0), worldmap: new Worldmap() },
-        3: { date: new Date(0), worldmap: new Worldmap() },
-        4: { date: new Date(0), worldmap: new Worldmap() },
-        10: { date: new Date(0), worldmap: new Worldmap() }
-    };
+
     /**
-     * 
-     * @param {number} kingdomId 
+     *
+     * @param {number} kingdomId
      * @returns {Promise<Worldmap>}
      */
     get(kingdomId) {
@@ -42,8 +42,7 @@ class WorldmapManager extends BaseManager {
                 if (!isWorldmapCached(this, kingdomId))
                     await _getWorldmapById(this, this._client._socket, this._worldmapCaches[kingdomId]?.worldmap, kingdomId);
                 resolve(this._worldmapCaches[kingdomId]?.worldmap);
-            }
-            catch (e) {
+            } catch (e) {
                 reject(e);
             }
         })
@@ -51,17 +50,15 @@ class WorldmapManager extends BaseManager {
 }
 
 /**
- * 
- * @param {WorldmapManager} thisManager 
- * @param {Socket} socket 
- * @param {Worldmap} _worldmap 
- * @param {number} kingdomId 
+ *
+ * @param {WorldmapManager} thisManager
+ * @param {Socket} socket
+ * @param {Worldmap} _worldmap
+ * @param {number} kingdomId
  * @returns {Promise<Worldmap>}
  */
 function _getWorldmapById(thisManager, socket, _worldmap, kingdomId) {
-    if (!_worldmap) return;
-    if (_worldmap.kingdomId === null)
-        _worldmap = new Worldmap(thisManager._client, kingdomId);
+    if (!_worldmap) return new Promise((resolve, reject) => reject("missing worldmap"));
     _worldmap._clear();
     return new Promise(async (resolve, reject) => {
         try {
@@ -88,14 +85,12 @@ function _getWorldmapById(thisManager, socket, _worldmap, kingdomId) {
                             socket[`__worldmap_${kingdomId}_sector_${j}_found`] = false;
                             socket[`__get_worldmap_${kingdomId}_sector_${j}_error`] = "";
                             lastJ = j + 1;
-                        }
-                        catch (e) {
+                        } catch (e) {
                             if (e.message === "Exceeded max time" && (j > 100 || j < 25)) {
                                 i = j + 1;
                                 lastJ = j + 1;
                                 socket[`__worldmap_${kingdomId}_sectors_found`] = j + 1;
-                            }
-                            else{
+                            } else {
                                 i = j + 1;
                                 lastJ = j + 1;
                                 socket[`__worldmap_${kingdomId}_sectors_found`] = j + 1;
@@ -110,17 +105,16 @@ function _getWorldmapById(thisManager, socket, _worldmap, kingdomId) {
             thisManager._worldmapCaches[kingdomId].worldmap = _worldmap;
             socket[`__worldmap_${kingdomId}_found`] = true;
             resolve(_worldmap);
-        }
-        catch (e) {
+        } catch (e) {
             reject(e);
         }
     });
 }
 
 /**
- * 
- * @param {WorldmapManager} thisManager 
- * @param {number} kingdomId 
+ *
+ * @param {WorldmapManager} thisManager
+ * @param {number} kingdomId
  * @returns {boolean}
  */
 function isWorldmapCached(thisManager, kingdomId) {

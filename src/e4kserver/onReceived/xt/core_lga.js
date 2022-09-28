@@ -1,37 +1,38 @@
 module.exports = {
     name: "core_lga",
     /**
-     * 
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */
-    execute(socket, errorCode, params) {
-        switch (parseInt(errorCode) - 10005) {
+    async execute(socket, errorCode, params) {
+        switch (errorCode - 10005) {
             case 0:
-                require('./../../connection.js').onLogin(socket);
+                await require('./../../connection.js').onLogin(socket);
                 break;
             case 1:
-                require('./../../connection.js').onLogin(socket);
+                await require('./../../connection.js').onLogin(socket);
+                break;
             case 2:
-                require('./../../connection.js').onLogin(socket, "AuthenticationProblem: Missing LoginData!");
+                await require('./../../connection.js').onLogin(socket, "AuthenticationProblem: Missing LoginData!");
                 break;
             case 5:
-                require('./../../connection.js').onLogin(socket, "AuthenticationProblem: User Not Found!");
+                await require('./../../connection.js').onLogin(socket, "AuthenticationProblem: User Not Found!");
                 break;
             case 6:
-                require('./../../connection.js').onLogin(socket, "AuthenticationProblem: Invalid Password!");
+                await require('./../../connection.js').onLogin(socket, "AuthenticationProblem: Invalid Password!");
                 break;
             case 7:
-                require('./../../connection.js').onLogin(socket, "AuthenticationProblem: User Banned or Account Deleted!");
+                await require('./../../connection.js').onLogin(socket, "AuthenticationProblem: User Banned or Account Deleted!");
                 break;
             case 11:
-                require('./../../connection.js').onLogin(socket, "AuthenticationProblem: Invalid Language!");
+                await require('./../../connection.js').onLogin(socket, "AuthenticationProblem: Invalid Language!");
                 break;
             case 15:
-                require('./../../connection.js').onLogin(socket, "AuthenticationProblem: User Kicked!");
+                await require('./../../connection.js').onLogin(socket, "AuthenticationProblem: User Kicked!");
                 break;
             default:
-                require('./../../connection.js').onLogin(socket, `ERROR ${errorCode}: ${JSON.stringify(params)}`);
+                await require('./../../connection.js').onLogin(socket, `ERROR ${errorCode}: ${JSON.stringify(params)}`);
                 break;
         }
     }

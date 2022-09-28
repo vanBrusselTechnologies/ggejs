@@ -5,8 +5,6 @@ const AllianceDonations = require("./AllianceDonations");
 const CapitalMapobject = require("./CapitalMapobject");
 const KingstowerMapobject = require("./KingstowerMapobject");
 const MonumentMapobject = require("./MonumentMapobject");
-const Client = require("../Client");
-const AllianceMember = require("./AllianceMember");
 const MetropolMapobject = require("./MetropolMapobject");
 
 class MyAlliance extends Alliance {
@@ -42,7 +40,7 @@ class MyAlliance extends Alliance {
         /** @type {MonumentMapobject[]} */
         this.monuments = parseMonuments(client, data.AMO);
         /** @type {(CapitalMapobject | MetropolMapobject | MonumentMapobject | KingstowerMapobject)[]} */
-        this._landmarks = this.capitals.concat(this.metropols).concat(this.kingstowers).concat(this.monuments);
+        this._landmarks = [].concat(this.capitals).concat(this.metropols).concat(this.kingstowers).concat(this.monuments);
         /** @type {number} */
         this.highestMight = data.HAMP;
         /** @type {number} */
@@ -68,7 +66,7 @@ function parseChatJSONMessage(msgText) {
  */
 function parseStorage(client, data) {
     let goods = []
-    for (i in data) {
+    for (let i in data) {
         let _array = [i, data[i]];
         goods.push(new Good(client, _array));
     }
@@ -82,9 +80,9 @@ function parseStorage(client, data) {
  * @returns {AllianceStatusListItem[]}
  */
 function parseStatusList(client, data) {
-    if (!data) return;
     let statusList = [];
-    for (i in data) {
+    if (!data) return statusList;
+    for (let i in data) {
         statusList.push(new AllianceStatusListItem(client, data[i]));
     }
     return statusList;
@@ -98,8 +96,8 @@ function parseStatusList(client, data) {
  * @returns {AllianceMember[]}
  */
 function parseAdditionalMemberInformation(client, data, memberList) {
-    for (i in data) {
-        for (j in memberList) {
+    for (let i in data) {
+        for (let j in memberList) {
             if (memberList[j].playerId === data[i][0]) {
                 memberList[j]["donations"] = new AllianceDonations(client, data[i]);
                 memberList[j]["activityStatus"] = data[i][4];
@@ -117,8 +115,7 @@ function parseAdditionalMemberInformation(client, data, memberList) {
  */
 function parseCapitals(client, data) {
     let capitals = [];
-    for (i in data) {
-
+    for (let i in data) {
         capitals.push(new CapitalMapobject(client, data[i]));
     }
     return capitals;
@@ -132,7 +129,7 @@ function parseCapitals(client, data) {
  */
 function parseMetropols(client, data) {
     let metropols = [];
-    for (i in data) {
+    for (let i in data) {
         metropols.push(new MetropolMapobject(client, data[i]));
     }
     return metropols;
@@ -146,7 +143,7 @@ function parseMetropols(client, data) {
  */
 function parseKingstowers(client, data) {
     let kingstowers = [];
-    for (i in data) {
+    for (let i in data) {
         kingstowers.push(new KingstowerMapobject(client, data[i]));
     }
     return kingstowers;
@@ -160,7 +157,7 @@ function parseKingstowers(client, data) {
  */
 function parseMonuments(client, data) {
     let monuments = [];
-    for (i in data) {
+    for (let i in data) {
         monuments.push(new MonumentMapobject(client, data[i]));
     }
     return monuments;

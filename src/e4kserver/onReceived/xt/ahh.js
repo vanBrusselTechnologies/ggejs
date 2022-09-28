@@ -3,7 +3,7 @@ const {execute: allianceHelpAllCommand} = require("./../../commands/allianceHelp
 module.exports = {
     name: "ahh",
     /**
-     * 
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

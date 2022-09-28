@@ -1,4 +1,3 @@
-const Client = require('./../../../Client');
 const ArmyAttackMovement = require('./../../../structures/ArmyAttackMovement');
 const ArmyTravelMovement = require('./../../../structures/ArmyTravelMovement');
 const ConquerMovement = require('./../../../structures/ConquerMovement');
@@ -10,6 +9,7 @@ const NpcAttackMovement = require('./../../../structures/NpcAttackMovement');
 module.exports = {
     name: "gam",
     /**
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

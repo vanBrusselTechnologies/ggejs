@@ -1,6 +1,7 @@
 module.exports = {
     name: "core_gpi",
     /**
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

@@ -6,6 +6,7 @@ const { execute: parseGPA } = require('./gpa');
 module.exports = {
     name: "jaa",
     /**
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

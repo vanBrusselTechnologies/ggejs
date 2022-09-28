@@ -1,4 +1,3 @@
-const Client = require("../Client");
 const BasicMovement = require("./BasicMovement");
 const Good = require("./Good");
 
@@ -28,7 +27,7 @@ class MarketMovement extends BasicMovement {
 function parseGoods(client, data) {
     if (!data) return [];
     let goods = [];
-    for (i in data) {
+    for (let i in data) {
         goods.push(new Good(client, data[i]));
     }
     return goods;

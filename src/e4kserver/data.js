@@ -2,7 +2,6 @@ const onJson = require('./onReceived/handlers/json.js');
 const onString = require('./onReceived/handlers/string.js');
 const onXml = require('./onReceived/handlers/xml.js');
 const xt = require('./commands/handlers/xt');
-const Socket = require('node:net').Socket;
 
 let _alliances = {};
 let _players = {};
@@ -57,7 +56,7 @@ function internal_OnData(socket, data) {
 }
 
 /**
- * 
+ * @param {Socket} socket
  * @param {object} commandVO
  */
 function sendCommandVO(socket, commandVO) {
@@ -65,7 +64,7 @@ function sendCommandVO(socket, commandVO) {
     let params = [JSON.stringify(commandVO.params)];
     let i = 0;
     while (i < params.length) {
-        if (params[i].trim() == "" || params[i].trim() == "{}") {
+        if (params[i].trim() === "" || params[i].trim() === "{}") {
             params[i] = "<RoundHouseKick>";
         }
         params[i] = getValideSmartFoxText(params[i]);
@@ -84,7 +83,7 @@ function getValideSmartFoxText(value) {
 }
 
 /**
- * 
+ * @param {Socket} socket
  * @param {any} msg
  */
 function internal_writeToSocket(socket, msg) {
@@ -97,21 +96,21 @@ function internal_writeToSocket(socket, msg) {
 
 module.exports = {
     /**
-     * 
+     * @param {Socket} socket
      * @param {Buffer} data
      */
     onData(socket, data) {
         internal_OnData(socket, data);
     },
     /**
-     * 
+     * @param {Socket} socket
      * @param {object} sendJsonMessageVO
      */
     sendJsonVoSignal(socket, sendJsonMessageVO) {
         sendCommandVO(socket, sendJsonMessageVO.commandVO);
     },
     /**
-     * 
+     * @param {Socket} socket
      * @param {any} msg
      */
     writeToSocket(socket, msg) {

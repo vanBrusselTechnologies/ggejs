@@ -1,4 +1,3 @@
-const Client = require("../Client");
 const BasicMapobject = require("./BasicMapobject");
 
 class DungeonIsleMapobject extends BasicMapobject {
@@ -28,7 +27,6 @@ class DungeonIsleMapobject extends BasicMapobject {
             else
                 /** @type {Date} */
                 this.reappearDate = new Date(Date.now() + data[6] * 1000);
-
     }
 }
 

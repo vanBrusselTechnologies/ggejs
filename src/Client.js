@@ -1,13 +1,11 @@
 'use strict'
 
-const Socket = require('node:net').Socket;
 const connection = require('./e4kserver/connection');
 const e4kData = require('./e4kserver/data');
 const AllianceManager = require('./managers/AllianceManager');
 const MovementManager = require('./managers/MovementManager');
 const PlayerManager = require('./managers/PlayerManager');
 const WorldmapManager = require('./managers/WorldmapManager');
-const BasicMapobject = require('./structures/BasicMapobject');
 const { WaitUntil } = require('./tools/wait');
 const EventEmitter = require('node:events');
 
@@ -17,7 +15,7 @@ class Client extends EventEmitter {
     /** @type {string} */
     #password = "";
     /** @type {Socket} */
-    _socket = new Socket();
+    _socket = new (require("net").Socket)();
     /**
      * 
      * @param {string} name 
@@ -30,7 +28,7 @@ class Client extends EventEmitter {
         if (name !== "" && password !== "") {
             this.#name = name;
             this.#password = password;
-            this._socket = new Socket();
+            this._socket = new (require("net").Socket)();
             /**
              * @type {MovementManager}
              */
@@ -80,7 +78,7 @@ class Client extends EventEmitter {
     }
     /**
      * 
-     * @param {BasicMapobject} worldmapArea 
+     * @param {InteractiveMapobject} worldmapArea
      * @returns {Promise<any>}
      */
     getCastleInfo(worldmapArea) {
@@ -162,7 +160,7 @@ function _login(socket, name, password) {
 
 /**
  * 
- * @param {Socket} socket 
+ * @param {Socket} socket
  */
 function addSocketListeners(socket) {
     socket.addListener("error", (err) => {

@@ -1,6 +1,7 @@
 module.exports = {
     name: "gpi",
     /**
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

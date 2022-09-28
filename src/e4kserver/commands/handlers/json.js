@@ -1,6 +1,6 @@
 module.exports = {
     /**
-     * 
+     * @param {Socket} socket
      * @param {string} xtName
      * @param {string} cmd
      * @param {any} paramObj

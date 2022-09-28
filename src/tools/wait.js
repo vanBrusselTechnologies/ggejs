@@ -1,4 +1,3 @@
-const { Socket } = require('node:net');
 const _maxMS = 3600000;
 
 module.exports = {
@@ -15,6 +14,15 @@ module.exports = {
     },
 }
 
+/**
+ *
+ * @param {Socket} socket
+ * @param {string} field
+ * @param {string} errorField
+ * @param {number} endDateTimestamp
+ * @returns {Promise<void>}
+ * @private
+ */
 function _WaitUntil(socket, field, errorField = "", endDateTimestamp) {
     return new Promise(async (resolve, reject) => {
         try {

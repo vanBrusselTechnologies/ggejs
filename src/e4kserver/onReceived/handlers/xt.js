@@ -15,7 +15,7 @@ for (const file of commandsFiles) {
 
 module.exports = {
     /**
-     * 
+     * @param {Socket} socket
      * @param {object} event
      */
     onResponse(socket, event) {
@@ -31,7 +31,7 @@ module.exports = {
                 }
                 return;
             case "jro":
-                onJoinRoom(socket, { params: { "room": getRoom(socket, parseInt(params.shift())) } });
+                onJoinRoom(socket, { params: { "room": getRoom(parseInt(params.shift())) } });
                 return;
             default:
                 params.shift();
@@ -47,7 +47,7 @@ module.exports = {
 }
 
 /**
- * 
+ * @param {Socket} socket
  * @param {object} _jsonResponseVO
  */
 function executeResponse(socket, _jsonResponseVO) {

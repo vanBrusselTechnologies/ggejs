@@ -3,33 +3,34 @@ const xt = require('./xt');
 
 module.exports = {
     /**
-     * 
+     * @param {Socket} socket
      * @param {string} msg
      */
     execute(socket, msg) {
         let xml = stringToXml(msg);
         if (xml === 'ERROR') return;
-        let type = (_loc6_ = xml.msg).$?.t;
-        if (type == "xt") {
-            xtHandleMessage(socket, _loc6_)
+        let _msg = xml.msg;
+        let type = _msg.$?.t;
+        if (type === "xt") {
+            xtHandleMessage(socket, _msg)
         }
-        else if (type == "sys") {
-            sys.onResponse(socket, _loc6_);
+        else if (type === "sys") {
+            sys.onResponse(socket, _msg);
         }
     }
 }
 
 /**
- * 
- * @param {any} msgObj
+ * @param {Socket} socket
+ * @param {object} msgObj
  */
 function xtHandleMessage(socket, msgObj) {
-    let action = null;
+    console.log(msgObj);
+    let action = msgObj.body["$"].action;
     let _loc7_ = null;
     let _loc5_ = null;
-    action = msgObj.body["$"].action;
-    _loc8_ = msgObj.body["$"].id;
-    if (action == "xtRes") {
+    let id = msgObj.body["$"].id;
+    if (action === "xtRes") {
         _loc7_ = msgObj.body.toString();
         _loc5_ = ObjectSerializer.getInstance().deserialize(_loc7_);
         let event = {
@@ -56,15 +57,14 @@ function stringToXml(xmlString) {
     if (startTag.endsWith('/')) startTag = startTag.substring(0, startTag.length - 1);
     let attributes = {};
     let withAttributes = false;
-    if (startTag.length != objName.length) {
+    if (startTag.length !== objName.length) {
         let attr = startTag.split(' ');
         for (let a = 1; a < attr.length; a++) {
             let att = attr[a].trim();
-            if (att != "" && att.indexOf('=') != -1) {
+            if (att !== "" && att.indexOf('=') !== -1) {
                 let attParts = att.split("=");
                 let _attName = attParts[0].trim();
-                let _attValue = attParts[1].trim().replace(/'/g, "");
-                attributes[_attName] = _attValue;
+                attributes[_attName] = attParts[1].trim().replace(/'/g, "");
                 withAttributes = true;
             }
         }
@@ -76,9 +76,9 @@ function stringToXml(xmlString) {
         objXml.$ = attributes;
     }
 
-    if (endTagIndex != -1) {
+    if (endTagIndex !== -1) {
         let xmlPart = xmlString.substring(xmlString.indexOf('>') + 1, endTagIndex).trim();
-        if (xmlPart != "") {
+        if (xmlPart !== "") {
             let children = stringToXml(xmlPart);
             let _keys = Object.keys(children);
             for (let c = 0; c < _keys.length; c++) {
@@ -94,7 +94,7 @@ function stringToXml(xmlString) {
     xml[objName] = objXml;
 
     xmlString = xmlString.substring(endTagIndex + endTag.length).trim();
-    if (xmlString != "") {
+    if (xmlString !== "") {
         let siblings = stringToXml(xmlString);
         let _keys = Object.keys(siblings);
         for (let c = 0; c < _keys.length; c++) {

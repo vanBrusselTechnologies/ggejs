@@ -3,6 +3,7 @@ const Unit = require("./../../../structures/Unit");
 module.exports = {
     name: "gui",
     /**
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

@@ -9,32 +9,32 @@ function _obj2xml(srcObj, trgObj = {}, depth = 0, objName = "") {
     let srcObjType = null;
     let objType = null;
     let _value;
-    if (depth == 0) {
+    if (depth === 0) {
         trgObj.xmlStr = "<dataObj>" + this.eof;
     }
     else {
         srcObjType = typeof srcObj === typeof [0, 1] ? "a" : "o";
         trgObj.xmlStr += "<obj t=\'" + srcObjType + "\' o=\'" + objName + "\'>";
     }
-    for (var objName in srcObj) {
+    for (let objName in srcObj) {
         objType = typeof srcObj[objName];
         _value = srcObj[objName];
         if (objType === "boolean" || objType === "number" || objType === "string" || objType === "null") {
-            if (objType == "boolean") {
+            if (objType === "boolean") {
                 _value = Number(_value);
             }
-            else if (objType == "null") {
+            else if (objType === "null") {
                 objType = "x";
                 _value = "";
             }
-            trgObj.xmlStr += "<var n=\'" + objName + "\' t=\'" + objType.substr(0, 1) + "\'>" + _value + "</var>";
+            trgObj.xmlStr += "<var n=\'" + objName + "\' t=\'" + objType.substring(0, 1) + "\'>" + _value + "</var>";
         }
-        else if (objType == "object") {
+        else if (objType === "object") {
             _obj2xml(_value, trgObj, depth + 1, objName);
             trgObj.xmlStr += "</obj>";
         }
     }
-    if (depth == 0) {
+    if (depth === 0) {
         trgObj.xmlStr += "</dataObj>";
     }
     return trgObj;

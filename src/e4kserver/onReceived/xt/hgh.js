@@ -1,7 +1,7 @@
 module.exports = {
     name: "hgh",
     /**
-     * 
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */
@@ -14,7 +14,7 @@ module.exports = {
         }
         if (socket["_searching_alliance_name"] && socket["_searching_alliance_name"] !== "") {
             try {
-                if (!params || !params.L || params.L == undefined) {
+                if (!params || !params.L) {
                     return socket["__get_alliance_error"] = "Alliance not found!";
                 }
                 let leaderbord = [];
@@ -38,7 +38,7 @@ module.exports = {
             }
         }
         try {
-            if (!params || !params.L || params.L == undefined) return;
+            if (!params || !params.L) return;
             let leaderbord = [];
             leaderbord = params.L;
             leaderbord.forEach(x => {

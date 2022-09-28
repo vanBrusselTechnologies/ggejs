@@ -1,6 +1,5 @@
 const CompactArmy = require("./CompactArmy");
 const BasicMovement = require("./BasicMovement");
-const Client = require('./../Client');
 
 class ArmyAttackMovement extends BasicMovement {
    armyState = 0;

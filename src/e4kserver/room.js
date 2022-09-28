@@ -17,6 +17,7 @@ module.exports = {
         _setRoomList(data);
     },
     /**
+     * @param {Socket} socket
      * @param {object} event
      */
     onJoinRoom(socket, event) {
@@ -41,6 +42,10 @@ module.exports = {
      * @param {number} roomID
      */
     addUserToRoom(u, id, roomID) {
+        console.log("addUserToRoom");
+        console.log(u);
+        console.log(id);
+        console.log(roomID);
         roomList[roomID].userList[id] = u;
         if (roomList[roomID].game && u.isSpectator()) {
             roomList[roomID].specCount++;
@@ -127,7 +132,7 @@ function decompressInt(input) {
 }
 
 /**
- * 
+ * @param {Socket} socket
  * @param {object} event
  */
 function _onJoinRoom(socket, event) {

@@ -1,8 +1,6 @@
 'use strict'
 
-const Socket = require('node:net').Socket;
 const BaseManager = require('./BaseManager');
-const Player = require('./../structures/Player');
 const searchPlayerByIdCommand = require('./../e4kserver/commands/searchPlayerById');
 const getPlayerRankingsCommand = require('./../e4kserver/commands/getPlayerRankings');
 const { WaitUntil } = require('./../tools/wait');
@@ -115,7 +113,7 @@ function _getPlayerById(socket, id) {
 /**
  * 
  * @param {Socket} socket 
- * @param {number} id 
+ * @param {string} name
  * @returns {Promise<number>}
  */
 function _getPlayerByName(socket, name) {

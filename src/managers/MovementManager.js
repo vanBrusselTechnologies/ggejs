@@ -1,7 +1,6 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const Movement = require('./../structures/BasicMovement');
 
 class MovementManager extends BaseManager {
     /**
@@ -45,10 +44,10 @@ class MovementManager extends BaseManager {
      * @param {number} _movementId 
      */
     _remove(_movementId){
-        for(i in this.#movements){
+        for(let i in this.#movements){
             if(this.#movements[i].movementId === _movementId){
                 this.emit('movementCancelled', this.#movements[i]);
-                this.#movements.splice(i, 1);
+                this.#movements.splice(parseInt(i), 1);
             }
         }
     }

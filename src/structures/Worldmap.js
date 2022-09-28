@@ -1,9 +1,5 @@
-const Client = require("../Client");
-const BasicMapobject = require("./BasicMapobject");
-const Player = require("./Player");
-
 class Worldmap {
-    /** @type {BasicMapobject[]} */
+    /** @type {Mapobject[]} */
     mapobjects = [];
     /** @type {Player[]} */
     players = [];
@@ -20,10 +16,10 @@ class Worldmap {
     };
     /**
      * 
-     * @param {BasicMapobject} objs 
+     * @param {Mapobject[]} objs
      */
     _addAreaMapObjects(objs) {
-        this.mapobjects = this.mapobjects.concat(objs);
+        this.mapobjects.push(...objs);
     }
     /**
      * 
@@ -47,7 +43,7 @@ class Worldmap {
      * @returns {Player[]}
      */
     _sortPlayersByName() {
-        return players.sort((x, y) => {
+        return this.players.sort((x, y) => {
             if (x.playerName.toLowerCase() > y.playerName.toLowerCase()) return 1;
             if (y.playerName.toLowerCase() > x.playerName.toLowerCase()) return -1;
             return 0;
@@ -58,7 +54,7 @@ class Worldmap {
      * @returns {Player[]}
      */
     _sortPlayersById() {
-        return players.sort((x, y) => x.playerId - y.playerId);
+        return this.players.sort((x, y) => x.playerId - y.playerId);
     }
     _clear() {
         this.mapobjects = [];

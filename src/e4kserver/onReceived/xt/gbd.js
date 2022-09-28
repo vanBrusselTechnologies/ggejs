@@ -1,6 +1,7 @@
 module.exports = {
     name: "gbd",
     /**
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

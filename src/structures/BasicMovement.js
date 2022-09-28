@@ -16,9 +16,6 @@ const NomadInvasionMapobject = require("./NomadInvasionMapobject");
 const NomadKhanInvasionMapobject = require("./NomadKhanInvasionMapobject");
 const RedAlienInvasionMapobject = require("./RedAlienInvasionMapobject");
 const ShapeshifterMapobject = require("./ShapeshifterMapobject");
-const BasicMapobject = require("./BasicMapobject");
-const Coordinate = require("./Coordinate");
-const Client = require("../Client");
 
 class BasicMovement {
     /**
@@ -81,17 +78,17 @@ function getAreaFromInfo(client, info) {
         case 10: return new VillageMapobject(client, info);
         case 11: return new BossDungeonMapobject(client, info);
         case 12: return new CastleMapobject(client, info);
-        case 21: return new AlienInvasionMapobject(client, data);
+        case 21: return new AlienInvasionMapobject(client, info);
         case 22: return new CapitalMapobject(client, info);
         case 23: return new KingstowerMapobject(client, info);
         case 24: return new ResourceIsleMapobject(client, info);
         case 25: return new DungeonIsleMapobject(client, info);
         case 26: return new MonumentMapobject(client, info);
         case 27: return new NomadInvasionMapobject(client, info);
-        case 31: return new DynamicMapobject(client, data);
-        case 34: return new RedAlienInvasionMapobject(client, data);
+        case 31: return new DynamicMapobject(client, info);
+        case 34: return new RedAlienInvasionMapobject(client, info);
         case 35: return new NomadKhanInvasionMapobject(client, info);
-        case 36: return new ShapeshifterMapobject(client, data);
+        case 36: return new ShapeshifterMapobject(client, info);
         default:
             console.log(`Current mapobject (areatype ${info[0]}) isn't fully supported!`);
             return new InteractiveMapobject(client, info);

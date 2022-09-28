@@ -1,6 +1,4 @@
-const Client = require("../Client");
 const RelicEffect = require("./RelicEffect");
-const RelicEquipment = require("./RelicEquipment");
 
 class RelicGem {
     /**

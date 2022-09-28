@@ -1,7 +1,6 @@
 const BasicMovement = require("./BasicMovement");
 const Good = require("./Good");
 const Unit = require("./Unit");
-const Client = require('./../Client');
 
 class ArmyTravelMovement extends BasicMovement {
     /**
@@ -26,7 +25,7 @@ class ArmyTravelMovement extends BasicMovement {
  */
 function parseGoods(client, data) {
     let goods = []
-    for (i in data) {
+    for (let i in data) {
         goods.push(new Good(client, data[i]));
     }
     return goods;
@@ -40,7 +39,7 @@ function parseGoods(client, data) {
  */
 function parseArmy(client, data) {
     let army = [];
-    for (i in data) {
+    for (let i in data) {
         let _wodId = data[i][0];
         let _count = data[i][1];
         army.push({

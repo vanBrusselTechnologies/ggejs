@@ -1,5 +1,4 @@
 const effectsJson = require('./../data/ingame_data/effects.json');
-const Client = require("../Client");
 
 class Effect {
     /**
@@ -35,7 +34,7 @@ class Effect {
  * @returns {object}
  */
 function getDataFromJson(id) {
-    for (i in effectsJson) {
+    for (let i in effectsJson) {
         if (parseInt(effectsJson[i].effectID) === id) {
             return effectsJson[i];
         }

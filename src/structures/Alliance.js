@@ -1,9 +1,4 @@
-const CapitalMapobject = require("./CapitalMapobject");
-const KingstowerMapobject = require("./KingstowerMapobject");
-const MonumentMapobject = require("./MonumentMapobject");
 const AllianceMember = require("./AllianceMember");
-const Client = require("./../Client");
-const MetropolMapobject = require("./MetropolMapobject");
 
 class Alliance {
     #landmarks = [];
@@ -28,14 +23,14 @@ class Alliance {
         /** @type {number} */
         this.allianceFamePointsHighestReached = -1;
         /** @type {boolean} */
-        this.canInvitedForHardPact = data.HP == 1;
+        this.canInvitedForHardPact = data.HP === 1;
         /** @type {boolean} */
-        this.canInvitedForSoftPact = data.SP == 1;
+        this.canInvitedForSoftPact = data.SP === 1;
         if (data.IS)
             /** @type {boolean} */
-            this.isSearchingMembers = data.IS == 1;
+            this.isSearchingMembers = data.IS === 1;
         /** @type {boolean} */
-        this.isOpenAlliance = data.IA != 0;
+        this.isOpenAlliance = data.IA !== 0;
         if (data.FR)
             /** @type {number} */
             this.freeRenames = data.FR;

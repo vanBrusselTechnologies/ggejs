@@ -3,6 +3,7 @@ const BasicBuilding = require("./../../../structures/BasicBuilding");
 module.exports = {
     name: "gca",
     /**
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

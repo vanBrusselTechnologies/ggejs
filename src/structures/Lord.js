@@ -4,10 +4,6 @@ const Effect = require('./Effect');
 const equipmentSets = require("./../data/ingame_data/equipment_sets.json");
 const effectCaps = require("./../data/ingame_data/effectCaps.json");
 const lords = require("./../data/ingame_data/lords.json");
-const Client = require("../Client");
-const RelicEffect = require("./RelicEffect");
-const RelicGem = require("./RelicGem");
-const Gem = require("./Gem");
 
 class Lord {
     /**
@@ -241,7 +237,7 @@ function parseDummyEffects(client, effectsData) {
     let _effects = [];
     let __effects = effectsData.split(",");
     let data = [];
-    for (i in __effects) {
+    for (let i in __effects) {
         data.push(__effects[i].split("&amp;"));
     }
     for (let i in data) {

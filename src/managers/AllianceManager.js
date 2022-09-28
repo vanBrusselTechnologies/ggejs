@@ -1,9 +1,6 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const { Socket } = require('node:net');
-const Alliance = require('./../structures/Alliance');
-const MyAlliance = require('./../structures/MyAlliance');
 const searchAllianceByIdCommand = require('./../e4kserver/commands/searchAllianceById');
 const getAllianceRankingsCommand = require('./../e4kserver/commands/getAllianceRankings');
 const { WaitUntil } = require('./../tools/wait');

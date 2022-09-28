@@ -1,5 +1,3 @@
-const Client = require('./../Client');
-
 class AllianceDonations {
     /**
      * 

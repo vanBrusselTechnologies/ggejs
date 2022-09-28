@@ -1,7 +1,5 @@
 const Effect = require("./Effect");
 const gems = require('./../data/ingame_data/gems.json');
-const Equipment = require("./Equipment");
-const Client = require("../Client");
 
 class Gem {
     /**
@@ -33,7 +31,7 @@ class Gem {
  * @returns {object}
  */
 function getDataFromJson(id) {
-    for (i in gems) {
+    for (let i in gems) {
         if (parseInt(gems[i].gemID) === id) {
             return gems[i];
         }
@@ -49,7 +47,7 @@ function getDataFromJson(id) {
 function parseEffects(client, _data) {
     let _effects = _data.split(",");
     let data = [];
-    for (i in _effects) {
+    for (let i in _effects) {
         data.push(_effects[i].split("&amp;"));
     }
     let effects = [];

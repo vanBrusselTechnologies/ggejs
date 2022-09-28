@@ -3,7 +3,7 @@ const ChatMessage = require("./../../../structures/ChatMessage");
 module.exports = {
     name: "acm",
     /**
-     * 
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

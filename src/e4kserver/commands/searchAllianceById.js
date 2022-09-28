@@ -1,7 +1,7 @@
 module.exports = {
     name: "ain",
     /**
-     * 
+     * @param {Socket} socket
      * @param {number} allianceId
      */
     execute(socket, allianceId) {

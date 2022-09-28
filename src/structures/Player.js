@@ -5,20 +5,19 @@ const KingstowerMapobject = require("./KingstowerMapobject");
 const MonumentMapobject = require("./MonumentMapobject");
 const CapitalMapobject = require("./CapitalMapobject");
 const InteractiveMapobject = require("./InteractiveMapobject");
-const Client = require("../Client");
 const Coordinate = require("./Coordinate");
 
 class Player {
     /**
-     * 
-     * @param {Client} client 
-     * @param {object} data 
+     *
+     * @param {Client} client
+     * @param {object} data
      */
     constructor(client, data) {
         /** @type {number} */
         this.playerId = data.O.OID;
         /** @type {boolean} */
-        this.isDummy = data.O.DUM == 1;
+        this.isDummy = data.O.DUM === 1;
         /** @type {string} */
         this.playerName = data.O.N;
         //this.crest = new Crest(client, data.O.E);
@@ -48,10 +47,9 @@ class Player {
         if (data.O.RPT > 0)
             /** @type {Date} */
             this.peaceEndTime = new Date(Date.now() + data.O.RPT * 1000);
-        if (data.O.AP) {
+        if (!data.gcl) {
             this.castles = parseSimpleCastleList(client, data.O.AP);
-        }
-        else {
+        } else {
             /** @type {(CastleMapobject | CapitalMapobject)[]} */
             this.castles = parseCastleList(client, data.gcl);
             /** @type {{public:{village:VillageMapobject,units?:{unit:Unit, count:number}[]}[], private:{privateVillageId: number, uniqueId: number}[]}} */
@@ -92,18 +90,18 @@ class Player {
                 this.factionNoobProtectionEndTime = new Date(Date.now() + data.O.FN.NS * 1000);
         }
     }
-};
+}
 
 /**
- * 
+ *
  * @param {Client} client
- * @param {Array} _data 
+ * @param {Array} _data
  * @returns {{areaType: number, position: Coordinate, objectId: number, kingdomId: number}[]}
  */
 function parseSimpleCastleList(client, _data) {
-    if (!_data) return;
     let output = [];
-    for (i in _data) {
+    if (!_data) return output;
+    for (let i in _data) {
         /** @type {Array} */
         let data = _data[i];
         output.push({
@@ -117,25 +115,31 @@ function parseSimpleCastleList(client, _data) {
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {object} data 
+ *
+ * @param {Client} client
+ * @param {object} data
  * @returns {(CastleMapobject | CapitalMapobject)[]}
  */
 function parseCastleList(client, data) {
-    if (!data) return;
     let output = [];
-    for (i in data.C) {
-        for (j in data.C[i].AI) {
+    if (!data) return output;
+    for (let i in data.C) {
+        for (let j in data.C[i].AI) {
             let obj = data.C[i].AI[j];
             let mapObject;
             switch (obj.AI[0]) {
-                case 1: ;
-                case 4: ;
-                case 12: mapObject = new CastleMapobject(client, obj.AI); break;
-                case 3: ;
-                case 22: mapObject = new CapitalMapobject(client, obj.AI); break;
-                default: mapObject = new InteractiveMapobject(client, obj.AI); break;
+                case 1:
+                case 4:
+                case 12:
+                    mapObject = new CastleMapobject(client, obj.AI);
+                    break;
+                case 3:
+                case 22:
+                    mapObject = new CapitalMapobject(client, obj.AI);
+                    break;
+                default:
+                    mapObject = new InteractiveMapobject(client, obj.AI);
+                    break;
             }
             if (obj.OGT) mapObject["remainingOpenGateTime"] = obj.OGT;
             if (obj.OGC) mapObject["openGateCounter"] = obj.OGC;
@@ -149,15 +153,16 @@ function parseCastleList(client, data) {
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {object} data 
+ *
+ * @param {Client} client
+ * @param {object} data
  * @returns {{ public: { village: VillageMapobject, units?: { unit: Unit, count: number }[] }[], private: { privateVillageId: number, uniqueId: number }[]}}
  */
 function parseVillageList(client, data) {
-    if (!data) return;
     let publicVillagesData = [];
-    for (i in data.VI) {
+    let privateVillagesData = [];
+    if (!data) return {public: publicVillagesData, private: privateVillagesData};
+    for (let i in data.VI) {
         let publicVillage = {};
         publicVillage["village"] = new VillageMapobject(client, data.VI[0][0]);
         if (data.VI[i].length >= 2) {
@@ -165,24 +170,22 @@ function parseVillageList(client, data) {
         }
         publicVillagesData.push(publicVillage)
     }
-    let privateVillagesData = [];
-    for (i in data.PV) {
-        privateVillagesData.push({ uniqueId: data.PV[i].VID, privateVillageId: data.PV[i].XID });
+    for (let i in data.PV) {
+        privateVillagesData.push({uniqueId: data.PV[i].VID, privateVillageId: data.PV[i].XID});
     }
-    let output = { public: publicVillagesData, private: privateVillagesData };
-    return output;
+    return {public: publicVillagesData, private: privateVillagesData};
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} data 
+ *
+ * @param {Client} client
+ * @param {Array} data
  * @returns {{unit:Unit, count:number}[]}
  */
 function parseUnits(client, data) {
-    if (!data) return;
     let output = [];
-    for (i in data) {
+    if (!data) return output;
+    for (let i in data) {
         output.push({
             unit: new Unit(client, data[i][0]),
             count: data[i][1],
@@ -192,39 +195,39 @@ function parseUnits(client, data) {
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {object} data 
+ *
+ * @param {Client} client
+ * @param {object} data
  * @returns {KingstowerMapobject[]}
  */
 function parseKingstowers(client, data) {
-    if (!data) return;
     let kingstowers = [];
-    for (i in data.AI) {
+    if (!data) return kingstowers;
+    for (let i in data.AI) {
         let kingstower = new KingstowerMapobject(client, data.AI[i][0]);
         let units = [];
         if (data.AI[i].length >= 2 && data.AI[i][1] && data.AI[i][1].length > 0)
             units = parseUnits(client, data.AI[i][1]);
-        kingstowers.push({ kingstower: kingstower, units: units });
+        kingstowers.push({kingstower: kingstower, units: units});
     }
     return kingstowers;
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {object} data 
+ *
+ * @param {Client} client
+ * @param {object} data
  * @returns {MonumentMapobject[]}
  */
 function parseMonuments(client, data) {
-    if (!data) return;
     let monuments = [];
-    for (i in data.AI) {
+    if (!data) return monuments;
+    for (let i in data.AI) {
         let monument = new MonumentMapobject(client, data.AI[i][0]);
         let units = [];
         if (data.AI[i].length >= 2 && data.AI[i][1] && data.AI[i][1].length > 0)
             units = parseUnits(client, data.AI[i][1]);
-        monuments.push({ monument: monument, units: units });
+        monuments.push({monument: monument, units: units});
     }
     return monuments;
 }

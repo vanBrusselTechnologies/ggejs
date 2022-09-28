@@ -1,8 +1,12 @@
 module.exports = {
     name: "gaa",
     /**
-     * 
-     * @param {number} allianceId
+     * @param {Socket} socket
+     * @param {number} kingdomId
+     * @param {number} leftX
+     * @param {number} topY
+     * @param {number} rightX
+     * @param {number} bottomY
      */
     execute(socket, kingdomId, leftX, topY, rightX, bottomY) {
         let C2SGetAreasVO = {

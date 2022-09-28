@@ -2,7 +2,6 @@ const BasicMapobject = require("./BasicMapobject");
 const Unit = require("./Unit");
 const dungeons = require("./../data/ingame_data/dungeons.json");
 const Lord = require("./Lord");
-const Client = require("../Client");
 
 class DungeonMapobject extends BasicMapobject {
     /** @type {Client} */
@@ -47,7 +46,7 @@ class DungeonMapobject extends BasicMapobject {
         this.xp = Math.round(Math.max(1, Math.pow(0.5 * this.level, 1.1)));
     }
     /**
-     * @returns {{ troops: { left: { unit: Unit, count: number }, middle: { unit: Unit, count: number }, right: { unit: Unit, count: number }, center: { unit: Unit, count: number } }, tools: { left: { unit: Unit, count: number }, middle: { unit: Unit, count: number }, right: { unit: Unit, count: number }, center: { unit: Unit, count: number } } }}
+     * @returns {{ troops: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] }, tools: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] } }}
      */
     get defence() {
         if (this._defence) return this._defence;
@@ -59,7 +58,7 @@ class DungeonMapobject extends BasicMapobject {
                 }
             }
         }
-        /** @type {{ troops: { left: { unit: Unit, count: number }, middle: { unit: Unit, count: number }, right: { unit: Unit, count: number }, center: { unit: Unit, count: number } }, tools: { left: { unit: Unit, count: number }, middle: { unit: Unit, count: number }, right: { unit: Unit, count: number }, center: { unit: Unit, count: number } } }} */
+        /** @type {{ troops: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] }, tools: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] } }} */
         this._defence = {
             troops: {
                 left: parseUnits(this.#client, this._rawData.unitsL),

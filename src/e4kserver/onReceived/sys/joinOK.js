@@ -18,7 +18,7 @@ module.exports = {
         room.specCount = 0;
         playerId = _playerId;
         room.myPlayerIndex = _playerId;
-        if (_body.vars.toString().length > 0 && JSON.stringify(_body.vars) != "{}") {
+        if (_body.vars.toString().length > 0 && JSON.stringify(_body.vars) !== "{}") {
             room.variables = [];
             room.variables = populateVariables(room.variables, _body);
         }
@@ -26,8 +26,8 @@ module.exports = {
             for (let _user in _users) {
                 userName = _user.n;
                 userId = _user.$.i;
-                isModerator = _user.$.m == "1" ? true : false;
-                isSpectator = _user.$.s == "1" ? true : false;
+                isModerator = _user.$.m === "1";
+                isSpectator = _user.$.s === "1";
                 playerId = _user.$.p == null ? -1 : parseInt(_user.$.p);
                 user = {
                     id: userId,
@@ -48,4 +48,11 @@ module.exports = {
         require('./../../room.js').setRoomListIndex(roomID, _loc6_);
         require('./../../room.js').onJoinRoom(socket, { params: _loc6_ });
     }
+}
+
+function populateVariables(variables, xmlData, changedVars = null){
+    console.log("joinOK -> populateVariables")
+    console.log(variables);
+    console.log(xmlData);
+    console.log(changedVars);
 }

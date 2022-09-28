@@ -1,5 +1,4 @@
 const Unit = require("./Unit");
-const Client = require('./../Client');
 
 class CompactArmy {
     armySize = 0;
@@ -21,7 +20,7 @@ class CompactArmy {
         this.right = parse(client, data.R);
         /** @type {{ unit: Unit, count: number }[]} */
         this.supportTools = parse(client, data.AST);
-        for (i in this.left) {
+        for (let i in this.left) {
             let _count = this.left[i].count;
             this.armySize += _count;
             let _unit = this.left[i].unit;
@@ -30,7 +29,7 @@ class CompactArmy {
             else
                 this.toolCount += _count;
         }
-        for (i in this.middle) {
+        for (let i in this.middle) {
             let _count = this.middle[i].count;
             this.armySize += _count;
             let _unit = this.middle[i].unit;
@@ -39,7 +38,7 @@ class CompactArmy {
             else
                 this.toolCount += _count;
         }
-        for (i in this.right) {
+        for (let i in this.right) {
             let _count = this.right[i].count;
             this.armySize += _count;
             let _unit = this.right[i].unit;
@@ -48,7 +47,7 @@ class CompactArmy {
             else
                 this.toolCount += _count;
         }
-        for (i in this.supportTools) {
+        for (let i in this.supportTools) {
             let _count = this.supportTools[i].count;
             this.armySize += _count;
             let _unit = this.supportTools[i].unit;

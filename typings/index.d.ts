@@ -1,9 +1,9 @@
 import { EventEmitter } from "node:events";
 import { Socket } from 'node:net';
 
-/** Base class for an playeraccount */
+/** Base class for a playeraccount */
 export class Client extends EventEmitter {
-    public constructor(name: string, password: string, reconnectTimeoutInSeconds: number = 300);
+    public constructor(name: string, password: string, reconnectTimeoutInSeconds: number);
     private _socket: Socket;
     /** Login with your credentials */
     public connect(): Promise<Client>;
@@ -13,7 +13,7 @@ export class Client extends EventEmitter {
     public players: PlayerManager;
     public worldmaps: WorldmapManager;
     public sendChatMessage(message: string): void;
-    public set reconnectTimeout(val: number): void;
+    public set reconnectTimeout(val: number);
     public on<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
     public addListener<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
     emit<K extends keyof ClientEvents>(eventName: K, ...args: ClientEvents[K]): boolean;
@@ -87,7 +87,7 @@ export class BasicMovement {
 }
 
 export class ArmyAttackMovement extends BasicMovement {
-    private constructor(client: Client, data);
+    protected constructor(client: Client, data);
     public army?: CompactArmy;
     public armyState: number;
     public attackType: number;
@@ -97,18 +97,18 @@ export class ArmyAttackMovement extends BasicMovement {
 }
 
 export class ArmyTravelMovement extends BasicMovement {
-    private constructor(client: Client, data);
+    protected constructor(client: Client, data);
     public army: { unit: Unit, count: number }[];
     public goods?: Good[];
 }
 
 export class ConquerMovement extends BasicMovement {
-    private constructor(client: Client, data);
+    protected constructor(client: Client, data);
     public army: { unit: Unit, count: number }[];
 }
 
 export class MarketMovement extends BasicMovement {
-    private constructor(client: Client, data);
+    protected constructor(client: Client, data);
     public goods: Good[];
     public carriages: number;
 }
@@ -118,7 +118,7 @@ export class NpcAttackMovement extends ArmyAttackMovement {
 }
 
 export class SpyMovement extends BasicMovement {
-    private constructor(client: Client, data);
+    protected constructor(client: Client, data);
     public spyType: number;
     public spyCount: number;
     public spyRisk: number;
@@ -187,7 +187,7 @@ export class AllianceStatusListItem {
 }
 
 export class AllianceDonations {
-    private constructor(client: Client, data: Array);
+    private constructor(client: Client, data: Array<number>);
     public coins: number
     public rubies: number;
     public res: number;
@@ -319,7 +319,6 @@ export class Effect {
 
 export class RelicEffect extends Effect {
     public relicEffectId: number;
-    public power: number;
 }
 
 export class Player {
@@ -372,6 +371,13 @@ export class Unit {
     private constructor(client: Client, wodId: number);
     public wodId: number;
     public isSoldier: boolean;
+    public rangeAttack?: number;
+    public meleeAttack?: number;
+    public rangeBonus?: number;
+    public meleeBonus?: number;
+    public fightType?: number;
+    public rangeDefence?: number;
+    public meleeDefence?: number;
 }
 
 export class Worldmap {
@@ -401,7 +407,7 @@ export class AlienInvasionMapobject extends BasicMapobject {
 }
 
 export class BasicMapobject {
-    private constructor(client: Client, data: Array);
+    protected constructor(client: Client, data: Array<any>);
     public areaType: number;
     public position: Coordinate;
 }
@@ -448,7 +454,6 @@ export class DungeonIsleMapobject extends BasicMapobject {
 }
 
 export class DungeonMapobject extends BasicMapobject {
-    private #client: Client;
     private _rawData: object;
     public lastSpyDate?: Date;
     public attackCount: number;
@@ -606,11 +611,13 @@ export interface ConstantsEvents {
     MOVEMENT_UPDATE: "movementUpdate";
     MOVEMENT_CANCEL: "movementCancelled";
     SERVER_SHUTDOWN: "serverShutdown";
+    SERVER_SHUTDOWN_OVER: "serverShutdownOver";
     CONNECTED: "connected";
     CHAT_MESSAGE: "chatMessage";
 }
 //#endregion
 
+//#region Constants
 export const Constants: {
     Events: ConstantsEvents;
     Kingdom: Kingdom;
@@ -683,3 +690,100 @@ export interface AllianceRank {
     Member: 8,
     Applicant: 9,
 }
+//#endregion
+
+//#region RawStructures
+/** */
+export class RawUnit {
+    wodID?: string;
+    comment2?: string;
+    group?: string;
+    name?: string;
+    type?: string;
+    role?: string;
+    healingCostC1?: string;
+    healingCostC2?: string;
+    skipCostC2?: string;
+    healingTime?: string;
+    reviveAllCostC2?: string;
+    foodSupply?: string;
+    meleeAttack?: string;
+    rangeAttack?: string;
+    meleeDefence?: string;
+    rangeDefence?: string;
+    kIDs?: string;
+    canBeUsedByNPC?: string;
+    sortOrder?: string;
+    buildingLevel?: string;
+    mightValue?: string;
+    fameAsDef?: string;
+    comment1?: string;
+    researchLocked?: string;
+    speed?: string;
+    recruitmentTime?: string;
+    lowLevelRecruitmentTime?: string;
+    costC1?: string;
+    healingOrder?: string;
+    cleavageOfCellsCost?: string;
+    kingdomTravellingCost?: string;
+    lootValue?: string;
+    fightType?: string;
+    hybrid?: string;
+    fameAsOff?: string;
+    allowedForNpcAttackInKingdom?: string;
+    upgradeWodID?: string;
+    level?: string;
+    downgradeWodID?: string;
+    eventIDs?: string;
+    inventoryType?: string;
+    palaceLockedByKID?: string;
+    canBeUsedToAttackNPC?: string;
+    fireBoost?: string;
+    isAuxiliary?: string;
+    factionID?: string;
+    isKamikaze?: string;
+    meadSupply?: string;
+    allowedToTravel?: string;
+    typ?: string;
+    slotTypes?: string;
+    toolCategory?: string;
+    costWood?: string;
+    costStone?: string;
+    attackscreenBuyable?: string;
+    gateBonus?: string;
+    costC2?: string;
+    tempServerCostC2?: string;
+    khanTabletBooster?: string;
+    allowedToAttack?: string;
+    deleteToolAfterBattle?: string;
+    pointBonus?: string;
+    fameBonus?: string;
+    samuraiTokenBooster?: string;
+    wallBonus?: string;
+    pearlBooster?: string;
+    moatBonus?: string;
+    defRangeBonus?: string;
+    offMeleeBonus?: string;
+    offRangeBonus?: string;
+    xpBonus?: string;
+    amountPerWave?: string;
+    ragePointBonus?: string;
+    khanMedalBooster?: string;
+    defMeleeBonus?: string;
+    c1Bonus?: string;
+    numberofDolls?: string;
+    dollWod?: string;
+    costComponent1?: string;
+    costComponent6?: string;
+    skillUnlockID?: string;
+    costComponent3?: string;
+    costComponent8?: string;
+    costComponent2?: string;
+    costComponent7?: string;
+    costComponent5?: string;
+    costComponent4?: string;
+    isYardTool?: string;
+    effects?: string;
+    unitWallCount?: string;
+}
+//#endregion

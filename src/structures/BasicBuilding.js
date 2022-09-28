@@ -1,5 +1,4 @@
 const Coordinate = require("./Coordinate");
-const Client = require('./../Client');
 
 class BasicBuilding {
     /**

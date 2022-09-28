@@ -1,4 +1,3 @@
-const Client = require("../Client");
 const BasicMovement = require("./BasicMovement");
 
 class SpyMovement extends BasicMovement {

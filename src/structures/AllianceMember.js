@@ -1,6 +1,3 @@
-const Alliance = require("./Alliance");
-const Client = require("./../Client");
-
 class AllianceMember {
     /**
      * 

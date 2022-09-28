@@ -1,7 +1,7 @@
 module.exports = {
     name: "login",
     /**
-     * 
+     * @param {Socket} socket
      * @param {string} name
      * @param {string} password
      */

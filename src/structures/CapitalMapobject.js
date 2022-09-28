@@ -1,5 +1,4 @@
 const BasicMapobject = require("./BasicMapobject");
-const Client = require('./../Client');
 
 class CapitalMapobject extends BasicMapobject {
     /**

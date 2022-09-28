@@ -3,6 +3,7 @@ const Lord = require("./../../../structures/Lord");
 module.exports = {
     name: "gli",
     /**
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */

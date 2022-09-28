@@ -1,7 +1,5 @@
 const Gem = require("./Gem");
 const Effect = require("./Effect");
-const Lord = require("./Lord");
-const Client = require("../Client");
 
 class Equipment {
     /**

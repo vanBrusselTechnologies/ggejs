@@ -1,7 +1,7 @@
 module.exports = {
     name: "mrm",
     /**
-     * 
+     * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
      */
