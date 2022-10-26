@@ -7,7 +7,7 @@ module.exports = {
      * @param {string} field 
      * @param {string} errorField
      * @param {number} maxMs
-     * @returns 
+     * @returns Promise<void>
      */
     WaitUntil(socket, field, errorField = "", maxMs = _maxMS) {
         return _WaitUntil(socket, field, errorField, new Date(Date.now() + maxMs).getTime());

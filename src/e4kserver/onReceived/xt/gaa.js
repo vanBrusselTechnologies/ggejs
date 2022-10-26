@@ -27,44 +27,100 @@ module.exports = {
         if (params === undefined) return;
         try {
             let _worldmapAreas = parseWorldmapAreas(socket.client, params.AI);
+            if (_worldmapAreas.length === 0) return;
             let _players = parsePlayers(socket.client, params.OI);
+            const position = _worldmapAreas[0].position;
+            let x = Math.floor(position.X / 100);
+            let y = Math.floor(position.Y / 100);
+            if (socket[`__worldmap_${params.KID}_specific_sector_${x}_${y}_searching`]) {
+                socket[`__worldmap_${params.KID}_specific_sector_${x}_${y}_data`] = {
+                    worldmapAreas: _worldmapAreas,
+                    players: _players
+                };
+                socket[`__worldmap_${params.KID}_specific_sector_${x}_${y}_found`] = true;
+                return;
+            }
             let sector = socket[`__worldmap_${params.KID}_sectors_found`];
-            socket[`__worldmap_${params.KID}_sector_${sector}_data`] = { worldmapAreas: _worldmapAreas, players: _players };
+            socket[`__worldmap_${params.KID}_sector_${sector}_data`] = {
+                worldmapAreas: _worldmapAreas,
+                players: _players
+            };
             socket[`__worldmap_${params.KID}_sector_${sector}_found`] = true;
             socket[`__worldmap_${params.KID}_sectors_found`] += 1;
-        }
-        catch (e) {
-            if(socket["debug"]) console.log(e);
+        } catch (e) {
+            if (socket["debug"]) console.log(e);
             let sector = socket[`__worldmap_${params.KID}_sectors_found`];
             socket[`__get_worldmap_${params.KID}_sector_${sector}_error`] = e;
         }
     }
 }
 
+/**
+ *
+ * @returns {Mapobject[]}
+ */
 function parseWorldmapAreas(client, _data) {
     let worldmapAreas = [];
     for (let i in _data) {
         let data = _data[i];
         switch (data[0]) {
-            case 0: worldmapAreas.push(new EmptyMapobject(client, data)); break;
-            case 1: worldmapAreas.push(new CastleMapobject(client, data)); break;
-            case 2: worldmapAreas.push(new DungeonMapobject(client, data)); break;
-            case 3: worldmapAreas.push(new CapitalMapobject(client, data)); break;
-            case 4: worldmapAreas.push(new CastleMapobject(client, data)); break;
-            case 10: worldmapAreas.push(new VillageMapobject(client, data)); break;
-            case 11: worldmapAreas.push(new BossDungeonMapobject(client, data)); break;
-            case 12: worldmapAreas.push(new CastleMapobject(client, data)); break;
-            case 21: worldmapAreas.push(new AlienInvasionMapobject(client, data)); break;
-            case 22: worldmapAreas.push(new CapitalMapobject(client, data)); break;
-            case 23: worldmapAreas.push(new KingstowerMapobject(client, data)); break;
-            case 24: worldmapAreas.push(new ResourceIsleMapobject(client, data)); break;
-            case 25: worldmapAreas.push(new DungeonIsleMapobject(client, data)); break;
-            case 26: worldmapAreas.push(new MonumentMapobject(client, data)); break;
-            case 27: worldmapAreas.push(new NomadInvasionMapobject(client, data)); break;
-            case 31: worldmapAreas.push(new DynamicMapobject(client, data)); break;
-            case 34: worldmapAreas.push(new RedAlienInvasionMapobject(client, data)); break;
-            case 35: worldmapAreas.push(new NomadKhanInvasionMapobject(client, data)); break;
-            case 36: worldmapAreas.push(new ShapeshifterMapobject(client, data)); break;
+            case 0:
+                worldmapAreas.push(new EmptyMapobject(client, data));
+                break;
+            case 1:
+                worldmapAreas.push(new CastleMapobject(client, data));
+                break;
+            case 2:
+                worldmapAreas.push(new DungeonMapobject(client, data));
+                break;
+            case 3:
+                worldmapAreas.push(new CapitalMapobject(client, data));
+                break;
+            case 4:
+                worldmapAreas.push(new CastleMapobject(client, data));
+                break;
+            case 10:
+                worldmapAreas.push(new VillageMapobject(client, data));
+                break;
+            case 11:
+                worldmapAreas.push(new BossDungeonMapobject(client, data));
+                break;
+            case 12:
+                worldmapAreas.push(new CastleMapobject(client, data));
+                break;
+            case 21:
+                worldmapAreas.push(new AlienInvasionMapobject(client, data));
+                break;
+            case 22:
+                worldmapAreas.push(new CapitalMapobject(client, data));
+                break;
+            case 23:
+                worldmapAreas.push(new KingstowerMapobject(client, data));
+                break;
+            case 24:
+                worldmapAreas.push(new ResourceIsleMapobject(client, data));
+                break;
+            case 25:
+                worldmapAreas.push(new DungeonIsleMapobject(client, data));
+                break;
+            case 26:
+                worldmapAreas.push(new MonumentMapobject(client, data));
+                break;
+            case 27:
+                worldmapAreas.push(new NomadInvasionMapobject(client, data));
+                break;
+            case 31:
+                worldmapAreas.push(new DynamicMapobject(client, data));
+                break;
+            case 34:
+                worldmapAreas.push(new RedAlienInvasionMapobject(client, data));
+                break;
+            case 35:
+                worldmapAreas.push(new NomadKhanInvasionMapobject(client, data));
+                break;
+            case 36:
+                worldmapAreas.push(new ShapeshifterMapobject(client, data));
+                break;
             default:
                 console.log(`Current mapobject (areatype ${data[0]}) isn't fully supported!`);
                 console.log(data);
@@ -77,7 +133,7 @@ function parseWorldmapAreas(client, _data) {
 function parsePlayers(client, _data) {
     let players = [];
     for (let i in _data) {
-        let data = { O: _data[i] };
+        let data = {O: _data[i]};
         let _player = new Player(client, data);
         players.push(_player);
     }

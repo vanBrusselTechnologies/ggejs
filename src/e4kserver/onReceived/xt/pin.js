@@ -1,4 +1,4 @@
-const { execute: sendPingPong } = require('./../../commands/pingpong.js');
+const {execute: sendPingPong} = require('./../../commands/pingpong.js');
 
 module.exports = {
     name: "pin",
@@ -13,11 +13,11 @@ module.exports = {
             let json = JSON.parse(params.shift());
             nextPingTimeout = parseInt(json.NP) * 1000;
         }
-        if(socket["inPingTimeout"]) return;
+        if (socket["inPingTimeout"]) return;
         socket["inPingTimeout"] = true;
         setTimeout(function () {
             socket["inPingTimeout"] = false;
-           sendPingPong(socket);
+            sendPingPong(socket);
         }, nextPingTimeout);
     }
 }

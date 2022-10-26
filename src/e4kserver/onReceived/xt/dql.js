@@ -4,6 +4,7 @@ const sendSpyMovement = require("./../../commands/sendSpyMovement");
 const sendMarketMovement = require("./../../commands/sendMarketMovement");
 const buildings = require("./../../../data/ingame_data/buildings.json");
 const sendArmyAttackMovement = require("./../../commands/sendArmyAttackMovement");
+const mercenariesPackageCommand = require('./../../commands/mercenariesPackageCommand');
 
 module.exports = {
     name: "dql",
@@ -23,9 +24,6 @@ module.exports = {
                 return;
             }
             let myMainCastle = thisPlayer.castles.find(x => x.areaType === 1);
-            /** @type {Worldmap} */
-            let ClassicMap = await client.worldmaps.get(0);
-            const closestDungeonClassicMap = await getClosestDungeon(client, myMainCastle, false);
             for (let i in params.RDQ) {
                 let quest = params.RDQ[i];
                 for (let j in dailyActivities) {
@@ -45,9 +43,10 @@ module.exports = {
                             case 2:
                                 try {
                                     const mainCastleInfo = await client.getCastleInfo(myMainCastle);
+                                    const dungeon = await getClosestDungeon(client, myMainCastle, false);
                                     let _foundBuildings = mainCastleInfo.castle.buildings;
                                     let horseWodId = getHorseWodId(_foundBuildings, 1);
-                                    sendSpyMovement.execute(socket, myMainCastle, closestDungeonClassicMap, 1, 0, 50, horseWodId);
+                                    sendSpyMovement.execute(socket, myMainCastle, dungeon, 1, 0, 50, horseWodId);
                                 } catch (e) {
                                     if (socket["debug"])
                                         console.log(e);
@@ -58,7 +57,21 @@ module.exports = {
                             case 4:
                                 if (!socket["dailyGoodsTravelTryCount"]) socket["dailyGoodsTravelTryCount"] = 0;
                                 const goods = [["W", 1], ["S", 1], ["F", 1]];
-                                let nonRuins = ClassicMap.players.filter(x => !x.isRuin && x.playerId !== thisPlayer.playerId);
+                                let sectorXCastle = Math.floor(myMainCastle.position.X / 100);
+                                let sectorYCastle = Math.floor(myMainCastle.position.Y / 100);
+                                let xArray = [sectorXCastle];
+                                if (sectorXCastle % 1 < 0.2) xArray.push(sectorXCastle - 1); else if (sectorXCastle % 1 > 0.8) xArray.push(sectorXCastle + 1);
+                                let yArray = [sectorYCastle];
+                                if (sectorYCastle % 1 < 0.2) yArray.push(sectorYCastle - 1); else if (sectorYCastle % 1 > 0.8) yArray.push(sectorYCastle + 1);
+                                let worldmap = await client.worldmaps.getSector(myMainCastle.kingdomId, sectorXCastle, sectorYCastle);
+                                for (let x of xArray) {
+                                    for (let y of yArray) {
+                                        if (x === sectorXCastle && y === sectorYCastle) continue;
+                                        let sector = await client.worldmaps.getSector(myMainCastle.kingdomId, x, y);
+                                        worldmap.combine(sector);
+                                    }
+                                }
+                                let nonRuins = worldmap.players.filter(x => !x.isRuin && x.playerId !== thisPlayer.playerId);
                                 nonRuins.sort((a, b) => {
                                     let distanceA = 10000;
                                     for (let k in a.castles) {
@@ -93,13 +106,15 @@ module.exports = {
                                 break; //resourceToPlayer
                             case 5:
                                 if (socket["dailySpyAt"] !== quest.P || socket["dailySpyTime"] + 1800000 < Date.now()) {
-                                    sendSpyMovement.execute(socket, myMainCastle, closestDungeonClassicMap, Math.round(client["maxSpies"] / 4), 0, 50);
+                                    const dungeon = await getClosestDungeon(client, myMainCastle, false);
+                                    sendSpyMovement.execute(socket, myMainCastle, dungeon, Math.round(client["maxSpies"] / 4), 0, 50);
                                     socket["dailySpyAt"] = quest.P;
                                     socket["dailySpyTime"] = Date.now();
                                 }
                                 break; //spy
                             case 6:
                                 try {
+                                    let ClassicMap = await client.worldmaps.get(0);
                                     const closestRuinsOutpost = await getClosestRuinsOutpost(client, ClassicMap, myMainCastle);
                                     if (socket["dailySabotageAt"] !== quest.P || socket["dailySabotageTime"] + 1800000 < Date.now()) {
                                         sendSpyMovement.execute(socket, myMainCastle, await closestRuinsOutpost, Math.round(client["maxSpies"] / 4), 2, 10);
@@ -115,7 +130,7 @@ module.exports = {
                                 break; //sabotageDamage
                             case 7:
                                 try {
-                                    let lord = socket["generals"][0];
+                                    let lord = socket["commandants"][0];
                                     await attackDungeon(client, socket, thisPlayer, myMainCastle, lord);
                                 } catch (e) {
                                     if (socket["debug"])
@@ -128,8 +143,8 @@ module.exports = {
                                         x.kingdomId === 2 &&
                                         x.areaType === Constants.WorldmapArea.KingdomCastle
                                     );
-                                    if(!myKingdomCastle) break;
-                                    let lord = socket["generals"][1];
+                                    if (!myKingdomCastle) break;
+                                    let lord = socket["commandants"][1];
                                     await attackDungeon(client, socket, thisPlayer, myKingdomCastle, lord);
                                 } catch (e) {
                                     if (socket["debug"])
@@ -142,8 +157,8 @@ module.exports = {
                                         x.kingdomId === 1 &&
                                         x.areaType === Constants.WorldmapArea.KingdomCastle
                                     );
-                                    if(!myKingdomCastle) break;
-                                    let lord = socket["generals"][2];
+                                    if (!myKingdomCastle) break;
+                                    let lord = socket["commandants"][2];
                                     await attackDungeon(client, socket, thisPlayer, myKingdomCastle, lord);
                                 } catch (e) {
                                     if (socket["debug"])
@@ -156,8 +171,8 @@ module.exports = {
                                         x.kingdomId === 3 &&
                                         x.areaType === Constants.WorldmapArea.KingdomCastle
                                     );
-                                    if(!myKingdomCastle) break;
-                                    let lord = socket["generals"][3];
+                                    if (!myKingdomCastle) break;
+                                    let lord = socket["commandants"][3];
                                     await attackDungeon(client, socket, thisPlayer, myKingdomCastle, lord);
                                 } catch (e) {
                                     if (socket["debug"])
@@ -178,6 +193,7 @@ module.exports = {
                             case 21:
                                 break; //requestAllianceHelp
                             case 22:
+                                mercenariesPackageCommand.execute(socket, -1);
                                 break; //completeMercenaryMission
                             case 24:
                                 break; //countDungeons tempServer
@@ -187,6 +203,7 @@ module.exports = {
                                 break; //countBattles 15 tempServer
                             default:
                                 console.log("Unknown Daily Activity Quest!");
+                                console.log(quest);
                         }
                         break;
                     }
@@ -259,8 +276,20 @@ function getClosestRuinsOutpost(client, ClassicMap, myMainCastle) {
 function getClosestDungeon(client, castle, attackable = true) {
     return new Promise(async (resolve, reject) => {
         try {
-            /**@type {Worldmap} */
-            let worldmap = await client.worldmaps.get(castle.kingdomId);
+            let sectorXCastle = Math.floor(castle.position.X / 100);
+            let sectorYCastle = Math.floor(castle.position.Y / 100);
+            let xArray = [sectorXCastle];
+            if (sectorXCastle % 1 < 0.2) xArray.push(sectorXCastle - 1); else if (sectorXCastle % 1 > 0.8) xArray.push(sectorXCastle + 1);
+            let yArray = [sectorYCastle];
+            if (sectorYCastle % 1 < 0.2) yArray.push(sectorYCastle - 1); else if (sectorYCastle % 1 > 0.8) yArray.push(sectorYCastle + 1);
+            let worldmap = await client.worldmaps.getSector(castle.kingdomId, sectorXCastle, sectorYCastle);
+            for (let x of xArray) {
+                for (let y of yArray) {
+                    if (x === sectorXCastle && y === sectorYCastle) continue;
+                    let sector = await client.worldmaps.getSector(castle.kingdomId, x, y);
+                    worldmap.combine(sector);
+                }
+            }
             let dungeons = worldmap.mapobjects.filter(x => x.areaType === Constants.WorldmapArea.Dungeon && (!attackable || !x.attackCooldownEnd));
             dungeons.sort((a, b) => {
                 let distanceA = getDistance(castle, a);
@@ -359,7 +388,25 @@ function getDungeonProtection(dungeon) {
  * @returns {{middle: {range: number, melee: number}, left: {range: number, melee: number}, center: {range: number, melee: number}, right: {range: number, melee: number}}}
  */
 function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, usedTools) {
-    let defenceStrength = {
+    let meleeDefenceStrength = {
+        left: {
+            melee: 0,
+            range: 0,
+        },
+        middle: {
+            melee: 0,
+            range: 0,
+        },
+        right: {
+            melee: 0,
+            range: 0,
+        },
+        center: {
+            melee: 0,
+            range: 0,
+        }
+    }
+    let rangeDefenceStrength = {
         left: {
             melee: 0,
             range: 0,
@@ -383,8 +430,13 @@ function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, u
             const unit = dungeon.defence.troops[k][l].unit;
             /** @type {number} */
             const count = dungeon.defence.troops[k][l].count;
-            defenceStrength[k].range += unit.rangeDefence * count;
-            defenceStrength[k].melee += unit.meleeDefence * count;
+            if (unit.rangeDefence > unit.meleeDefence) {
+                rangeDefenceStrength[k].range += unit.rangeDefence * count;
+                rangeDefenceStrength[k].melee += unit.meleeDefence * count;
+                continue;
+            }
+            meleeDefenceStrength[k].range += unit.rangeDefence * count;
+            meleeDefenceStrength[k].melee += unit.meleeDefence * count;
         }
     }
     let defenceStrengthBonus = {
@@ -491,7 +543,7 @@ function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, u
     }
     for (let k in defenceStrengthTotal) {
         for (let l in defenceStrengthTotal[k]) {
-            defenceStrengthTotal[k][l] = defenceStrength[k][l] * totalDefenceBonus[k][l];
+            defenceStrengthTotal[k][l] = meleeDefenceStrength[k][l] * totalDefenceBonus[k].melee + rangeDefenceStrength[k][l] * totalDefenceBonus[k].range;
         }
     }
     return defenceStrengthTotal;
@@ -617,7 +669,7 @@ function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, _a
                 let _rangeDefenders = dungeon.defence.troops[i].filter(x => x.unit.rangeAttack > 0);
                 if (_rangeDefenders.length > 0) {
                     let availableShields = _availableTools.filter(x => x.unit.defRangeBonus != null);
-                    if(availableShields.length > 0) {
+                    if (availableShields.length > 0) {
                         let _tool = availableShields[0].unit;
                         let _toolUseCount = Math.ceil((100 + lordRangeDefenceBonus) / _tool.defRangeBonus);
                         _toolUseCount = Math.min(availableShields[0].count, _toolUseCount, maxToolCountOnSide - toolsUsedOnSide);
@@ -672,7 +724,7 @@ function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, _a
                 let _rangeDefenders = dungeon.defence.troops[i].filter(x => x.unit.rangeAttack > 0);
                 if (_rangeDefenders.length > 0) {
                     let availableShields = _availableTools.filter(x => x.unit.defRangeBonus != null);
-                    if(availableShields.length > 0) {
+                    if (availableShields.length > 0) {
                         let _tool = availableShields[0].unit;
                         let _toolUseCount = Math.ceil((100 + lordRangeDefenceBonus) / _tool.defRangeBonus);
                         _toolUseCount = Math.min(availableShields[0].count, _toolUseCount, maxToolCountOnSide - toolsUsedOnSide);
@@ -781,15 +833,20 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
             } else if (defenceStrength.center.melee > defenceStrength.center.range) {
                 if (rangeSoldiersSorted.length === 0) continue;
                 fillRange = true;
-            } else if (rangeSoldiersSorted.length > 0 || meleeSoldiersSorted.length > 0) {
-                if (meleeSoldiersSorted.length === 0 || rangeSoldiersSorted[0].count > meleeSoldiersSorted[0].count) {
-                    if (rangeSoldiersSorted.length === 0) continue;
-                    fillRange = true;
-                } else {
-                    if (meleeSoldiersSorted.length === 0) continue;
-                    fillMelee = true;
-                }
+            } else if (meleeSoldiersSorted.length === 0) {
+                if (rangeSoldiersSorted.length === 0) continue;
+                fillRange = true;
+            } else if (rangeSoldiersSorted.length === 0) {
+                if (meleeSoldiersSorted.length === 0) continue;
+                fillMelee = true;
+            } else if (rangeSoldiersSorted[0].count > meleeSoldiersSorted[0].count) {
+                if (rangeSoldiersSorted.length === 0) continue;
+                fillRange = true;
+            } else {
+                if (meleeSoldiersSorted.length === 0) continue;
+                fillMelee = true;
             }
+
             let sideAttackBonus = side === "M" ? frontAttackBonus : flankAttackBonus;
             if (fillRange) {
                 let unitCount = Math.min(maxSoldiersOnSide, rangeSoldiersSorted[0].count);
@@ -952,13 +1009,13 @@ function getMaxWaves(level, conquerAttack = false, additionalWaves = 0) {
 
 /**
  *
- * @param {BasicBuilding[]} buildings
+ * @param {BasicBuilding[]} castleBuildings
  * @param {number} type
  */
-function getHorseWodId(buildings, type) {
-    for (let k in buildings) {
-        if (buildings[k].wodId === 214 || buildings[k].wodId === 215 || buildings[k].wodId === 226) {
-            let stableInCastle = buildings[k];
+function getHorseWodId(castleBuildings, type) {
+    for (let k in castleBuildings) {
+        if (castleBuildings[k].wodId === 214 || castleBuildings[k].wodId === 215 || castleBuildings[k].wodId === 226) {
+            let stableInCastle = castleBuildings[k];
             for (let l in buildings) {
                 if (parseInt(buildings[l].wodID) === stableInCastle.wodId) {
                     return buildings[l].unlockHorses.split(",")[type];

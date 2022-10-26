@@ -1,24 +1,40 @@
-import { EventEmitter } from "node:events";
-import { Socket } from 'node:net';
+import {EventEmitter} from "node:events";
+import {Socket} from 'node:net';
 
 /** Base class for a playeraccount */
 export class Client extends EventEmitter {
-    public constructor(name: string, password: string, reconnectTimeoutInSeconds: number);
+    /**
+     *
+     * @param name Your player account name
+     * @param password Your player account password
+     * @param reconnectTimeoutInSeconds
+     */
+    public constructor(name: string, password: string, reconnectTimeoutInSeconds: number = 300);
+
     private _socket: Socket;
+
     /** Login with your credentials */
     public connect(): Promise<Client>;
+
     private __x__x__relogin(): Promise<void>;
+
     public movements: MovementManager;
     public alliances: AllianceManager;
     public players: PlayerManager;
     public worldmaps: WorldmapManager;
+
     public sendChatMessage(message: string): void;
+
     public set reconnectTimeout(val: number);
+
     public on<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
+
     public addListener<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
+
     emit<K extends keyof ClientEvents>(eventName: K, ...args: ClientEvents[K]): boolean;
+
     ///
-    ///NO TYPINGS YET
+    ///No typings yet
     ///
     private getCastleInfo(Mapobject: Mapobject): Promise<any>;
     ///
@@ -29,48 +45,76 @@ export class Client extends EventEmitter {
 //#region Managers
 export class BaseManager extends EventEmitter {
     private _client: Client;
+
     protected constructor(client: Client);
 }
 
 export class MovementManager extends BaseManager {
     private constructor(client: Client);
+
     public on<K extends keyof MovementEvents>(event: K, listener: (...args: MovementEvents[K]) => void): this;
+
     public addListener<K extends keyof MovementEvents>(event: K, listener: (...args: MovementEvents[K]) => void): this;
+
     emit<K extends keyof MovementEvents>(eventName: K, ...args: MovementEvents[K]): boolean;
+
     /** Returns all movements */
     public get(): Movement[];
+
     private _add_or_update(_movements: Movement[]): void;
+
     private _remove(_movementId: number): void;
 }
 
 export class AllianceManager extends BaseManager {
     private constructor(client: Client);
+
     public getById(id: number): Promise<Alliance>;
+
     public find(name: string): Promise<Alliance>;
+
     private _add_or_update(_alliance: Alliance | MyAlliance): void;
+
     public getMyAlliance(): Promise<MyAlliance>;
 }
 
 export class PlayerManager extends BaseManager {
     private constructor(client: Client);
+
     public getById(id: number): Promise<Player>;
+
     public find(name: string): Promise<Player>;
+
     private _add_or_update(_player: Player): void;
+
     public getThisPlayer(): Promise<Player>;
+
     private _setThisPlayer(id: number): void;
 }
 
 export class WorldmapManager extends BaseManager {
     private _worldmapCaches: { date: Date, worldmap: Worldmap }[];
+
     public get(kingdomId: number): Promise<Worldmap>;
+
+    getSector(kingdomId: number, sectorX: number, sectorY: number): Promise<WorldmapSector>;
 }
+
 //#endregion
 
 //#region Movement
-export type Movement = BasicMovement | ArmyAttackMovement | ArmyTravelMovement | ConquerMovement | MarketMovement | NpcAttackMovement | SpyMovement;
+export type Movement =
+    BasicMovement
+    | ArmyAttackMovement
+    | ArmyTravelMovement
+    | ConquerMovement
+    | MarketMovement
+    | NpcAttackMovement
+    | SpyMovement;
 
 export class BasicMovement {
     protected constructor(client: Client, data: object);
+
     public movementId: number;
     public movementType: number;
     public arrivalTime: Date;
@@ -88,6 +132,7 @@ export class BasicMovement {
 
 export class ArmyAttackMovement extends BasicMovement {
     protected constructor(client: Client, data);
+
     public army?: CompactArmy;
     public armyState: number;
     public attackType: number;
@@ -98,17 +143,20 @@ export class ArmyAttackMovement extends BasicMovement {
 
 export class ArmyTravelMovement extends BasicMovement {
     protected constructor(client: Client, data);
+
     public army: { unit: Unit, count: number }[];
     public goods?: Good[];
 }
 
 export class ConquerMovement extends BasicMovement {
     protected constructor(client: Client, data);
+
     public army: { unit: Unit, count: number }[];
 }
 
 export class MarketMovement extends BasicMovement {
     protected constructor(client: Client, data);
+
     public goods: Good[];
     public carriages: number;
 }
@@ -119,17 +167,20 @@ export class NpcAttackMovement extends ArmyAttackMovement {
 
 export class SpyMovement extends BasicMovement {
     protected constructor(client: Client, data);
+
     public spyType: number;
     public spyCount: number;
     public spyRisk: number;
     public spyAccuracy?: number;
     public sabotageDamage?: number;
 }
+
 //#endregion
 
 //#region Alliance
 export class Alliance {
     protected constructor(client: Client, data);
+
     public allianceId: number;
     public allianceName: string;
     public allianceDescription: string;
@@ -145,8 +196,11 @@ export class Alliance {
     public isOpenAlliance: boolean;
     public freeRenames: number;
     public might: number;
+
     public get landmarks(): Promise<(CapitalMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject)[]>;
+
     private set _landmarks(value: (CapitalMapobject | MonumentMapobject | KingstowerMapobject)[]);
+
     private _add_or_update_landmarks(landmarks: Mapobject[]): void;
 }
 
@@ -168,6 +222,7 @@ export class MyAlliance extends Alliance {
 
 export class AllianceMember {
     private constructor(client: Client, data, alliance: Alliance);
+
     public playerId: number;
     public playerName: string;
     public playerLevel: number;
@@ -180,6 +235,7 @@ export class AllianceMember {
 
 export class AllianceStatusListItem {
     private constructor(client: Client, data);
+
     public allianceId: number;
     public allianceName: string;
     public allianceStatus: number;
@@ -188,6 +244,7 @@ export class AllianceStatusListItem {
 
 export class AllianceDonations {
     private constructor(client: Client, data: Array<number>);
+
     public coins: number
     public rubies: number;
     public res: number;
@@ -199,10 +256,12 @@ export class ChatMessage {
     public senderPlayerId: number;
     public senderPlayerName: string;
 }
+
 //#endregion
 
 export class BasicBuilding {
     private constructor(client: Client, data);
+
     public wodId: number;
     public objectId: number;
     public position: Coordinate;
@@ -222,6 +281,7 @@ export class BasicBuilding {
 
 export class CompactArmy {
     private constructor(client: Client, data: object);
+
     public left: { unit: Unit, count: number }[];
     public middle: { unit: Unit, count: number }[];
     public right: { unit: Unit, count: number }[];
@@ -233,6 +293,7 @@ export class CompactArmy {
 
 export class Coordinate {
     private constructor(client: Client, data);
+
     public X: number;
     public Y: number;
 }
@@ -306,6 +367,7 @@ export class RelicGem {
     public effects: RelicEffect[];
     public attachedEquipment?: RelicEquipment;
 }
+
 //#endregion
 
 export class Effect {
@@ -369,6 +431,7 @@ export class Player {
 
 export class Unit {
     private constructor(client: Client, wodId: number);
+
     public wodId: number;
     public isSoldier: boolean;
     public rangeAttack?: number;
@@ -384,15 +447,43 @@ export class Worldmap {
     public kingdomId: number;
     public mapobjects: Mapobject[];
     public players: Player[];
+
     private _addAreaMapObjects(objs: Mapobject[]): void;
+
     private _addPlayers(): void;
+
     private _sortPlayersByName(): Player[];
+
     private _sortPlayersById(): Player[];
+
     private _clear(): void;
 }
 
+export class WorldmapSector extends Worldmap {
+    public combine(...sectors: WorldmapSector): WorldmapSector
+}
+
 //#region Mapobject
-export type Mapobject = BasicMapobject | AlienInvasionMapobject | BossDungeonMapobject | CapitalMapobject | CastleMapobject | DungeonMapobject | DungeonIsleMapobject | DynamicMapobject | EmptyMapobject | InteractiveMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject | NomadInvasionMapObject | NomadKhanInvasionMapObject | RedAlienInvasionMapobject | ResourceIsleMapobject | ShapeshifterMapobject | VillageMapobject;
+export type Mapobject =
+    BasicMapobject
+    | AlienInvasionMapobject
+    | BossDungeonMapobject
+    | CapitalMapobject
+    | CastleMapobject
+    | DungeonMapobject
+    | DungeonIsleMapobject
+    | DynamicMapobject
+    | EmptyMapobject
+    | InteractiveMapobject
+    | KingstowerMapobject
+    | MetropolMapobject
+    | MonumentMapobject
+    | NomadInvasionMapObject
+    | NomadKhanInvasionMapObject
+    | RedAlienInvasionMapobject
+    | ResourceIsleMapobject
+    | ShapeshifterMapobject
+    | VillageMapobject;
 
 export class AlienInvasionMapobject extends BasicMapobject {
     public dungeonLevel: number;
@@ -408,6 +499,7 @@ export class AlienInvasionMapobject extends BasicMapobject {
 
 export class BasicMapobject {
     protected constructor(client: Client, data: Array<any>);
+
     public areaType: number;
     public position: Coordinate;
 }
@@ -470,6 +562,7 @@ export class DungeonMapobject extends BasicMapobject {
     public xp: number;
     private _defence: { troops: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] }, tools: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] } };
     public get defence(): { troops: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] }, tools: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] } };
+
     private _lord: Lord;
     public get lord(): Lord;
 }
@@ -589,6 +682,7 @@ export class VillageMapobject extends BasicMapobject {
     public lastSpyDate?: Date;
     public kingdomId: number;
 }
+
 //#endregion
 
 //#region Events
@@ -616,9 +710,13 @@ export interface ConstantsEvents {
     CONNECTED: "connected";
     CHAT_MESSAGE: "chatMessage";
 }
+
 //#endregion
 
 //#region Constants
+/**
+ *
+ */
 export const Constants: {
     Events: ConstantsEvents;
     Kingdom: Kingdom;
@@ -691,6 +789,7 @@ export interface AllianceRank {
     Member: 8,
     Applicant: 9,
 }
+
 //#endregion
 
 //#region RawStructures
@@ -787,4 +886,5 @@ export class RawUnit {
     effects?: string;
     unitWallCount?: string;
 }
+
 //#endregion

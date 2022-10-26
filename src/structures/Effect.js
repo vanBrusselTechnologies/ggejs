@@ -17,6 +17,7 @@ class Effect {
             this.power = parseFloat(data[1]);
         }
         let _data = getDataFromJson(this.effectId);
+        if(_data === null || _data === undefined) return;
         /** @type {object} */
         this.rawData = _data;
         /** @type {string} */
@@ -39,6 +40,8 @@ function getDataFromJson(id) {
             return effectsJson[i];
         }
     }
+    console.log("Unknown effect id: " + id);
+    return null;
 }
 
 module.exports = Effect;

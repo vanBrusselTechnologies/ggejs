@@ -4,6 +4,7 @@ const BaseManager = require('./BaseManager');
 const getWorldmapCommand = require('./../e4kserver/commands/getWorldmapCommand');
 const {WaitUntil} = require('./../tools/wait');
 const Worldmap = require('../structures/Worldmap');
+const WorldmapSector = require('../structures/WorldmapSector');
 
 const worldmapSizes = [13, 11];
 const worldmapLeftTop = [0, 0];
@@ -47,6 +48,24 @@ class WorldmapManager extends BaseManager {
             }
         })
     };
+
+    /**
+     *
+     * @param {number} kingdomId
+     * @param {number} sectorX an integer between 0-9
+     * @param {number} sectorY an integer between 0-9
+     * @returns {Promise<WorldmapSector>} 100x100 WorldmapSector
+     */
+    getSector(kingdomId, sectorX, sectorY) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const sector = await _getWorldmapSector(this, this._client._socket, kingdomId, sectorX, sectorY);
+                resolve(sector);
+            } catch (e) {
+                reject(e);
+            }
+        })
+    }
 }
 
 /**
@@ -109,6 +128,50 @@ function _getWorldmapById(thisManager, socket, _worldmap, kingdomId) {
             reject(e);
         }
     });
+}
+
+/**
+ * Returns a 100x100 worldmapsector
+ * @param {WorldmapManager} thisManager
+ * @param {Socket} socket
+ * @param {number} kingdomId
+ * @param {number} x 0-9
+ * @param {number} y 0-9
+ * @returns {Promise<WorldmapSector>}
+ */
+function _getWorldmapSector(thisManager, socket, kingdomId, x, y) {
+    return new Promise(async (resolve, reject) => {
+            try {
+                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`] = true;
+                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`] = false;
+                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_error`] = "";
+                x = Math.max(0, Math.min(Math.floor(x), 9));
+                y = Math.max(0, Math.min(Math.floor(y), 9));
+                let column1 = worldmapLeftTop[0] + x * 100;
+                let row1 = worldmapLeftTop[1] + y * 100;
+                let column2 = Math.min(column1 + 100, worldmapRightBottom[0]);
+                let row2 = Math.min(row1 + 100, worldmapRightBottom[1]);
+                getWorldmapCommand.execute(socket, kingdomId, column1, row1, column2, row2);
+                await WaitUntil(socket, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_error`, 1000);
+                let data = socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`];
+                if(!data){
+                    let sector = await _getWorldmapSector(thisManager, socket, kingdomId, x, y);
+                    resolve(sector);
+                }
+                let worldmapSector = new WorldmapSector(socket.client, kingdomId, data);
+                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`] = false;
+                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`] = false;
+                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_error`] = "";
+                resolve(worldmapSector);
+            } catch (e) {
+                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`] = false;
+                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`] = false;
+                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_error`] = "";
+                reject(e);
+            }
+        }
+    )
+        ;
 }
 
 /**

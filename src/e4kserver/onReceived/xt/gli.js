@@ -9,7 +9,7 @@ module.exports = {
      */
     execute(socket, errorCode, params) {
         socket["barons"] = parseLords(socket.client, params.B);
-        socket["generals"] = parseLords(socket.client, params.G);
+        socket["commandants"] = parseLords(socket.client, params.C);
     }
 }
 
