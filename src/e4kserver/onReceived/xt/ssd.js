@@ -26,6 +26,6 @@ async function checkMaintenanceOver(client){
         await client.connect();
         client.emit('serverShutdownEnd');
     } else {
-        setTimeout(checkMaintenanceOver, 10000);
+        setTimeout(checkMaintenanceOver, 10000, client);
     }
 }
