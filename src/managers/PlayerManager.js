@@ -3,7 +3,7 @@
 const BaseManager = require('./BaseManager');
 const searchPlayerByIdCommand = require('./../e4kserver/commands/searchPlayerById');
 const getPlayerRankingsCommand = require('./../e4kserver/commands/getPlayerRankings');
-const { WaitUntil } = require('./../tools/wait');
+const {WaitUntil} = require('./../tools/wait');
 
 class PlayerManager extends BaseManager {
     /**
@@ -14,9 +14,10 @@ class PlayerManager extends BaseManager {
      * @type {Player[]}
      */
     #players = [];
+
     /**
-     * 
-     * @param {number} id 
+     *
+     * @param {number} id
      * @returns {Promise<Player>}
      */
     getById(id) {
@@ -24,15 +25,15 @@ class PlayerManager extends BaseManager {
             try {
                 let _player = await _getPlayerById(this._client._socket, id);
                 resolve(_player);
-            }
-            catch (e) {
+            } catch (e) {
                 reject("Player not found!");
             }
         })
     }
+
     /**
-     * 
-     * @param {string} name 
+     *
+     * @param {string} name
      * @returns {Promise<Player>}
      */
     find(name) {
@@ -42,15 +43,15 @@ class PlayerManager extends BaseManager {
                 if (_playerId === 0) reject("Player not found!");
                 let _player = await this.getById(_playerId);
                 resolve(_player);
-            }
-            catch (e) {
+            } catch (e) {
                 reject("Player not found!");
             }
         })
     }
+
     /**
-     * 
-     * @param {Player} _player 
+     *
+     * @param {Player} _player
      */
     _add_or_update(_player) {
         let found = false;
@@ -65,8 +66,9 @@ class PlayerManager extends BaseManager {
             this.#players.push(_player);
         }
     }
+
     /**
-     * 
+     *
      * @returns {Promise<Player>}
      */
     getThisPlayer() {
@@ -74,15 +76,15 @@ class PlayerManager extends BaseManager {
             try {
                 let _player = await this.getById(this._thisPlayerId);
                 resolve(_player);
-            }
-            catch (e) {
+            } catch (e) {
                 reject(e);
             }
         })
     }
+
     /**
-     * 
-     * @param {number} id 
+     *
+     * @param {number} id
      */
     _setThisPlayer(id) {
         this._thisPlayerId = id;
@@ -91,28 +93,28 @@ class PlayerManager extends BaseManager {
 }
 
 /**
- * 
- * @param {Socket} socket 
- * @param {number} id 
+ *
+ * @param {Socket} socket
+ * @param {number} id
  * @returns {Promise<Player>}
  */
 function _getPlayerById(socket, id) {
-    socket[`__player_${id}_found`] = false;
     return new Promise(async (resolve, reject) => {
         try {
+            if (id == null) reject('missing player id');
+            socket[`__player_${id}_found`] = false;
             searchPlayerByIdCommand.execute(socket, id);
             await WaitUntil(socket, `__player_${id}_found`, "", 2500);
             resolve(socket[`__player_${id}_data`]);
-        }
-        catch (e) {
+        } catch (e) {
             reject(e);
         }
     });
 }
 
 /**
- * 
- * @param {Socket} socket 
+ *
+ * @param {Socket} socket
  * @param {string} name
  * @returns {Promise<number>}
  */
@@ -125,8 +127,7 @@ function _getPlayerByName(socket, name) {
             getPlayerRankingsCommand.execute(socket, name);
             await WaitUntil(socket, `__player_${name}_found`, "", 2500);
             resolve(socket[`__player_${name}_id`]);
-        }
-        catch (e) {
+        } catch (e) {
             reject(e);
         }
     });

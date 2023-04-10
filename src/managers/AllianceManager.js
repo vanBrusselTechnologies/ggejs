@@ -84,11 +84,12 @@ class AllianceManager extends BaseManager {
  * @returns {Promise<void>}
  */
 function _getAllianceById(socket, id) {
-    socket["_searching_alliance_id"] = id;
-    socket["__alliance_found"] = false;
-    socket["__get_alliance_error"] = "";
     return new Promise(async (resolve, reject) => {
         try {
+            if (id == null) reject('missing alliance id');
+            socket["_searching_alliance_id"] = id;
+            socket["__alliance_found"] = false;
+            socket["__get_alliance_error"] = "";
             searchAllianceByIdCommand.execute(socket, id);
             await WaitUntil(socket, "__alliance_found", "__get_alliance_error");
             resolve();

@@ -1,5 +1,5 @@
 module.exports = {
-    name: "ain",
+    name: "gdi",
     /**
      * @param {Socket} socket
      * @param {number} playerId

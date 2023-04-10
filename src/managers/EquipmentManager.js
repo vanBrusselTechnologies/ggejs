@@ -40,7 +40,7 @@ class EquipmentManager extends BaseManager {
         return this.#commandants.filter(l => {
             let found = false;
             myMovements.every(m => {
-                if (m.lord.id === l.id) {
+                if (m.lord?.id === l.id) {
                     found = true;
                     return false;
                 }
