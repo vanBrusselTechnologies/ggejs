@@ -9,7 +9,7 @@ class PlayerManager extends BaseManager {
     /**
      * @type {number}
      */
-    #thisPlayerId = 0;
+    _thisPlayerId = 0;
     /**
      * @type {Player[]}
      */
@@ -72,7 +72,7 @@ class PlayerManager extends BaseManager {
     getThisPlayer() {
         return new Promise(async (resolve, reject) => {
             try {
-                let _player = await this.getById(this.#thisPlayerId);
+                let _player = await this.getById(this._thisPlayerId);
                 resolve(_player);
             }
             catch (e) {
@@ -85,7 +85,7 @@ class PlayerManager extends BaseManager {
      * @param {number} id 
      */
     _setThisPlayer(id) {
-        this.#thisPlayerId = id;
+        this._thisPlayerId = id;
         this._client._socket["___this_player_id"] = id;
     }
 }

@@ -22,7 +22,7 @@ module.exports = {
             handler.apply(this, [socket, event]);
         }
         else{
-            if (socket["debug"])
+            if (socket.debug)
                 console.log('[RECEIVED UNKNOWN EVENT] ' + JSON.stringify(event));
         }
     }

@@ -1,22 +1,24 @@
+//const WebSocket = require('ws')
 module.exports = {
     /**
      *
      * @param {Socket} _socket
      */
     connect(_socket) {
-        _socket.connect(443, "e4k-live-nl1-game.goodgamestudios.com", () => {
-        });
+        const serverInstance = _socket.client._serverInstance;
+        //_socket = new WebSocket(`wss://${serverInstance.server}:${serverInstance.port}`); //empire? WebSocket ipv net.Socket
+        _socket.connect(serverInstance.port, serverInstance.server, null);
     },
     login(socket, name, password) {
         require('./commands/loginCommand').execute(socket, name, password);
     },
     onConnection(socket, obj) {
         if (obj.success) {
-            socket["__connected"] = true;
             let languageCode = "nl";
             let distributorID = 0;
-            let zone = "EmpirefourkingdomsExGG_6";
-            _login(socket, zone, "", `${NaN}${languageCode}%${distributorID}`);
+            let zone = socket.client._serverInstance.zone;
+            _login(socket, zone, "", `NaN${languageCode}%${distributorID}`);//empire: `${versionDateGame}%${languageCode}%${distributorID}`
+            socket["__connected"] = true;
         } else {
             socket["__connected"] = false;
             socket["__connection_error"] = obj.error;
@@ -27,6 +29,7 @@ module.exports = {
         socket["__login_error"] = error;
         if (error !== "") {
             socket["__loggedIn"] = false;
+            console.error(error);
             return;
         }
         socket["__loggedIn"] = true;
@@ -35,6 +38,7 @@ module.exports = {
         await require('./onReceived/xt/dql').execute(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]})
         if (!socket["inDungeonInterval"]) {
             setInterval(async () => {
+                if(!socket["__connected"]) return;
                 socket["inDungeonInterval"] = true;
                 await require('./onReceived/xt/dql').execute(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]})
             }, 18 * 60 * 1010); // 18 minutes

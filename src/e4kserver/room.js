@@ -1,6 +1,6 @@
 const { sendAction } = require("./commands/handlers/xml");
 
-let _activeRoomId = -1;
+let _activeRoomId = 0;//-1;
 let roomList = [];
 
 module.exports = {
@@ -140,5 +140,6 @@ function _onJoinRoom(socket, event) {
     _activeRoomId = room.id;
     if (room.name === "Lobby") {
         sendAction(socket, { "t": "sys" }, "roundTrip", _activeRoomId, "");
+        require('./../e4kserver/commands/pingpong').execute(socket);
     }
 }

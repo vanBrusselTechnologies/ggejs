@@ -1,6 +1,6 @@
 const BasicMapobject = require("./BasicMapobject");
 const Unit = require("./Unit");
-const dungeons = require("./../data/ingame_data/dungeons.json");
+const dungeons = require('e4k-data').data.dungeons;
 const Lord = require("./Lord");
 
 class DungeonMapobject extends BasicMapobject {
@@ -8,9 +8,10 @@ class DungeonMapobject extends BasicMapobject {
     #client = null;
     /** @type {object} */
     _rawData = null;
+
     /**
-     * 
-     * @param {Client} client 
+     *
+     * @param {Client} client
      * @param {Array} data
      */
     constructor(client, data) {
@@ -45,20 +46,21 @@ class DungeonMapobject extends BasicMapobject {
         /** @type {number} */
         this.xp = Math.round(Math.max(1, Math.pow(0.5 * this.level, 1.1)));
     }
+
     /**
-     * @returns {{ troops: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] }, tools: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] } }}
+     * @returns {{ troops: { left: InventoryItem<Unit>[], middle: InventoryItem<Unit>[], right: InventoryItem<Unit>[], center: InventoryItem<Unit>[] }, tools: { left: InventoryItem<Tool>[], middle: InventoryItem<Tool>[], right: InventoryItem<Tool>[] } }}
      */
     get defence() {
         if (this._defence) return this._defence;
         if (this._rawData === null) {
             for (let k in dungeons) {
                 let _dungeon = dungeons[k];
-                if (parseInt(_dungeon.countVictories) === this.attackCount && parseInt(_dungeon.kID) === this.kingdomId) {
+                if (_dungeon.countVictories === this.attackCount && _dungeon.kID === this.kingdomId) {
                     this._rawData = _dungeon;
                 }
             }
         }
-        /** @type {{ troops: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] }, tools: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] } }} */
+        /** @type {{ troops: { left: InventoryItem<Unit>[], middle: InventoryItem<Unit>[], right: InventoryItem<Unit>[], center: InventoryItem<Unit>[] }, tools: { left: InventoryItem<Tool>[], middle: InventoryItem<Tool>[], right: InventoryItem<Tool>[] } }} */
         this._defence = {
             troops: {
                 left: parseUnits(this.#client, this._rawData.unitsL),
@@ -69,37 +71,37 @@ class DungeonMapobject extends BasicMapobject {
             tools: {
                 left: parseUnits(this.#client, this._rawData.toolL),
                 middle: parseUnits(this.#client, this._rawData.toolM),
-                right: parseUnits(this.#client, this._rawData.toolR),
-                center: parseUnits(this.#client, this._rawData.toolK),
+                right: parseUnits(this.#client, this._rawData.toolR)
             }
         }
         return this._defence;
     }
+
     /** @returns {Lord} */
     get lord() {
         if (this._lord) return this._lord;
         if (this._rawData === null) {
             for (let k in dungeons) {
                 let _dungeon = dungeons[k];
-                if (parseInt(_dungeon.countVictories) === this.attackCount && parseInt(_dungeon.kID) === this.kingdomId) {
+                if (_dungeon.countVictories === this.attackCount && _dungeon.kID === this.kingdomId) {
                     this._rawData = _dungeon;
                 }
             }
         }
         /** @type {Lord} */
-        this._lord = new Lord(this.#client, { DLID: parseInt(this._rawData.lordID) });
+        this._lord = new Lord(this.#client, {DLID: parseInt(this._rawData.lordID)});
         return this._lord;
     }
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {string} _data 
- * @returns {{ unit: Unit, count: number }[]}
+ *
+ * @param {Client} client
+ * @param {string} _data
+ * @returns {InventoryItem<Unit>[]}
  */
 function parseUnits(client, _data) {
-    /** @type {{ unit: Unit, count: number }[]} */
+    /** @type {InventoryItem<Unit>[]} */
     let units = [];
     if (!_data) return units;
     let data = _data.split("#");
@@ -108,7 +110,7 @@ function parseUnits(client, _data) {
         let wodId = parseInt(splitData[0]);
         let count = parseInt(splitData[1]);
         units.push({
-            unit: new Unit(client, wodId),
+            item: new Unit(client, wodId),
             count: count
         })
     }
@@ -116,16 +118,20 @@ function parseUnits(client, _data) {
 }
 
 /**
- * 
- * @param {0 | 2 | 1 | 3} kingdomId 
+ *
+ * @param {0 | 2 | 1 | 3} kingdomId
  * @returns {1 | 20 | 35 | 45}
  */
 function getKingdomOffset(kingdomId) {
     switch (kingdomId) {
-        case 0: return 1;
-        case 2: return 20;
-        case 1: return 35;
-        case 3: return 45;
+        case 0:
+            return 1;
+        case 2:
+            return 20;
+        case 1:
+            return 35;
+        case 3:
+            return 45;
     }
 }
 

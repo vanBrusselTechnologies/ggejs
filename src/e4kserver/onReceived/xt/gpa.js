@@ -78,7 +78,7 @@ module.exports = {
             else if (i === "GRD") {
                 production.guardCount = count;
             }
-            else if(socket["debug"] && params[i] !== 0) console.log("Missing in GPA: " + i + ": " + params[i]);
+            else if(socket.debug && params[i] !== 0) console.log("Missing in GPA: " + i + ": " + params[i]);
         }
         return production;
     }

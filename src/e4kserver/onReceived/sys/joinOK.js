@@ -55,4 +55,5 @@ function populateVariables(variables, xmlData, changedVars = null){
     console.log(variables);
     console.log(xmlData);
     console.log(changedVars);
+    return [];
 }

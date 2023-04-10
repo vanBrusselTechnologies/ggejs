@@ -1,4 +1,4 @@
-const effectsJson = require('./../data/ingame_data/effects.json');
+const effects = require('e4k-data').data.effects;
 
 class Effect {
     /**
@@ -23,7 +23,7 @@ class Effect {
         /** @type {string} */
         this.name = _data.name;
         /** @type {number} */
-        this.capId = parseInt(_data.capID);
+        this.capId = _data.capID;
         /** @type {number} */
         this.uncappedPower = this.power;
     }
@@ -35,9 +35,9 @@ class Effect {
  * @returns {object}
  */
 function getDataFromJson(id) {
-    for (let i in effectsJson) {
-        if (parseInt(effectsJson[i].effectID) === id) {
-            return effectsJson[i];
+    for (let i in effects) {
+        if (effects[i].effectID === id) {
+            return effects[i];
         }
     }
     console.log("Unknown effect id: " + id);

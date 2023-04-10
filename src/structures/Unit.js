@@ -1,4 +1,4 @@
-const units = require("./../data/ingame_data/units.json");
+const units = require('e4k-data').data.units;
 const Effect = require("./Effect");
 
 class Unit {
@@ -11,21 +11,22 @@ class Unit {
         this.wodId = wodId;
         this.rawData = getData(wodId);
         for (let i in this.rawData) {
+            /** @type {number | string} */
             let item = this.rawData[i];
             if (i === "kIDs" || i === "slotTypes" || i === "lowLevelRecruitmentTime") {
                 this[i] = [];
-                /** @type {string} */
-                let _val = this.rawData[i];
-                _val.split(",").forEach((j) => {
+                if(typeof item == "number"){
+                    this[i].push(item);
+                    continue;
+                }
+                item.split(",").forEach((j) => {
                     this[i].push(parseInt(j))
                 })
                 continue;
             }
             if (i === "allowedToAttack" || i === "allowedToTravel") {
                 this[i] = [];
-                /** @type {string} */
-                let _val = this.rawData[i];
-                _val.split("#").forEach((_) => {
+                item.split("#").forEach((_) => {
                     let __split_val = _.split("+");
                     let _kId = parseInt(__split_val[0]);
                     let _areaId = parseInt(__split_val[1]);
@@ -35,9 +36,7 @@ class Unit {
             }
             if (i === "effects") {
                 this[i] = [];
-                /** @type {string} */
-                let _val = this.rawData[i];
-                _val.split(",").forEach((_) => {
+                item.split(",").forEach((_) => {
                     let __split_val = _.split("&amp;");
                     let _effectId = parseInt(__split_val[0]);
                     let _power = parseInt(__split_val[1]);
@@ -49,7 +48,11 @@ class Unit {
                 i === "isAuxiliary" || i === "isKamikaze" || i === "allowedToTravel" || i === "attackscreenBuyable" ||
                 i === "allowedToAttack" || i === "deleteToolAfterBattle" || i === "isYardTool"
             ) {
-                this[i] = item === "1";
+                this[i] = item === 1;
+                continue;
+            }
+            if(typeof item == "number"){
+                this[i] = item;
                 continue;
             }
             let _intItem = parseInt(item);
@@ -66,22 +69,22 @@ class Unit {
 
 /**
  *
- * @param {RawUnit} rawData
+ * @param {Unit} rawData
  * @returns {boolean}
  */
 function isSoldier(rawData) {
-    return rawData.rangeDefence !== undefined;
+    return rawData.rangeDefence != null && rawData.meleeDefence != null;
 
 }
 
 /**
  *
  * @param {number} wodId
- * @returns {RawUnit}
+ * @returns {Unit}
  */
 function getData(wodId) {
     for (let i in units) {
-        if (wodId === parseInt(units[i].wodID)) {
+        if (wodId === units[i].wodID) {
             return units[i];
         }
     }

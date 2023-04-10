@@ -3,10 +3,6 @@ const onString = require('./onReceived/handlers/string.js');
 const onXml = require('./onReceived/handlers/xml.js');
 const xt = require('./commands/handlers/xt');
 
-let _alliances = {};
-let _players = {};
-
-let unfinishedDataString = "";
 /**
  * @param {Socket} socket
  * @param {Buffer} data
@@ -14,11 +10,12 @@ let unfinishedDataString = "";
 function internal_OnData(socket, data) {
     let msg = data.toString('utf-8');
     if (msg.charCodeAt(msg.length - 1) !== 0) {
-        unfinishedDataString = unfinishedDataString + msg;
+        socket["unfinishedDataString"] = socket["unfinishedDataString"] + msg;
         return;
     }
-    msg = unfinishedDataString + msg;
-    unfinishedDataString = "";
+    msg = socket["unfinishedDataString"] + msg;
+    if(socket.debug ) console.log("[RECEIVED]: " + msg.substring(0, Math.min(250, msg.length)));
+    socket["unfinishedDataString"] = "";
     let msgParts = [];
     let msgChars = msg.split("");
     let _msgPart = "";
@@ -48,7 +45,7 @@ function internal_OnData(socket, data) {
             onJson.execute(socket, _msg);
         }
         else
-            if (socket["debug"]){
+            if (socket.debug){
                 console.log("received unfinished message!");
                 console.log(msgParts[i]);
             }
@@ -64,13 +61,18 @@ function sendCommandVO(socket, commandVO) {
     let params = [JSON.stringify(commandVO.params)];
     let i = 0;
     while (i < params.length) {
-        if (params[i].trim() === "" || params[i].trim() === "{}") {
-            params[i] = "<RoundHouseKick>";
-        }
-        params[i] = getValideSmartFoxText(params[i]);
+        0 === params[i] ?
+            params[i] = "0" :
+            params[i] ?
+                "string" == typeof params[i] && (params[i] = getValideSmartFoxText(params[i])) :
+                params[i] = "<RoundHouseKick>";
+        //if (params[i].trim() === "" || params[i].trim() === "{}") {
+        //    params[i] = "<RoundHouseKick>";
+        //}
+        //params[i] = getValideSmartFoxText(params[i]);
         i++;
     }
-    xt.sendMessage(socket, "EmpirefourkingdomsExGG_6", msgId, params, "str", require('./room.js').activeRoomId);
+    xt.sendMessage(socket, socket.client._serverInstance.zone, msgId, params, "str", require('./room.js').activeRoomId);
 }
 
 /**
@@ -84,9 +86,10 @@ function getValideSmartFoxText(value) {
 
 /**
  * @param {Socket} socket
- * @param {any} msg
+ * @param {string} msg
  */
 function internal_writeToSocket(socket, msg) {
+    if(socket.debug) console.log("[WRITE]: " + msg);
     let _buff0 = Buffer.from(msg);
     let _buff1 = Buffer.alloc(1);
     _buff1.writeInt8(0);
@@ -111,13 +114,9 @@ module.exports = {
     },
     /**
      * @param {Socket} socket
-     * @param {any} msg
+     * @param {string} msg
      */
     writeToSocket(socket, msg) {
         internal_writeToSocket(socket, msg);
-    },
-    get alliances() { return _alliances },
-    set alliances(val) { _alliances = val },
-    get players() { return _players },
-    set players(val) { _players = val },
+    }
 }

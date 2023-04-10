@@ -49,10 +49,13 @@ class Player {
             this.peaceEndTime = new Date(Date.now() + data.O.RPT * 1000);
         if (!data.gcl) {
             this.castles = parseSimpleCastleList(client, data.O.AP);
+            this.villages = {private:[], public:[]};
+            this.kingsTowers = [];
+            this.monuments = [];
         } else {
             /** @type {(CastleMapobject | CapitalMapobject)[]} */
             this.castles = parseCastleList(client, data.gcl);
-            /** @type {{public:{village:VillageMapobject,units?:{unit:Unit, count:number}[]}[], private:{privateVillageId: number, uniqueId: number}[]}} */
+            /** @type {{public:{village:VillageMapobject,units?:InventoryItem<Unit>[]}[], private:{privateVillageId: number, uniqueId: number}[]}} */
             this.villages = parseVillageList(client, data.kgv);
             /** @type {KingstowerMapobject[]} */
             this.kingsTowers = parseKingstowers(client, data.gkl);
@@ -156,7 +159,7 @@ function parseCastleList(client, data) {
  *
  * @param {Client} client
  * @param {object} data
- * @returns {{ public: { village: VillageMapobject, units?: { unit: Unit, count: number }[] }[], private: { privateVillageId: number, uniqueId: number }[]}}
+ * @returns {{ public: { village: VillageMapobject, units?: InventoryItem<Unit>[] }[], private: { privateVillageId: number, uniqueId: number }[]}}
  */
 function parseVillageList(client, data) {
     let publicVillagesData = [];
@@ -180,14 +183,14 @@ function parseVillageList(client, data) {
  *
  * @param {Client} client
  * @param {Array} data
- * @returns {{unit:Unit, count:number}[]}
+ * @returns {InventoryItem<Unit>[]}
  */
 function parseUnits(client, data) {
     let output = [];
     if (!data) return output;
     for (let i in data) {
         output.push({
-            unit: new Unit(client, data[i][0]),
+            item: new Unit(client, data[i][0]),
             count: data[i][1],
         });
     }

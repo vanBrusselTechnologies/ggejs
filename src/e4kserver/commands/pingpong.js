@@ -3,7 +3,7 @@ module.exports = {
     execute(socket) {
         let PingPongVO = {
             getCmdId: "pin",
-            params: {},
+            params: [""],
         }
         require('./../data').sendJsonVoSignal(socket, { "commandVO": PingPongVO, "lockConditionVO": null });
     }

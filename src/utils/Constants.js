@@ -12,13 +12,13 @@ exports.Events = {
 exports.Kingdom = {
     Classic: 0,
     Icecream: 2,
-    Dessert: 1,
+    Desert: 1,
     Volcano: 3,
     Island: 4,
     Faction: 10
 }
 
-exports.Movement = {
+exports.MovementType = {
     Attack: 0,
     Travel: 2,
     Spy: 3,
@@ -35,6 +35,7 @@ exports.WorldmapArea = {
     Village: 10,
     BossDungeon: 11,
     KingdomCastle: 12,
+    EventDungeon: 13,
     AlienInvasion: 21,
     Metropol: 22,
     Kingstower: 23,
@@ -70,4 +71,23 @@ exports.AllianceRank = {
     Sergeant: 7,
     Member: 8,
     Applicant: 9,
+}
+
+exports.HorseType = {
+    Coin: 0,
+    Ruby_1: 1,
+    Ruby_2: 2,
+    Feather: 3,
+}
+
+exports.SpyType = {
+    Military: 0,
+    Eco: 1,
+    Sabotage: 2,
+}
+
+exports.ServerType = {
+    NormalServer: 1,
+    TempServer: 2,
+    AllianceBattleGround: 3
 }

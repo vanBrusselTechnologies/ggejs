@@ -6,6 +6,7 @@ const CapitalMapobject = require("./CapitalMapobject");
 const InteractiveMapobject = require("./InteractiveMapobject");
 const VillageMapobject = require("./VillageMapobject");
 const BossDungeonMapobject = require("./BossDungeonMapobject");
+const EventDungeonMapobject = require("./EventDungeonMapobject");
 const KingstowerMapobject = require("./KingstowerMapobject");
 const MonumentMapobject = require("./MonumentMapobject");
 const AlienInvasionMapobject = require('./AlienInvasionMapobject');
@@ -35,9 +36,9 @@ class BasicMovement {
         this.arrivalTime = new Date(now + (data.M.TT - data.M.PT) * 1000);
         /** @type {number} */
         this.direction = data.M.D;
-        /** @type {BasicMapobject} */
+        /** @type {Mapobject} */
         this.sourceArea = getAreaFromInfo(client, data.M.SA);
-        /** @type {BasicMapobject} */
+        /** @type {Mapobject} */
         this.targetArea = getAreaFromInfo(client, data.M.TA);
         /** @type {Coordinate} */
         let targetPos = this.sourceArea.position;
@@ -45,7 +46,7 @@ class BasicMovement {
         let sourcePos = this.targetArea.position;
         /** @type {number} */
         this.distance = Math.round(Math.sqrt(Math.pow(Math.abs(sourcePos.X - targetPos.X), 2) + Math.pow(Math.abs(sourcePos.Y - targetPos.Y), 2)) * 10) / 10;
-        /** @type {BasicMapobject} */
+        /** @type {Mapobject} */
         this.ownerArea = this.direction === 0 ? this.sourceArea : this.targetArea;
         /** @type {number} */
         this.kingdomId = data.M.KID;
@@ -66,7 +67,7 @@ class BasicMovement {
  * 
  * @param {Client} client 
  * @param {Array} info 
- * @returns {BasicMapobject}
+ * @returns {Mapobject}
  */
 function getAreaFromInfo(client, info) {
     switch (info[0]) {
@@ -78,6 +79,7 @@ function getAreaFromInfo(client, info) {
         case 10: return new VillageMapobject(client, info);
         case 11: return new BossDungeonMapobject(client, info);
         case 12: return new CastleMapobject(client, info);
+        case 13: return new EventDungeonMapobject(client, info);
         case 21: return new AlienInvasionMapobject(client, info);
         case 22: return new CapitalMapobject(client, info);
         case 23: return new KingstowerMapobject(client, info);

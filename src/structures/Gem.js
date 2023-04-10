@@ -1,5 +1,5 @@
 const Effect = require("./Effect");
-const gems = require('./../data/ingame_data/gems.json');
+const gems = require('e4k-data').data.gems;
 
 class Gem {
     /**
@@ -11,7 +11,8 @@ class Gem {
      */
     constructor(client, id, equipment = null) {
         let _data = getDataFromJson(id);
-        if (!_data) { console.log(id); return; }
+        if (!_data) { console.log(id + " without data"); return; }
+        this.rawData = _data;
         /** @type {number} */
         this.id = _data.gemID;
         if (_data.setID)
@@ -32,7 +33,7 @@ class Gem {
  */
 function getDataFromJson(id) {
     for (let i in gems) {
-        if (parseInt(gems[i].gemID) === id) {
+        if (gems[i].gemID === id) {
             return gems[i];
         }
     }

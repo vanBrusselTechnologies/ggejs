@@ -1,9 +1,10 @@
 const Equipment = require("./Equipment");
 const RelicEquipment = require("./RelicEquipment");
 const Effect = require('./Effect');
-const equipmentSets = require("./../data/ingame_data/equipment_sets.json");
-const effectCaps = require("./../data/ingame_data/effectCaps.json");
-const lords = require("./../data/ingame_data/lords.json");
+const e4kData = require('e4k-data').data;
+const equipmentSets = e4kData.equipment_sets;
+const effectCaps = e4kData.effectCaps;
+const lords = e4kData.lords;
 
 class Lord {
     /**
@@ -65,11 +66,11 @@ class Lord {
  */
 function parseEquipments(client, data, lord) {
     let _equipments = [];
-    for (let i in data) {
-        if (data[i][11] === 3)
-            _equipments.push(new RelicEquipment(client, data[i], lord));
+    for (let d of data) {
+        if (d[11] === 3)
+            _equipments.push(new RelicEquipment(client, d, lord));
         else
-            _equipments.push(new Equipment(client, data[i], lord));
+            _equipments.push(new Equipment(client, d, lord));
     }
     return _equipments;
 }
@@ -90,8 +91,8 @@ function parseGems(data, equipments) {
             //_gems.push(createGemById(data[i]));
         }
     }
-    for (let i in equipments) {
-        let _gem = equipments[i].attachedGem;
+    for (let equipment of equipments) {
+        let _gem = equipment.attachedGem;
         if (_gem) _gems.push(_gem);
     }
     return _gems;
@@ -134,31 +135,31 @@ function parseEffects(client, data, equipments) {
      *  lord.setAdditionalEffects(_loc3_);
      **/
     let equipmentSetArray = [];
-    for (let i in equipments) {
-        for (let j in equipments[i].effects) {
-            _effects.push(equipments[i].effects[j]);
+    for (let equipment of equipments) {
+        for (let j in equipment.effects) {
+            _effects.push(equipment.effects[j]);
         }
-        if (equipments[i].setId) {
+        if (equipment.setId) {
             let found = false
-            for (let k in equipmentSetArray) {
-                if (equipmentSetArray[k][0] === equipments[i].setId) {
-                    equipmentSetArray[k][1] += 1;
+            for (let equipmentSet of equipmentSetArray) {
+                if (equipmentSet[0] === equipment.setId) {
+                    equipmentSet[1] += 1;
                     found = true;
                     break;
                 }
             }
-            if (!found) equipmentSetArray.push([equipments[i].setId, 1]);
+            if (!found) equipmentSetArray.push([equipment.setId, 1]);
         }
-        let _gem = equipments[i].attachedGem;
+        let _gem = equipment.attachedGem;
         if (_gem && _gem.effects) {
             for (let j in _gem.effects) {
                 _effects.push(_gem.effects[j]);
             }
             if (_gem.setId) {
                 let found = false;
-                for (let k in equipmentSetArray) {
-                    if (equipmentSetArray[k][0] === _gem.setId) {
-                        equipmentSetArray[k][1] += 1;
+                for (let equipmentSet of equipmentSetArray) {
+                    if (equipmentSet[0] === _gem.setId) {
+                        equipmentSet[1] += 1;
                         found = true;
                         break;
                     }
@@ -168,17 +169,16 @@ function parseEffects(client, data, equipments) {
         }
     }
 
-    for (let i in equipmentSetArray) {
-        let _equipSet = equipmentSetArray[i];
-        for (let j in equipmentSets) {
-            if (parseInt(equipmentSets[j].setID) === _equipSet[0] && parseInt(equipmentSets[j].neededItems) <= _equipSet[1]) {
-                let __effects = equipmentSets[j].effects.split(",");
+    for (let _equipSet of equipmentSetArray) {
+        for (let equipmentSet of equipmentSets) {
+            if (equipmentSet.setID === _equipSet[0] && equipmentSet.neededItems <= _equipSet[1]) {
+                let __effects = equipmentSet.effects.split(",");
                 let data = [];
-                for (i in __effects) {
-                    data.push(__effects[i].split("&amp;"));
+                for (let effect of __effects) {
+                    data.push(effect.split("&amp;"));
                 }
-                for (let i in data) {
-                    _effects.push(new Effect(client, data[i]));
+                for (let d of data) {
+                    _effects.push(new Effect(client, d));
                 }
             }
         }
@@ -188,10 +188,10 @@ function parseEffects(client, data, equipments) {
     for (let i in _effects) {
         let _effect = _effects[i];
         let found = false;
-        for (let j in effects) {
-            if (_effect.effectId === effects[j].effectId) {
+        for (let effect of effects) {
+            if (_effect.effectId === effect.effectId) {
                 found = true;
-                effects[j].power += _effect.power;
+                effect.power += _effect.power;
                 break;
             }
         }
@@ -201,10 +201,10 @@ function parseEffects(client, data, equipments) {
     for (let i in effects) {
         let _effect = effects[i];
         _effect.uncappedPower = _effect.power;
-        for (let j in effectCaps) {
-            if (parseInt(effectCaps[j].capID) === _effect.capId) {
-                if (effectCaps[j].maxTotalBonus && parseFloat(effectCaps[j].maxTotalBonus) < _effect.power) {
-                    _effect.power = parseFloat(effectCaps[j].maxTotalBonus);
+        for (let effectCap of effectCaps) {
+            if (effectCap.capID === _effect.capId) {
+                if (effectCap.maxTotalBonus && effectCap.maxTotalBonus < _effect.power) {
+                    _effect.power = effectCap.maxTotalBonus;
                 }
             }
         }
@@ -220,7 +220,7 @@ function parseEffects(client, data, equipments) {
  */
 function getDummyData(id) {
     for (let i in lords) {
-        if (parseInt(lords[i].lordID) === id)
+        if (lords[i].lordID === id)
             return lords[i];
     }
 }
@@ -249,10 +249,10 @@ function parseDummyEffects(client, effectsData) {
     for (let i in _effects) {
         let _effect = _effects[i];
         let found = false;
-        for (let j in effects) {
-            if (_effect.effectId === effects[j].effectId) {
+        for (let effect of effects) {
+            if (_effect.effectId === effect.effectId) {
                 found = true;
-                effects[j].power += _effect.power;
+                effect.power += _effect.power;
                 break;
             }
         }
@@ -262,10 +262,10 @@ function parseDummyEffects(client, effectsData) {
     for (let i in effects) {
         let _effect = effects[i];
         _effect.uncappedPower = _effect.power;
-        for (let j in effectCaps) {
-            if (parseInt(effectCaps[j].capID) === _effect.capId) {
-                if (effectCaps[j].maxTotalBonus && parseFloat(effectCaps[j].maxTotalBonus) < _effect.power) {
-                    _effect.power = parseFloat(effectCaps[j].maxTotalBonus);
+        for (let effectCap of effectCaps) {
+            if (effectCap.capID === _effect.capId) {
+                if (effectCap.maxTotalBonus && effectCap.maxTotalBonus < _effect.power) {
+                    _effect.power = effectCap.maxTotalBonus;
                 }
             }
         }

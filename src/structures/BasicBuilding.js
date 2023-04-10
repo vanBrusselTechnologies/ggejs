@@ -26,12 +26,12 @@ class BasicBuilding {
         this.productionBoostAtStart = data[8] / 100;
         /** @type {number} */
         this.efficiency = data[9];
-        /** @type {number} */
-        this.damageType = data[10];
+        ///** @type {number} */
+        //this.damageType = data[10];
         ///** @type {number} */
         //this.decoPoints = data[11];
         ///** @type {number} */
-        //this.fusionXP = data[12];
+        this.fusionXP = data[12];
         /** @type {number} */
         this.productionSpeed = data[13];
         /** @type {boolean} */

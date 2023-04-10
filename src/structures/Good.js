@@ -1,9 +1,10 @@
-const currencies = require('./../data/ingame_data/currencies.json');
+const currencies = require('e4k-data').data.currencies;
+const InventoryItem = require('./InventoryItem');
 
 const goodNames = {
-    W:"wood",
-    S:"stone",
-    F:"food",
+    W: "wood",
+    S: "stone",
+    F: "food",
     C1: "coin",
     C2: "ruby",
     G: "glass",
@@ -16,27 +17,25 @@ const goodNames = {
     PTT: "pegasus_travel_tickets"
 }
 
-class Good {
+class Good extends InventoryItem {
     /**
-     * 
-     * @param {Client} client 
-     * @param {Array} data 
+     *
+     * @param {Client} client
+     * @param {[string, number]} data
      */
     constructor(client, data) {
+        /** @type {string | null} */
         let _name = goodNames[data[0]];
-        if(!_name) {
-            for(let i in currencies){
-                if(currencies[i].JSONKey === data[0]){
-                    _name = currencies[i].Name;
+        if (!_name) {
+            for (let currency of currencies) {
+                if (currency.JSONKey === data[0]) {
+                    _name = currency.Name;
                     break;
                 }
             }
         }
-        if(!_name) _name = data[0];
-        /** @type {string} */
-        this.name = _name;
-        /** @type {number} */
-        this.count = data[1];
+        if (!_name) _name = data[0];
+        super(_name, data[1]);
     }
 }
 

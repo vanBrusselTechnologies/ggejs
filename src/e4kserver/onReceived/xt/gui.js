@@ -22,7 +22,7 @@ function parseUnits(client, data) {
     let units = [];
     for (let i in data) {
         units.push({
-            unit: new Unit(client, data[i][0]),
+            item: new Unit(client, data[i][0]),
             count: data[i][1]
         })
     }

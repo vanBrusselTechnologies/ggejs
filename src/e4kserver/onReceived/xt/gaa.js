@@ -4,6 +4,7 @@ const DungeonMapobject = require("./../../../structures/DungeonMapobject");
 const CapitalMapobject = require("./../../../structures/CapitalMapobject");
 const VillageMapobject = require("./../../../structures/VillageMapobject");
 const BossDungeonMapobject = require("./../../../structures/BossDungeonMapobject");
+const EventDungeonMapobject = require("./../../../structures/EventDungeonMapobject");
 const KingstowerMapobject = require("./../../../structures/KingstowerMapobject");
 const MonumentMapobject = require("./../../../structures/MonumentMapobject");
 const DynamicMapobject = require("./../../../structures/DynamicMapobject");
@@ -48,7 +49,7 @@ module.exports = {
             socket[`__worldmap_${params.KID}_sector_${sector}_found`] = true;
             socket[`__worldmap_${params.KID}_sectors_found`] += 1;
         } catch (e) {
-            if (socket["debug"]) console.log(e);
+            if (socket.debug) console.log(e);
             let sector = socket[`__worldmap_${params.KID}_sectors_found`];
             socket[`__get_worldmap_${params.KID}_sector_${sector}_error`] = e;
         }
@@ -87,6 +88,9 @@ function parseWorldmapAreas(client, _data) {
                 break;
             case 12:
                 worldmapAreas.push(new CastleMapobject(client, data));
+                break;
+            case 13:
+                worldmapAreas.push(new EventDungeonMapobject(client, data));
                 break;
             case 21:
                 worldmapAreas.push(new AlienInvasionMapobject(client, data));

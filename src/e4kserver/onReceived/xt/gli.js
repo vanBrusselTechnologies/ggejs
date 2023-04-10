@@ -8,8 +8,9 @@ module.exports = {
      * @param {object} params
      */
     execute(socket, errorCode, params) {
-        socket["barons"] = parseLords(socket.client, params.B);
-        socket["commandants"] = parseLords(socket.client, params.C);
+        const barons = parseLords(socket.client, params.B);
+        const commandants = parseLords(socket.client, params.C);
+        socket.client.equipments._setCommandantsAndBarons(barons, commandants);
     }
 }
 

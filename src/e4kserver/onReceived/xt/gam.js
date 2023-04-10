@@ -19,6 +19,11 @@ module.exports = {
             return;
         }
         let i = 0;
+        /**
+         *
+         * @type {Movement[]}
+         * @private
+         */
         let _movementsArray = [];
         for (i in params.M) {
             if (!params.M[i]) continue;
@@ -34,7 +39,7 @@ module.exports = {
                 case 23: _movement = new CollectorAttackMovement(socket.client, _movObj); break;
                 default: {
                     console.log(`Current movement (movementType ${_movObj.M.T}) isn't fully supported!`);
-                    if (socket["debug"]){
+                    if (socket.debug){
                         console.log(_movObj);
                         console.log(_movObj.A);
                     }

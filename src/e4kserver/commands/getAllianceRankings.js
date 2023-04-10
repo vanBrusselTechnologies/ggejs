@@ -7,22 +7,29 @@ module.exports = {
      */
     execute(socket, searchValue = "1", rankingType = "might") {
         let listType = 11;
-        switch(rankingType)
-        {
-            case "honor": listType = 10; break;
-            case "might": listType = 11; break;
-            case "dominion": listType = 12; break;
-            case "aqua": listType = 13; break;
-            default: break;
+        switch (rankingType) {
+            case "honor":
+                listType = 10;
+                break;
+            case "might":
+                listType = 11;
+                break;
+            case "dominion":
+                listType = 12;
+                break;
+            case "aqua":
+                listType = 13;
+                break;
+            default:
+                break;
         }
         let C2SGetHighscoreVO = {
             params: {
-                SV: searchValue,
-                LT: listType,
-                LID: 1
-            },
-            getCmdId: "hgh",
+                SV: searchValue, LT: listType, LID: 1
+            }, getCmdId: "hgh",
         }
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": C2SGetHighscoreVO, "lockConditionVO": "new DefaultLockConditionVO()" });
+        require('./../data').sendJsonVoSignal(socket, {
+            "commandVO": C2SGetHighscoreVO, "lockConditionVO": "new DefaultLockConditionVO()"
+        });
     }
 }

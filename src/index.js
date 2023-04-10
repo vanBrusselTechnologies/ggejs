@@ -1,19 +1,16 @@
+const fs = require('fs');
+
 exports.Client = require('./Client');
 
 //Managers
-exports.AllianceManager = require("./managers/AllianceManager");
-exports.MovementManager = require("./managers/MovementManager");
-exports.PlayerManager = require("./managers/PlayerManager");
+fs.readdirSync(__dirname + '/managers/').forEach(function (file) {
+    exports[file.replace('.js', '')] = require('./managers/' + file);
+});
 
 //Structures
-exports.AlienInvasionMapobject = require('./structures/AlienInvasionMapobject');
-exports.Alliance = require('./structures/Alliance');
-exports.AllianceDonations = require('./structures/AllianceDonations');
-exports.AllianceMember = require('./structures/AllianceMember');
-exports.ArmyAttackMovement = require('./structures/ArmyAttackMovement');
-exports.BasicMapobject = require('./structures/BasicMapobject');
-exports.MyAlliance = require('./structures/MyAlliance');
-exports.Player = require('./structures/Player');
+fs.readdirSync(__dirname + '/structures/').forEach(function (file) {
+    exports[file.replace('.js', '')] = require('./structures/' + file);
+});
 
 //Utils
 exports.Constants = require('./utils/Constants');

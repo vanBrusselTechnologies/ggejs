@@ -36,7 +36,7 @@ module.exports = {
             default:
                 params.shift();
                 let responseVO = {
-                    error: params.shift(),
+                    error: parseInt(params.shift()),
                     commandID: command,
                     paramArray: params,
                 }
@@ -74,12 +74,12 @@ function executeResponse(socket, _jsonResponseVO) {
         }
         else {
             const _params = _jsonResponseVO.paramArray.length === 0 ? "" : _jsonResponseVO.paramArray[0].substring(0, 124 - _jsonResponseVO.commandID.length);
-            if (socket["debug"])
+            if (socket.debug)
                 console.log('[RECEIVED UNKNOWN COMMAND] ' + _jsonResponseVO.commandID + ": " + _params.trim());
         }
     }
     catch (e) {
-        if(socket["debug"])
+        if(socket.debug)
             console.log("Error");
             console.log(_jsonResponseVO);
             console.log(e);

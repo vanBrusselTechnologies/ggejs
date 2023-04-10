@@ -11,18 +11,23 @@ module.exports = {
     }
 }
 
+/**
+ *
+ * @param {string} msg
+ * @returns {string}
+ */
 function validateMessage(msg) {
-    msg = msg.replace(/%/g, "&percnt;")
-        .replace(/'/g, "&#145;")
-        .replace(/"/g, "&quot;")
-        .replace(/</g, "&lt;")
-        .replace(/\r/g, "<br />")
-        .replace(/\n/g, "<br />")
-        .replace(/\\/g, "")
-        .replace(/\n/g, "")
-        .replace(/\x0b/g, "")
-        .replace(/\f/g, "")
-        .replace(/\r/g, "")
-        .replace(/\t/g, "");
+    msg = msg.replaceAll(/%/g, "&percnt;")
+        .replaceAll(/'/g, "&#145;")
+        .replaceAll(/"/g, "&quot;")
+        .replaceAll(/</g, "&lt;")
+        .replaceAll(/\r/g, "<br />")
+        .replaceAll(/\n/g, "<br />")
+        .replaceAll(/\\/g, "")
+        .replaceAll(/\n/g, "")
+        .replaceAll(/\x0b/g, "")
+        .replaceAll(/\f/g, "")
+        .replaceAll(/\r/g, "")
+        .replaceAll(/\t/g, "");
     return msg;
 }

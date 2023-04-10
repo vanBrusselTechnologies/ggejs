@@ -10,7 +10,7 @@ class ArmyTravelMovement extends BasicMovement {
      */
     constructor(client, data) {
         super(client, data);
-        /** @type {{ unit:Unit, count:number }[]} */
+        /** @type {InventoryItem<Unit>[]} */
         this.army = parseArmy(client, data.A);
         /** @type {Good[]} */
         this.goods = parseGoods(client, data.G);
@@ -35,7 +35,7 @@ function parseGoods(client, data) {
  * 
  * @param {Client} client 
  * @param {*} data 
- * @returns {{ unit:Unit, count:number }[]}
+ * @returns {InventoryItem<Unit>[]}
  */
 function parseArmy(client, data) {
     let army = [];
@@ -43,7 +43,7 @@ function parseArmy(client, data) {
         let _wodId = data[i][0];
         let _count = data[i][1];
         army.push({
-            unit: new Unit(client, _wodId),
+            item: new Unit(client, _wodId),
             count: _count,
         })
     }

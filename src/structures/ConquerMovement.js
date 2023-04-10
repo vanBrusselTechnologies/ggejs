@@ -9,7 +9,7 @@ class ConquerMovement extends BasicMovement {
      */
     constructor(client, data) {
         super(client, data);
-        /** @type {{ unit: Unit, count: number }[]} */
+        /** @type {InventoryItem<Unit>[]} */
         this.army = parse(client, data.A);
     }
 }
@@ -18,14 +18,14 @@ class ConquerMovement extends BasicMovement {
  * 
  * @param {Client} client 
  * @param {Array} obj 
- * @returns {{ unit: Unit, count: number }[]}
+ * @returns {InventoryItem<Unit>[]}
  */
 function parse(client, obj) {
-    /** @type {{ unit: Unit, count: number }[]} */
+    /** @type {InventoryItem<Unit>[]} */
     let output = [];
     for (let i in obj) {
         output.push({
-            unit: new Unit(client, obj[i][0]),
+            item: new Unit(client, obj[i][0]),
             count: obj[i][1],
         });
     }

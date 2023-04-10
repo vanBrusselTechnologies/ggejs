@@ -1,5 +1,5 @@
 module.exports = {
-    execute(socket, source, target, spyCount, spyTypeId, spyEffect, horseWodId = -1) {
+    execute(socket, source, target, spyCount, spyTypeId, spyEffect, horse = null) {
         let C2SSendMessageVO = {
             params: {
                 SID: source.objectId,
@@ -8,13 +8,14 @@ module.exports = {
                 SC: spyCount,
                 ST: spyTypeId,
                 SE: spyEffect,
-                HBW: horseWodId,
+                HBW: horse?.wodId ?? -1,
                 KID: source.kingdomId,
-                PTT: 0,//pegasusTravelTicketsAmount,
+                PTT: horse?.isPegasusHorse ? 1 : 0,
                 SD: 0,
-            },
-            getCmdId: "csm"
+            }, getCmdId: "csm"
         }
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": C2SSendMessageVO, "lockConditionVO": "new DefaultLockConditionVO()" });
+        require('./../data').sendJsonVoSignal(socket, {
+            "commandVO": C2SSendMessageVO, "lockConditionVO": "new DefaultLockConditionVO()"
+        });
     }
 }

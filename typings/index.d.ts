@@ -1,16 +1,29 @@
 import {EventEmitter} from "node:events";
-import {Socket} from 'node:net';
+import net from 'node:net';
+import {
+    Dungeon as RawDungeon,
+    Effect as RawEffect,
+    Gem as RawGem,
+    Lord as RawLord,
+    NetworkInstance,
+    Unit as RawUnit
+} from 'e4k-data'
 
 /** Base class for a playeraccount */
-export class Client extends EventEmitter {
+class Client extends EventEmitter {
     /**
      *
      * @param name Your player account name
      * @param password Your player account password
-     * @param reconnectTimeoutInSeconds
+     * @param serverInstance Your player account serverInstance
+     * @example ```js
+     * const networkInstances = require('e4k-data').network.instances.instance;
+     * const worldNetworkInstance = networkInstances.find(i => i.instanceLocaId === "generic_country_world");
+     * const client = new Client('playername', 'password', worldNetworkInstance)
      */
-    public constructor(name: string, password: string, reconnectTimeoutInSeconds: number = 300);
+    public constructor(name: string, password: string, serverInstance: NetworkInstance);
 
+    private _serverInstance: NetworkInstance;
     private _socket: Socket;
 
     /** Login with your credentials */
@@ -18,8 +31,9 @@ export class Client extends EventEmitter {
 
     private __x__x__relogin(): Promise<void>;
 
-    public movements: MovementManager;
     public alliances: AllianceManager;
+    public equipments: EquipmentManager;
+    public movements: MovementManager;
     public players: PlayerManager;
     public worldmaps: WorldmapManager;
 
@@ -37,36 +51,25 @@ export class Client extends EventEmitter {
     ///No typings yet
     ///
     private getCastleInfo(Mapobject: Mapobject): Promise<any>;
+
     ///
     ///
     ///
 }
 
+private class Socket extends net.Socket {
+    public client: Client;
+    public debug: boolean;
+}
+
 //#region Managers
-export class BaseManager extends EventEmitter {
+class BaseManager extends EventEmitter {
     private _client: Client;
 
     protected constructor(client: Client);
 }
 
-export class MovementManager extends BaseManager {
-    private constructor(client: Client);
-
-    public on<K extends keyof MovementEvents>(event: K, listener: (...args: MovementEvents[K]) => void): this;
-
-    public addListener<K extends keyof MovementEvents>(event: K, listener: (...args: MovementEvents[K]) => void): this;
-
-    emit<K extends keyof MovementEvents>(eventName: K, ...args: MovementEvents[K]): boolean;
-
-    /** Returns all movements */
-    public get(): Movement[];
-
-    private _add_or_update(_movements: Movement[]): void;
-
-    private _remove(_movementId: number): void;
-}
-
-export class AllianceManager extends BaseManager {
+class AllianceManager extends BaseManager {
     private constructor(client: Client);
 
     public getById(id: number): Promise<Alliance>;
@@ -78,8 +81,52 @@ export class AllianceManager extends BaseManager {
     public getMyAlliance(): Promise<MyAlliance>;
 }
 
-export class PlayerManager extends BaseManager {
+class EquipmentManager extends BaseManager {
     private constructor(client: Client);
+
+    private _setCommandantsAndBarons(barons: Lord[], commandants: Lord[]): void;
+
+    public getCommandants(): Lord[];
+
+    /**
+     * Returns Array with all idle commandants.
+     */
+    public getAvailableCommandants(): Lord[];
+
+    public getBarons(): Lord[];
+
+    public getGenerals(): [];
+}
+
+class MovementManager extends BaseManager {
+    private constructor(client: Client);
+
+    public on<K extends keyof MovementEvents>(event: K, listener: (...args: MovementEvents[K]) => void): this;
+
+    public addListener<K extends keyof MovementEvents>(event: K, listener: (...args: MovementEvents[K]) => void): this;
+
+    emit<K extends keyof MovementEvents>(eventName: K, ...args: MovementEvents[K]): boolean;
+
+    /** Returns all movements */
+    public get(): Movement[];
+
+    public startAttackMovement(castleFrom: InteractiveMapobject | CapitalMapobject, castleTo: Mapobject, army: ArmyWave[], lord: Lord, horse?: Horse): void;
+
+    public startSpyMovement(castleFrom: InteractiveMapobject | CapitalMapobject, castleTo: Mapobject, spyCount: number, spyType: number, spyEffect: number, horse?: Horse): void;
+
+    public startMarketMovement(castleFrom: InteractiveMapobject | CapitalMapobject, castleTo: Mapobject, goods: Good[], horse?: Horse): void;
+
+    private _add_or_update(_movements: Movement[]): void;
+
+    private _remove(_movementId: number): void;
+
+    public static getDistance(castle1: BasicMapobject, castle2: BasicMapobject): number;
+}
+
+class PlayerManager extends BaseManager {
+    private constructor(client: Client);
+
+    private _thisPlayerId: number;
 
     public getById(id: number): Promise<Player>;
 
@@ -92,7 +139,7 @@ export class PlayerManager extends BaseManager {
     private _setThisPlayer(id: number): void;
 }
 
-export class WorldmapManager extends BaseManager {
+class WorldmapManager extends BaseManager {
     private _worldmapCaches: { date: Date, worldmap: Worldmap }[];
 
     public get(kingdomId: number): Promise<Worldmap>;
@@ -103,7 +150,10 @@ export class WorldmapManager extends BaseManager {
 //#endregion
 
 //#region Movement
-export type Movement =
+/**
+ *
+ */
+type Movement =
     BasicMovement
     | ArmyAttackMovement
     | ArmyTravelMovement
@@ -112,7 +162,7 @@ export type Movement =
     | NpcAttackMovement
     | SpyMovement;
 
-export class BasicMovement {
+class BasicMovement {
     protected constructor(client: Client, data: object);
 
     public movementId: number;
@@ -130,7 +180,7 @@ export class BasicMovement {
     public lord?: Lord;
 }
 
-export class ArmyAttackMovement extends BasicMovement {
+class ArmyAttackMovement extends BasicMovement {
     protected constructor(client: Client, data);
 
     public army?: CompactArmy;
@@ -141,31 +191,31 @@ export class ArmyAttackMovement extends BasicMovement {
     public isShadowMovement: boolean;
 }
 
-export class ArmyTravelMovement extends BasicMovement {
+class ArmyTravelMovement extends BasicMovement {
     protected constructor(client: Client, data);
 
-    public army: { unit: Unit, count: number }[];
+    public army: InventoryItem<Unit>[];
     public goods?: Good[];
 }
 
-export class ConquerMovement extends BasicMovement {
+class ConquerMovement extends BasicMovement {
     protected constructor(client: Client, data);
 
-    public army: { unit: Unit, count: number }[];
+    public army: InventoryItem<Unit>[];
 }
 
-export class MarketMovement extends BasicMovement {
+class MarketMovement extends BasicMovement {
     protected constructor(client: Client, data);
 
     public goods: Good[];
     public carriages: number;
 }
 
-export class NpcAttackMovement extends ArmyAttackMovement {
+class NpcAttackMovement extends ArmyAttackMovement {
 
 }
 
-export class SpyMovement extends BasicMovement {
+class SpyMovement extends BasicMovement {
     protected constructor(client: Client, data);
 
     public spyType: number;
@@ -175,10 +225,48 @@ export class SpyMovement extends BasicMovement {
     public sabotageDamage?: number;
 }
 
+class InventoryItem<T> {
+    constructor(item: T, count: number);
+
+    item: T;
+    count: number;
+}
+
+class ArmyWave {
+    left: {
+        units: InventoryItem<Unit>[],
+        tools: InventoryItem<Tool>[],
+    }
+    middle: {
+        units: InventoryItem<Unit>[],
+        tools: InventoryItem<Tool>[],
+    }
+    right: {
+        units: InventoryItem<Unit>[],
+        tools: InventoryItem<Tool>[],
+    }
+}
+
+class Horse {
+    async constructor(client: Client, castleData, horseType: number);
+
+    wodId: number;
+    comment1: string;
+    comment2: string;
+    type: number;
+    unitBoost: number;
+    marketBoost: number;
+    spyBoost: number;
+    costFactorC1: number;
+    costFactorC2: number;
+    isInstantSpyHorse: boolean;
+    isPegasusHorse: boolean;
+}
+
 //#endregion
 
 //#region Alliance
-export class Alliance {
+class Alliance {
     protected constructor(client: Client, data);
 
     public allianceId: number;
@@ -204,7 +292,7 @@ export class Alliance {
     private _add_or_update_landmarks(landmarks: Mapobject[]): void;
 }
 
-export class MyAlliance extends Alliance {
+class MyAlliance extends Alliance {
     public isAutoWarOn: boolean;
     public applicationAmount: number;
     public announcement: string;
@@ -220,7 +308,7 @@ export class MyAlliance extends Alliance {
     public highestFamePoints: number;
 }
 
-export class AllianceMember {
+class AllianceMember {
     private constructor(client: Client, data, alliance: Alliance);
 
     public playerId: number;
@@ -233,7 +321,7 @@ export class AllianceMember {
     public activityStatus?: number;
 }
 
-export class AllianceStatusListItem {
+class AllianceStatusListItem {
     private constructor(client: Client, data);
 
     public allianceId: number;
@@ -242,7 +330,7 @@ export class AllianceStatusListItem {
     public allianceStatusConfirmed: boolean;
 }
 
-export class AllianceDonations {
+class AllianceDonations {
     private constructor(client: Client, data: Array<number>);
 
     public coins: number
@@ -250,7 +338,7 @@ export class AllianceDonations {
     public res: number;
 }
 
-export class ChatMessage {
+class ChatMessage {
     public message: string;
     public sendDate: Date;
     public senderPlayerId: number;
@@ -259,7 +347,7 @@ export class ChatMessage {
 
 //#endregion
 
-export class BasicBuilding {
+class BasicBuilding {
     private constructor(client: Client, data);
 
     public wodId: number;
@@ -279,32 +367,31 @@ export class BasicBuilding {
     public districtSlotId: number;
 }
 
-export class CompactArmy {
+class CompactArmy {
     private constructor(client: Client, data: object);
 
-    public left: { unit: Unit, count: number }[];
-    public middle: { unit: Unit, count: number }[];
-    public right: { unit: Unit, count: number }[];
-    public supportTools: { unit: Unit, count: number }[];
+    public left: InventoryItem<Unit>[];
+    public middle: InventoryItem<Unit>[];
+    public right: InventoryItem<Unit>[];
+    public supportTools: InventoryItem<Tool>[];
     public armySize: number;
     public soldierCount: number;
     public toolCount: number;
 }
 
-export class Coordinate {
+class Coordinate {
     private constructor(client: Client, data);
 
     public X: number;
     public Y: number;
 }
 
-export class Good {
-    public name: string;
-    public count: number;
+class Good extends InventoryItem<string> {
+    private constructor(client: Client, data: [string, number]);
 }
 
 //#region Lord and Equipment
-export class Lord {
+class Lord {
     public id: number;
     public isDummy: boolean;
     public name: string;
@@ -318,10 +405,10 @@ export class Lord {
     public wearerId: number;
     public pictureId: number;
     public attachedCastleId?: number;
-    private rawData: object;
+    public rawData: RawLord;
 }
 
-export class Equipment {
+class Equipment {
     public id: number;
     public slotId: number;
     public wearerId: number;
@@ -335,7 +422,7 @@ export class Equipment {
     public equippedLord?: Lord;
 }
 
-export class RelicEquipment {
+class RelicEquipment {
     public id: number;
     public slotId: number;
     public wearerId: number;
@@ -350,14 +437,15 @@ export class RelicEquipment {
     public equippedLord?: Lord;
 }
 
-export class Gem {
+class Gem {
     public id: number;
     public setId?: number;
     public effects: Effect[];
     public attachedEquipment?: Equipment;
+    public rawData: RawGem;
 }
 
-export class RelicGem {
+class RelicGem {
     public id: number;
     public slotId: number;
     public enhancementLevel: number;
@@ -370,20 +458,20 @@ export class RelicGem {
 
 //#endregion
 
-export class Effect {
+class Effect {
     public effectId: number;
     public power: number;
     public name: string;
     public capId: number;
     public uncappedPower: number;
-    private rawData: object;
+    public rawData: RawEffect;
 }
 
-export class RelicEffect extends Effect {
+class RelicEffect extends Effect {
     public relicEffectId: number;
 }
 
-export class Player {
+class Player {
     public playerId: number;
     public isDummy: boolean;
     public playerName: string;
@@ -403,17 +491,17 @@ export class Player {
     public villages: {
         public: {
             village: VillageMapobject,
-            units?: { unit: Unit, count: number }[]
+            units?: InventoryItem<Unit>[]
         }[],
         private: { privateVillageId: number, uniqueId: number }[]
     };
-    public kingstowers: {
+    public kingsTowers: {
         kingstower: KingstowerMapobject;
-        units?: { unit: Unit, count: number }[];
+        units?: InventoryItem<Unit>[];
     }[];
     public monuments: {
         monument: MonumentMapobject;
-        units?: { unit: Unit, count: number }[];
+        units?: InventoryItem<Unit>[];
     }[];
     public hasPremiumFlag: boolean;
     public might: number;
@@ -429,7 +517,7 @@ export class Player {
     public factionNoobProtectionEndTime?: Date;
 }
 
-export class Unit {
+class Unit {
     private constructor(client: Client, wodId: number);
 
     public wodId: number;
@@ -441,9 +529,14 @@ export class Unit {
     public fightType?: number;
     public rangeDefence?: number;
     public meleeDefence?: number;
+    public rawData: RawUnit;
 }
 
-export class Worldmap {
+class Tool extends Unit {
+
+}
+
+class Worldmap {
     public kingdomId: number;
     public mapobjects: Mapobject[];
     public players: Player[];
@@ -459,12 +552,12 @@ export class Worldmap {
     private _clear(): void;
 }
 
-export class WorldmapSector extends Worldmap {
+class WorldmapSector extends Worldmap {
     public combine(...sectors: WorldmapSector): WorldmapSector
 }
 
 //#region Mapobject
-export type Mapobject =
+type Mapobject =
     BasicMapobject
     | AlienInvasionMapobject
     | BossDungeonMapobject
@@ -474,6 +567,7 @@ export type Mapobject =
     | DungeonIsleMapobject
     | DynamicMapobject
     | EmptyMapobject
+    | EventDungeonMapobject
     | InteractiveMapobject
     | KingstowerMapobject
     | MetropolMapobject
@@ -485,7 +579,7 @@ export type Mapobject =
     | ShapeshifterMapobject
     | VillageMapobject;
 
-export class AlienInvasionMapobject extends BasicMapobject {
+class AlienInvasionMapobject extends BasicMapobject {
     public dungeonLevel: number;
     public hasPeaceMode: boolean;
     public wallLevel: number;
@@ -497,14 +591,14 @@ export class AlienInvasionMapobject extends BasicMapobject {
     public eventId: number;
 }
 
-export class BasicMapobject {
+class BasicMapobject {
     protected constructor(client: Client, data: Array<any>);
 
     public areaType: number;
     public position: Coordinate;
 }
 
-export class BossDungeonMapobject extends BasicMapobject {
+class BossDungeonMapobject extends BasicMapobject {
     public lastSpyDate?: Date;
     public dungeonLevel: number;
     public attackCooldownEnd?: Date;
@@ -512,7 +606,7 @@ export class BossDungeonMapobject extends BasicMapobject {
     public kingdomId: number;
 }
 
-export class CapitalMapobject extends BasicMapobject {
+class CapitalMapobject extends BasicMapobject {
     public objectId: number;
     public ownerId: number;
     public keepLevel: number;
@@ -531,11 +625,11 @@ export class CapitalMapobject extends BasicMapobject {
     public influencePoints: number;
 }
 
-export class CastleMapobject extends InteractiveMapobject {
+class CastleMapobject extends InteractiveMapobject {
 
 }
 
-export class DungeonIsleMapobject extends BasicMapobject {
+class DungeonIsleMapobject extends BasicMapobject {
     public isleId: number;
     public lastSpyDate?: Date;
     public attackCount: number;
@@ -545,8 +639,8 @@ export class DungeonIsleMapobject extends BasicMapobject {
     public isVisibleOnMap: boolean;
 }
 
-export class DungeonMapobject extends BasicMapobject {
-    private _rawData: object;
+class DungeonMapobject extends BasicMapobject {
+    private _rawData: RawDungeon;
     public lastSpyDate?: Date;
     public attackCount: number;
     public attackCooldownEnd?: Date;
@@ -560,22 +654,49 @@ export class DungeonMapobject extends BasicMapobject {
     public gateWodId: number;
     public guards: number;
     public xp: number;
-    private _defence: { troops: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] }, tools: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] } };
-    public get defence(): { troops: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] }, tools: { left: { unit: Unit, count: number }[], middle: { unit: Unit, count: number }[], right: { unit: Unit, count: number }[], center: { unit: Unit, count: number }[] } };
+    private _defence: {
+        troops: {
+            middle: InventoryItem<Unit>[],
+            left: InventoryItem<Unit>[],
+            center: InventoryItem<Unit>[],
+            right: InventoryItem<Unit>[]
+        },
+        tools: { middle: InventoryItem<Unit>[], left: InventoryItem<Unit>[], right: InventoryItem<Unit>[] }
+    };
+    public get defence(): {
+        troops: {
+            left: InventoryItem<Unit>[],
+            middle: InventoryItem<Unit>[],
+            right: InventoryItem<Unit>[],
+            center: InventoryItem<Unit>[]
+        },
+        tools: {
+            left: InventoryItem<Tool>[],
+            middle: InventoryItem<Tool>[],
+            right: InventoryItem<Tool>[],
+            center: InventoryItem<Tool>[]
+        }
+    };
 
     private _lord: Lord;
     public get lord(): Lord;
 }
 
-export class DynamicMapobject extends BasicMapobject {
+class DynamicMapobject extends BasicMapobject {
 
 }
 
-export class EmptyMapobject extends BasicMapobject {
+class EmptyMapobject extends BasicMapobject {
 
 }
 
-export class InteractiveMapobject extends BasicMapobject {
+class EventDungeonMapobject extends BasicMapobject {
+    public lastSpyDate?: Date;
+    public dungeonLevel: number;
+    public isDefeated: boolean;
+}
+
+class InteractiveMapobject extends BasicMapobject {
     public objectId: number;
     public ownerId: number;
     public keepLevel: number;
@@ -593,7 +714,7 @@ export class InteractiveMapobject extends BasicMapobject {
     public outpostType: number;
 }
 
-export class KingstowerMapobject extends BasicMapobject {
+class KingstowerMapobject extends BasicMapobject {
     public objectId: number;
     public ownerId: number;
     public customName: string;
@@ -601,7 +722,7 @@ export class KingstowerMapobject extends BasicMapobject {
     public kingdomId: number;
 }
 
-export class MonumentMapobject extends BasicMapobject {
+class MonumentMapobject extends BasicMapobject {
     public objectId: number;
     public occupierId: number;
     public monumentType: number;
@@ -611,11 +732,11 @@ export class MonumentMapobject extends BasicMapobject {
     public kingdomId: number;
 }
 
-export class MetropolMapobject extends CapitalMapobject {
+class MetropolMapobject extends CapitalMapobject {
 
 }
 
-export class NomadInvasionMapObject extends BasicMapobject {
+class NomadInvasionMapObject extends BasicMapobject {
     public lastSpyDate?: Date;
     public attackCooldownEnd?: Date;
     public victoryCount: number;
@@ -628,7 +749,7 @@ export class NomadInvasionMapObject extends BasicMapobject {
     public travelDistance: number;
 }
 
-export class NomadKhanInvasionMapObject extends BasicMapobject {
+class NomadKhanInvasionMapObject extends BasicMapobject {
     public lastSpyDate?: Date;
     public allianceCampId: number;
     public attackCooldownEnd?: Date;
@@ -644,11 +765,11 @@ export class NomadKhanInvasionMapObject extends BasicMapobject {
     public travelDistance: number;
 }
 
-export class RedAlienInvasionMapobject extends AlienInvasionMapobject {
+class RedAlienInvasionMapobject extends AlienInvasionMapobject {
     public eventId: number;
 }
 
-export class ResourceIsleMapobject extends BasicMapobject {
+class ResourceIsleMapobject extends BasicMapobject {
     public objectId: number;
     public occupierId: number;
     public isleId: number;
@@ -658,7 +779,7 @@ export class ResourceIsleMapobject extends BasicMapobject {
     public occupationFinishedDate: Date;
 }
 
-export class ShapeshifterMapobject extends BasicMapobject {
+class ShapeshifterMapobject extends BasicMapobject {
     public kingdomId: number;
     public campLevel: number;
     public lastSpyDate?: Date;
@@ -674,7 +795,7 @@ export class ShapeshifterMapobject extends BasicMapobject {
     public travelDistance: number;
 }
 
-export class VillageMapobject extends BasicMapobject {
+class VillageMapobject extends BasicMapobject {
     public objectId: number;
     public occupierId: number;
     public villageType: number;
@@ -686,20 +807,20 @@ export class VillageMapobject extends BasicMapobject {
 //#endregion
 
 //#region Events
-export interface ClientEvents {
+interface ClientEvents {
     serverShutdown: [];
     serverShutdownEnd: [];
     connected: [];
     chatMessage: [message: ChatMessage]
 }
 
-export interface MovementEvents {
+interface MovementEvents {
     movementAdd: [movement: Movement];
     movementUpdate: [oldMovement: Movement, newMovement: Movement];
     movementCancelled: [movement: Movement];
 }
 
-export interface ConstantsEvents {
+interface ConstantsEvents {
     /** Equivalent of MOVEMENT_ADD */
     MOVEMENT_NEW: "movementAdd";
     MOVEMENT_ADD: "movementAdd";
@@ -717,54 +838,71 @@ export interface ConstantsEvents {
 /**
  *
  */
-export const Constants: {
+interface Constants {
     Events: ConstantsEvents;
     Kingdom: Kingdom;
     WorldmapArea: WorldmapArea;
-    Movement: Movements;
+    MovementType: Movements;
     AllianceMemberOnlineState: AllianceMemberOnlineState;
     AllianceRank: AllianceRank;
+    HorseType: HorseType;
+    ServerType: ServerType;
+    SpyType: SpyType;
 }
 
-export interface Kingdom {
+interface Kingdom {
     Classic: 0,
     Icecream: 2,
-    Dessert: 1,
+    Desert: 1,
     Volcano: 3,
     Island: 4,
     Faction: 10
 }
 
-export interface WorldmapArea {
-    Empty: 0;
-    MainCastle: 1;
-    Dungeon: 2;
-    Capital: 3;
-    Outpost: 4;
-    Village: 10;
-    BossDungeon: 11;
-    KingdomCastle: 12;
-    AlienInvasion: 21;
-    Metropol: 22;
-    Kingstower: 23;
-    ResourceIsle: 24;
-    DungeonIsle: 25;
-    Monument: 26;
-    NomadInvasion: 27;
-    Dynamic: 31;
-    NomadKhanInvasion: 35;
-    Shapeshifter: 36;
+interface WorldmapArea {
+    Empty: 0,
+    MainCastle: 1,
+    Dungeon: 2,
+    Capital: 3,
+    Outpost: 4,
+    Village: 10,
+    BossDungeon: 11,
+    KingdomCastle: 12,
+    EventDungeon: 13,
+    AlienInvasion: 21,
+    Metropol: 22,
+    Kingstower: 23,
+    ResourceIsle: 24,
+    DungeonIsle: 25,
+    Monument: 26,
+    NomadInvasion: 27,
+    Dynamic: 31,
+    NomadKhanInvasion: 35,
+    Shapeshifter: 36,
 }
 
-export interface Movements {
-    Attack: 0;
-    Travel: 2;
-    Spy: 3;
-    Market: 4;
-    Conquer: 5;
+interface Movements {
+    Attack: 0,
+    Travel: 2,
+    Spy: 3,
+    Market: 4,
+    Conquer: 5,
 }
 
-export interface AllianceMemberOnlineState {
+interface HorseType {
+    Coin: 0,
+    Ruby_1: 1,
+    Ruby_2: 2,
+    Feather: 3,
+}
+
+interface SpyType {
+    Military: 0,
+    Eco: 1,
+    Sabotage: 2,
+}
+
+interface AllianceMemberOnlineState {
     Online: 0,
     InLast12Hour: 1,
     InLast48Hour: 2,
@@ -777,7 +915,7 @@ export interface AllianceMemberOnlineState {
     Black: 4,
 }
 
-export interface AllianceRank {
+interface AllianceRank {
     Leader: 0,
     Coleader: 1,
     Marshal: 2,
@@ -790,101 +928,12 @@ export interface AllianceRank {
     Applicant: 9,
 }
 
-//#endregion
-
-//#region RawStructures
-/** */
-export class RawUnit {
-    wodID?: string;
-    comment2?: string;
-    group?: string;
-    name?: string;
-    type?: string;
-    role?: string;
-    healingCostC1?: string;
-    healingCostC2?: string;
-    skipCostC2?: string;
-    healingTime?: string;
-    reviveAllCostC2?: string;
-    foodSupply?: string;
-    meleeAttack?: string;
-    rangeAttack?: string;
-    meleeDefence?: string;
-    rangeDefence?: string;
-    kIDs?: string;
-    canBeUsedByNPC?: string;
-    sortOrder?: string;
-    buildingLevel?: string;
-    mightValue?: string;
-    fameAsDef?: string;
-    comment1?: string;
-    researchLocked?: string;
-    speed?: string;
-    recruitmentTime?: string;
-    lowLevelRecruitmentTime?: string;
-    costC1?: string;
-    healingOrder?: string;
-    cleavageOfCellsCost?: string;
-    kingdomTravellingCost?: string;
-    lootValue?: string;
-    fightType?: string;
-    hybrid?: string;
-    fameAsOff?: string;
-    allowedForNpcAttackInKingdom?: string;
-    upgradeWodID?: string;
-    level?: string;
-    downgradeWodID?: string;
-    eventIDs?: string;
-    inventoryType?: string;
-    palaceLockedByKID?: string;
-    canBeUsedToAttackNPC?: string;
-    fireBoost?: string;
-    isAuxiliary?: string;
-    factionID?: string;
-    isKamikaze?: string;
-    meadSupply?: string;
-    allowedToTravel?: string;
-    typ?: string;
-    slotTypes?: string;
-    toolCategory?: string;
-    costWood?: string;
-    costStone?: string;
-    attackscreenBuyable?: string;
-    gateBonus?: string;
-    costC2?: string;
-    tempServerCostC2?: string;
-    khanTabletBooster?: string;
-    allowedToAttack?: string;
-    deleteToolAfterBattle?: string;
-    pointBonus?: string;
-    fameBonus?: string;
-    samuraiTokenBooster?: string;
-    wallBonus?: string;
-    pearlBooster?: string;
-    moatBonus?: string;
-    defRangeBonus?: string;
-    offMeleeBonus?: string;
-    offRangeBonus?: string;
-    xpBonus?: string;
-    amountPerWave?: string;
-    ragePointBonus?: string;
-    khanMedalBooster?: string;
-    defMeleeBonus?: string;
-    c1Bonus?: string;
-    numberofDolls?: string;
-    dollWod?: string;
-    costComponent1?: string;
-    costComponent6?: string;
-    skillUnlockID?: string;
-    costComponent3?: string;
-    costComponent8?: string;
-    costComponent2?: string;
-    costComponent7?: string;
-    costComponent5?: string;
-    costComponent4?: string;
-    isYardTool?: string;
-    effects?: string;
-    unitWallCount?: string;
+interface ServerType {
+    NormalServer: 1,
+    TempServer: 2,
+    AllianceBattleGround: 3
 }
 
 //#endregion
+
+export {Client, Constants, Horse, InventoryItem, MovementManager}

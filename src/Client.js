@@ -3,56 +3,58 @@
 const connection = require('./e4kserver/connection');
 const e4kData = require('./e4kserver/data');
 const AllianceManager = require('./managers/AllianceManager');
+const EquipmentManager = require("./managers/EquipmentManager");
 const MovementManager = require('./managers/MovementManager');
 const PlayerManager = require('./managers/PlayerManager');
 const WorldmapManager = require('./managers/WorldmapManager');
-const { WaitUntil } = require('./tools/wait');
+const {WaitUntil} = require('./tools/wait');
 const EventEmitter = require('node:events');
+const e4kNetwork = require('e4k-data').network;
+const {NetworkInstance} = require('e4k-data');
 
 class Client extends EventEmitter {
-    /** @type {string} */
     #name = "";
-    /** @type {string} */
     #password = "";
+    /** @type {NetworkInstance} */
+    _serverInstance;
     /** @type {Socket} */
     _socket = new (require("net").Socket)();
+
     /**
-     * 
-     * @param {string} name 
-     * @param {string} password 
-     * @param {number} reconnectTimeoutInSeconds 
-     * @param {boolean} debug 
+     *
+     * @param {string} name
+     * @param {string} password
+     * @param {boolean} debug
+     * @param {NetworkInstance} serverInstance
      */
-    constructor(name, password, reconnectTimeoutInSeconds = 300, debug = false) {
+    constructor(name, password, serverInstance = e4kNetwork.instances.instance[5], debug = false) {
         super();
+        this._serverInstance = serverInstance;
         if (name !== "" && password !== "") {
             this.#name = name;
             this.#password = password;
             this._socket = new (require("net").Socket)();
-            /**
-             * @type {MovementManager}
-             */
-            this.movements = new MovementManager(this);
-            /**
-             * @type {AllianceManager}
-             */
+            this._socket["__reconnTimeoutSec"] = 300;
+            this._socket.debug = debug;
             this.alliances = new AllianceManager(this);
-            /**
-             * @type {PlayerManager}
-             */
+            this.equipments = new EquipmentManager(this);
+            this.movements = new MovementManager(this);
             this.players = new PlayerManager(this);
-            /**
-             * @type {WorldmapManager}
-             */
             this.worldmaps = new WorldmapManager(this);
-            this._socket["debug"] = debug;
-            this._socket["client"] = this;
-            this._socket["__reconnTimeoutSec"] = reconnectTimeoutInSeconds;
+            this._socket.client = this;
             addSocketListeners(this._socket);
         }
     }
+
     /**
-     * 
+     * @param {number} val
+     */
+    set reconnectTimeout(val) {
+        this._socket["__reconnTimeoutSec"] = val;
+    }
+
+    /**
+     *
      * @returns {Promise<Client>}
      */
     connect() {
@@ -63,21 +65,22 @@ class Client extends EventEmitter {
                 await _login(this._socket, this.#name, this.#password);
                 this.emit('connected');
                 resolve(this);
-            }
-            catch (e) {
+            } catch (e) {
                 reject(e);
             }
         })
     }
+
     /**
-     * 
-     * @param {string} message 
+     *
+     * @param {string} message
      */
     sendChatMessage(message) {
         require('./e4kserver/commands/sendAllianceChatMessageCommand').execute(this._socket, message);
     }
+
     /**
-     * 
+     *
      * @param {InteractiveMapobject} worldmapArea
      * @returns {Promise<any>}
      */
@@ -88,18 +91,12 @@ class Client extends EventEmitter {
                 require('./e4kserver/commands/joinAreaCommand').execute(this._socket, worldmapArea);
                 await WaitUntil(this._socket, `join_area_${worldmapArea.objectId}_finished`);
                 resolve(this._socket[`join_area_${worldmapArea.objectId}_data`]);
-            }
-            catch (e) {
+            } catch (e) {
                 reject(e);
             }
         })
     }
-    /**
-     * @param {number} val
-     */
-    set reconnectTimeout(val) {
-        this._socket["__reconnTimeoutSec"] = val;
-    }
+
     /**
      * @returns {Promise<void>}
      */
@@ -109,8 +106,7 @@ class Client extends EventEmitter {
                 await _disconnect(this._socket);
                 await this.connect();
                 resolve();
-            }
-            catch (e) {
+            } catch (e) {
                 reject(e);
             }
         })
@@ -118,7 +114,7 @@ class Client extends EventEmitter {
 }
 
 /**
- * 
+ *
  * @param {Socket} socket
  * @returns {Promise<void>}
  */
@@ -129,18 +125,17 @@ function _connect(socket) {
             await WaitUntil(socket, "__connected", "__connection_error");
             socket["reconnecting"] = false;
             resolve();
-        }
-        catch (e) {
+        } catch (e) {
             reject(e);
         }
     });
 }
 
 /**
- * 
- * @param {Socket} socket 
- * @param {string} name 
- * @param {string} password 
+ *
+ * @param {Socket} socket
+ * @param {string} name
+ * @param {string} password
  * @returns {Promise<void>}
  */
 function _login(socket, name, password) {
@@ -151,50 +146,51 @@ function _login(socket, name, password) {
             connection.login(socket, name, password);
             await WaitUntil(socket, "__loggedIn", "__login_error");
             resolve();
-        }
-        catch (e) {
+        } catch (e) {
             reject(e);
         }
     })
 }
 
 /**
- * 
+ *
  * @param {Socket} socket
  */
 function addSocketListeners(socket) {
+    socket["unfinishedDataString"] = "";
     socket.addListener("error", (err) => {
         console.log("\x1b[31m[SOCKET ERROR] " + err + "\x1b[0m");
-        socket.end(() => { });
+        socket.end();
     });
-    socket.addListener('data', (data) => { e4kData.onData(socket, data); });
+    socket.addListener('data', (data) => {
+        e4kData.onData(socket, data);
+    });
     socket.addListener('end', () => {
-        if (socket["debug"])
-            console.log("Socket Ended!");
+        if (socket.debug) console.log("Socket Ended!");
         socket["__connected"] = false;
         socket["__disconnect"] = true;
     });
     socket.addListener('timeout', () => {
-        if (socket["debug"])
-            console.log("Socket Timeout!");
-        socket.end(() => { });
+        if (socket.debug) console.log("Socket Timeout!");
+        socket.end();
     });
     socket.addListener('close', hadError => {
-        if (socket["debug"])
-            console.log("Socket Closed!" + (hadError ? " Caused by error!" : ""));
+        if (socket.debug) console.log("Socket Closed!" + (hadError ? " Caused by error!" : ""));
         socket["__connected"] = false;
         if (!socket["reconnecting"]) {
             socket["reconnecting"] = true;
             setTimeout(() => (socket.client.connect()), socket["__reconnTimeoutSec"] * 1000);
         }
     });
-    socket.addListener('ready', () => { connection._sendVersionCheck(socket); });
+    socket.addListener('ready', () => {
+        connection._sendVersionCheck(socket);
+    });
 }
 
-/** 
- * @param {Socket} socket 
+/**
+ * @param {Socket} socket
  * @returns {Promise<void>}
-*/
+ */
 function _disconnect(socket) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -202,8 +198,7 @@ function _disconnect(socket) {
             socket.end();
             await WaitUntil(socket, "__disconnect");
             resolve();
-        }
-        catch (e) {
+        } catch (e) {
             reject(e);
         }
     })

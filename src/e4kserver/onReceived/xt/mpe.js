@@ -1,4 +1,4 @@
-const {execute:mercenariesPackageCommand} = require('./../../commands/mercenariesPackageCommand');
+const {execute: mercenariesPackageCommand} = require('./../../commands/mercenariesPackageCommand');
 
 module.exports = {
     name: "mpe",
@@ -8,6 +8,7 @@ module.exports = {
      * @param {object} params
      */
     execute: function (socket, errorCode, params) {
+        if (!params.M) return;
         let mercenaryCampMissions = [];
         for (let i in params.M) {
             let _mission = params.M[i];
@@ -37,9 +38,10 @@ module.exports = {
             let __mission = mercenaryCampMissions[i];
             if (__mission.state === 1) {
                 bestMission.missionId = -1;
-                setTimeout(()=>{
+                setTimeout(() => {
+                    if(!socket["__connected"]) return;
                     mercenariesPackageCommand(socket, __mission.missionId);
-                },__mission.remainingDuration * 1100)
+                }, __mission.remainingDuration * 1100)
                 break;
             }
             if (__mission.state === 2) {

@@ -3,16 +3,15 @@
 const BaseManager = require('./BaseManager');
 const searchAllianceByIdCommand = require('./../e4kserver/commands/searchAllianceById');
 const getAllianceRankingsCommand = require('./../e4kserver/commands/getAllianceRankings');
-const { WaitUntil } = require('./../tools/wait');
+const {WaitUntil} = require('./../tools/wait');
 
 class AllianceManager extends BaseManager {
-    /**
-     * @type {Alliance[]}
-     */
+    /** @type {Alliance[]} */
     #alliances = [];
+
     /**
-     * 
-     * @param {number} id 
+     *
+     * @param {number} id
      * @returns {Promise<Alliance>}
      */
     getById(id) {
@@ -21,14 +20,14 @@ class AllianceManager extends BaseManager {
                 await _getAllianceById(this._client._socket, id);
                 let _alliance = this.#alliances.find(alliance => alliance.allianceId === id);
                 resolve(_alliance);
-            }
-            catch (e) {
+            } catch (e) {
                 reject(e);
             }
         })
     }
+
     /**
-     * 
+     *
      * @param {string} name
      * @returns {Promise<Alliance>}
      */
@@ -39,15 +38,15 @@ class AllianceManager extends BaseManager {
                 if (_allianceId === 0) reject("Alliance not found!");
                 let _alliance = await this.getById(_allianceId);
                 resolve(_alliance);
-            }
-            catch (e) {
+            } catch (e) {
                 reject(e);
             }
         })
     }
+
     /**
-     * 
-     * @param {Alliance | MyAlliance} _alliance 
+     *
+     * @param {Alliance | MyAlliance} _alliance
      */
     _add_or_update(_alliance) {
         let found = false;
@@ -62,10 +61,8 @@ class AllianceManager extends BaseManager {
             this.#alliances.push(_alliance);
         }
     }
-    /**
-     * 
-     * @returns {Promise<MyAlliance>}
-     */
+
+    /** @returns {Promise<MyAlliance>} */
     getMyAlliance() {
         return new Promise(async (resolve, reject) => {
             try {
@@ -73,8 +70,7 @@ class AllianceManager extends BaseManager {
                 if (!_player.allianceId) reject("You are not in an alliance!");
                 let alliance = this.getById(_player.allianceId);
                 resolve(alliance);
-            }
-            catch (e) {
+            } catch (e) {
                 reject(e);
             }
         })
@@ -82,9 +78,9 @@ class AllianceManager extends BaseManager {
 }
 
 /**
- * 
- * @param {Socket} socket 
- * @param {number} id 
+ *
+ * @param {Socket} socket
+ * @param {number} id
  * @returns {Promise<void>}
  */
 function _getAllianceById(socket, id) {
@@ -96,17 +92,16 @@ function _getAllianceById(socket, id) {
             searchAllianceByIdCommand.execute(socket, id);
             await WaitUntil(socket, "__alliance_found", "__get_alliance_error");
             resolve();
-        }
-        catch (e) {
+        } catch (e) {
             reject(e);
         }
     });
 }
 
 /**
- * 
- * @param {Socket} socket 
- * @param {string} name 
+ *
+ * @param {Socket} socket
+ * @param {string} name
  * @returns {Promise<number>}
  */
 function _getAllianceByName(socket, name) {
@@ -119,8 +114,7 @@ function _getAllianceByName(socket, name) {
             getAllianceRankingsCommand.execute(socket, name);
             await WaitUntil(socket, "__alliance_found", "__get_alliance_error");
             resolve(socket["__found_alliance_id"]);
-        }
-        catch (e) {
+        } catch (e) {
             reject(e);
         }
     });

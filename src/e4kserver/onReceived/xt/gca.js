@@ -13,7 +13,7 @@ module.exports = {
         for (let x in params) {
             switch (x) {
                 case "BD": castle["buildings"] = parseBuildings(socket.client, params.BD); break;
-                default: if (socket["debug"]) console.log("Unknown part in gca command: " + x);
+                default: if (socket.debug) console.log("Unknown part in gca command: " + x);
             }
         }
         return castle;
