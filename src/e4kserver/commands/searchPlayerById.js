@@ -5,6 +5,7 @@ module.exports = {
      * @param {number} playerId
      */
     execute(socket, playerId) {
+        if(playerId == null) return;
         let C2SGetDetailPlayerInfo = {
             params: {
                 PID: playerId,

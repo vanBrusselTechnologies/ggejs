@@ -5,6 +5,7 @@ module.exports = {
      * @param {number} allianceId
      */
     execute(socket, allianceId) {
+        if(allianceId == null) return;
         let C2SGetAllianceInfoVO = {
             params: {
                 AID: allianceId,
