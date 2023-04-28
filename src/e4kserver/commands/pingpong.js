@@ -5,6 +5,6 @@ module.exports = {
             getCmdId: "pin",
             params: [""],
         }
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": PingPongVO, "lockConditionVO": null });
+        require('./../data').sendJsonVoSignal(socket, {"commandVO": PingPongVO, "lockConditionVO": null});
     }
 }

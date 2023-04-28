@@ -37,6 +37,12 @@ class ShapeshifterMapobject extends BasicMapobject {
     }
     travelDistance = 150;
     eventId = 97;
+
+    parseAreaInfoBattleLog(data){
+        super.parseAreaInfoBattleLog(data);
+        this.equipmentID = 0;
+        return this;
+    }
 }
 
 module.exports = ShapeshifterMapobject;

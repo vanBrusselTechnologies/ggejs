@@ -47,6 +47,12 @@ class DungeonMapobject extends BasicMapobject {
         this.xp = Math.round(Math.max(1, Math.pow(0.5 * this.level, 1.1)));
     }
 
+    parseAreaInfoBattleLog(data) {
+        super.parseAreaInfoBattleLog(data);
+        this.level = data.DL;
+        return this;
+    }
+
     /**
      * @returns {{ troops: { left: InventoryItem<Unit>[], middle: InventoryItem<Unit>[], right: InventoryItem<Unit>[], center: InventoryItem<Unit>[] }, tools: { left: InventoryItem<Tool>[], middle: InventoryItem<Tool>[], right: InventoryItem<Tool>[] } }}
      */

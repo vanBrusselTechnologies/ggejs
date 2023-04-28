@@ -1,3 +1,5 @@
+const {parseChatJSONMessage} = require("../tools/TextValide");
+
 class ChatMessage {
     /**
      * 
@@ -14,16 +16,6 @@ class ChatMessage {
         /** @type {string} */
         this.senderPlayerName = data.PN;
     }
-}
-
-/**
- * 
- * @param {string} msgText 
- * @returns {string}
- */
-function parseChatJSONMessage(msgText) {
-    if (!msgText) return "";
-    return msgText.replace(/&percnt;/g, "%").replace(/&quot;/g, "\"").replace(/&#145;/g, "\'").replace(/<br \/>/g, "\n").replace(/&lt;/g, "<");
 }
 
 module.exports = ChatMessage;

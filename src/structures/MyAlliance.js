@@ -6,6 +6,7 @@ const CapitalMapobject = require("./CapitalMapobject");
 const KingstowerMapobject = require("./KingstowerMapobject");
 const MonumentMapobject = require("./MonumentMapobject");
 const MetropolMapobject = require("./MetropolMapobject");
+const {parseChatJSONMessage} = require("../tools/TextValide");
 
 class MyAlliance extends Alliance {
     /**
@@ -46,16 +47,6 @@ class MyAlliance extends Alliance {
         /** @type {number} */
         this.highestFamePoints = data.HF;
     }
-}
-
-/**
- * 
- * @param {string} msgText 
- * @returns {string}
- */
-function parseChatJSONMessage(msgText) {
-    if (!msgText) return "";
-    return msgText.replace(/&percnt;/g, "%").replace(/&quot;/g, "\"").replace(/&#145;/g, "\'").replace(/<br \/>/g, "\n").replace(/&lt;/g, "<");
 }
 
 /**

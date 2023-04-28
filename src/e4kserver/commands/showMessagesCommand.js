@@ -1,5 +1,6 @@
 module.exports = {
     name: "sne", execute(socket) {
+        socket['isWaitingForSNE'] = true;
         let C2SShowMessagesVO = {
             getCmdId: "sne", params: {},
         }

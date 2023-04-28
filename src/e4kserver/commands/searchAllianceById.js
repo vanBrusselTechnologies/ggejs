@@ -5,13 +5,16 @@ module.exports = {
      * @param {number} allianceId
      */
     execute(socket, allianceId) {
-        if(allianceId == null) return;
+        if (allianceId == null) return;
         let C2SGetAllianceInfoVO = {
             params: {
                 AID: allianceId,
             },
             getCmdId: "ain",
         }
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": C2SGetAllianceInfoVO, "lockConditionVO": "new DefaultLockConditionVO()" });
+        require('./../data').sendJsonVoSignal(socket, {
+            "commandVO": C2SGetAllianceInfoVO,
+            "lockConditionVO": "new DefaultLockConditionVO()"
+        });
     }
 }

@@ -43,6 +43,19 @@ class InteractiveMapobject extends BasicMapobject {
         /** @type {number} */
         this.equipmentId = data[17];
     }
+
+    parseAreaInfoBattleLog(data){
+        super.parseAreaInfoBattleLog(data);
+        this.keepLevel = data.KL;
+        this.wallLevel = data.WL;
+        this.gateLevel = data.GL;
+        this.towerLevel = data.TL;
+        this.moatLevel = data.ML;
+        this.customName = data.N;
+        this.equipmentId = data.EID;
+        this.outpostType = data.RT;
+        return this;
+    }
 }
 
 module.exports = InteractiveMapobject;

@@ -27,6 +27,12 @@ class AlienInvasionMapobject extends BasicMapobject {
     }
     travelDistance = 50;
     eventId = 71;
+
+    parseAreaInfoBattleLog(data){
+        super.parseAreaInfoBattleLog(data);
+        this._dungeonLevel = data.DL;
+        return this;
+    }
 }
 
 module.exports = AlienInvasionMapobject;

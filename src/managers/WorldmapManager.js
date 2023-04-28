@@ -73,8 +73,8 @@ class WorldmapManager extends BaseManager {
      * @param {Coordinate} coordinate
      * @return {Promise<WorldmapSector>};
      */
-    getSectorsAround(kingdomId, coordinate){
-        return new Promise(async (resolve, reject)=> {
+    getSectorsAround(kingdomId, coordinate) {
+        return new Promise(async (resolve, reject) => {
             try {
                 let sectorXCastle = Math.floor(coordinate.X / 100);
                 let sectorYCastle = Math.floor(coordinate.Y / 100);
@@ -90,7 +90,7 @@ class WorldmapManager extends BaseManager {
                     }
                 }
                 resolve(worldmap);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         })
@@ -114,41 +114,13 @@ function _getWorldmapById(thisManager, socket, _worldmap, kingdomId) {
             worldmapRightBottom = [worldmapSize * 100, worldmapSize * 100];
             socket[`__worldmap_${kingdomId}_sectors_found`] = 0;
             socket[`__get_worldmap_${kingdomId}_error`] = "";
-            let lastJ = 0;
             for (let i = 0; i < worldmapSize * worldmapSize; i++) {
-                if(!socket["__connected"]) break;
-                let column1 = worldmapLeftTop[0] + Math.floor(i / worldmapSize) * 100;
-                let row1 = worldmapLeftTop[1] + i % worldmapSize * 100;
-                let column2 = Math.min(column1 + 99, worldmapRightBottom[0]);
-                let row2 = Math.min(row1 + 99, worldmapRightBottom[1]);
-                getWorldmapCommand.execute(socket, kingdomId, column1, row1, column2, row2);
-                if (i % 5 === 4 || i === worldmapSize * worldmapSize - 1) {
-                    for (let j = lastJ; j <= i; j++) {
-                        try {
-                            await WaitUntil(socket, `__worldmap_${kingdomId}_sector_${j}_found`, `__get_worldmap_${kingdomId}_sector_${j}_error`, 1000);
-                            let data = socket[`__worldmap_${kingdomId}_sector_${j}_data`];
-                            let worldmapAreas = data.worldmapAreas;
-                            _worldmap._addAreaMapObjects(worldmapAreas);
-                            let players = data.players;
-                            _worldmap._addPlayers(players);
-                            socket[`__worldmap_${kingdomId}_sector_${j}_found`] = false;
-                            socket[`__get_worldmap_${kingdomId}_sector_${j}_error`] = "";
-                            lastJ = j + 1;
-                        } catch (e) {
-                            if (e.message === "Exceeded max time" && (j > 100 || j < 25)) {
-                                i = j + 1;
-                                lastJ = j + 1;
-                                socket[`__worldmap_${kingdomId}_sectors_found`] = j + 1;
-                            } else {
-                                i = j + 1;
-                                lastJ = j + 1;
-                                socket[`__worldmap_${kingdomId}_sectors_found`] = j + 1;
-                            }
-                            break;
-                        }
-
-                    }
-                }
+                if (!socket["__connected"]) break;
+                let col = worldmapLeftTop[0] + Math.floor(i / worldmapSize) * 100;
+                let row = worldmapLeftTop[1] + i % worldmapSize * 100;
+                const sector = await _getWorldmapSector(thisManager, socket, kingdomId, col, row);
+                _worldmap._addAreaMapObjects(sector.mapobjects);
+                _worldmap._addPlayers(sector.players);
             }
             thisManager._worldmapCaches[kingdomId].date = new Date(Date.now() + cacheSec * 1000);
             thisManager._worldmapCaches[kingdomId].worldmap = _worldmap;
@@ -167,9 +139,10 @@ function _getWorldmapById(thisManager, socket, _worldmap, kingdomId) {
  * @param {number} kingdomId
  * @param {number} x 0-9
  * @param {number} y 0-9
+ * @param {number} tries
  * @returns {Promise<WorldmapSector>}
  */
-function _getWorldmapSector(thisManager, socket, kingdomId, x, y) {
+function _getWorldmapSector(thisManager, socket, kingdomId, x, y, tries = 0) {
     return new Promise(async (resolve, reject) => {
             try {
                 socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`] = true;
@@ -181,13 +154,18 @@ function _getWorldmapSector(thisManager, socket, kingdomId, x, y) {
                 let row1 = worldmapLeftTop[1] + y * 100;
                 let column2 = Math.min(column1 + 99, worldmapRightBottom[0]);
                 let row2 = Math.min(row1 + 99, worldmapRightBottom[1]);
-                if(!socket["__connected"]) reject('Client disconnected');
+                if (!socket["__connected"]) reject('Client disconnected');
                 getWorldmapCommand.execute(socket, kingdomId, column1, row1, column2, row2);
-                await WaitUntil(socket, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_error`, 1000);
+                await WaitUntil(socket, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_error`);
                 let data = socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`];
-                if(!data){
-                    let sector = await _getWorldmapSector(thisManager, socket, kingdomId, x, y);
+                if (!data) {
+                    if (tries >= 3) {
+                        new WorldmapSector(socket.client, kingdomId, {players: [], worldmapAreas: []});
+                        return;
+                    }
+                    let sector = await _getWorldmapSector(thisManager, socket, kingdomId, x, y, tries + 1);
                     resolve(sector);
+                    return;
                 }
                 let worldmapSector = new WorldmapSector(socket.client, kingdomId, data);
                 socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`] = false;

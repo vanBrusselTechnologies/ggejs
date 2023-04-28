@@ -8,6 +8,7 @@ class CapitalMapobject extends BasicMapobject {
      */
     constructor(client, data) {
         super(client, data);
+        if (data.length <= 3) return;
         /** @type {number} */
         this.objectId = data[3];
         /** @type {number} */

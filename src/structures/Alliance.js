@@ -1,4 +1,5 @@
 const AllianceMember = require("./AllianceMember");
+const {parseChatJSONMessage} = require("../tools/TextValide");
 
 class Alliance {
     #landmarks = [];
@@ -59,18 +60,6 @@ class Alliance {
 }
 
 module.exports = Alliance;
-
-/**
- * 
- * @param {string} msgText
- * @returns {string}
- */
-function parseChatJSONMessage(msgText) {
-    if (!msgText) {
-        return "";
-    }
-    return msgText.replace(/&percnt;/g, "%").replace(/&quot;/g, "\"").replace(/&#145;/g, "\'").replace(/<br \/>/g, "\n").replace(/&lt;/g, "<");
-}
 
 /**
  * @param {Client} client

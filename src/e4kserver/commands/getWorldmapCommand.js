@@ -19,6 +19,9 @@ module.exports = {
                 AY2: bottomY,
             },
         }
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": C2SGetAreasVO, "lockConditionVO": "new DefaultLockConditionVO()" });
+        require('./../data').sendJsonVoSignal(socket, {
+            "commandVO": C2SGetAreasVO,
+            "lockConditionVO": "new DefaultLockConditionVO()"
+        });
     }
 }

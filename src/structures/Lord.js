@@ -8,35 +8,38 @@ const lords = e4kData.lords;
 
 class Lord {
     /**
-     * 
-     * @param {Client} client 
-     * @param {object} data 
-     * @returns 
+     *
+     * @param {Client} client
+     * @param {object} data
+     * @returns
      */
     constructor(client, data) {
-        if (data.DLID) {
+        /** @type {boolean} */
+        this.isDummy = data.DLID != null;
+        if (this.isDummy) {
             /** @type {number} */
             this.id = data.DLID;
-            /** @type {boolean} */
-            this.isDummy = true;
             /** @type {object} */
             this.rawData = getDummyData(this.id);
+            /** @type {string} */
+            this.name = this.rawData.type
+            /** @type {number} */
+            this.wearerId = this.rawData.wearerID;
             /** @type {Effect[]} */
             this.effects = parseDummyEffects(client, this.rawData.effects);
             return;
         }
         /** @type {number} */
         this.id = data.ID;
-        /** @type {boolean} */
-        this.isDummy = false;
         /** @type {number} */
-        this.wins = data.W;
+        this.wins = data.W ?? 0;
         /** @type {number} */
-        this.defeats = data.D;
+        this.defeats = data.D ?? 0;
         /** @type {number} */
-        this.winSpree = data.SPR;
+        this.winSpree = data.SPR ?? 0;
         /** @type {Equipment[] | RelicEquipment[]} */
         this.equipments = parseEquipments(client, data.EQ, this);
+        this.generalId = data["GID"];
         if (this.equipments.length > 0) {
             /** @type {boolean} */
             this.isRelic = data.EQ[0][11] === 3
@@ -48,7 +51,7 @@ class Lord {
         /** @type {number} */
         this.wearerId = data.WID;
         /** @type {string} */
-        this.name = data.N;
+        this.name = data.N ?? "";
         /** @type {number} */
         this.pictureId = data.VIS;
         if (data.LICID)
@@ -58,33 +61,35 @@ class Lord {
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} data 
- * @param {Lord} lord 
+ *
+ * @param {Client} client
+ * @param {Array} data
+ * @param {Lord} lord
  * @returns {Equipment[] | RelicEquipment[]}
  */
 function parseEquipments(client, data, lord) {
     let _equipments = [];
-    for (let d of data) {
-        if (d[11] === 3)
-            _equipments.push(new RelicEquipment(client, d, lord));
-        else
-            _equipments.push(new Equipment(client, d, lord));
+    if (data) {
+        for (let d of data) {
+            if (d[11] === 3)
+                _equipments.push(new RelicEquipment(client, d, lord));
+            else
+                _equipments.push(new Equipment(client, d, lord));
+        }
     }
     return _equipments;
 }
 
 /**
- * 
- * @param {*} data 
- * @param {Equipment[] | RelicEquipment[]} equipments 
+ *
+ * @param {[]} data
+ * @param {Equipment[] | RelicEquipment[]} equipments
  * @returns {Gem[] | RelicGem[]}
  */
 function parseGems(data, equipments) {
     /** @type {Gem[] | RelicGem[]} */
     let _gems = [];
-    if (data) {
+    if (data && data.length !== 0) {
         console.log("received additional gems");
         console.log(data);
         for (let i in data) {
@@ -99,41 +104,43 @@ function parseGems(data, equipments) {
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {*} data 
- * @param {Equipment[] | RelicEquipment[]} equipments 
+ *
+ * @param {Client} client
+ * @param {*} data
+ * @param {Equipment[] | RelicEquipment[]} equipments
  * @returns {Effect[] | RelicEffect[]}
  */
 function parseEffects(client, data, equipments) {
     /** @type {Effect[] | RelicEffect[]} */
     let _effects = [];
-    /*
-     *  if(data["AIE"])
-     *  {
-     *     _loc3_ = _loc3_.concat(effectsParser.parseJSONMultiple(data["AIE"],EffectSourceEnum.ALIEN_INVASION_EFFECTS));
-     *  }
-     *  if(data["HME"])
-     *  {
-     *     _loc3_ = _loc3_.concat(effectsParser.parseJSONMultiple(data["HME"],EffectSourceEnum.SHAPESHIFTER_HARD_MODE));
-     *  }
-     *  if(data["TAE"])
-     *  {
-     *     for each(var _loc4_ in data["TAE"])
-     *     {
-     *        _loc3_ = _loc3_.concat(effectsParser.parseJSONMultiple(_loc4_,EffectSourceEnum.TAUNT_ATTACK_EFFECTS));
-     *     }
-     *  }
-     *  if(data["AE"])
-     *  {
-     *     _loc3_ = _loc3_.concat(effectsParser.parseJSONMultiple(data["AE"],EffectSourceEnum.AREA_EFFECTS));
-     *  }
-     *  if(data["E"])
-     *  {
-     *     _loc3_ = _loc3_.concat(effectsParser.parseJSONMultiple(data["E"]));
-     *  }
-     *  lord.setAdditionalEffects(_loc3_);
-     **/
+    if (data["AIE"]) {
+        for (let d of data["AIE"]) {
+            _effects.push(new Effect(client, [d[0], d[1][0]]));
+        }
+    }
+    if(data["HME"])
+    {
+        for (let d of data["HME"]) {
+            _effects.push(new Effect(client, [d[0], d[1][0]]));
+        }
+    }
+    if(data["TAE"]) {
+        for (let d of data["TAE"]) {
+            _effects.push(new Effect(client, [d[0], d[1][0]]));
+        }
+    }
+    if(data["AE"])
+    {
+        for (let d of data["AE"]) {
+            _effects.push(new Effect(client, [d[0], d[1][0]]));
+        }
+    }
+    if(data["E"])
+    {
+        for (let d of data["E"]) {
+            _effects.push(new Effect(client, [d[0], d[1][0]]));
+        }
+    }
     let equipmentSetArray = [];
     for (let equipment of equipments) {
         for (let j in equipment.effects) {
@@ -214,8 +221,8 @@ function parseEffects(client, data, equipments) {
 }
 
 /**
- * 
- * @param {number} id 
+ *
+ * @param {number} id
  * @returns {object}
  */
 function getDummyData(id) {
@@ -226,9 +233,9 @@ function getDummyData(id) {
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {string} effectsData 
+ *
+ * @param {Client} client
+ * @param {string} effectsData
  * @returns {Effect[]}
  */
 function parseDummyEffects(client, effectsData) {
@@ -243,7 +250,7 @@ function parseDummyEffects(client, effectsData) {
     for (let i in data) {
         _effects.push(new Effect(client, data[i]));
     }
-    
+
     /** @type {Effect[]} */
     let effects = [];
     for (let i in _effects) {

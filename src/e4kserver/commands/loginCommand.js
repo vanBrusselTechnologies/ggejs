@@ -11,7 +11,7 @@ module.exports = {
             params: {
                 NM: name,
                 PW: password,
-                L: "nl",
+                L: socket.client._language,
                 AID: accountID,
                 DID: 5,
                 PLFID: "3", //Android = 3, iOs = 2, (PC = 1(?))
@@ -44,6 +44,9 @@ module.exports = {
              */
         }
         //return;
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": CoreC2SLoginWithAuthenticationVO, "lockConditionVO": "new DefaultLockConditionVO()" });
+        require('./../data').sendJsonVoSignal(socket, {
+            "commandVO": CoreC2SLoginWithAuthenticationVO,
+            "lockConditionVO": "new DefaultLockConditionVO()"
+        });
     },
 }

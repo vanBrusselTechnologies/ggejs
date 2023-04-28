@@ -5,6 +5,6 @@ module.exports = {
             getCmdId: "sli",
             params: {},
         }
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": C2SStartupLoginBonusVO, "lockConditionVO": null });
+        require('./../data').sendJsonVoSignal(socket, {"commandVO": C2SStartupLoginBonusVO, "lockConditionVO": null});
     }
 }

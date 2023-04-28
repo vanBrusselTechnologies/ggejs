@@ -9,6 +9,6 @@ module.exports = {
                 KID: worldmapArea.kingdomId,
             },
         }
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": C2SJoinAreaVO, "lockConditionVO": null });
+        require('./../data').sendJsonVoSignal(socket, {"commandVO": C2SJoinAreaVO, "lockConditionVO": null});
     }
 }

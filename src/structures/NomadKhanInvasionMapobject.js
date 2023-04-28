@@ -1,6 +1,6 @@
-const BasicMapobject = require("./BasicMapobject");
+const InvasionMapobject = require("./InvasionMapobject");
 
-class NomadKhanInvasionMapobject extends BasicMapobject {
+class NomadKhanInvasionMapobject extends InvasionMapobject {
     /**
      * 
      * @param {Client} client 
@@ -8,6 +8,7 @@ class NomadKhanInvasionMapobject extends BasicMapobject {
      */
     constructor(client, data) {
         super(client, data);
+        if (data.length <= 3) return;
         if (data[3] > 0)
             /** @type {Date} */
             this.lastSpyDate = new Date(Date.now() - data[3] * 1000);

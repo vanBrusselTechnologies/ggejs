@@ -8,6 +8,7 @@ class DungeonIsleMapobject extends BasicMapobject {
      */
     constructor(client, data) {
         super(client, data);
+        if (data.length <= 3) return;
         /** @type {number} */
         this.kingdomId = data[3];
         if (data[4] > 0)

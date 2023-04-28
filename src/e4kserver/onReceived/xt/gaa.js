@@ -53,6 +53,10 @@ module.exports = {
             let sector = socket[`__worldmap_${params.KID}_sectors_found`];
             socket[`__get_worldmap_${params.KID}_sector_${sector}_error`] = e;
         }
+    },
+    parseWorldmapAreas(client, data){
+        if(!data) return [];
+        return parseWorldmapAreas(client, data);
     }
 }
 

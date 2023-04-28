@@ -117,10 +117,7 @@ module.exports = {
                                         socket["dailySabotageTime"] = Date.now();
                                     }
                                 } catch (e) {
-                                    if (socket.debug) {
-                                        console.log("Quest QID 6 error");
-                                        console.log(e);
-                                    }
+                                    if (socket.debug) console.log(e);
                                 }
                                 break; //sabotageDamage
                             case 7:

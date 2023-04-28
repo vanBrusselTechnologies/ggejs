@@ -5,6 +5,6 @@ module.exports = {
             getCmdId: "gbl",
             params: {},
         }
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": C2SBookmarksGetListVO, "lockConditionVO": null });
+        require('./../data').sendJsonVoSignal(socket, {"commandVO": C2SBookmarksGetListVO, "lockConditionVO": null});
     }
 }

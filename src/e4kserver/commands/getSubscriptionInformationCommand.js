@@ -5,6 +5,9 @@ module.exports = {
             getCmdId: "sie",
             params: {},
         }
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": C2SSubscriptionsInformationVO, "lockConditionVO": null });
+        require('./../data').sendJsonVoSignal(socket, {
+            "commandVO": C2SSubscriptionsInformationVO,
+            "lockConditionVO": null
+        });
     }
 }

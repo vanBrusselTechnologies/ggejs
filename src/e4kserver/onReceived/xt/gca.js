@@ -1,8 +1,7 @@
 const BasicBuilding = require("./../../../structures/BasicBuilding");
 
 module.exports = {
-    name: "gca",
-    /**
+    name: "gca", /**
      * @param {Socket} socket
      * @param {number} errorCode
      * @param {object} params
@@ -10,10 +9,24 @@ module.exports = {
     execute(socket, errorCode, params) {
         let castle = {};
         if (params === undefined) return castle;
+        const defenceBuildings = [];
         for (let x in params) {
             switch (x) {
-                case "BD": castle["buildings"] = parseBuildings(socket.client, params.BD); break;
-                default: if (socket.debug) console.log("Unknown part in gca command: " + x);
+                case "BD":
+                    castle["buildings"] = parseBuildings(socket.client, params[x]);
+                    break;
+                case "FP":
+                    console.log(x);
+                    console.log(params[x]);
+                    break;
+                case "T":
+                case "G":
+                case "D":
+                    defenceBuildings.push(...parseBuildings(socket.client, params[x]))
+                    castle["defenceBuildings"] = [...defenceBuildings];
+                    break;
+                default:
+                    if (socket.debug) console.log("Unknown part in gca command: " + x);
             }
         }
         return castle;

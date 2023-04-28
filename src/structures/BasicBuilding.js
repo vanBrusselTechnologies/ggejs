@@ -1,4 +1,5 @@
 const Coordinate = require("./Coordinate");
+const buildingData = require('e4k-data').data.buildings;
 
 class BasicBuilding {
     /**
@@ -38,6 +39,8 @@ class BasicBuilding {
         this.isInDistrict = data[14] === 1;
         /** @type {number} */
         this.districtSlotId = data[15];
+
+        this.rawData = buildingData.find(b => b.wodID === this.wodId);
     }
 }
 

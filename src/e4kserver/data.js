@@ -14,21 +14,20 @@ function internal_OnData(socket, data) {
         return;
     }
     msg = socket["unfinishedDataString"] + msg;
-    if(socket.debug ) console.log("[RECEIVED]: " + msg.substring(0, Math.min(250, msg.length)));
+    if (socket["ultraDebug"]) {
+        console.log("[RECEIVED]: " + msg.substring(0, Math.min(150, msg.length)));
+    }
     socket["unfinishedDataString"] = "";
     let msgParts = [];
     let msgChars = msg.split("");
     let _msgPart = "";
     for (let i = 0; i < msgChars.length; i++) {
         if (msgChars[i].charCodeAt(0) === 0) {
-            if (_msgPart !== "")
-                msgParts.push(_msgPart);
+            if (_msgPart !== "") msgParts.push(_msgPart);
             _msgPart = "";
-        }
-        else {
+        } else {
             _msgPart += msgChars[i];
-            if (i === msgChars.length - 1 && _msgPart !== "")
-                msgParts.push(_msgPart);
+            if (i === msgChars.length - 1 && _msgPart !== "") msgParts.push(_msgPart);
         }
     }
     for (let i = 0; i < msgParts.length; i++) {
@@ -37,18 +36,14 @@ function internal_OnData(socket, data) {
         let lastChar = msgParts[i].charAt(msgParts[i].length - 1);
         if (firstChar === "<" && lastChar === ">") {
             onXml.execute(socket, _msg);
-        }
-        else if (firstChar === "%" && lastChar === "%") {
+        } else if (firstChar === "%" && lastChar === "%") {
             onString.execute(socket, _msg);
-        }
-        else if (firstChar === "{" && lastChar === "}") {
+        } else if (firstChar === "{" && lastChar === "}") {
             onJson.execute(socket, _msg);
+        } else if (socket.debug) {
+            console.log("received unfinished message!");
+            console.log(msgParts[i]);
         }
-        else
-            if (socket.debug){
-                console.log("received unfinished message!");
-                console.log(msgParts[i]);
-            }
     }
 }
 
@@ -61,22 +56,14 @@ function sendCommandVO(socket, commandVO) {
     let params = [JSON.stringify(commandVO.params)];
     let i = 0;
     while (i < params.length) {
-        0 === params[i] ?
-            params[i] = "0" :
-            params[i] ?
-                "string" == typeof params[i] && (params[i] = getValideSmartFoxText(params[i])) :
-                params[i] = "<RoundHouseKick>";
-        //if (params[i].trim() === "" || params[i].trim() === "{}") {
-        //    params[i] = "<RoundHouseKick>";
-        //}
-        //params[i] = getValideSmartFoxText(params[i]);
+        0 === params[i] ? params[i] = "0" : params[i] ? "string" == typeof params[i] && (params[i] = getValideSmartFoxText(params[i])) : params[i] = "<RoundHouseKick>";
         i++;
     }
     xt.sendMessage(socket, socket.client._serverInstance.zone, msgId, params, "str", require('./room.js').activeRoomId);
 }
 
 /**
- * 
+ *
  * @param {string} value
  */
 function getValideSmartFoxText(value) {
@@ -89,12 +76,18 @@ function getValideSmartFoxText(value) {
  * @param {string} msg
  */
 function internal_writeToSocket(socket, msg) {
-    if(socket.debug) console.log("[WRITE]: " + msg);
+    if (socket["ultraDebug"]) {
+        console.log("[WRITE]: " + msg.substring(0, Math.min(150, msg.length)));
+    }
     let _buff0 = Buffer.from(msg);
     let _buff1 = Buffer.alloc(1);
     _buff1.writeInt8(0);
     let bytes = Buffer.concat([_buff0, _buff1]);
-    socket.write(bytes, "utf-8", (err) => { if (err) { console.log("\x1b[31m[SOCKET ERROR] " + err + "\x1b[0m"); } });
+    socket.write(bytes, "utf-8", (err) => {
+        if (err) {
+            console.log("\x1b[31m[SOCKET ERROR] " + err + "\x1b[0m");
+        }
+    });
 }
 
 module.exports = {
@@ -104,15 +97,13 @@ module.exports = {
      */
     onData(socket, data) {
         internal_OnData(socket, data);
-    },
-    /**
+    }, /**
      * @param {Socket} socket
      * @param {object} sendJsonMessageVO
      */
     sendJsonVoSignal(socket, sendJsonMessageVO) {
         sendCommandVO(socket, sendJsonMessageVO.commandVO);
-    },
-    /**
+    }, /**
      * @param {Socket} socket
      * @param {string} msg
      */

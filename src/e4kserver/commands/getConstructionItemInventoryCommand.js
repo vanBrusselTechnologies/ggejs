@@ -5,6 +5,9 @@ module.exports = {
             getCmdId: "gii",
             params: {},
         }
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": C2SGetConstructionItemInventoryVO, "lockConditionVO": null });
+        require('./../data').sendJsonVoSignal(socket, {
+            "commandVO": C2SGetConstructionItemInventoryVO,
+            "lockConditionVO": null
+        });
     }
 }

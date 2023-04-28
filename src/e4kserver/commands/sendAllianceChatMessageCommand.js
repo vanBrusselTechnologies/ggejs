@@ -7,7 +7,7 @@ module.exports = {
                 M: validateMessage(message)
             },
         }
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": C2SAllianceChatVO, "lockConditionVO": null });
+        require('./../data').sendJsonVoSignal(socket, {"commandVO": C2SAllianceChatVO, "lockConditionVO": null});
     }
 }
 

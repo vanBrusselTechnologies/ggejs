@@ -8,6 +8,7 @@ class BossDungeonMapobject extends BasicMapobject {
      */
     constructor(client, data) {
         super(client, data);
+        if (data.length <= 3) return;
         if (data[3] !== -1)
         /** @type {Date} */
             this.lastSpyDate = new Date(Date.now() - data[3] * 1000);

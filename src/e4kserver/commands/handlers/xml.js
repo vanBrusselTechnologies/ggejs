@@ -24,7 +24,7 @@ function _send(socket, header, action, fromRoom, message) {
 }
 
 /**
- * 
+ *
  * @param {object} headerObj
  */
 function makeXmlHeader(headerObj) {

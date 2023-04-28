@@ -1,30 +1,35 @@
 import {EventEmitter} from "node:events";
-import net from 'node:net';
+import {Socket as netSocket} from 'node:net';
 import {
     Dungeon as RawDungeon,
     Effect as RawEffect,
     Gem as RawGem,
+    General as RawGeneral,
     Lord as RawLord,
     NetworkInstance,
     Unit as RawUnit
 } from 'e4k-data'
 
+export {Client, Horse, InventoryItem, MovementManager};
+export const Constants: IConstants;
+
 /** Base class for a playeraccount */
-class Client extends EventEmitter {
+declare class Client extends EventEmitter {
     /**
      *
      * @param name Your player account name
      * @param password Your player account password
      * @param serverInstance Your player account serverInstance
      * @example ```js
-     * const networkInstances = require('e4k-data').network.instances.instance;
-     * const worldNetworkInstance = networkInstances.find(i => i.instanceLocaId === "generic_country_world");
+     * const e4kNetworkInstances = require('e4k-data').network.instances.instance;
+     * const worldNetworkInstance = e4kNetworkInstances.find(i => i.instanceLocaId === "generic_country_world");
      * const client = new Client('playername', 'password', worldNetworkInstance)
      */
     public constructor(name: string, password: string, serverInstance: NetworkInstance);
 
     private _serverInstance: NetworkInstance;
     private _socket: Socket;
+    private _language: string;
 
     /** Login with your credentials */
     public connect(): Promise<Client>;
@@ -39,7 +44,11 @@ class Client extends EventEmitter {
 
     public sendChatMessage(message: string): void;
 
+    public get mailMessages(): Message[];
+
     public set reconnectTimeout(val: number);
+
+    public set language(val: string);
 
     public on<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
 
@@ -57,19 +66,19 @@ class Client extends EventEmitter {
     ///
 }
 
-private class Socket extends net.Socket {
+declare class Socket extends netSocket {
     public client: Client;
     public debug: boolean;
 }
 
 //#region Managers
-class BaseManager extends EventEmitter {
+declare class BaseManager extends EventEmitter {
     private _client: Client;
 
     protected constructor(client: Client);
 }
 
-class AllianceManager extends BaseManager {
+declare class AllianceManager extends BaseManager {
     private constructor(client: Client);
 
     public getById(id: number): Promise<Alliance>;
@@ -81,10 +90,16 @@ class AllianceManager extends BaseManager {
     public getMyAlliance(): Promise<MyAlliance>;
 }
 
-class EquipmentManager extends BaseManager {
+declare class EquipmentManager extends BaseManager {
     private constructor(client: Client);
 
     private _setCommandantsAndBarons(barons: Lord[], commandants: Lord[]): void;
+
+    private _setGenerals(generals: General[]): void;
+
+    private _setEquipmentInventory(equipments: (Equipment | RelicEquipment)[]): void;
+
+    private _autoSellEquipment(e: Equipment | RelicEquipment): Promise<void>;
 
     public getCommandants(): Lord[];
 
@@ -95,10 +110,18 @@ class EquipmentManager extends BaseManager {
 
     public getBarons(): Lord[];
 
-    public getGenerals(): [];
+    public getGenerals(): General[];
+
+    public getEquipmentInventory(): (Equipment | RelicEquipment)[];
+
+    public sellEquipment(equipment: Equipment | RelicEquipment): Promise<void>;
+
+    public sellAllEquipmentBelowRarity(rarity: number): Promise<void>;
+
+    public set autoDeleteAtOrBelowRarity(val: number);
 }
 
-class MovementManager extends BaseManager {
+declare class MovementManager extends BaseManager {
     private constructor(client: Client);
 
     public on<K extends keyof MovementEvents>(event: K, listener: (...args: MovementEvents[K]) => void): this;
@@ -120,10 +143,10 @@ class MovementManager extends BaseManager {
 
     private _remove(_movementId: number): void;
 
-    public static getDistance(castle1: BasicMapobject, castle2: BasicMapobject): number;
+    public static getDistance(castle1: Mapobject, castle2: Mapobject): number;
 }
 
-class PlayerManager extends BaseManager {
+declare class PlayerManager extends BaseManager {
     private constructor(client: Client);
 
     private _thisPlayerId: number;
@@ -139,7 +162,7 @@ class PlayerManager extends BaseManager {
     private _setThisPlayer(id: number): void;
 }
 
-class WorldmapManager extends BaseManager {
+declare class WorldmapManager extends BaseManager {
     private _worldmapCaches: { date: Date, worldmap: Worldmap }[];
 
     public get(kingdomId: number): Promise<Worldmap>;
@@ -162,7 +185,7 @@ type Movement =
     | NpcAttackMovement
     | SpyMovement;
 
-class BasicMovement {
+declare class BasicMovement {
     protected constructor(client: Client, data: object);
 
     public movementId: number;
@@ -180,7 +203,7 @@ class BasicMovement {
     public lord?: Lord;
 }
 
-class ArmyAttackMovement extends BasicMovement {
+declare class ArmyAttackMovement extends BasicMovement {
     protected constructor(client: Client, data);
 
     public army?: CompactArmy;
@@ -191,31 +214,31 @@ class ArmyAttackMovement extends BasicMovement {
     public isShadowMovement: boolean;
 }
 
-class ArmyTravelMovement extends BasicMovement {
+declare class ArmyTravelMovement extends BasicMovement {
     protected constructor(client: Client, data);
 
     public army: InventoryItem<Unit>[];
     public goods?: Good[];
 }
 
-class ConquerMovement extends BasicMovement {
+declare class ConquerMovement extends BasicMovement {
     protected constructor(client: Client, data);
 
     public army: InventoryItem<Unit>[];
 }
 
-class MarketMovement extends BasicMovement {
+declare class MarketMovement extends BasicMovement {
     protected constructor(client: Client, data);
 
     public goods: Good[];
     public carriages: number;
 }
 
-class NpcAttackMovement extends ArmyAttackMovement {
+declare class NpcAttackMovement extends ArmyAttackMovement {
 
 }
 
-class SpyMovement extends BasicMovement {
+declare class SpyMovement extends BasicMovement {
     protected constructor(client: Client, data);
 
     public spyType: number;
@@ -225,14 +248,14 @@ class SpyMovement extends BasicMovement {
     public sabotageDamage?: number;
 }
 
-class InventoryItem<T> {
+declare class InventoryItem<T> {
     constructor(item: T, count: number);
 
     item: T;
     count: number;
 }
 
-class ArmyWave {
+declare class ArmyWave {
     left: {
         units: InventoryItem<Unit>[],
         tools: InventoryItem<Tool>[],
@@ -247,8 +270,8 @@ class ArmyWave {
     }
 }
 
-class Horse {
-    async constructor(client: Client, castleData, horseType: number);
+declare class Horse {
+    constructor(client: Client, castleData, horseType: number);
 
     wodId: number;
     comment1: string;
@@ -266,7 +289,7 @@ class Horse {
 //#endregion
 
 //#region Alliance
-class Alliance {
+declare class Alliance {
     protected constructor(client: Client, data);
 
     public allianceId: number;
@@ -292,7 +315,7 @@ class Alliance {
     private _add_or_update_landmarks(landmarks: Mapobject[]): void;
 }
 
-class MyAlliance extends Alliance {
+declare class MyAlliance extends Alliance {
     public isAutoWarOn: boolean;
     public applicationAmount: number;
     public announcement: string;
@@ -308,7 +331,7 @@ class MyAlliance extends Alliance {
     public highestFamePoints: number;
 }
 
-class AllianceMember {
+declare class AllianceMember {
     private constructor(client: Client, data, alliance: Alliance);
 
     public playerId: number;
@@ -321,7 +344,7 @@ class AllianceMember {
     public activityStatus?: number;
 }
 
-class AllianceStatusListItem {
+declare class AllianceStatusListItem {
     private constructor(client: Client, data);
 
     public allianceId: number;
@@ -330,7 +353,7 @@ class AllianceStatusListItem {
     public allianceStatusConfirmed: boolean;
 }
 
-class AllianceDonations {
+declare class AllianceDonations {
     private constructor(client: Client, data: Array<number>);
 
     public coins: number
@@ -338,7 +361,7 @@ class AllianceDonations {
     public res: number;
 }
 
-class ChatMessage {
+declare class ChatMessage {
     public message: string;
     public sendDate: Date;
     public senderPlayerId: number;
@@ -347,7 +370,7 @@ class ChatMessage {
 
 //#endregion
 
-class BasicBuilding {
+declare class BasicBuilding {
     private constructor(client: Client, data);
 
     public wodId: number;
@@ -367,7 +390,7 @@ class BasicBuilding {
     public districtSlotId: number;
 }
 
-class CompactArmy {
+declare class CompactArmy {
     private constructor(client: Client, data: object);
 
     public left: InventoryItem<Unit>[];
@@ -379,19 +402,19 @@ class CompactArmy {
     public toolCount: number;
 }
 
-class Coordinate {
+declare class Coordinate {
     private constructor(client: Client, data);
 
     public X: number;
     public Y: number;
 }
 
-class Good extends InventoryItem<string> {
+declare class Good extends InventoryItem<string> {
     private constructor(client: Client, data: [string, number]);
 }
 
 //#region Lord and Equipment
-class Lord {
+declare class Lord {
     public id: number;
     public isDummy: boolean;
     public name: string;
@@ -399,6 +422,7 @@ class Lord {
     public defeats: number;
     public winSpree: number;
     public equipments: Equipment[] | RelicEquipment[];
+    public generalId: number;
     public isRelic?: boolean;
     public gems: Gem[] | RelicGem[];
     public effects: Effect[] | RelicEffect[];
@@ -408,7 +432,24 @@ class Lord {
     public rawData: RawLord;
 }
 
-class Equipment {
+declare class General {
+    public generalId: number;
+    public rawData: RawGeneral;
+    public level: number;
+    public xp: number;
+    public xpBeforeBattle: number;
+    public starTier: number;
+    public isNew: number;
+    public leveledUp: number;
+    public attackAbilities: { slotId: number, abilityId: number }[];
+    public defenseAbilities: { slotId: number, abilityId: number }[];
+    public activatedSkillIds: number[];
+    public wins: number;
+    public defeats: number;
+    public abilitiesPerWave: { [key: number]: { abilityId: number, waveId: number, abilityValue: number } };
+}
+
+declare class Equipment {
     public id: number;
     public slotId: number;
     public wearerId: number;
@@ -422,7 +463,7 @@ class Equipment {
     public equippedLord?: Lord;
 }
 
-class RelicEquipment {
+declare class RelicEquipment {
     public id: number;
     public slotId: number;
     public wearerId: number;
@@ -437,7 +478,7 @@ class RelicEquipment {
     public equippedLord?: Lord;
 }
 
-class Gem {
+declare class Gem {
     public id: number;
     public setId?: number;
     public effects: Effect[];
@@ -445,7 +486,7 @@ class Gem {
     public rawData: RawGem;
 }
 
-class RelicGem {
+declare class RelicGem {
     public id: number;
     public slotId: number;
     public enhancementLevel: number;
@@ -458,7 +499,7 @@ class RelicGem {
 
 //#endregion
 
-class Effect {
+declare class Effect {
     public effectId: number;
     public power: number;
     public name: string;
@@ -467,11 +508,11 @@ class Effect {
     public rawData: RawEffect;
 }
 
-class RelicEffect extends Effect {
+declare class RelicEffect extends Effect {
     public relicEffectId: number;
 }
 
-class Player {
+declare class Player {
     public playerId: number;
     public isDummy: boolean;
     public playerName: string;
@@ -517,8 +558,8 @@ class Player {
     public factionNoobProtectionEndTime?: Date;
 }
 
-class Unit {
-    private constructor(client: Client, wodId: number);
+declare class Unit {
+    constructor(client: Client, wodId: number);
 
     public wodId: number;
     public isSoldier: boolean;
@@ -532,11 +573,11 @@ class Unit {
     public rawData: RawUnit;
 }
 
-class Tool extends Unit {
+declare class Tool extends Unit {
 
 }
 
-class Worldmap {
+declare class Worldmap {
     public kingdomId: number;
     public mapobjects: Mapobject[];
     public players: Player[];
@@ -552,11 +593,12 @@ class Worldmap {
     private _clear(): void;
 }
 
-class WorldmapSector extends Worldmap {
-    public combine(...sectors: WorldmapSector): WorldmapSector
+declare class WorldmapSector extends Worldmap {
+    public combine(...sectors: WorldmapSector[]): WorldmapSector
 }
 
 //#region Mapobject
+/** */
 type Mapobject =
     BasicMapobject
     | AlienInvasionMapobject
@@ -579,7 +621,7 @@ type Mapobject =
     | ShapeshifterMapobject
     | VillageMapobject;
 
-class AlienInvasionMapobject extends BasicMapobject {
+declare class AlienInvasionMapobject extends BasicMapobject {
     public dungeonLevel: number;
     public hasPeaceMode: boolean;
     public wallLevel: number;
@@ -591,14 +633,16 @@ class AlienInvasionMapobject extends BasicMapobject {
     public eventId: number;
 }
 
-class BasicMapobject {
-    protected constructor(client: Client, data: Array<any>);
+declare class BasicMapobject {
+    protected constructor(client: Client, data: Array<string | number | object>);
+
+    protected parseAreaInfoBattleLog(data): this;
 
     public areaType: number;
     public position: Coordinate;
 }
 
-class BossDungeonMapobject extends BasicMapobject {
+declare class BossDungeonMapobject extends BasicMapobject {
     public lastSpyDate?: Date;
     public dungeonLevel: number;
     public attackCooldownEnd?: Date;
@@ -606,7 +650,7 @@ class BossDungeonMapobject extends BasicMapobject {
     public kingdomId: number;
 }
 
-class CapitalMapobject extends BasicMapobject {
+declare class CapitalMapobject extends BasicMapobject {
     public objectId: number;
     public ownerId: number;
     public keepLevel: number;
@@ -625,11 +669,11 @@ class CapitalMapobject extends BasicMapobject {
     public influencePoints: number;
 }
 
-class CastleMapobject extends InteractiveMapobject {
+declare class CastleMapobject extends InteractiveMapobject {
 
 }
 
-class DungeonIsleMapobject extends BasicMapobject {
+declare class DungeonIsleMapobject extends BasicMapobject {
     public isleId: number;
     public lastSpyDate?: Date;
     public attackCount: number;
@@ -639,7 +683,7 @@ class DungeonIsleMapobject extends BasicMapobject {
     public isVisibleOnMap: boolean;
 }
 
-class DungeonMapobject extends BasicMapobject {
+declare class DungeonMapobject extends BasicMapobject {
     private _rawData: RawDungeon;
     public lastSpyDate?: Date;
     public attackCount: number;
@@ -682,21 +726,21 @@ class DungeonMapobject extends BasicMapobject {
     public get lord(): Lord;
 }
 
-class DynamicMapobject extends BasicMapobject {
+declare class DynamicMapobject extends BasicMapobject {
 
 }
 
-class EmptyMapobject extends BasicMapobject {
+declare class EmptyMapobject extends BasicMapobject {
 
 }
 
-class EventDungeonMapobject extends BasicMapobject {
+declare class EventDungeonMapobject extends BasicMapobject {
     public lastSpyDate?: Date;
     public dungeonLevel: number;
     public isDefeated: boolean;
 }
 
-class InteractiveMapobject extends BasicMapobject {
+declare class InteractiveMapobject extends BasicMapobject {
     public objectId: number;
     public ownerId: number;
     public keepLevel: number;
@@ -714,7 +758,25 @@ class InteractiveMapobject extends BasicMapobject {
     public outpostType: number;
 }
 
-class KingstowerMapobject extends BasicMapobject {
+declare class InvasionMapObject extends BasicMapobject {
+    public lastSpyDate?: Date;
+    public attackCooldownEnd?: Date;
+    public victoryCount: number;
+    public difficultyCampId: number;
+    public baseWallBonus: number;
+    public baseGateBonus: number;
+    public baseMoatBonus: number;
+    public isVisibleOnMap: boolean;
+    public eventId: number;
+    public travelDistance: number;
+    public keepLevel: number;
+    public wallLevel: number;
+    public towerLevel: number;
+    public gateLevel: number;
+    public moatLevel: number;
+}
+
+declare class KingstowerMapobject extends BasicMapobject {
     public objectId: number;
     public ownerId: number;
     public customName: string;
@@ -722,7 +784,7 @@ class KingstowerMapobject extends BasicMapobject {
     public kingdomId: number;
 }
 
-class MonumentMapobject extends BasicMapobject {
+declare class MonumentMapobject extends BasicMapobject {
     public objectId: number;
     public occupierId: number;
     public monumentType: number;
@@ -732,44 +794,23 @@ class MonumentMapobject extends BasicMapobject {
     public kingdomId: number;
 }
 
-class MetropolMapobject extends CapitalMapobject {
-
+declare class MetropolMapobject extends CapitalMapobject {
 }
 
-class NomadInvasionMapObject extends BasicMapobject {
-    public lastSpyDate?: Date;
-    public attackCooldownEnd?: Date;
-    public victoryCount: number;
-    public difficultyCampId: number;
-    public baseWallBonus: number;
-    public baseGateBonus: number;
-    public baseMoatBonus: number;
-    public isVisibleOnMap: boolean;
-    public eventId: number;
-    public travelDistance: number;
+declare class NomadInvasionMapObject extends InvasionMapObject {
 }
 
-class NomadKhanInvasionMapObject extends BasicMapobject {
-    public lastSpyDate?: Date;
+declare class NomadKhanInvasionMapObject extends InvasionMapObject {
     public allianceCampId: number;
-    public attackCooldownEnd?: Date;
     public totalCooldown: number;
     public skipCost: number;
-    public victoryCount: number;
-    public difficultyCampId: number;
-    public baseWallBonus: number;
-    public baseGateBonus: number;
-    public baseMoatBonus: number;
-    public isVisibleOnMap: boolean;
-    public eventId: number;
-    public travelDistance: number;
 }
 
-class RedAlienInvasionMapobject extends AlienInvasionMapobject {
+declare class RedAlienInvasionMapobject extends AlienInvasionMapobject {
     public eventId: number;
 }
 
-class ResourceIsleMapobject extends BasicMapobject {
+declare class ResourceIsleMapobject extends BasicMapobject {
     public objectId: number;
     public occupierId: number;
     public isleId: number;
@@ -779,7 +820,7 @@ class ResourceIsleMapobject extends BasicMapobject {
     public occupationFinishedDate: Date;
 }
 
-class ShapeshifterMapobject extends BasicMapobject {
+declare class ShapeshifterMapobject extends BasicMapobject {
     public kingdomId: number;
     public campLevel: number;
     public lastSpyDate?: Date;
@@ -795,15 +836,363 @@ class ShapeshifterMapobject extends BasicMapobject {
     public travelDistance: number;
 }
 
-class VillageMapobject extends BasicMapobject {
+declare class VillageMapobject extends BasicMapobject {
     public objectId: number;
     public occupierId: number;
     public villageType: number;
     public customName: string;
     public lastSpyDate?: Date;
     public kingdomId: number;
+    public wallLevel: number;
+    public gateLevel: number;
+    public keepLevel: number;
+    public unitWallCount: number;
+    public peasants: number;
+    public guards: number;
+    public productivityWoodBoost: number;
+    public productivityStoneBoost: number;
+    public productivityFoodBoost: number;
 }
 
+//#endregion
+
+//#region Message
+/** */
+type Message =
+    BasicMessage
+    | BattleLogConquerMessage
+    | BattleLogNormalAttackMessage
+    | BattleLogNPCAttackMessage
+    | BattleLogOccupyMessage
+    | AllianceNewsMessage
+    | UserMessage
+    | SpyPlayerSabotageSuccessfulMessage
+    | SpyPlayerSabotageFailedMessage
+    | SpyPlayerDefenceMessage
+    | SpyPlayerEconomicMessage
+    | SpyNPCMessage
+    | MarketCarriageArrivedMessage
+    | PrivateOfferBestsellerShopMessage
+    | PrivateOfferDungeonChestMessage
+    | PrivateOfferTimeChallengeMessage
+    | PrivateOfferTippMessage
+    | PrivateOfferWhaleChestMessage
+    | StarveInfoMessage
+    | AttackCancelledAbortedMessage
+    | AttackCancelledAutoRetreatMessage
+    | AttackCancelledAutoRetreatEnemyMessage
+    | SpyCancelledAbortedMessage
+    | ProductionDowntimeMessage
+    | SpecialEventStartMessage;
+
+declare class BasicMessage {
+    protected constructor(client: Client, data: Array);
+
+    protected init(): Promise<void>;
+
+    public messageId: number;
+    public messageType: number;
+    public subType: number;
+    public metadata: string;
+    public senderName: string;
+    public subject: string;
+    public playerId: number;
+    public deliveryTime: Date;
+    public isRead: boolean;
+    public isArchived: boolean;
+    public isForwarded: boolean;
+    public canBeForwarded: boolean;
+}
+
+declare class AllianceNewsMessage {
+    public subject: string;
+    public body: string;
+}
+
+declare class UserMessage {
+    public subject: string;
+    public body: string;
+}
+
+//#region BattleLogMessage
+declare class BasicBattleLogMessage {
+    public areaType: number;
+    public subType: number;
+    public hasAttackerWon: boolean;
+    public isDefenseReport: boolean;
+    public treasureMapId: number;
+    public treasureMapNodeType: number;
+    public kingdomId: number;
+    public ownerId: number;
+    public areaName: string;
+    public subject: string;
+    public battleLog: BattleLog;
+}
+
+declare class BattleLogConquerMessage extends BasicBattleLogMessage {
+}
+
+declare class BattleLogNormalAttackMessage extends BasicBattleLogMessage {
+}
+
+declare class BattleLogNPCAttackMessage extends BasicBattleLogMessage {
+}
+
+declare class BattleLogOccupyMessage extends BasicBattleLogMessage {
+}
+
+interface BattleLog {
+    battleLogId: number,
+    messageId: number,
+    messageType: number,
+    mapobject: Mapobject,
+    attacker: BattleParticipant,
+    defender: BattleParticipant,
+    winner: BattleParticipant,
+    loser: BattleParticipant,
+    players: Player[],
+    defWon: number,
+    honor: number,
+    survivalRate: number,
+    ragePoints: number,
+    shapeshifterPoints: number,
+    shapeshifterId: number,
+    rewardEquipment?: Equipment | RelicEquipment,
+    rewardGemId?: Gem,
+    rewardMinuteSkips?: {},
+    attackerHomeCastleId: number,
+    attackerHadHospital: boolean,
+    isAttackerHospitalFull: boolean,
+    defenderHomeCastleId: number,
+    defenderHadHospital: boolean,
+    isDefenderHospitalFull: boolean,
+    attackerAllianceSubscribers: number,
+    defenderAllianceSubscribers: number,
+    attackerHasIndividualSubscription: boolean,
+    defenderHasIndividualSubscription: boolean,
+    isTempServerChargeAttack: boolean,
+    winnerChargeRankOld: number,
+    winnerChargeRankNew: number,
+    winnerChargePointsOld: number,
+    winnerChargePointsNew: number,
+    allianceName: string,
+    attackerCommandant: Lord,
+    attackerGeneral?: General,
+    attackerLegendSkills: int[],
+    defenderBaron: Lord
+    defenderGeneral?: General,
+    defenderLegendSkills: int[],
+    courtyardAttacker: LogUnit[],
+    courtyardDefender: LogUnit[],
+    wavesAttacker: BattleLogArmyWave[],
+    wavesDefender: BattleLogArmyWave[],
+    finalWaveAttacker: LogUnit[],
+    supportToolsAttacker: LogUnit[],
+    supportToolsDefender: LogUnit[],
+}
+
+declare class BattleLogUnit<Unit> extends InventoryItem<Unit> {
+    constructor(item: Unit, count: number, lost: number);
+
+    lost: number;
+}
+
+declare class BattleLogArmyWave {
+    public left: {
+        soldiers: BattleLogUnit<Unit>[],
+        tools: BattleLogUnit<Tool>[],
+    }
+    public middle: {
+        soldiers: BattleLogUnit<Unit>[],
+        tools: BattleLogUnit<Tool>[],
+    }
+    public right: {
+        soldiers: BattleLogUnit<Unit>[],
+        tools: BattleLogUnit<Tool>[],
+    }
+}
+
+declare class BattleParticipant {
+    public playerId: number;
+    public front: number;
+    public startArmySize: number;
+    public lostUnits: number;
+    public lootGoods: Good[];
+    public famePoints: number;
+    public xp: number;
+    public kingsTowerEffect: number;
+    public factionPoint: number;
+    public attackBoost: number;
+    public woundedUnits: number;
+    public isEnvironment: boolean;
+    public isShadowUnit: boolean;
+}
+
+//#endregion
+//#region SpyMessage
+declare class BasicSpyPlayerMessage extends BasicMessage {
+    public spyLog: SpyLog;
+    public isSuccessful: boolean;
+}
+
+declare class SpyPlayerSabotageSuccessfulMessage extends BasicSpyPlayerMessage {
+    public areaId: number;
+    public areaType: number;
+    public areaName: string;
+}
+
+declare class SpyPlayerSabotageFailedMessage extends BasicSpyPlayerMessage {
+    public ownerId: number;
+    public areaType: number;
+    public areaName: string;
+    public kingdomId: number;
+}
+
+declare class SpyPlayerDefenceMessage extends BasicSpyPlayerMessage {
+    public ownerId: number;
+    public areaType: number;
+    public areaName: string;
+    public kingdomId: number;
+}
+
+declare class SpyPlayerEconomicMessage extends BasicSpyPlayerMessage {
+    public ownerId: number;
+    public areaType: number;
+    public areaName: string;
+    public kingdomId: number;
+}
+
+declare class SpyNPCMessage extends BasicMessage {
+    public spyLog: SpyLog;
+    public isSuccessful: boolean;
+    public ownerId: number;
+    public areaType: number;
+    public areaName: string;
+    public kingdomId: number;
+}
+
+interface SpyLog {
+    messageId: number,
+    castleId: number,
+    castleAppearance: number,
+    spyCount: number,
+    guardCount: number,
+    spyAccuracy: number,
+    spyRisk: number,
+    targetMapObject: Mapobject,
+    originOwner: Player,
+    targetOwner: Player,
+    spyResources?: Good[],
+    armyInfo?: {
+        army: {
+            left: InventoryItem[],
+            middle: InventoryItem[],
+            right: InventoryItem[],
+            keep: InventoryItem[],
+            unitsKeepInventory: InventoryItem[],
+            stronghold: InventoryItem[]
+        },
+        spyTime: Date,
+        defenderBaron: Lord,
+        defenderGeneral?: General,
+        defenderLegendSkills: []
+    },
+    shapeshifterId?: number,
+}
+
+//#endregion
+//#region MarketCarriageMessage
+declare class MarketCarriageArrivedMessage extends BasicMessage {
+    areaName: string;
+    tradeData: TradeData;
+}
+
+interface TradeData {
+    messageId: number,
+    players: Player[],
+    sourceArea: WorldmapArea,
+    targetArea: WorldmapArea,
+    goods: Good[],
+}
+
+//#endregion
+
+declare class StarveInfoMessage extends BasicMessage {
+    numberOfDesertedTroops: number;
+    areaName: string;
+    kingdomId: number;
+    areaId: number;
+    areaType: number;
+    resourceName: string;
+}
+
+declare class ProductionDowntimeMessage extends BasicMessage {
+    downtimeStatus: number;
+    messageScope: number;
+}
+
+//#region AttackCancelledMessage
+declare class BasicAttackCancelledMessage extends BasicMessage {
+    kingdomId: number;
+    targetPlayerId: number;
+    areaName: string;
+    position: Coordinate;
+    areaType: number;
+    reason: number;
+}
+
+declare class AttackCancelledAbortedMessage extends BasicAttackCancelledMessage {
+}
+
+declare class AttackCancelledAutoRetreatMessage extends BasicAttackCancelledMessage {
+}
+
+declare class AttackCancelledAutoRetreatEnemyMessage extends BasicAttackCancelledMessage {
+}
+
+declare class SpyCancelledAbortedMessage extends AttackCancelledAbortedMessage {
+}
+
+//#endregion
+//#region PrivateOfferMessage
+declare class BasicPrivateOfferMessage extends BasicMessage {
+}
+
+declare class PrivateOfferBestsellerShopMessage extends BasicPrivateOfferMessage {
+    privateOfferId: number;
+    privateOfferIteration: number;
+}
+
+declare class PrivateOfferDungeonChestMessage extends BasicPrivateOfferMessage {
+    privateOfferId: number;
+    privateOfferIteration: number;
+}
+
+declare class PrivateOfferTimeChallengeMessage extends BasicPrivateOfferMessage {
+    privateOfferId: number;
+    privateOfferIteration: number;
+}
+
+declare class PrivateOfferTippMessage extends BasicPrivateOfferMessage {
+    helpMailImageId: number;
+    helpMailTextId: number;
+}
+
+declare class PrivateOfferWhaleChestMessage extends BasicPrivateOfferMessage {
+    privateOfferId: number;
+    privateOfferIteration: number;
+}
+
+//#endregion
+//#region SpecialEventMessage
+declare class BasicSpecialEventMessage extends BasicMessage {
+}
+
+declare class SpecialEventStartMessage extends BasicSpecialEventMessage {
+    eventId: number;
+}
+
+//#endregion
 //#endregion
 
 //#region Events
@@ -811,7 +1200,9 @@ interface ClientEvents {
     serverShutdown: [];
     serverShutdownEnd: [];
     connected: [];
-    chatMessage: [message: ChatMessage]
+    chatMessage: [message: ChatMessage];
+    mailMessageAdd: [message: Message];
+    mailMessageRemove: [message: Message];
 }
 
 interface MovementEvents {
@@ -830,6 +1221,9 @@ interface ConstantsEvents {
     SERVER_SHUTDOWN_END: "serverShutdownEnd";
     CONNECTED: "connected";
     CHAT_MESSAGE: "chatMessage";
+    MAIL_MESSAGE_NEW: "mailMessageAdd";
+    MAIL_MESSAGE_ADD: "mailMessageAdd";
+    MAIL_MESSAGE_REMOVE: "mailMessageRemove";
 }
 
 //#endregion
@@ -838,7 +1232,7 @@ interface ConstantsEvents {
 /**
  *
  */
-interface Constants {
+interface IConstants {
     Events: ConstantsEvents;
     Kingdom: Kingdom;
     WorldmapArea: WorldmapArea;
@@ -848,6 +1242,8 @@ interface Constants {
     HorseType: HorseType;
     ServerType: ServerType;
     SpyType: SpyType;
+    MessageType: MessageType;
+    EquipmentRarity: EquipmentRarity;
 }
 
 interface Kingdom {
@@ -934,6 +1330,68 @@ interface ServerType {
     AllianceBattleGround: 3
 }
 
-//#endregion
+interface MessageType {
+    System: 0,
+    UserIn: 1,
+    UserOut: 2,
+    SpyPlayer: 3,
+    SpyNPC: 4,
+    ConquerableArea: 5,
+    BattleLog: 6,
+    AllianceRequest: 20,
+    AllianceWar: 21,
+    AllianceNewsletter: 22,
+    AllianceBookmark: 23,
+    FriendInviteTeaser: 30,
+    FriendJoinTheGame: 31,
+    FindAFriend: 32,
+    FriendReachedALevel: 33,
+    FriendBoughtRubies: 34,
+    XFriendsBoughtRubies: 35,
+    FriendInvite: 36,
+    NewFriendship: 37,
+    LowlevelUnderworld: 40,
+    UserSurvey: 50,
+    AttackCancelled: 67,
+    SpyCancelled: 68,
+    StarveInfo: 70,
+    BuildingDisabled: 71,
+    MarketCarriageArrived: 75,
+    Abo: 80,
+    PaymentDoppler: 81,
+    Rebuy: 90,
+    SpecialEvent: 95,
+    StarveVillageLost: 96,
+    TournamentOver: 97,
+    IslandKingdomTitle: 98,
+    IslandKingdomReward: 99,
+    StarveIsleResourceLost: 100,
+    RuinInfo: 102,
+    PlayerGift: 103,
+    Subscription: 104,
+    ThankyYouPackage: 117,
+    DowntimeStatus: 118,
+    HighscoreBonus: 122,
+    EventAnnouncement: 123,
+    Popup: 124,
+    PatchNotes: 125,
+    PrivateOffer: 126,
+    TextId: 127
+}
 
-export {Client, Constants, Horse, InventoryItem, MovementManager}
+interface EquipmentRarity {
+    Unique: 0,
+    Red: 0,
+    Common: 1,
+    Gray: 1,
+    Rare: 2,
+    Green: 2,
+    Epic: 3,
+    Purple: 3,
+    Legendary: 4,
+    Orange: 4,
+    Relic: 5,
+    Blue: 5,
+}
+
+//#endregion

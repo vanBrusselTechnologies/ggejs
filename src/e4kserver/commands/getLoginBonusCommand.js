@@ -5,6 +5,6 @@ module.exports = {
             getCmdId: "alb",
             params: {},
         }
-        require('./../data').sendJsonVoSignal(socket, { "commandVO": C2SGetLoginBonusVO, "lockConditionVO": null });
+        require('./../data').sendJsonVoSignal(socket, {"commandVO": C2SGetLoginBonusVO, "lockConditionVO": null});
     }
 }

@@ -10,13 +10,13 @@ const WorldmapManager = require('./managers/WorldmapManager');
 const {WaitUntil} = require('./tools/wait');
 const EventEmitter = require('node:events');
 const e4kNetwork = require('e4k-data').network;
+const languages = require('e4k-data').languages;
 const {NetworkInstance} = require('e4k-data');
 
 class Client extends EventEmitter {
     #name = "";
     #password = "";
-    /** @type {NetworkInstance} */
-    _serverInstance;
+    _serverInstance = e4kNetwork.instances.instance[33];
     /** @type {Socket} */
     _socket = new (require("net").Socket)();
 
@@ -27,7 +27,7 @@ class Client extends EventEmitter {
      * @param {boolean} debug
      * @param {NetworkInstance} serverInstance
      */
-    constructor(name, password, serverInstance = e4kNetwork.instances.instance[5], debug = false) {
+    constructor(name, password, serverInstance, debug = false) {
         super();
         this._serverInstance = serverInstance;
         if (name !== "" && password !== "") {
@@ -46,11 +46,27 @@ class Client extends EventEmitter {
         }
     }
 
+    _language = 'en';
+
+    /** @param {string} val */
+    set language(val) {
+        if (languages[val] == null) return;
+        this._language = val;
+    }
+
     /**
      * @param {number} val
      */
     set reconnectTimeout(val) {
         this._socket["__reconnTimeoutSec"] = val;
+    }
+
+    /**
+     *
+     * @return {Message[]}
+     */
+    get mailMessages() {
+        return this._socket['mailMessages'];
     }
 
     /**

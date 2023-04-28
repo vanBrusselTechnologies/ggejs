@@ -81,7 +81,7 @@ module.exports = {
                     try {
                         require(`./${x}`).execute(socket, errorCode, params[x]);
                     } catch (e) {
-                        console.log(e.toString().split('\n')[0]);
+                        if(socket.debug) console.log(e.toString().split('\n')[0]);
                     }
                     break;
                 default:
@@ -135,6 +135,8 @@ function handlePostGBDCommandInNextFrame(socket) {
     //requestAllianceData(); alles in false if-statement
     requestBookmarkData(socket);
     requestConstructionItemInventory(socket);
+    requestEquipmentInventory(socket);
+    socket['gdb finished'] = true;
     /*
      *  directCommandMap.map(SendDeviceMetaDataCommand).execute();
      *  gameStatusModel.gameIsListening = true;
@@ -164,4 +166,8 @@ function requestBookmarkData(socket) {
 
 function requestConstructionItemInventory(socket) {
     require('./../../commands/getConstructionItemInventoryCommand').execute(socket);
+}
+
+function requestEquipmentInventory(socket){
+    require('./../../commands/getEquipmentInventoryCommand').execute(socket);
 }
