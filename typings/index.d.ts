@@ -44,6 +44,8 @@ declare class Client extends EventEmitter {
 
     public sendChatMessage(message: string): void;
 
+    public sendMailMessage(playerName: string, subject: string, message: string): void;
+
     public get mailMessages(): Message[];
 
     public set reconnectTimeout(val: number);
@@ -886,7 +888,7 @@ type Message =
     | SpecialEventStartMessage;
 
 declare class BasicMessage {
-    protected constructor(client: Client, data: Array);
+    protected constructor(client: Client, data: Array<any>);
 
     protected init(): Promise<void>;
 
@@ -978,17 +980,17 @@ interface BattleLog {
     allianceName: string,
     attackerCommandant: Lord,
     attackerGeneral?: General,
-    attackerLegendSkills: int[],
+    attackerLegendSkills: number[],
     defenderBaron: Lord
     defenderGeneral?: General,
-    defenderLegendSkills: int[],
-    courtyardAttacker: LogUnit[],
-    courtyardDefender: LogUnit[],
+    defenderLegendSkills: number[],
+    courtyardAttacker: BattleLogUnit<Unit>[],
+    courtyardDefender: BattleLogUnit<Unit>[],
     wavesAttacker: BattleLogArmyWave[],
     wavesDefender: BattleLogArmyWave[],
-    finalWaveAttacker: LogUnit[],
-    supportToolsAttacker: LogUnit[],
-    supportToolsDefender: LogUnit[],
+    finalWaveAttacker: BattleLogUnit<Unit>[],
+    supportToolsAttacker: BattleLogUnit<Unit>[],
+    supportToolsDefender: BattleLogUnit<Unit>[],
 }
 
 declare class BattleLogUnit<Unit> extends InventoryItem<Unit> {
@@ -1085,12 +1087,12 @@ interface SpyLog {
     spyResources?: Good[],
     armyInfo?: {
         army: {
-            left: InventoryItem[],
-            middle: InventoryItem[],
-            right: InventoryItem[],
-            keep: InventoryItem[],
-            unitsKeepInventory: InventoryItem[],
-            stronghold: InventoryItem[]
+            left: InventoryItem<Unit>[],
+            middle: InventoryItem<Unit>[],
+            right: InventoryItem<Unit>[],
+            keep: InventoryItem<Unit>[],
+            unitsKeepInventory: InventoryItem<Unit>[],
+            stronghold: InventoryItem<Unit>[]
         },
         spyTime: Date,
         defenderBaron: Lord,

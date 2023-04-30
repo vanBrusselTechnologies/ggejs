@@ -97,6 +97,16 @@ class Client extends EventEmitter {
 
     /**
      *
+     * @param {string} playerName
+     * @param {string} subject
+     * @param {string} message
+     */
+    sendMailMessage(playerName, subject, message) {
+        require('./e4kserver/commands/sendMailMessageCommand').execute(this._socket, playerName, subject, message);
+    }
+
+    /**
+     *
      * @param {InteractiveMapobject} worldmapArea
      * @returns {Promise<any>}
      */
