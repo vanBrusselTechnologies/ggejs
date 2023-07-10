@@ -1,10 +1,10 @@
 const _maxMS = 3600000;
 
 module.exports = {
-    /** 
-     * Resolves when socket[field] is true. Rejects when socket[errorField] !== "" 
-     * @param {Socket} socket 
-     * @param {string} field 
+    /**
+     * Resolves when socket[field] is true. Rejects when socket[errorField] !== ""
+     * @param {Socket} socket
+     * @param {string} field
      * @param {string} errorField
      * @param {number} maxMs
      * @returns Promise<void>
@@ -25,23 +25,22 @@ module.exports = {
  */
 function _WaitUntil(socket, field, errorField = "", endDateTimestamp) {
     return new Promise(async (resolve, reject) => {
-        try {
-            if (socket[field])
-                resolve();
-            else if (errorField !== "" && socket[errorField] && socket[errorField] !== "") {
-                reject(socket[errorField]);
-            }
-            else if(endDateTimestamp < Date.now()){
-                reject("Exceeded max time");
-            }
-            else {
-                await new Promise(resolve => { setTimeout(() => resolve(), 1); });
+        if (socket[field])
+            resolve();
+        else if (errorField !== "" && socket[errorField] && socket[errorField] !== "") {
+            reject(socket[errorField]);
+        } else if (endDateTimestamp < Date.now()) {
+            reject("Exceeded max time");
+        } else {
+            try {
+                await new Promise(resolve => {
+                    setTimeout(() => resolve(), 1);
+                });
                 await _WaitUntil(socket, field, errorField, endDateTimestamp);
                 resolve();
+            } catch (e) {
+                reject(e);
             }
-        }
-        catch (e) {
-            resolve(e);
         }
     })
 }

@@ -1,5 +1,6 @@
 const Gem = require("./Gem");
 const Effect = require("./Effect");
+const equipmentEffects = require('e4k-data').data.equipment_effects;
 
 class Equipment {
     /**
@@ -44,8 +45,13 @@ class Equipment {
  */
 function parseEffects(client, data) {
     let effects = [];
-    for (let i in data) {
-        effects.push(new Effect(client, data[i]));
+    for (let d of data) {
+        for(let e of equipmentEffects){
+            if(e.equipmentEffectID === d[0]){
+                d[0] = e.effectID
+            }
+        }
+        effects.push(new Effect(client, d));
     }
     return effects;
 }

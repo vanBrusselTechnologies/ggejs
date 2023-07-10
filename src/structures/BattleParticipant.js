@@ -18,7 +18,7 @@ class BattleParticipant {
         this.lootGoods = lootGoods;
         this.famePoints = data[5];
         this.xp = data[6];
-        this.kingsTowerEffect = data[7];
+        this.kingstowersEffect = data[7];
         this.factionPoint = data[8];
         this.attackBoost = data[9];
         this.woundedUnits = data[10];

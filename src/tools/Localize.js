@@ -7,7 +7,7 @@ const languages = require('e4k-data').languages;
 const Localize = {
     text(client, textId, ...args) {
         if (typeof client === 'string') {
-            console.log('expected client, received: ' + client);
+            console.error('expected client, received: ' + client);
             return client;
         }
         let val = _getValue(client, textId);

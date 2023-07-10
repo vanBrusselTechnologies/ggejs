@@ -8,7 +8,7 @@ module.exports = {
      * @param {object} params
      */
     execute: function (socket, errorCode, params) {
-        if (!params.M) return;
+        if (!params?.M) return;
         let mercenaryCampMissions = [];
         for (let i in params.M) {
             let _mission = params.M[i];

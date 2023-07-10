@@ -1,5 +1,3 @@
-const {Coordinate} = require("./Coordinate");
-const {MonumentMapobject} = require("./MonumentMapobject");
 const CastleUserData = {
     playerCrest: null,//CrestVO
     userXp: 0,

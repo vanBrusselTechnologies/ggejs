@@ -32,9 +32,9 @@ class Gem {
  * @returns {object}
  */
 function getDataFromJson(id) {
-    for (let i in gems) {
-        if (gems[i].gemID === id) {
-            return gems[i];
+    for (let g of gems) {
+        if (g.gemID === id) {
+            return g;
         }
     }
 }
@@ -48,12 +48,12 @@ function getDataFromJson(id) {
 function parseEffects(client, _data) {
     let _effects = _data.split(",");
     let data = [];
-    for (let i in _effects) {
-        data.push(_effects[i].split("&amp;"));
+    for (let e of _effects) {
+        data.push(e.split("&amp;"));
     }
     let effects = [];
-    for (let i in data) {
-        effects.push(new Effect(client, data[i]));
+    for (let d of data) {
+        effects.push(new Effect(client, d));
     }
     return effects;
 }

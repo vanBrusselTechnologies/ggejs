@@ -108,14 +108,15 @@ class Client extends EventEmitter {
     /**
      *
      * @param {InteractiveMapobject} worldmapArea
-     * @returns {Promise<any>}
+     * @returns {Promise<Castle>}
      */
     getCastleInfo(worldmapArea) {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!worldmapArea || !worldmapArea.objectId) reject("WorldmapArea is not valid");
                 require('./e4kserver/commands/joinAreaCommand').execute(this._socket, worldmapArea);
-                await WaitUntil(this._socket, `join_area_${worldmapArea.objectId}_finished`);
+                await WaitUntil(this._socket, `join_area_${worldmapArea.objectId}_finished`, "join_area_error");
+                this._socket["join_area_error"] = "";
                 resolve(this._socket[`join_area_${worldmapArea.objectId}_data`]);
             } catch (e) {
                 reject(e);

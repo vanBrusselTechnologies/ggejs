@@ -54,9 +54,8 @@ class Lord {
         this.name = data.N ?? "";
         /** @type {number} */
         this.pictureId = data.VIS;
-        if (data.LICID)
-            /** @type {number} */
-            this.attachedCastleId = data.LICID;
+        if (data.LICID) /** @type {number} */
+        this.attachedCastleId = data.LICID;
     }
 }
 
@@ -71,10 +70,7 @@ function parseEquipments(client, data, lord) {
     let _equipments = [];
     if (data) {
         for (let d of data) {
-            if (d[11] === 3)
-                _equipments.push(new RelicEquipment(client, d, lord));
-            else
-                _equipments.push(new Equipment(client, d, lord));
+            if (d[11] === 3) _equipments.push(new RelicEquipment(client, d, lord)); else _equipments.push(new Equipment(client, d, lord));
         }
     }
     return _equipments;
@@ -118,25 +114,22 @@ function parseEffects(client, data, equipments) {
             _effects.push(new Effect(client, [d[0], d[1][0]]));
         }
     }
-    if(data["HME"])
-    {
+    if (data["HME"]) {
         for (let d of data["HME"]) {
             _effects.push(new Effect(client, [d[0], d[1][0]]));
         }
     }
-    if(data["TAE"]) {
+    if (data["TAE"]) {
         for (let d of data["TAE"]) {
             _effects.push(new Effect(client, [d[0], d[1][0]]));
         }
     }
-    if(data["AE"])
-    {
+    if (data["AE"]) {
         for (let d of data["AE"]) {
             _effects.push(new Effect(client, [d[0], d[1][0]]));
         }
     }
-    if(data["E"])
-    {
+    if (data["E"]) {
         for (let d of data["E"]) {
             _effects.push(new Effect(client, [d[0], d[1][0]]));
         }
@@ -226,9 +219,8 @@ function parseEffects(client, data, equipments) {
  * @returns {object}
  */
 function getDummyData(id) {
-    for (let i in lords) {
-        if (lords[i].lordID === id)
-            return lords[i];
+    for (let lord of lords) {
+        if (lord.lordID === id) return lord;
     }
 }
 
@@ -244,17 +236,16 @@ function parseDummyEffects(client, effectsData) {
     let _effects = [];
     let __effects = effectsData.split(",");
     let data = [];
-    for (let i in __effects) {
-        data.push(__effects[i].split("&amp;"));
+    for (let e of __effects) {
+        data.push(e.split("&amp;"));
     }
-    for (let i in data) {
-        _effects.push(new Effect(client, data[i]));
+    for (let d of data) {
+        _effects.push(new Effect(client, d));
     }
 
     /** @type {Effect[]} */
     let effects = [];
-    for (let i in _effects) {
-        let _effect = _effects[i];
+    for (let _effect of _effects) {
         let found = false;
         for (let effect of effects) {
             if (_effect.effectId === effect.effectId) {
@@ -266,8 +257,7 @@ function parseDummyEffects(client, effectsData) {
         if (!found) effects.push(_effect);
     }
 
-    for (let i in effects) {
-        let _effect = effects[i];
+    for (let _effect of effects) {
         _effect.uncappedPower = _effect.power;
         for (let effectCap of effectCaps) {
             if (effectCap.capID === _effect.capId) {

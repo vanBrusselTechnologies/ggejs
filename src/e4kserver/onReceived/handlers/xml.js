@@ -29,7 +29,7 @@ function xtHandleMessage(socket, msgObj) {
     let action = msgObj.body["$"].action;
     let _loc7_ = null;
     let _loc5_ = null;
-    let id = msgObj.body["$"].id;
+    //let id = msgObj.body["$"].id;
     if (action === "xtRes") {
         _loc7_ = msgObj.body.toString();
         _loc5_ = ObjectSerializer.getInstance().deserialize(_loc7_);

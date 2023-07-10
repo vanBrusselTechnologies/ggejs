@@ -8,7 +8,8 @@ module.exports = {
      */
     async execute(socket, errorCode, params) {
         if(socket.debug) console.log(errorCode + " => " + errorCode === 145 ? "EventNotStarted" : "SuccessOrAnotherFailure")
-        if(errorCode === 145) return; //event not started
+        if(errorCode === 145) return; //event isn't started
+        console.log(params);
 
         //const sector = await socket.client.worldmaps.getSector(0, 5, 6);
         //console.log(sector);

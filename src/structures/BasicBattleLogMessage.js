@@ -42,9 +42,9 @@ class BasicBattleLogMessage extends BasicMessage {
         })
     }
 
-    /** @param {Client} client
+    /** @param {Client} _
      @protected */
-    initSubject(client) {
+    initSubject(_) {
         this.subject = "";
     }
 

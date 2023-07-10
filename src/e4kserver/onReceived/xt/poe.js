@@ -7,7 +7,7 @@ module.exports = {
      */
     execute(socket, errorCode, params) {
         if(!params) return;
-        console.log("POE parser code isn't finished")
+        console.log("POE parser code isn't finished: \n" + JSON.stringify(params))
         let _loc3_ = new PrimeTimeVO();
         _loc3_.type = params.type;
         _loc3_.premiumBonus = params.bonusPremium;

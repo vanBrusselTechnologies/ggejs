@@ -10,6 +10,7 @@ class Unit {
     constructor(client, wodId) {
         this.wodId = wodId;
         this.rawData = getData(wodId);
+        if(!this.rawData) return;
         for (let i in this.rawData) {
             /** @type {number | string} */
             let item = this.rawData[i];
@@ -84,10 +85,9 @@ function isSoldier(rawData) {
  */
 function getData(wodId) {
     for (let i in units) {
-        if (wodId === units[i].wodID) {
-            return units[i];
-        }
+        if (wodId === units[i].wodID) return units[i];
     }
+    console.error("Unit not recognized. Please update your npm modules")
 }
 
 module.exports = Unit;

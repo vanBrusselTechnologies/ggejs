@@ -29,8 +29,9 @@
   "license": "ISC",
   "exports": "./src/index.js",
   "dependencies": {
-    "@types/node": "^18.11.9",
-    "e4k-data": "*",
-    "node-fetch": "^3.3.0"
+    "e4k-data": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.1"
   }
 }

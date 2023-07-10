@@ -50,7 +50,7 @@ class Player {
         if (!data.gcl) {
             this.castles = parseSimpleCastleList(client, data.O.AP);
             this.villages = {private:[], public:[]};
-            this.kingsTowers = [];
+            this.kingstowers = [];
             this.monuments = [];
         } else {
             /** @type {(CastleMapobject | CapitalMapobject)[]} */
@@ -58,7 +58,7 @@ class Player {
             /** @type {{public:{village:VillageMapobject,units?:InventoryItem<Unit>[]}[], private:{privateVillageId: number, uniqueId: number}[]}} */
             this.villages = parseVillageList(client, data.kgv);
             /** @type {KingstowerMapobject[]} */
-            this.kingsTowers = parseKingstowers(client, data.gkl);
+            this.kingstowers = parseKingstowers(client, data.gkl);
             /** @type {MonumentMapobject[]} */
             this.monuments = parseMonuments(client, data.gml);
         }

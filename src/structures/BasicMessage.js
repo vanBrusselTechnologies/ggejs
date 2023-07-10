@@ -32,10 +32,10 @@ class BasicMessage {
 
     /**
      *
-     * @param {Client} client
-     * @param {Array<string>} metaArray
+     * @param {Client} _
+     * @param {Array<string>} __
      */
-    parseMetaData(client, metaArray) {
+    parseMetaData(_, __) {
     }
 }
 

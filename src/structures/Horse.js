@@ -7,7 +7,7 @@ class Horse {
     /**
      *
      * @param {Client} client
-     * @param castleData
+     * @param {Castle} castleData
      * @param {number} horseType
      */
     constructor(client, castleData, horseType) {
@@ -15,7 +15,7 @@ class Horse {
         if (isPegasusHorse) {
             horseType -= 1;
         }
-        this.wodId = getHorseWodId(castleData.castle.buildings, horseType);
+        this.wodId = getHorseWodId(castleData.buildingInfo.buildings, horseType);
         if (this.wodId === -1) return;
         let horse = horses.find(h => h.wodID === this.wodId);
         if (isPegasusHorse) horse = horses.find(h => h.type === horse.type && h.isPegasusHorse === 1)

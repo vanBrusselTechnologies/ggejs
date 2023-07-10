@@ -6,15 +6,22 @@ const {execute: showMessages} = require("./commands/showMessagesCommand");
 const {execute: collectTaxCommand} = require('./commands/collectTaxCommand');
 const {execute: dailyQuestListParser} = require('./onReceived/xt/dql');
 const {sendAction: sendXmlAction} = require('./commands/handlers/xml.js');
+
+/**
+ *
+ * @type {{
+ * connect(socket: Socket): void,
+ * login(socket: Socket, name: string, password: string): void,
+ * onConnection(socket: Socket, obj: {success:boolean, error:string}): void,
+ * onLogin(socket: Socket, error?:string): Promise<void>,
+ * _sendVersionCheck(socket: Socket): void,
+ * }}
+ */
 module.exports = {
-    /**
-     *
-     * @param {Socket} _socket
-     */
-    connect(_socket) {
-        const serverInstance = _socket.client._serverInstance;
+    connect(socket) {
+        const serverInstance = socket.client._serverInstance;
         //_socket = new WebSocket(`wss://${serverInstance.server}:${serverInstance.port}`); //empire? WebSocket ipv net.Socket
-        _socket.connect(serverInstance.port, serverInstance.server, null);
+        socket.connect(serverInstance.port, serverInstance.server, null);
     }, login(socket, name, password) {
         loginCommand(socket, name, password);
     }, onConnection(socket, obj) {
@@ -22,7 +29,7 @@ module.exports = {
             let languageCode = socket.client._language;
             let distributorID = 0;
             let zone = socket.client._serverInstance.zone;
-            _login(socket, zone, "", `NaN${languageCode}%${distributorID}`);//empire: `${versionDateGame}%${languageCode}%${distributorID}`
+            _login(socket, zone, "", `1${languageCode}%${distributorID}`);//empire: `${versionDateGame}%${languageCode}%${distributorID}`
             socket["__connected"] = true;
         } else {
             socket["__connected"] = false;
@@ -37,7 +44,7 @@ module.exports = {
             return;
         }
         socket['mailMessages'] = [];
-        socket["sneRequestCount"] = 0;
+        socket['isWaitingForSNE'] = false;
         pingpong(socket);
         await WaitUntil(socket, 'gdb finished');
         socket["__loggedIn"] = true;
@@ -53,7 +60,6 @@ module.exports = {
                 if (!socket["__connected"]) return;
                 if (socket['isWaitingForSNE']) return;
                 showMessages(socket)
-                socket["sneRequestCount"] += 1;
             }, 1000)
         }
     }, _sendVersionCheck(socket) {
@@ -65,12 +71,24 @@ const majVersion = 1;
 const minVersion = 6;
 const subVersion = 6;
 
+/**
+ *
+ * @param {Socket} socket
+ */
 function sendVersionCheck(socket) {
     let header = {"t": "sys"};
     let version = `<ver v=\'${majVersion}${minVersion}${subVersion}\' />`;
     sendXmlAction(socket, header, "verChk", 0, version);
 }
 
+/**
+ *
+ * @param {Socket} socket
+ * @param {string} zone
+ * @param {string} name
+ * @param {string} pass
+ * @private
+ */
 function _login(socket, zone, name, pass) {
     let header = {"t": "sys"};
     let msg = `<login z=\'${zone}\'><nick><![CDATA[${name}]]></nick><pword><![CDATA[${pass}]]></pword></login>`;

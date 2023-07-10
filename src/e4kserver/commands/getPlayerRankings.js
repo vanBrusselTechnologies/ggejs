@@ -1,6 +1,5 @@
 module.exports = {
-    name: "hgh",
-    /**
+    name: "hgh", /**
      * @param {Socket} socket
      * @param {string} searchValue
      * @param {"might" | "honor" | "loot" | "achievementPoints" | "tempServerDailyMight" | "tempServerOverallMight" | "tempServerDailyCollector" | "tempServerOverallCollector" | "tempServerDailyRankSwap" | "tempServerOverallRankSwap" | "tempServerCharge"} rankingType
@@ -46,7 +45,7 @@ module.exports = {
         }
         let C2SGetHighscoreVO = {
             params: {
-                SV: searchValue, LT: listType, LID: 1
+                SV: searchValue, LT: listType, LID: 6 //LID = bracket based on level, starting with 1
             }, getCmdId: "hgh",
         }
         require('./../data').sendJsonVoSignal(socket, {

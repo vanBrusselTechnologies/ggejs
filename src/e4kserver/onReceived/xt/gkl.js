@@ -9,6 +9,6 @@ module.exports = {
      */
     execute(socket, errorCode, params) {
         if(!params) return;
-        //castleUserData.castleListVO.kingsTowers = castleListParser.parseKingsTowerList(params);
+        //castleUserData.castleListVO.kingstowers = castleListParser.parseKingsTowerList(params);
     }
 }

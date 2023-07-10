@@ -46,6 +46,8 @@ module.exports = {
                 _playerName = _playerName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 socket[`__player_${_playerName}_found`] = true;
                 socket[`__player_${_playerName}_id`] = x[2].OID;
+                socket[`__player_${x[0]}_found`] = true;
+                socket[`__player_${x[0]}_id`] = x[2].OID;
             });
         }
         catch(e){}

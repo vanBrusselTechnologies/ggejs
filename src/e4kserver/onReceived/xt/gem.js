@@ -20,6 +20,6 @@ module.exports = {
             symbolColor1: params["SC1"],
             symbolColor2: params["SC2"],
         };
-        if(socket.debug) console.log("gem playerCrest is not CrestVO");
+        if(socket.debug) console.log("gem: playerCrest is not CrestVO");
     }
 }

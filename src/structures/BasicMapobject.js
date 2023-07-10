@@ -16,11 +16,16 @@ class BasicMapobject {
         this.position = new Coordinate(client, data.slice(1, 3));
     }
 
+    /**
+     *
+     * @param {{}}data
+     * @return {BasicMapobject}
+     */
     parseAreaInfoBattleLog(data) {
         this.areaType = data.AT;
         this.position = new Coordinate(this.#client, [data.X, data.Y]);
         this.kingdomId = data.K;
-        this.mapID = data.MID;
+        this.mapId = data.MID;
         return this;
     }
 }

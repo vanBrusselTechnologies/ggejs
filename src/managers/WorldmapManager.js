@@ -9,7 +9,7 @@ const WorldmapSector = require('../structures/WorldmapSector');
 const worldmapSizes = [13, 11];
 const worldmapLeftTop = [0, 0];
 let worldmapRightBottom = [1000, 1000];
-const cacheSec = 30;
+const cacheSec = 600;
 
 class WorldmapManager extends BaseManager {
     _worldmapCaches = {
@@ -35,12 +35,13 @@ class WorldmapManager extends BaseManager {
     /**
      *
      * @param {number} kingdomId
+     * @param {number} noCache
      * @returns {Promise<Worldmap>}
      */
-    get(kingdomId) {
+    get(kingdomId, noCache = false) {
         return new Promise(async (resolve, reject) => {
             try {
-                if (!isWorldmapCached(this, kingdomId))
+                if (noCache || !isWorldmapCached(this, kingdomId))
                     await _getWorldmapById(this, this._client._socket, this._worldmapCaches[kingdomId]?.worldmap, kingdomId);
                 resolve(this._worldmapCaches[kingdomId]?.worldmap);
             } catch (e) {

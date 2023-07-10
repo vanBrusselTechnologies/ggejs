@@ -21,6 +21,7 @@ const CapitalMapobject = require("../../../structures/CapitalMapobject");
 const DungeonMapobject = require("../../../structures/DungeonMapobject");
 const CastleMapobject = require("../../../structures/CastleMapobject");
 const EmptyMapobject = require("../../../structures/EmptyMapobject");
+const {parseMapObject} = require("../../../utils/MapObjectParser");
 
 module.exports = {
     name: "bsd", /**
@@ -82,59 +83,14 @@ module.exports = {
  * @returns {Mapobject}
  */
 function parseWorldmapArea(client, data) {
-    switch (data["AT"]) {
-        case 0:
-            return new EmptyMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 1:
-            return new CastleMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 2:
-            return new DungeonMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 3:
-            return new CapitalMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 4:
-            return new CastleMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 10:
-            return new VillageMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 11:
-            return new BossDungeonMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 12:
-            return new CastleMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 13:
-            return new EventDungeonMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 21:
-            return new AlienInvasionMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 22:
-            return new CapitalMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 23:
-            return new KingstowerMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 24:
-            return new ResourceIsleMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 25:
-            return new DungeonIsleMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 26:
-            return new MonumentMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 27:
-            return new NomadInvasionMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 31:
-            return new DynamicMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 34:
-            return new RedAlienInvasionMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 35:
-            return new NomadKhanInvasionMapobject(client, []).parseAreaInfoBattleLog(data);
-        case 36:
-            return new ShapeshifterMapobject(client, []).parseAreaInfoBattleLog(data);
-        default:
-            console.log(`Current mapobject (areatype ${data[0]}) isn't fully supported!`);
-            console.log(data);
-            break;
-    }
+    return parseMapObject(client, [data["AT"]]).parseAreaInfoBattleLog(data);
 }
 
 /**
  *
  * @param {Client} client
  * @param {Object} data
- * @returns {}
+ * @returns {{army: { left: InventoryItem<Unit>[], middle: InventoryItem<Unit>[], right: InventoryItem<Unit>[], keep: InventoryItem<Unit>[], unitsKeepInventory: InventoryItem<Unit>[], stronghold: InventoryItem<Unit>[]}, spyTime: Date, defenderBaron: Lord, defenderGeneral?: General, defenderLegendSkills: []}}
  */
 function parseSpyArmyInfo(client, data) {
     let _loc5_ = data["S"];

@@ -1,4 +1,3 @@
-const castleUserData = require('./../../../structures/CastleUserData');
 const Player = require("../../../structures/Player");
 const {parseWorldmapAreas} = require("./gaa");
 const Good = require("../../../structures/Good");

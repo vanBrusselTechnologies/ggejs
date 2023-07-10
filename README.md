@@ -27,4 +27,4 @@ client.connect();
 - [npm](https://www.npmjs.com/package/ggejs)
 
 ### Disclaimer
-> This content is not affiliated with, endorsed, sponsored, or specifically approved by Goodgame Studios and Goodgame Studios is not responsible for it. For more information see [Goodgame Studios Terms of Use](https://www.goodgamestudios.com/terms_en/#terms).
+> This content is not affiliated with, endorsed, sponsored, or specifically approved by Goodgame Studios, and Goodgame Studios is not responsible for it. For more information, see [Goodgame Studios Terms of Use](https://www.goodgamestudios.com/terms_en/#terms).

@@ -1,7 +1,5 @@
 const BasicMessage = require("./BasicMessage");
 const Localize = require("../tools/Localize");
-const {execute: getSpyLog} = require("../e4kserver/commands/getSpyLogCommand");
-const {WaitUntil} = require("../tools/wait");
 
 class SpyNPCMessage extends BasicMessage {
     /** @type{Client}*/

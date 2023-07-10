@@ -6,13 +6,9 @@ const getPlayerRankingsCommand = require('./../e4kserver/commands/getPlayerRanki
 const {WaitUntil} = require('./../tools/wait');
 
 class PlayerManager extends BaseManager {
-    /**
-     * @type {number}
-     */
+    /** @type {number} */
     _thisPlayerId = 0;
-    /**
-     * @type {Player[]}
-     */
+    /** @type {Player[]} */
     #players = [];
 
     /**
@@ -50,7 +46,6 @@ class PlayerManager extends BaseManager {
     }
 
     /**
-     *
      * @param {Player} _player
      */
     _add_or_update(_player) {
@@ -68,7 +63,6 @@ class PlayerManager extends BaseManager {
     }
 
     /**
-     *
      * @returns {Promise<Player>}
      */
     getThisPlayer() {
@@ -83,7 +77,6 @@ class PlayerManager extends BaseManager {
     }
 
     /**
-     *
      * @param {number} id
      */
     _setThisPlayer(id) {
@@ -119,7 +112,7 @@ function _getPlayerById(socket, id) {
  * @returns {Promise<number>}
  */
 function _getPlayerByName(socket, name) {
-    name = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    name = name.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     socket[`__player_${name}_found`] = false;
     socket[`__player_${name}_id`] = 0;
     return new Promise(async (resolve, reject) => {

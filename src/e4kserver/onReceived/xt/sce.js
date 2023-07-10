@@ -1,4 +1,3 @@
-const ChatMessage = require("./../../../structures/ChatMessage");
 const Good = require("../../../structures/Good");
 
 module.exports = {

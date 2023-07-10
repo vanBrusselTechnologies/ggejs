@@ -1,22 +1,5 @@
-const EmptyMapobject = require("./EmptyMapobject");
-const CastleMapobject = require("./CastleMapobject");
 const Lord = require("./Lord");
-const DungeonMapobject = require("./DungeonMapobject");
-const CapitalMapobject = require("./CapitalMapobject");
-const InteractiveMapobject = require("./InteractiveMapobject");
-const VillageMapobject = require("./VillageMapobject");
-const BossDungeonMapobject = require("./BossDungeonMapobject");
-const EventDungeonMapobject = require("./EventDungeonMapobject");
-const KingstowerMapobject = require("./KingstowerMapobject");
-const MonumentMapobject = require("./MonumentMapobject");
-const AlienInvasionMapobject = require('./AlienInvasionMapobject');
-const DynamicMapobject = require('./DynamicMapobject');
-const ResourceIsleMapobject = require("./ResourceIsleMapobject");
-const DungeonIsleMapobject = require("./DungeonIsleMapobject");
-const NomadInvasionMapobject = require("./NomadInvasionMapobject");
-const NomadKhanInvasionMapobject = require("./NomadKhanInvasionMapobject");
-const RedAlienInvasionMapobject = require("./RedAlienInvasionMapobject");
-const ShapeshifterMapobject = require("./ShapeshifterMapobject");
+const {parseMapObject} = require("../utils/MapObjectParser");
 
 class BasicMovement {
     /**
@@ -70,31 +53,7 @@ class BasicMovement {
  * @returns {Mapobject}
  */
 function getAreaFromInfo(client, info) {
-    switch (info[0]) {
-        case 0: return new EmptyMapobject(client, info);
-        case 1: return new CastleMapobject(client, info);
-        case 2: return new DungeonMapobject(client, info);
-        case 3: return new CapitalMapobject(client, info);
-        case 4: return new CastleMapobject(client, info);
-        case 10: return new VillageMapobject(client, info);
-        case 11: return new BossDungeonMapobject(client, info);
-        case 12: return new CastleMapobject(client, info);
-        case 13: return new EventDungeonMapobject(client, info);
-        case 21: return new AlienInvasionMapobject(client, info);
-        case 22: return new CapitalMapobject(client, info);
-        case 23: return new KingstowerMapobject(client, info);
-        case 24: return new ResourceIsleMapobject(client, info);
-        case 25: return new DungeonIsleMapobject(client, info);
-        case 26: return new MonumentMapobject(client, info);
-        case 27: return new NomadInvasionMapobject(client, info);
-        case 31: return new DynamicMapobject(client, info);
-        case 34: return new RedAlienInvasionMapobject(client, info);
-        case 35: return new NomadKhanInvasionMapobject(client, info);
-        case 36: return new ShapeshifterMapobject(client, info);
-        default:
-            console.log(`Current mapobject (areatype ${info[0]}) isn't fully supported!`);
-            return new InteractiveMapobject(client, info);
-    }
+    return parseMapObject(client, info)
 }
 
 module.exports = BasicMovement;

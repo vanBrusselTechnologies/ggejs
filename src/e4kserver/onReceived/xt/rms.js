@@ -1,4 +1,3 @@
-//`rms -> ${messageId}`
 const {parseChatJSONMessage} = require("../../../tools/TextValide");
 module.exports = {
     name: "rms",

@@ -1,10 +1,10 @@
 module.exports = {
     name: "ahd",
     /**
-     * @param {Socket} socket
-     * @param {number} errorCode
-     * @param {object} params
+     * @param {Socket} _
+     * @param {number} __
+     * @param {object} ___
      */
-    execute(socket, errorCode, params) {
+    execute(_, __, ___) {
     }
 }

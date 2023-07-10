@@ -1,9 +1,5 @@
 const {EventEmitter} = require('node:events');
 
-/**
- * 
- * @extends {EventEmitter}
- */
 class BaseManager extends EventEmitter{
     /**
      * 

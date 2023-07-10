@@ -17,9 +17,9 @@ class EquipmentManager extends BaseManager {
     /** @type {number} */
     #atOrBelowDeleteRarity = -1;
 
-    /** @param {number} val */
-    set autoDeleteAtOrBelowRarity(val) {
-        this.#atOrBelowDeleteRarity = val %= 10;
+    /** @param {number} rarity */
+    set autoDeleteAtOrBelowRarity(rarity) {
+        this.#atOrBelowDeleteRarity = rarity % 10;
     }
 
     /**
@@ -80,17 +80,21 @@ class EquipmentManager extends BaseManager {
     /** @param {Equipment | RelicEquipment} equipment */
     sellEquipment(equipment) {
         return new Promise(async (resolve) => {
-            sellEquipment(this._client._socket, equipment.id, equipment.equippedLord?.id ?? -1);
-            await WaitUntil(this._client._socket, "seq -> sold", 10000);
-            let i = 0;
-            for (let eq of this.#equipmentInventory) {
-                if (eq.id === equipment.id) {
-                    this.#equipmentInventory.splice(i, 1);
+            try {
+                sellEquipment(this._client._socket, equipment.id, equipment.equippedLord?.id ?? -1);
+                await WaitUntil(this._client._socket, "seq -> sold", 'seq -> errorCode', 10000);
+                let i = 0;
+                for (let eq of this.#equipmentInventory) {
+                    if (eq.id === equipment.id) {
+                        this.#equipmentInventory.splice(i, 1);
+                    }
+                    i++
                 }
-                i++
+                this._client._socket["seq -> sold"] = false;
+                resolve();
+            } catch (e) {
+                resolve()
             }
-            this._client._socket["seq -> sold"] = false;
-            resolve();
         })
     }
 
@@ -101,40 +105,34 @@ class EquipmentManager extends BaseManager {
             if (rarity > Constants.EquipmentRarity.Relic) return;
             const socket = this._client._socket;
             if (rarity === Constants.EquipmentRarity.Unique) {
-                for (let i = 0; i < this.#equipmentInventory.length; i++) {
+                for (let i = this.#equipmentInventory.length - 1; i >= 0; i--) {
                     const e = this.#equipmentInventory[i];
                     if ((e.rarityId % 10) <= Constants.EquipmentRarity.Legendary) {
                         sellEquipment(socket, e.id, -1);
                         await WaitUntil(socket, "seq -> sold");
                         this.#equipmentInventory.splice(i, 1);
                         socket["seq -> sold"] = false;
-                        i--;
                     }
-                    i++
                 }
             } else if (rarity <= Constants.EquipmentRarity.Legendary) {
-                for (let i = 0; i < this.#equipmentInventory.length; i++) {
+                for (let i = this.#equipmentInventory.length - 1; i >= 0; i--) {
                     const e = this.#equipmentInventory[i];
                     if ((e.rarityId % 10) <= rarity && (e.rarityId % 10) !== Constants.EquipmentRarity.Unique) {
                         sellEquipment(socket, e.id, -1);
                         await WaitUntil(socket, "seq -> sold");
                         this.#equipmentInventory.splice(i, 1);
                         socket["seq -> sold"] = false;
-                        i--;
                     }
-                    i++
                 }
             } else {
-                for (let i = 0; i < this.#equipmentInventory.length; i++) {
+                for (let i = this.#equipmentInventory.length - 1; i >= 0; i--) {
                     const e = this.#equipmentInventory[i];
                     if ((e.rarityId % 10) <= rarity) {
                         sellEquipment(socket, e.id, -1);
                         await WaitUntil(socket, "seq -> sold");
                         this.#equipmentInventory.splice(i, 1);
                         socket["seq -> sold"] = false;
-                        i--;
                     }
-                    i++
                 }
             }
             resolve();
@@ -173,8 +171,7 @@ class EquipmentManager extends BaseManager {
                     }
                 }
                 resolve();
-            }
-            catch (e) {
+            } catch (e) {
                 reject(e);
             }
         })

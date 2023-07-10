@@ -4,10 +4,10 @@ module.exports = {
     name: "txc",
     /**
      * @param {Socket} socket
-     * @param {number} errorCode
-     * @param {object} params
+     * @param {number} _
+     * @param {object} __
      */
-    execute(socket, errorCode, params) {
+    execute(socket, _, __) {
         startTaxCommand(socket);
     }
 }
