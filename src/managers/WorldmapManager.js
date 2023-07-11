@@ -9,7 +9,7 @@ const WorldmapSector = require('../structures/WorldmapSector');
 const worldmapSizes = [13, 11];
 const worldmapLeftTop = [0, 0];
 let worldmapRightBottom = [1000, 1000];
-const cacheSec = 600;
+const cacheSec = 30;
 
 class WorldmapManager extends BaseManager {
     _worldmapCaches = {
@@ -169,14 +169,14 @@ function _getWorldmapSector(thisManager, socket, kingdomId, x, y, tries = 0) {
                     return;
                 }
                 let worldmapSector = new WorldmapSector(socket.client, kingdomId, data);
-                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`] = false;
-                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`] = false;
-                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_error`] = "";
+                delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`];
+                delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`];
+                delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_error`];
                 resolve(worldmapSector);
             } catch (e) {
-                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`] = false;
-                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`] = false;
-                socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_error`] = "";
+                delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`];
+                delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`];
+                delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_error`];
                 reject(e);
             }
         }

@@ -116,9 +116,13 @@ class Client extends EventEmitter {
                 if (!worldmapArea || !worldmapArea.objectId) reject("WorldmapArea is not valid");
                 require('./e4kserver/commands/joinAreaCommand').execute(this._socket, worldmapArea);
                 await WaitUntil(this._socket, `join_area_${worldmapArea.objectId}_finished`, "join_area_error");
-                this._socket["join_area_error"] = "";
-                resolve(this._socket[`join_area_${worldmapArea.objectId}_data`]);
+                const data = this._socket[`join_area_${worldmapArea.objectId}_data`];
+                delete this._socket[`join_area_${worldmapArea.objectId}_data`];
+                delete this._socket[`join_area_${worldmapArea.objectId}_finished`];
+                resolve(data);
             } catch (e) {
+                delete this._socket[`join_area_${worldmapArea.objectId}_data`];
+                delete this._socket[`join_area_${worldmapArea.objectId}_finished`];
                 reject(e);
             }
         })

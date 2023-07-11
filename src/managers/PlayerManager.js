@@ -98,7 +98,9 @@ function _getPlayerById(socket, id) {
             socket[`__player_${id}_found`] = false;
             searchPlayerByIdCommand.execute(socket, id);
             await WaitUntil(socket, `__player_${id}_found`, "", 2500);
-            resolve(socket[`__player_${id}_data`]);
+            const data = socket[`__player_${id}_data`];
+            delete socket[`__player_${id}_data`];
+            resolve(data);
         } catch (e) {
             reject(e);
         }
@@ -119,7 +121,9 @@ function _getPlayerByName(socket, name) {
         try {
             getPlayerRankingsCommand.execute(socket, name);
             await WaitUntil(socket, `__player_${name}_found`, "", 2500);
-            resolve(socket[`__player_${name}_id`]);
+            const data = socket[`__player_${name}_id`]
+            delete socket[`__player_${name}_id`]
+            resolve(data);
         } catch (e) {
             reject(e);
         }

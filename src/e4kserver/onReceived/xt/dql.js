@@ -19,7 +19,7 @@ module.exports = {
         try {
             let thisPlayer = await client.players.getThisPlayer();
             if (!thisPlayer) {
-                await this.execute(socket, errorCode, params);
+                await require('./dql').execute(socket, errorCode, params);
                 return;
             }
             /** @type {CastleMapobject} */

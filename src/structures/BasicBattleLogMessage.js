@@ -32,11 +32,18 @@ class BasicBattleLogMessage extends BasicMessage {
         return new Promise(async (resolve, reject) => {
             try {
                 this.battleLog = await getMessageBody(this.#client._socket, this.messageId, this);
-                this.#client._socket[`bls -> ${this.battleLog.messageId}`] = null;
-                this.#client._socket[`blm -> ${this.battleLog.battleLogId}`] = null;
-                this.#client._socket[`bld -> ${this.battleLog.battleLogId}`] = null
+                delete this.#client._socket[`bls -> ${this.messageId}`];
+                if (this.battleLog) {
+                    delete this.#client._socket[`blm -> ${this.battleLog.battleLogId}`];
+                    delete this.#client._socket[`bld -> ${this.battleLog.battleLogId}`];
+                }
                 resolve();
             } catch (e) {
+                delete this.#client._socket[`bls -> ${this.messageId}`];
+                if (this.battleLog) {
+                    delete this.#client._socket[`blm -> ${this.battleLog.battleLogId}`];
+                    delete this.#client._socket[`bld -> ${this.battleLog.battleLogId}`];
+                }
                 reject(e);
             }
         })

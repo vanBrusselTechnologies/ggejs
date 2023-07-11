@@ -41,9 +41,10 @@ class MarketCarriageArrivedMessage extends BasicMessage {
             try {
                 try {
                     this.tradeData = await getMessageBody(this.#client._socket, this.messageId);
-                    this.#client._socket[`mmn -> ${this.tradeData.messageId}`] = null;
+                    delete this.#client._socket[`mmn -> ${this.tradeData.messageId}`];
                 } catch (e) {
-                    this.#client._socket[`mmn -> errorCode`] = "";
+                    delete this.#client._socket[`mmn -> ${this.tradeData.messageId}`];
+                    delete this.#client._socket[`mmn -> errorCode`];
                 }
                 resolve();
             } catch (e) {
