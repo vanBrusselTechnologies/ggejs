@@ -8,6 +8,7 @@ class BaseManager extends EventEmitter{
     constructor(client){
         super();
         this._client = client;
+        this._socket = client._socket;
     }
 }
 

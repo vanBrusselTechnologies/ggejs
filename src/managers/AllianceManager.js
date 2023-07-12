@@ -17,7 +17,7 @@ class AllianceManager extends BaseManager {
     getById(id) {
         return new Promise(async (resolve, reject) => {
             try {
-                await _getAllianceById(this._client._socket, id);
+                await _getAllianceById(this._socket, id);
                 let _alliance = this.#alliances.find(alliance => alliance.allianceId === id);
                 resolve(_alliance);
             } catch (e) {
@@ -34,7 +34,7 @@ class AllianceManager extends BaseManager {
     find(name) {
         return new Promise(async (resolve, reject) => {
             try {
-                let _allianceId = await _getAllianceByName(this._client._socket, name);
+                let _allianceId = await _getAllianceByName(this._socket, name);
                 if (_allianceId === 0) reject("Alliance not found!");
                 let _alliance = await this.getById(_allianceId);
                 resolve(_alliance);

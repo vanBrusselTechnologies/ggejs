@@ -8,8 +8,9 @@ class Coordinate {
         this.X = data[0];
         this.Y = data[1];
     }
-    toString(){
-        return `${this.X}/${this.Y}`;
+
+    toString(splitter = '/'){
+        return `${this.X}${splitter}${this.Y}`;
     }
 }
 

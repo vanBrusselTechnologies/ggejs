@@ -19,7 +19,7 @@ class PlayerManager extends BaseManager {
     getById(id) {
         return new Promise(async (resolve, reject) => {
             try {
-                let _player = await _getPlayerById(this._client._socket, id);
+                let _player = await _getPlayerById(this._socket, id);
                 resolve(_player);
             } catch (e) {
                 reject("Player not found!");
@@ -35,7 +35,7 @@ class PlayerManager extends BaseManager {
     find(name) {
         return new Promise(async (resolve, reject) => {
             try {
-                let _playerId = await _getPlayerByName(this._client._socket, name);
+                let _playerId = await _getPlayerByName(this._socket, name);
                 if (_playerId === 0) reject("Player not found!");
                 let _player = await this.getById(_playerId);
                 resolve(_player);
@@ -81,7 +81,7 @@ class PlayerManager extends BaseManager {
      */
     _setThisPlayer(id) {
         this._thisPlayerId = id;
-        this._client._socket["___this_player_id"] = id;
+        this._socket["___this_player_id"] = id;
     }
 }
 

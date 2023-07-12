@@ -15,15 +15,17 @@ module.exports = {
     execute: async function (socket, errorCode, params) {
         if (!params) return;
         /** @type {Client} */
-        let client = socket.client;
+        const client = socket.client;
         try {
-            let thisPlayer = await client.players.getThisPlayer();
+            /** @type {Player} */
+            const thisPlayer = await client.players.getThisPlayer();
             if (!thisPlayer) {
                 await require('./dql').execute(socket, errorCode, params);
                 return;
             }
             /** @type {CastleMapobject} */
             const myMainCastle = thisPlayer.castles.find(x => x.areaType === WorldmapArea.MainCastle);
+            //return;
             for (let i in params.RDQ) {
                 /** @type {{QID: number, P: number}} */
                 const quest = params.RDQ[i];
@@ -59,7 +61,7 @@ module.exports = {
                                     /** @type {[string, number][]} */
                                     const goods = [["W", 1], ["S", 1], ["F", 1]];
                                     /** @type {WorldmapSector} */
-                                    let worldmap = await client.worldmaps.getSectorsAround(myMainCastle.kingdomId, myMainCastle.position);
+                                    let worldmap = await client.worldmaps.getSector(myMainCastle.kingdomId, myMainCastle.position.X, myMainCastle.position.Y);
                                     /** @type {Player[]} */
                                     let nonRuins = worldmap.players.filter(x => !x.isRuin && x.playerId !== thisPlayer.playerId);
                                     nonRuins.sort((a, b) => {
@@ -234,9 +236,9 @@ function getClosestDungeon(client, castle, attackable = true) {
     return new Promise(async (resolve, reject) => {
         try {
             /** @type {WorldmapSector} */
-            let worldmap = await client.worldmaps.getSectorsAround(castle.kingdomId, castle.position);
+            let sector = await client.worldmaps.getSector(castle.kingdomId, castle.position.X,castle.position.Y);
             /** @type {DungeonMapobject[]} */
-            let dungeons = worldmap.mapobjects.filter(x => x.areaType === WorldmapArea.Dungeon && (!attackable || !x.attackCooldownEnd));
+            let dungeons = sector.mapobjects.filter(x => x.areaType === WorldmapArea.Dungeon && (!attackable || !x.attackCooldownEnd));
             dungeons.sort((a, b) => {
                 let distanceA = MovementManager.getDistance(castle, a);
                 let distanceB = MovementManager.getDistance(castle, b);
@@ -917,7 +919,6 @@ async function attackDungeon(client, socket, thisPlayer, castle, lord) {
             if (availableTroops == null) reject("No troops!");
             let availableSoldiers = availableTroops.filter(t => t.item.isSoldier && t.item.fightType === 0);
             let availableDungeonAttackTools = availableTroops.filter(t => !t.item.isSoldier && t.item.fightType === 0 && t.item.canBeUsedToAttackNPC && t.item.name !== "Eventtool" && t.item.amountPerWave == null);
-
             if (availableSoldiers.length === 0) reject('No attacking soldiers available');
             let dungeonProtection = getDungeonProtection(dungeon);
             let {

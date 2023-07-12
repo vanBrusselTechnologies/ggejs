@@ -81,8 +81,8 @@ class EquipmentManager extends BaseManager {
     sellEquipment(equipment) {
         return new Promise(async (resolve) => {
             try {
-                sellEquipment(this._client._socket, equipment.id, equipment.equippedLord?.id ?? -1);
-                await WaitUntil(this._client._socket, "seq -> sold", 'seq -> errorCode', 10000);
+                sellEquipment(this._socket, equipment.id, equipment.equippedLord?.id ?? -1);
+                await WaitUntil(this._socket, "seq -> sold", 'seq -> errorCode', 10000);
                 let i = 0;
                 for (let eq of this.#equipmentInventory) {
                     if (eq.id === equipment.id) {
@@ -90,7 +90,7 @@ class EquipmentManager extends BaseManager {
                     }
                     i++
                 }
-                this._client._socket["seq -> sold"] = false;
+                this._socket["seq -> sold"] = false;
                 resolve();
             } catch (e) {
                 resolve()
@@ -103,7 +103,7 @@ class EquipmentManager extends BaseManager {
         return new Promise(async (resolve) => {
             rarity %= 10; //hero starts with 10 instead of 0
             if (rarity > Constants.EquipmentRarity.Relic) return;
-            const socket = this._client._socket;
+            const socket = this._socket;
             if (rarity === Constants.EquipmentRarity.Unique) {
                 for (let i = this.#equipmentInventory.length - 1; i >= 0; i--) {
                     const e = this.#equipmentInventory[i];
@@ -150,7 +150,7 @@ class EquipmentManager extends BaseManager {
             const rarity = this.#atOrBelowDeleteRarity;
             if (rarity > Constants.EquipmentRarity.Relic) return;
             try {
-                const socket = this._client._socket;
+                const socket = this._socket;
                 if (rarity === Constants.EquipmentRarity.Unique) {
                     if ((e.rarityId % 10) <= Constants.EquipmentRarity.Legendary) {
                         sellEquipment(socket, e.id, -1);

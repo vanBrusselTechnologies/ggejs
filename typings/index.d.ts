@@ -70,6 +70,7 @@ declare class Socket extends netSocket {
 //#region Managers
 declare class BaseManager extends EventEmitter {
     private _client: Client;
+    private _socket: Socket;
 
     protected constructor(client: Client);
 }
@@ -163,7 +164,7 @@ declare class WorldmapManager extends BaseManager {
 
     public get(kingdomId: number, noCache = false): Promise<Worldmap>;
 
-    getSector(kingdomId: number, sectorX: number, sectorY: number): Promise<WorldmapSector>;
+    getSector(kingdomId: number, positionX: number, positionY: number): Promise<WorldmapSector>;
 }
 
 //#endregion
@@ -510,7 +511,12 @@ declare class Player {
     public allianceRank: number;
     public isSearchingAlliance: number;
     public peaceEndTime?: Date;
-    public castles: (CastleMapobject | CapitalMapobject | {areaType: number, position: Coordinate, objectId: number, kingdomId: number})[];
+    public castles: (CastleMapobject | CapitalMapobject | {
+        areaType: number,
+        position: Coordinate,
+        objectId: number,
+        kingdomId: number
+    })[];
     public villages: {
         public: {
             village: VillageMapobject,

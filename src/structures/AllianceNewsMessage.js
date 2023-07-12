@@ -44,7 +44,9 @@ function getMessageBody(socket, messageId) {
         try {
             readMessage(socket, messageId);
             await WaitUntil(socket, `rms -> ${messageId}`);
-            resolve(socket[`rms -> ${messageId}`]);
+            const data = socket[`rms -> ${messageId}`];
+            delete socket[`rms -> ${messageId}`];
+            resolve(data);
         } catch (e) {
             console.log(e);
             reject(e);
