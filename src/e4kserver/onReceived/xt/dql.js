@@ -82,6 +82,7 @@ module.exports = {
                                         return distanceA - distanceB;
                                     })
                                     const _targetCastles = nonRuins[socket["dailyGoodsTravelTryCount"]].castles;
+                                    nonRuins = null;
                                     let _targetArea = _targetCastles[0];
                                     let _targetAreaDistance = 1000000;
                                     for (let k in _targetCastles) {
@@ -115,6 +116,7 @@ module.exports = {
                                 try {
                                     let ClassicMap = await client.worldmaps.get(0);
                                     const closestRuinsOutpost = await getClosestRuinsOutpost(client, ClassicMap, myMainCastle);
+                                    ClassicMap = null;
                                     if (socket["dailySabotageAt"] !== quest.P || socket["dailySabotageTime"] + 1800000 < Date.now()) {
                                         client.movements.startSpyMovement(myMainCastle, closestRuinsOutpost, Math.round(client["maxSpies"] / 4), SpyType.Sabotage, 10);
                                         socket["dailySabotageAt"] = quest.P;
@@ -190,6 +192,7 @@ function getClosestRuinsOutpost(client, ClassicMap, myMainCastle) {
         try {
             /** @type {Player[]}*/
             let ruinedAlliancelessPlayersWithOutposts = ClassicMap.players.filter(x => x.isRuin && !x.allianceName && x.castles.find(y => y.areaType === WorldmapArea.Outpost))
+            ClassicMap = null;
             ruinedAlliancelessPlayersWithOutposts.sort((a, b) => {
                 let distanceA = 10000;
                 for (let __castle of a.castles) {
@@ -208,6 +211,7 @@ function getClosestRuinsOutpost(client, ClassicMap, myMainCastle) {
             })
             if (ruinedAlliancelessPlayersWithOutposts.length === 0) reject("No target found!");
             let _target = ruinedAlliancelessPlayersWithOutposts[0];
+            ruinedAlliancelessPlayersWithOutposts = null;
             let targetArea = null;
             let _targetAreaDistance = 10000;
             for (let __castle of _target.castles) {
@@ -239,6 +243,7 @@ function getClosestDungeon(client, castle, attackable = true) {
             let sector = await client.worldmaps.getSector(castle.kingdomId, castle.position.X,castle.position.Y);
             /** @type {DungeonMapobject[]} */
             let dungeons = sector.mapobjects.filter(x => x.areaType === WorldmapArea.Dungeon && (!attackable || !x.attackCooldownEnd));
+            sector = null;
             dungeons.sort((a, b) => {
                 let distanceA = MovementManager.getDistance(castle, a);
                 let distanceB = MovementManager.getDistance(castle, b);
@@ -254,6 +259,7 @@ function getClosestDungeon(client, castle, attackable = true) {
                 }
             }
             let targetDungeon = dungeons[0];
+            dungeons = null;
             if (MovementManager.getDistance(castle, targetDungeon) > 50) reject("Target too far away");
             resolve(targetDungeon);
         } catch (e) {

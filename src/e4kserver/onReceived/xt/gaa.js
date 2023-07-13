@@ -12,9 +12,9 @@ module.exports = {
  */
 function execute(socket, errorCode, params) {
     if (params === undefined) return;
-    /**  @type {{x: number, y: number}[]} */
-    const searchingSectors = socket[`__worldmap_${params.KID}_searching_sectors`];
-    if(searchingSectors.length === 0) return;
+    if(params.KID){
+        if(socket[`__worldmap_${params.KID}_searching_sectors`].length === 0) return;
+    }
     let _worldmapAreas = parseWorldmapAreas(socket.client, params.AI);
     if (_worldmapAreas.length === 0) {
         socket[`__worldmap_${params.KID}_error`] = 'Received empty area!';
@@ -22,7 +22,14 @@ function execute(socket, errorCode, params) {
     }
     if(params.KID == null) params.KID = _worldmapAreas[0].kingdomId
     if(params.KID == null) {
+        _worldmapAreas = null;
         socket[`__worldmap_${params.KID}_error`] = 'Received incorrect input!';
+        return;
+    }
+    /**  @type {{x: number, y: number}[]} */
+    const searchingSectors = socket[`__worldmap_${params.KID}_searching_sectors`];
+    if(searchingSectors.length === 0) {
+        _worldmapAreas = null;
         return;
     }
     let _players = parsePlayers(socket.client, params.OI);
