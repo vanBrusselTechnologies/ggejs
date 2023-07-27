@@ -1,23 +1,22 @@
-const effects = require('e4k-data').data.effects;
+const {effects} = require('e4k-data').data;
 
 class Effect {
     /**
-     * 
-     * @param {Client} client 
-     * @param {Array | number} data 
+     *
+     * @param {Client} client
+     * @param {Array | number} data
      */
     constructor(client, data) {
         if (typeof data === "number") {
             /** @type {number} */
             this.effectId = data;
-        }
-        else {
+        } else {
             this.effectId = parseFloat(data[0]);
             /** @type {number} */
             this.power = parseFloat(data[1]);
         }
         let _data = getDataFromJson(this.effectId);
-        if(_data === null || _data === undefined) return;
+        if (_data === null || _data === undefined) return;
         /** @type {object} */
         this.rawData = _data;
         /** @type {string} */
@@ -30,14 +29,14 @@ class Effect {
 }
 
 /**
- * 
- * @param {number} id 
+ *
+ * @param {number} id
  * @returns {object}
  */
 function getDataFromJson(id) {
-    for (let i in effects) {
-        if (effects[i].effectID === id) {
-            return effects[i];
+    for (let effect of effects) {
+        if (effect.effectID === id) {
+            return effect;
         }
     }
     console.log("Unknown effect id: " + id);

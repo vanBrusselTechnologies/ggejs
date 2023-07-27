@@ -9,14 +9,12 @@ const PlayerManager = require('./managers/PlayerManager');
 const WorldmapManager = require('./managers/WorldmapManager');
 const {WaitUntil} = require('./tools/wait');
 const EventEmitter = require('node:events');
-const e4kNetwork = require('e4k-data').network;
-const languages = require('e4k-data').languages;
 const {NetworkInstance} = require('e4k-data');
 
 class Client extends EventEmitter {
     #name = "";
     #password = "";
-    _serverInstance = e4kNetwork.instances.instance[33];
+    _serverInstance = require('e4k-data').network.instances.instance[33];
     /** @type {Socket} */
     _socket = new (require("net").Socket)();
 
@@ -30,49 +28,39 @@ class Client extends EventEmitter {
     constructor(name, password, serverInstance, debug = false) {
         super();
         this._serverInstance = serverInstance;
-        if (name !== "" && password !== "") {
-            this.#name = name;
-            this.#password = password;
-            this._socket = new (require("net").Socket)();
-            this._socket["__reconnTimeoutSec"] = 300;
-            this._socket.debug = debug;
-            this.alliances = new AllianceManager(this);
-            this.equipments = new EquipmentManager(this);
-            this.movements = new MovementManager(this);
-            this.players = new PlayerManager(this);
-            this.worldmaps = new WorldmapManager(this);
-            this._socket.client = this;
-            addSocketListeners(this._socket);
-        }
+        this.#name = name;
+        this.#password = password;
+        this._socket = new (require("net").Socket)();
+        this._socket.client = this;
+        this._socket["__reconnTimeoutSec"] = 300;
+        this._socket.debug = debug;
+        this.alliances = new AllianceManager(this);
+        this.equipments = new EquipmentManager(this);
+        this.movements = new MovementManager(this);
+        this.players = new PlayerManager(this);
+        this.worldmaps = new WorldmapManager(this);
+        this.#addSocketListeners(this._socket);
     }
 
     _language = 'en';
 
     /** @param {string} val */
     set language(val) {
-        if (languages[val] == null) return;
+        if (require('e4k-data').languages[val] == null) return;
         this._language = val;
     }
 
-    /**
-     * @param {number} val
-     */
+    /** @param {number} val */
     set reconnectTimeout(val) {
         this._socket["__reconnTimeoutSec"] = val;
     }
 
-    /**
-     *
-     * @return {Message[]}
-     */
+    /** @return {Message[]} */
     get mailMessages() {
         return this._socket['mailMessages'];
     }
 
-    /**
-     *
-     * @returns {Promise<Client>}
-     */
+    /** @returns {Promise<Client>} */
     connect() {
         return new Promise(async (resolve, reject) => {
             try {
@@ -121,26 +109,72 @@ class Client extends EventEmitter {
                 delete this._socket[`join_area_${worldmapArea.objectId}_finished`];
                 resolve(data);
             } catch (e) {
-                delete this._socket[`join_area_${worldmapArea.objectId}_data`];
-                delete this._socket[`join_area_${worldmapArea.objectId}_finished`];
+                if (worldmapArea && worldmapArea.objectId) {
+                    delete this._socket[`join_area_${worldmapArea.objectId}_data`];
+                    delete this._socket[`join_area_${worldmapArea.objectId}_finished`];
+                }
+                reject(e);
+            }
+        })
+    }
+
+    /** @returns {Promise<void>} */
+    __x__x__relogin() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                await _disconnect(this._socket);
+                await WaitUntil(this._socket, "__connected", "__connection_error");
+                resolve();
+            } catch (e) {
                 reject(e);
             }
         })
     }
 
     /**
-     * @returns {Promise<void>}
+     *
+     * @param {Socket} socket
      */
-    __x__x__relogin() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                await _disconnect(this._socket);
-                await this.connect();
-                resolve();
-            } catch (e) {
-                reject(e);
-            }
+    #addSocketListeners(socket) {
+        socket["unfinishedDataString"] = "";
+        socket.addListener("error", (err) => {
+            console.log("\x1b[31m[SOCKET ERROR] " + err + "\x1b[0m");
+            socket.end();
+        });
+        socket.addListener('data', (data) => {
+            e4kData.onData(socket, data);
+        });
+        socket.addListener('ready', () => {
+            connection._sendVersionCheck(socket);
         })
+        socket.addListener('end', () => {
+            if (socket["isReconnecting"]) return;
+            if (socket.debug) console.log("Socket Ended!");
+            socket["__disconnecting"] = false;
+            socket["__connected"] = false;
+            socket["__disconnect"] = true;
+        });
+        socket.addListener('timeout', () => {
+            if (socket.debug) console.log("Socket Timeout!");
+            socket.end();
+        });
+        socket.addListener('close', hadError => {
+            if (socket["isReconnecting"]) return;
+            socket["isReconnecting"] = true;
+            this._socket = {};
+            if (socket.debug) console.log("Socket Closed!" + (hadError ? " Caused by error!" : ""));
+            socket.removeAllListeners()
+            /** @type {Socket} */
+            const new_socket = createCleanSocket(socket);
+            socket = null;
+            this.#addSocketListeners(new_socket);
+            setTimeout(async () => {
+                new_socket.client = this;
+                this._socket = new_socket;
+                if (new_socket.debug) console.log("Reconnecting!");
+                await this.connect();
+            }, new_socket["__reconnTimeoutSec"] * 1000);
+        });
     }
 }
 
@@ -154,7 +188,6 @@ function _connect(socket) {
         try {
             connection.connect(socket);
             await WaitUntil(socket, "__connected", "__connection_error");
-            socket["reconnecting"] = false;
             resolve();
         } catch (e) {
             reject(e);
@@ -184,41 +217,6 @@ function _login(socket, name, password) {
 }
 
 /**
- *
- * @param {Socket} socket
- */
-function addSocketListeners(socket) {
-    socket["unfinishedDataString"] = "";
-    socket.addListener("error", (err) => {
-        console.log("\x1b[31m[SOCKET ERROR] " + err + "\x1b[0m");
-        socket.end();
-    });
-    socket.addListener('data', (data) => {
-        e4kData.onData(socket, data);
-    });
-    socket.addListener('end', () => {
-        if (socket.debug) console.log("Socket Ended!");
-        socket["__connected"] = false;
-        socket["__disconnect"] = true;
-    });
-    socket.addListener('timeout', () => {
-        if (socket.debug) console.log("Socket Timeout!");
-        socket.end();
-    });
-    socket.addListener('close', hadError => {
-        if (socket.debug) console.log("Socket Closed!" + (hadError ? " Caused by error!" : ""));
-        socket["__connected"] = false;
-        if (!socket["reconnecting"]) {
-            socket["reconnecting"] = true;
-            setTimeout(() => (socket.client.connect()), socket["__reconnTimeoutSec"] * 1000);
-        }
-    });
-    socket.addListener('ready', () => {
-        connection._sendVersionCheck(socket);
-    });
-}
-
-/**
  * @param {Socket} socket
  * @returns {Promise<void>}
  */
@@ -226,6 +224,7 @@ function _disconnect(socket) {
     return new Promise(async (resolve, reject) => {
         try {
             socket["__disconnect"] = false;
+            socket["__disconnecting"] = true;
             socket.end();
             await WaitUntil(socket, "__disconnect");
             resolve();
@@ -233,6 +232,24 @@ function _disconnect(socket) {
             reject(e);
         }
     })
+}
+
+/**
+ * Creates new socket and only copies important fields.
+ * @param {Socket} old_socket
+ * @returns {Socket}
+ */
+function createCleanSocket(old_socket) {
+    /** @type {Socket} */
+    const new_socket = new (require("net").Socket)();
+    new_socket["__reconnTimeoutSec"] = old_socket["__reconnTimeoutSec"];
+    new_socket.debug = old_socket.debug;
+    new_socket["ultraDebug"] = old_socket["ultraDebug"];
+    new_socket['mailMessages'] = old_socket['mailMessages'];
+    delete new_socket["__disconnecting"];
+    delete new_socket["__connected"];
+    delete new_socket["__disconnect"];
+    return new_socket;
 }
 
 module.exports = Client;

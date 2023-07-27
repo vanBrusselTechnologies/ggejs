@@ -69,8 +69,8 @@ declare class Socket extends netSocket {
 
 //#region Managers
 declare class BaseManager extends EventEmitter {
-    private _client: Client;
-    private _socket: Socket;
+    protected _client: Client;
+    protected _socket: Socket;
 
     protected constructor(client: Client);
 }
@@ -160,9 +160,8 @@ declare class PlayerManager extends BaseManager {
 }
 
 declare class WorldmapManager extends BaseManager {
-    private _worldmapCaches: { date: Date, worldmap: Worldmap }[];
 
-    public get(kingdomId: number, noCache = false): Promise<Worldmap>;
+    public get(kingdomId: number): Promise<Worldmap>;
 
     getSector(kingdomId: number, positionX: number, positionY: number): Promise<WorldmapSector>;
 }
@@ -203,7 +202,7 @@ declare class BasicMovement {
 declare class ArmyAttackMovement extends BasicMovement {
     public army?: CompactArmy;
     public armyState: number;
-    public attackType: number;
+    public attackType: AttackType;
     public guessedSize?: number;
     public isForceCancelable: boolean;
     public isShadowMovement: boolean;
@@ -593,19 +592,26 @@ type Mapobject =
     | BossDungeonMapobject
     | CapitalMapobject
     | CastleMapobject
+    | DaimyoCastleMapobject
+    | DaimyoTownshipMapobject
     | DungeonMapobject
     | DungeonIsleMapobject
     | DynamicMapobject
     | EmptyMapobject
     | EventDungeonMapobject
-    | InteractiveMapobject
+    | FactionCampMapobject
+    | FactionCapitalMapobject
+    | FactionTowerMapobject
+    | FactionVillageMapobject
     | KingstowerMapobject
     | MetropolMapobject
     | MonumentMapobject
-    | NomadInvasionMapObject
-    | NomadKhanInvasionMapObject
+    | NomadInvasionMapobject
+    | NomadKhanInvasionMapobject
     | RedAlienInvasionMapobject
     | ResourceIsleMapobject
+    | SamuraiInvasionMapobject
+    | ShadowAreaMapobject
     | ShapeshifterMapobject
     | VillageMapobject;
 
@@ -660,6 +666,20 @@ declare class CapitalMapobject extends BasicMapobject {
 }
 
 declare class CastleMapobject extends InteractiveMapobject {
+
+}
+
+declare class DaimyoMapobject extends SamuraiInvasionMapobject {
+    daimyoId: number;
+    totalCooldown: number;
+    skipCost: number;
+}
+
+declare class DaimyoCastleMapobject extends DaimyoMapobject {
+
+}
+
+declare class DaimyoTownshipMapobject extends DaimyoMapobject {
 
 }
 
@@ -731,6 +751,46 @@ declare class EventDungeonMapobject extends BasicMapobject {
     public isDefeated: boolean;
 }
 
+declare class FactionCampMapobject extends FactionInteractiveMapobject {
+    get areaName(): string;
+}
+
+declare class FactionCapitalMapobject extends FactionInteractiveMapobject {
+    travelDistance: number;
+    aliveProtectorPositions: Array<[number, number]>
+    dungeonLevel: number;
+
+    get areaName(): string;
+}
+
+declare class FactionInteractiveMapobject extends InteractiveMapobject {
+    isDestroyed: boolean;
+    aliveProtectorPositions: Array<Coordinate>
+
+    get titleText(): number
+
+    get levelText(): number
+
+    get specialCampId(): number
+}
+
+declare class FactionTowerMapobject extends FactionInteractiveMapobject {
+    travelDistance: number;
+    dungeonLevel: number;
+    attacksLeft: number;
+    wallWodId: number;
+    gateWodId: number;
+
+    get areaName(): string;
+}
+
+declare class FactionVillageMapobject extends FactionInteractiveMapobject {
+    travelDistance: number;
+    dungeonLevel: number;
+
+    get areaName(): string;
+}
+
 declare class InteractiveMapobject extends BasicMapobject {
     public objectId: number;
     public ownerId: number;
@@ -749,7 +809,7 @@ declare class InteractiveMapobject extends BasicMapobject {
     public outpostType: number;
 }
 
-declare class InvasionMapObject extends BasicMapobject {
+declare class InvasionMapobject extends BasicMapobject {
     public lastSpyDate?: Date;
     public attackCooldownEnd?: Date;
     public victoryCount: number;
@@ -788,10 +848,10 @@ declare class MonumentMapobject extends BasicMapobject {
 declare class MetropolMapobject extends CapitalMapobject {
 }
 
-declare class NomadInvasionMapObject extends InvasionMapObject {
+declare class NomadInvasionMapobject extends InvasionMapobject {
 }
 
-declare class NomadKhanInvasionMapObject extends InvasionMapObject {
+declare class NomadKhanInvasionMapobject extends InvasionMapobject {
     public allianceCampId: number;
     public totalCooldown: number;
     public skipCost: number;
@@ -809,6 +869,14 @@ declare class ResourceIsleMapobject extends BasicMapobject {
     public lastSpyDate?: Date;
     public kingdomId: number;
     public occupationFinishedDate: Date;
+}
+
+declare class SamuraiInvasionMapobject extends InvasionMapobject {
+
+}
+
+declare class ShadowAreaMapobject extends InteractiveMapobject {
+
 }
 
 declare class ShapeshifterMapobject extends BasicMapobject {
@@ -1302,6 +1370,7 @@ interface ClientEvents {
     chatMessage: [message: ChatMessage];
     mailMessageAdd: [message: Message];
     mailMessageRemove: [message: Message];
+    primeTime: [primeTime: PrimeTime];
 }
 
 interface MovementEvents {
@@ -1323,6 +1392,7 @@ interface ConstantsEvents {
     MAIL_MESSAGE_NEW: "mailMessageAdd";
     MAIL_MESSAGE_ADD: "mailMessageAdd";
     MAIL_MESSAGE_REMOVE: "mailMessageRemove";
+    PRIME_TIME: "primeTime";
 }
 
 //#endregion
@@ -1470,6 +1540,17 @@ declare class CastleBuildingStorage {
 
 //#endregion
 
+declare class PrimeTime {
+    type: number;
+    premiumBonus: number;
+    standardBonus: number;
+    endTime: Date;
+    isTimeless: boolean;
+    isGlobal: boolean;
+
+    get isActive(): boolean;
+}
+
 //#region Constants
 /**
  *
@@ -1483,8 +1564,10 @@ interface IConstants {
     AllianceRank: AllianceRank;
     HorseType: HorseType;
     ServerType: ServerType;
+    AttackType: AttackType;
     SpyType: SpyType;
     MessageType: MessageType;
+    MessageSubType: MessageSubType;
     EquipmentRarity: EquipmentRarity;
 }
 
@@ -1503,10 +1586,20 @@ interface WorldmapArea {
     Dungeon: 2,
     Capital: 3,
     Outpost: 4,
+    TreasureDungeon: 7,
+    TreasureCamp: 8,
+    ShadowArea: 9,
     Village: 10,
     BossDungeon: 11,
     KingdomCastle: 12,
     EventDungeon: 13,
+    NoLandmark: 14,
+    FactionCamp: 15,
+    FactionVillage: 16,
+    FactionTower: 17,
+    FactionCapital: 18,
+    PlagueArea: 19,
+    TroopHostel: 20,
     AlienInvasion: 21,
     Metropol: 22,
     Kingstower: 23,
@@ -1514,17 +1607,57 @@ interface WorldmapArea {
     DungeonIsle: 25,
     Monument: 26,
     NomadInvasion: 27,
+    Laboratory: 28,
+    SamuraiCamp: 29,
+    FactionInvasionCamp: 30,
     Dynamic: 31,
+    SamuraiAlienCamp: 33,
+    RedAlienCamp: 34,
     NomadKhanInvasion: 35,
     Shapeshifter: 36,
+    DaimyoCastle: 37,
+    DaimyoTownship: 38,
+    TempServerChargeCamp: 39,
+    AllianceBattleGroundResourceTower: 40,
+    AllianceBattleGroundTower: 41,
+    Wolfking: 42,
+    NoOutpost: 99
 }
 
 interface Movements {
     Attack: 0,
+    Defence: 1,
     Travel: 2,
     Spy: 3,
     Market: 4,
     Conquer: 5,
+    TreasureHunt: 6,
+    ShadowAttack: 7,
+    ShadowTravel: 8,
+    KingdomGoodTransfer: 9,
+    KingdomUnitTransfer: 10,
+    NPCAttack: 11,
+    SeasonGoodsTravel: 12,
+    UnitTravel: 13,
+    PlagueMonk: 14,
+    ConquerFaction: 15,
+    AlienAttack: 17,
+    FactionAttack: 18,
+    AllianceCampTauntAttack: 20,
+    AllianceCampAttack: 21,
+    ShapeshifterCampAttack: 22,
+    CollectorAttack: 23,
+    TempServerCollectorAttack: 24,
+    TempServerRankswapAttack: 25,
+    DaimyoTownshipDefence: 26,
+    DaimyoTauntAttack: 27,
+    DaimyoCastleAttack: 28,
+    AllianceBattleGroundCollectorAttack: 29,
+    ChargeCampAttack: 30,
+    TempServerChargeAttack: 31,
+    AllianceBattleGroundAllianceTowerDefence: 32,
+    AllianceBattleGroundAllianceTowerAttack: 33,
+    GeneralsWolfkingTaunt: 34
 }
 
 interface HorseType {
@@ -1532,6 +1665,18 @@ interface HorseType {
     Ruby_1: 1,
     Ruby_2: 2,
     Feather: 3,
+}
+
+interface AttackType {
+    Attack: 0,
+    OutpostConquer: 1,
+    VillageConquer: 2,
+    CapitalConquer: 3,
+    MetropolConquer: 5,
+    KingstowerConquer: 6,
+    Conquer: 7,
+    MonumentConquer: 8,
+    LaboratoryConquer: 9,
 }
 
 interface SpyType {
@@ -1619,6 +1764,57 @@ interface MessageType {
     PatchNotes: 125,
     PrivateOffer: 126,
     TextId: 127
+}
+
+interface MessageSubType {
+    SpyPlayer: {
+        Sabotage: 0,
+        Defence: 1,
+        Economic: 2
+    },
+    ConquerableArea: {
+        SiegeCancelled: 0,
+        NewSiege: 1,
+        AreaConquered: 2,
+        AreaLost: 3
+    },
+    BattleLog: {
+        NormalAttack: 0,
+        Conquer: 1,
+        NPCAttack: 2,
+        Occupy: 3,
+        ShadowAttack: 4
+    },
+    AllianceWar: {
+        EnemyAttack: 0,
+        EnemyDeclaration: 1,
+        OwnDeclaration: 2,
+        OwnAttack: 3,
+        OwnSabotage: 4,
+        EnemyEnd: 5,
+        EnemySabotage: 6
+    },
+    AttackCancelled: {
+        Aborted: 0,
+        AutoRetreat: 1,
+        AutoRetreatEnemy: 2
+    },
+    SpyCancelled: {
+        Aborted: 0
+    },
+    SpecialEvent: {
+        Start: 12,
+        VIPInfo: 16,
+        Update: 32,
+        MonumentReset: 66
+    },
+    PrivateOffer: {
+        Tipp: 1,
+        DungeonChest: 5,
+        WhaleChest: 6,
+        TimeChallenge: 12,
+        BestsellerShop: 14
+    }
 }
 
 interface EquipmentRarity {

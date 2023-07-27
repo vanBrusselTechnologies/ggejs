@@ -1,21 +1,4 @@
 const Player = require("../../../structures/Player");
-const ShapeshifterMapobject = require("../../../structures/ShapeshifterMapobject");
-const NomadKhanInvasionMapobject = require("../../../structures/NomadKhanInvasionMapobject");
-const RedAlienInvasionMapobject = require("../../../structures/RedAlienInvasionMapobject");
-const DynamicMapobject = require("../../../structures/DynamicMapobject");
-const NomadInvasionMapobject = require("../../../structures/NomadInvasionMapobject");
-const MonumentMapobject = require("../../../structures/MonumentMapobject");
-const DungeonIsleMapobject = require("../../../structures/DungeonIsleMapobject");
-const ResourceIsleMapobject = require("../../../structures/ResourceIsleMapobject");
-const KingstowerMapobject = require("../../../structures/KingstowerMapobject");
-const CapitalMapobject = require("../../../structures/CapitalMapobject");
-const AlienInvasionMapobject = require("../../../structures/AlienInvasionMapobject");
-const EventDungeonMapobject = require("../../../structures/EventDungeonMapobject");
-const CastleMapobject = require("../../../structures/CastleMapobject");
-const BossDungeonMapobject = require("../../../structures/BossDungeonMapobject");
-const VillageMapobject = require("../../../structures/VillageMapobject");
-const DungeonMapobject = require("../../../structures/DungeonMapobject");
-const EmptyMapobject = require("../../../structures/EmptyMapobject");
 const Equipment = require("../../../structures/Equipment");
 const RelicEquipment = require("../../../structures/RelicEquipment");
 const Gem = require("../../../structures/Gem");
@@ -23,7 +6,7 @@ const BattleParticipant = require("../../../structures/BattleParticipant");
 const Lord = require("../../../structures/Lord");
 const General = require("../../../structures/General");
 const {parseMapObject} = require("../../../utils/MapObjectParser");
-const minutesSkips = require('e4k-data').data.currencyMinutesSkipValues;
+const {currencyMinutesSkipValues: minutesSkips} = require('e4k-data').data;
 
 module.exports = {
     name: "bls", /**
@@ -41,6 +24,7 @@ module.exports = {
         }
         const pbiInfo = parsePBIinfo(_client, params["PBI"], params);
         const isDefenseReport = socket[`${params.MID} battleLogMessage`]?.isDefenseReport;
+        delete socket[`${params.MID} battleLogMessage`];
         const attackerLords = parseAttackerLords(socket.client, params, {attacker: pbiInfo.attacker});
         const defenderLords = parseDefenderLords(socket.client, params, {defender: pbiInfo.defender});
         socket[`bls -> ${params.MID}`] = {

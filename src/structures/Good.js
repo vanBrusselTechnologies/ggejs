@@ -1,5 +1,5 @@
-const currencies = require('e4k-data').data.currencies;
 const InventoryItem = require('./InventoryItem');
+const {currencies} = require('e4k-data').data;
 
 const goodNames = {
     W: "wood",

@@ -100,42 +100,47 @@ class EquipmentManager extends BaseManager {
 
     /** @param {number} rarity */
     sellAllEquipmentsAtOrBelowRarity(rarity) {
-        return new Promise(async (resolve) => {
-            rarity %= 10; //hero starts with 10 instead of 0
-            if (rarity > Constants.EquipmentRarity.Relic) return;
-            const socket = this._socket;
-            if (rarity === Constants.EquipmentRarity.Unique) {
-                for (let i = this.#equipmentInventory.length - 1; i >= 0; i--) {
-                    const e = this.#equipmentInventory[i];
-                    if ((e.rarityId % 10) <= Constants.EquipmentRarity.Legendary) {
-                        sellEquipment(socket, e.id, -1);
-                        await WaitUntil(socket, "seq -> sold");
-                        this.#equipmentInventory.splice(i, 1);
-                        socket["seq -> sold"] = false;
+        return new Promise(async (resolve, reject) => {
+            try {
+                rarity %= 10; //hero starts with 10 instead of 0
+                if (rarity > Constants.EquipmentRarity.Relic) return;
+                const socket = this._socket;
+                if (rarity === Constants.EquipmentRarity.Unique) {
+                    for (let i = this.#equipmentInventory.length - 1; i >= 0; i--) {
+                        const e = this.#equipmentInventory[i];
+                        if ((e.rarityId % 10) <= Constants.EquipmentRarity.Legendary) {
+                            sellEquipment(socket, e.id, -1);
+                            await WaitUntil(socket, "seq -> sold");
+                            this.#equipmentInventory.splice(i, 1);
+                            socket["seq -> sold"] = false;
+                        }
+                    }
+                } else if (rarity <= Constants.EquipmentRarity.Legendary) {
+                    for (let i = this.#equipmentInventory.length - 1; i >= 0; i--) {
+                        const e = this.#equipmentInventory[i];
+                        if ((e.rarityId % 10) <= rarity && (e.rarityId % 10) !== Constants.EquipmentRarity.Unique) {
+                            sellEquipment(socket, e.id, -1);
+                            await WaitUntil(socket, "seq -> sold");
+                            this.#equipmentInventory.splice(i, 1);
+                            socket["seq -> sold"] = false;
+                        }
+                    }
+                } else {
+                    for (let i = this.#equipmentInventory.length - 1; i >= 0; i--) {
+                        const e = this.#equipmentInventory[i];
+                        if ((e.rarityId % 10) <= rarity) {
+                            sellEquipment(socket, e.id, -1);
+                            await WaitUntil(socket, "seq -> sold");
+                            this.#equipmentInventory.splice(i, 1);
+                            socket["seq -> sold"] = false;
+                        }
                     }
                 }
-            } else if (rarity <= Constants.EquipmentRarity.Legendary) {
-                for (let i = this.#equipmentInventory.length - 1; i >= 0; i--) {
-                    const e = this.#equipmentInventory[i];
-                    if ((e.rarityId % 10) <= rarity && (e.rarityId % 10) !== Constants.EquipmentRarity.Unique) {
-                        sellEquipment(socket, e.id, -1);
-                        await WaitUntil(socket, "seq -> sold");
-                        this.#equipmentInventory.splice(i, 1);
-                        socket["seq -> sold"] = false;
-                    }
-                }
-            } else {
-                for (let i = this.#equipmentInventory.length - 1; i >= 0; i--) {
-                    const e = this.#equipmentInventory[i];
-                    if ((e.rarityId % 10) <= rarity) {
-                        sellEquipment(socket, e.id, -1);
-                        await WaitUntil(socket, "seq -> sold");
-                        this.#equipmentInventory.splice(i, 1);
-                        socket["seq -> sold"] = false;
-                    }
-                }
+                resolve();
             }
-            resolve();
+            catch (e) {
+                reject(e);
+            }
         })
     }
 

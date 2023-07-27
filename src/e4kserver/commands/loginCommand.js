@@ -6,13 +6,13 @@ module.exports = {
      * @param {string} password
      */
     execute(socket, name, password) {
-        let accountID = Date.now().toString() + (Math.random() * 999999).toFixed();
+        let accountId = Date.now().toString() + (Math.random() * 999999).toFixed();
         let CoreC2SLoginWithAuthenticationVO = {
             params: {
                 NM: name,
                 PW: password,
                 L: socket.client._language,
-                AID: accountID,
+                AID: accountId,
                 DID: 5,
                 PLFID: "3", //Android = 3, iOs = 2, (PC = 1(?))
                 ADID: "null",
@@ -28,7 +28,7 @@ module.exports = {
                 did: (1).toString(),
                 connectTime: (1).toString(),
                 ping: (1).toString(),
-                accountId: accountID.toString(),
+                accountId: accountId.toString(),
             },
             getCmdId: "lgn"
             /*

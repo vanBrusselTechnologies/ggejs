@@ -9,7 +9,8 @@ exports.Events = {
     CHAT_MESSAGE: "chatMessage",
     MAIL_MESSAGE_NEW: "mailMessageAdd",
     MAIL_MESSAGE_ADD: "mailMessageAdd",
-    MAIL_MESSAGE_REMOVE: "mailMessageRemove"
+    MAIL_MESSAGE_REMOVE: "mailMessageRemove",
+    PRIME_TIME: "primeTime"
 }
 
 exports.Kingdom = {
@@ -17,7 +18,39 @@ exports.Kingdom = {
 }
 
 exports.MovementType = {
-    Attack: 0, Travel: 2, Spy: 3, Market: 4, Conquer: 5,
+    Attack: 0,
+    Defence: 1,
+    Travel: 2,
+    Spy: 3,
+    Market: 4,
+    Conquer: 5,
+    TreasureHunt: 6,
+    ShadowAttack: 7,
+    ShadowTravel: 8,
+    KingdomGoodTransfer: 9,
+    KingdomUnitTransfer: 10,
+    NPCAttack: 11,
+    SeasonGoodsTravel: 12,
+    UnitTravel: 13,
+    PlagueMonk: 14,
+    ConquerFaction: 15,
+    AlienAttack: 17,
+    FactionAttack: 18,
+    AllianceCampTauntAttack: 20,
+    AllianceCampAttack: 21,
+    ShapeshifterCampAttack: 22,
+    CollectorAttack: 23,
+    TempServerCollectorAttack: 24,
+    TempServerRankswapAttack: 25,
+    DaimyoTownshipDefence: 26,
+    DaimyoTauntAttack: 27,
+    DaimyoCastleAttack: 28,
+    AllianceBattleGroundCollectorAttack: 29,
+    ChargeCampAttack: 30,
+    TempServerChargeAttack: 31,
+    AllianceBattleGroundAllianceTowerDefence: 32,
+    AllianceBattleGroundAllianceTowerAttack: 33,
+    GeneralsWolfkingTaunt: 34
 }
 
 exports.WorldmapArea = {
@@ -26,10 +59,20 @@ exports.WorldmapArea = {
     Dungeon: 2,
     Capital: 3,
     Outpost: 4,
+    TreasureDungeon: 7,
+    TreasureCamp: 8,
+    ShadowArea: 9,
     Village: 10,
     BossDungeon: 11,
     KingdomCastle: 12,
     EventDungeon: 13,
+    NoLandmark: 14,
+    FactionCamp: 15,
+    FactionVillage: 16,
+    FactionTower: 17,
+    FactionCapital: 18,
+    PlagueArea: 19,
+    TroopHostel: 20,
     AlienInvasion: 21,
     Metropol: 22,
     Kingstower: 23,
@@ -37,8 +80,21 @@ exports.WorldmapArea = {
     DungeonIsle: 25,
     Monument: 26,
     NomadInvasion: 27,
+    Laboratory: 28,
+    SamuraiCamp: 29,
+    FactionInvasionCamp: 30,
     Dynamic: 31,
+    SamuraiAlienCamp: 33,
+    RedAlienCamp: 34,
     NomadKhanInvasion: 35,
+    Shapeshifter: 36,
+    DaimyoCastle: 37,
+    DaimyoTownship: 38,
+    TempServerChargeCamp: 39,
+    AllianceBattleGroundResourceTower: 40,
+    AllianceBattleGroundTower: 41,
+    Wolfking: 42,
+    NoOutpost: 99
 }
 
 exports.AllianceMemberOnlineState = {
@@ -69,6 +125,18 @@ exports.AllianceRank = {
 
 exports.HorseType = {
     Coin: 0, Ruby_1: 1, Ruby_2: 2, Feather: 3,
+}
+
+exports.AttackType = {
+    Attack: 0,
+    OutpostConquer: 1,
+    VillageConquer: 2,
+    CapitalConquer: 3,
+    MetropolConquer: 5,
+    KingstowerConquer: 6,
+    Conquer: 7,
+    MonumentConquer: 8,
+    LaboratoryConquer: 9,
 }
 
 exports.SpyType = {
@@ -126,6 +194,32 @@ exports.MessageType = {
     PatchNotes: 125,
     PrivateOffer: 126,
     TextId: 127
+}
+
+exports.MessageSubType = {
+    SpyPlayer: {
+        Sabotage: 0, Defence: 1, Economic: 2
+    }, ConquerableArea: {
+        SiegeCancelled: 0, NewSiege: 1, AreaConquered: 2, AreaLost: 3
+    }, BattleLog: {
+        NormalAttack: 0, Conquer: 1, NPCAttack: 2, Occupy: 3, ShadowAttack: 4
+    }, AllianceWar: {
+        EnemyAttack: 0,
+        EnemyDeclaration: 1,
+        OwnDeclaration: 2,
+        OwnAttack: 3,
+        OwnSabotage: 4,
+        EnemyEnd: 5,
+        EnemySabotage: 6
+    }, AttackCancelled: {
+        Aborted: 0, AutoRetreat: 1, AutoRetreatEnemy: 2
+    }, SpyCancelled: {
+        Aborted: 0
+    }, SpecialEvent: {
+        Start: 12, VIPInfo: 16, Update: 32, MonumentReset: 66
+    }, PrivateOffer: {
+        Tipp: 1, DungeonChest: 5, WhaleChest: 6, TimeChallenge: 12, BestsellerShop: 14
+    }
 }
 
 exports.EquipmentRarity = {

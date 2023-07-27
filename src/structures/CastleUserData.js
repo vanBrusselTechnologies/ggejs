@@ -54,9 +54,9 @@ const CastleUserData = {
     displayXP: 0,
     titleVO: {},
     lifeTimeSpent: 0,
-    facebookID: "",
+    facebookId: "",
     isXPDataInitialized: false,
-    selectedHeroID: 0,
+    selectedHeroId: 0,
     hasFreeCastleRename: false,
     activeMovementFilters: [],
     isParagon() {

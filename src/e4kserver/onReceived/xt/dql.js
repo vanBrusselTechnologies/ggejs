@@ -1,184 +1,183 @@
-const e4kData = require('e4k-data').data;
-const buildings = e4kData.buildings;
-const dailyActivities = e4kData.dailyactivities;
-const mercenariesPackageCommand = require('./../../commands/mercenariesPackageCommand');
-const Horse = require('./../../../structures/Horse');
-const MovementManager = require('./../../../managers/MovementManager');
+const {buildings, dailyactivities: dailyActivities} = require('e4k-data').data;
+const mercenariesPackageCommand = require('../../commands/mercenariesPackageCommand');
+const Horse = require('../../../structures/Horse');
+const MovementManager = require('../../../managers/MovementManager');
 const {HorseType, WorldmapArea, SpyType} = require("../../../utils/Constants");
+const CombatConst = require('../../../utils/CombatConst');
 
-module.exports = {
-    name: "dql", /**
-     * @param {Socket} socket
-     * @param {number} errorCode
-     * @param {object} params
-     */
-    execute: async function (socket, errorCode, params) {
-        if (!params) return;
-        /** @type {Client} */
-        const client = socket.client;
-        try {
-            /** @type {Player} */
-            const thisPlayer = await client.players.getThisPlayer();
-            if (!thisPlayer) {
-                await require('./dql').execute(socket, errorCode, params);
-                return;
-            }
-            /** @type {CastleMapobject} */
-            const myMainCastle = thisPlayer.castles.find(x => x.areaType === WorldmapArea.MainCastle);
-            //return;
-            for (let i in params.RDQ) {
-                /** @type {{QID: number, P: number}} */
-                const quest = params.RDQ[i];
-                for (let dailyActivity of dailyActivities) {
-                    if (dailyActivity.dailyQuestID === quest?.QID) {
-                        switch (quest.QID) {
-                            case 1:
-                                try {
-                                    socket["dailySpyAt"] = -1;
-                                    socket["dailySabotageAt"] = -1;
-                                    socket["dailyGoodsTravelTryCount"] = 0;
-                                    await client.__x__x__relogin();
-                                } catch (e) {
-                                    if (socket.debug) console.log(e);
-                                }
-                                break; //login;
-                            case 2:
-                                try {
-                                    /** @type {Castle} */
-                                    const mainCastleInfo = await client.getCastleInfo(myMainCastle);
-                                    const dungeon = await getClosestDungeon(client, myMainCastle, false);
-                                    let horse = new Horse(client, mainCastleInfo, HorseType.Ruby_1);
-                                    client.movements.startSpyMovement(myMainCastle, dungeon, 1, SpyType.Military, 50, horse);
-                                } catch (e) {
-                                    if (socket.debug) console.log(e);
-                                }
-                                break; //spendC2
-                            case 3:
-                                break; //collectTax
-                            case 4:
-                                try {
-                                    if (!socket["dailyGoodsTravelTryCount"]) socket["dailyGoodsTravelTryCount"] = 0;
-                                    /** @type {[string, number][]} */
-                                    const goods = [["W", 1], ["S", 1], ["F", 1]];
-                                    /** @type {WorldmapSector} */
-                                    let worldmap = await client.worldmaps.getSector(myMainCastle.kingdomId, myMainCastle.position.X, myMainCastle.position.Y);
-                                    /** @type {Player[]} */
-                                    let nonRuins = worldmap.players.filter(x => !x.isRuin && x.playerId !== thisPlayer.playerId);
-                                    nonRuins.sort((a, b) => {
-                                        let distanceA = 10000;
-                                        for (let k in a.castles) {
-                                            let __castle = a.castles[k];
-                                            if (__castle.areaType !== 1 && __castle.areaType !== 4) continue;
-                                            let castleDistance = MovementManager.getDistance(myMainCastle, __castle);
-                                            distanceA = Math.min(distanceA, castleDistance)
-                                        }
-                                        let distanceB = 10000;
-                                        for (let k in b.castles) {
-                                            let __castle = b.castles[k];
-                                            if (__castle.areaType !== 1 && __castle.areaType !== 4) continue;
-                                            let castleDistance = MovementManager.getDistance(myMainCastle, __castle);
-                                            distanceB = Math.min(distanceB, castleDistance)
-                                        }
-                                        return distanceA - distanceB;
-                                    })
-                                    const _targetCastles = nonRuins[socket["dailyGoodsTravelTryCount"]].castles;
-                                    nonRuins = null;
-                                    let _targetArea = _targetCastles[0];
-                                    let _targetAreaDistance = 1000000;
-                                    for (let k in _targetCastles) {
-                                        let __castle = _targetCastles[k];
+module.exports.name = "dql";
+/**
+ * @param {Socket} socket
+ * @param {number} errorCode
+ * @param {{PQL: number, RDQ:{QID:number, P:[number]}[], FDQ: number[], RS: [string,number|number[]][][]}} params
+ */
+module.exports.execute = async function (socket, errorCode, params) {
+    if (!params) return;
+    /** @type {Client} */
+    const client = socket.client;
+    try {
+        /** @type {Player} */
+        const thisPlayer = await client.players.getThisPlayer();
+        if (!thisPlayer) return await require('./dql').execute(socket, errorCode, params);
+        /** @type {CastleMapobject} */
+        const myMainCastle = thisPlayer.castles.find(x => x.areaType === WorldmapArea.MainCastle);
+        for (let i in params.RDQ) {
+            const quest = params.RDQ[i];
+            for (let dailyActivity of dailyActivities) {
+                if (dailyActivity.dailyQuestID === quest?.QID) {
+                    switch (quest.QID) {
+                        case 1:
+                            try {
+                                socket["dailySpyAt"] = -1;
+                                socket["dailySabotageAt"] = -1;
+                                socket["dailyGoodsTravelTryCount"] = 0;
+                                await client.__x__x__relogin();
+                            } catch (e) {
+                                if (socket.debug) console.log(e);
+                            }
+                            break; //login;
+                        case 2:
+                            try {
+                                /** @type {Castle} */
+                                const mainCastleInfo = await client.getCastleInfo(myMainCastle);
+                                const dungeon = await getClosestDungeon(client, myMainCastle, false);
+                                let horse = new Horse(client, mainCastleInfo, HorseType.Ruby_1);
+                                client.movements.startSpyMovement(myMainCastle, dungeon, 1, SpyType.Military, 50, horse);
+                            } catch (e) {
+                                if (socket.debug) console.log(e);
+                            }
+                            break; //spendC2
+                        case 3:
+                            break; //collectTax
+                        case 4:
+                            try {
+                                if (!socket["dailyGoodsTravelTryCount"]) socket["dailyGoodsTravelTryCount"] = 0;
+                                /** @type {[string, number][]} */
+                                const goods = [["W", 1], ["S", 1], ["F", 1]];
+                                /** @type {WorldmapSector} */
+                                let worldmap = await client.worldmaps.getSector(myMainCastle.kingdomId, myMainCastle.position.X, myMainCastle.position.Y);
+                                /** @type {Player[]} */
+                                let nonRuins = worldmap.players.filter(x => !x.isRuin && x.playerId !== thisPlayer.playerId);
+                                nonRuins.sort((a, b) => {
+                                    let distanceA = 10000;
+                                    for (let k in a.castles) {
+                                        let __castle = a.castles[k];
                                         if (__castle.areaType !== 1 && __castle.areaType !== 4) continue;
                                         let castleDistance = MovementManager.getDistance(myMainCastle, __castle);
-                                        if (castleDistance < _targetAreaDistance) {
-                                            _targetAreaDistance = castleDistance;
-                                            _targetArea = __castle;
-                                        }
+                                        distanceA = Math.min(distanceA, castleDistance)
                                     }
-                                    client.movements.startMarketMovement(myMainCastle, _targetArea, goods);
-                                    socket["dailyGoodsTravelTryCount"] += 1;
-                                } catch (e) {
-                                    if (socket.debug) console.log(e);
-                                }
-                                break; //resourceToPlayer
-                            case 5:
-                                try {
-                                    if (socket["dailySpyAt"] !== quest.P || socket["dailySpyTime"] + 1800000 < Date.now()) {
-                                        const dungeon = await getClosestDungeon(client, myMainCastle, false);
-                                        client.movements.startSpyMovement(myMainCastle, dungeon, Math.round(client["maxSpies"] / 4), SpyType.Military, 50);
-                                        socket["dailySpyAt"] = quest.P;
-                                        socket["dailySpyTime"] = Date.now();
+                                    let distanceB = 10000;
+                                    for (let k in b.castles) {
+                                        let __castle = b.castles[k];
+                                        if (__castle.areaType !== 1 && __castle.areaType !== 4) continue;
+                                        let castleDistance = MovementManager.getDistance(myMainCastle, __castle);
+                                        distanceB = Math.min(distanceB, castleDistance)
                                     }
-                                } catch (e) {
-                                    if (socket.debug) console.log(e);
-                                }
-                                break; //spy
-                            case 6:
-                                try {
-                                    let ClassicMap = await client.worldmaps.get(0);
-                                    const closestRuinsOutpost = await getClosestRuinsOutpost(client, ClassicMap, myMainCastle);
-                                    ClassicMap = null;
-                                    if (socket["dailySabotageAt"] !== quest.P || socket["dailySabotageTime"] + 1800000 < Date.now()) {
-                                        client.movements.startSpyMovement(myMainCastle, closestRuinsOutpost, Math.round(client["maxSpies"] / 4), SpyType.Sabotage, 10);
-                                        socket["dailySabotageAt"] = quest.P;
-                                        socket["dailySabotageTime"] = Date.now();
+                                    return distanceA - distanceB;
+                                })
+                                const _targetCastles = nonRuins[socket["dailyGoodsTravelTryCount"]]?.castles;
+                                nonRuins = null;
+                                if (_targetCastles == null) break;
+                                let _targetArea = _targetCastles[0];
+                                let _targetAreaDistance = 1000000;
+                                for (let k in _targetCastles) {
+                                    let __castle = _targetCastles[k];
+                                    if (__castle.areaType !== 1 && __castle.areaType !== 4) continue;
+                                    let castleDistance = MovementManager.getDistance(myMainCastle, __castle);
+                                    if (castleDistance < _targetAreaDistance) {
+                                        _targetAreaDistance = castleDistance;
+                                        _targetArea = __castle;
                                     }
-                                } catch (e) {
-                                    if (socket.debug) console.log(e);
                                 }
-                                break; //sabotageDamage
-                            case 7:
-                            case 8:
-                            case 9:
-                            case 10:
-                                try {
-                                    let myCastle = dailyActivity.triggerKingdomID === 0 ? myMainCastle : thisPlayer.castles.find(x => x.kingdomId === dailyActivity.triggerKingdomID && x.areaType === WorldmapArea.KingdomCastle);
-                                    if (myCastle == null) break;
-                                    let lord = socket.client.equipments.getAvailableCommandants()[0];
-                                    if (lord == null) break;
-                                    await attackDungeon(client, socket, thisPlayer, myCastle, lord);
-                                    await new Promise(resolve => setTimeout(resolve, 5000)); //Wait for the attack to be registered to avoid duplicate commander requests.
-                                } catch (e) {
-                                    if (socket.debug) console.log(e);
+                                client.movements.startMarketMovement(myMainCastle, _targetArea, goods);
+                                socket["dailyGoodsTravelTryCount"] += 1;
+                            } catch (e) {
+                                if (socket.debug) console.log(e);
+                            }
+                            break; //resourceToPlayer
+                        case 5:
+                            try {
+                                if (socket["dailySpyAt"] !== quest.P || socket["dailySpyTime"] + 1800000 < Date.now()) {
+                                    const dungeon = await getClosestDungeon(client, myMainCastle, false);
+                                    client.movements.startSpyMovement(myMainCastle, dungeon, Math.round(client["maxSpies"] / 4), SpyType.Military, 50);
+                                    socket["dailySpyAt"] = quest.P;
+                                    socket["dailySpyTime"] = Date.now();
                                 }
-                                break; //countDungeons
-                            case 13:
-                                break; //craftEquipment
-                            case 14:
-                                client.sendChatMessage(" ");
-                                break; //writeInAllianceChat
-                            case 15:
-                                break; //collectFromCitizen
-                            case 16:
-                                break; //recruitUnits
-                            case 17:
-                                break; //produceTools
-                            case 21:
-                                break; //requestAllianceHelp
-                            case 22:
-                                mercenariesPackageCommand.execute(socket, -1);
-                                break; //completeMercenaryMission
-                            case 24:
-                                console.log("countDungeons tempServer");
-                                break; //countDungeons tempServer
-                            case 25:
-                                console.log("countDungeons 10 tempServer");
-                                break; //countBattles 10 tempServer
-                            case 26:
-                                console.log("countDungeons 15 tempServer");
-                                break; //countBattles 15 tempServer
-                            default:
-                                console.log("Unknown Daily Activity Quest!");
-                                console.log(quest);
-                        }
-                        break;
+                            } catch (e) {
+                                if (socket.debug) console.log(e);
+                            }
+                            break; //spy
+                        case 6:
+                            try {
+                                if (socket["inDQL_q6"]) return;
+                                socket["inDQL_q6"] = true;
+                                let ClassicMap = await client.worldmaps.get(0);
+                                const closestRuinsOutpost = await getClosestRuinsOutpost(client, ClassicMap, myMainCastle);
+                                ClassicMap = null;
+                                if (socket["dailySabotageAt"] !== quest.P || socket["dailySabotageTime"] + 1800000 < Date.now()) {
+                                    client.movements.startSpyMovement(myMainCastle, closestRuinsOutpost, Math.round(client["maxSpies"] / 4), SpyType.Sabotage, 10);
+                                    socket["dailySabotageAt"] = quest.P;
+                                    socket["dailySabotageTime"] = Date.now();
+                                }
+                                delete socket["inDQL_q6"];
+                            } catch (e) {
+                                delete socket["inDQL_q6"];
+                                if (socket.debug) console.log(e);
+                            }
+                            break; //sabotageDamage
+                        case 7:
+                        case 8:
+                        case 9:
+                        case 10:
+                            try {
+                                let myCastle = dailyActivity.triggerKingdomID === 0 ? myMainCastle : thisPlayer.castles.find(x => x.kingdomId === dailyActivity.triggerKingdomID && x.areaType === WorldmapArea.KingdomCastle);
+                                if (myCastle == null) break;
+                                let lord = socket.client.equipments.getAvailableCommandants()[0];
+                                if (lord == null) break;
+                                await attackDungeon(client, socket, thisPlayer, myCastle, lord);
+                                await new Promise(resolve => setTimeout(resolve, 5000)); //Wait for the attack to be registered to avoid duplicate commander requests.
+                            } catch (e) {
+                                if (socket.debug) console.log(e);
+                            }
+                            break; //countDungeons
+                        case 13:
+                            break; //craftEquipment
+                        case 14:
+                            client.sendChatMessage(" ");
+                            break; //writeInAllianceChat
+                        case 15:
+                            break; //collectFromCitizen
+                        case 16:
+                            break; //recruitUnits
+                        case 17:
+                            break; //produceTools
+                        case 21:
+                            break; //requestAllianceHelp
+                        case 22:
+                            mercenariesPackageCommand.execute(socket, -1);
+                            break; //completeMercenaryMission
+                        case 24:
+                            console.log("countDungeons tempServer");
+                            break; //countDungeons tempServer
+                        case 25:
+                            console.log("countDungeons 10 tempServer");
+                            break; //countBattles 10 tempServer
+                        case 26:
+                            console.log("countDungeons 15 tempServer");
+                            break; //countBattles 15 tempServer
+                        default:
+                            console.log("Unknown Daily Activity Quest!");
+                            console.log(quest);
                     }
+                    break;
                 }
             }
-        } catch (e) {
-            if (socket.debug) console.log(e);
         }
+    } catch (e) {
+        if (socket.debug) console.log(e);
     }
 }
+
 
 /**
  *
@@ -240,7 +239,7 @@ function getClosestDungeon(client, castle, attackable = true) {
     return new Promise(async (resolve, reject) => {
         try {
             /** @type {WorldmapSector} */
-            let sector = await client.worldmaps.getSector(castle.kingdomId, castle.position.X,castle.position.Y);
+            let sector = await client.worldmaps.getSector(castle.kingdomId, castle.position.X, castle.position.Y);
             /** @type {DungeonMapobject[]} */
             let dungeons = sector.mapobjects.filter(x => x.areaType === WorldmapArea.Dungeon && (!attackable || !x.attackCooldownEnd));
             sector = null;
@@ -506,10 +505,10 @@ function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, av
     let usedTools = {
         left: [], middle: [], right: []
     };
-    let availableToolBoxesFlank = getToolBoxesCountFlank(dungeon.level);
-    let availableToolBoxesMiddle = getToolBoxesCountMiddle(dungeon.level);
-    let maxToolAmountFlank = getMaxToolAmountFlank(dungeon.level);
-    let maxToolAmountMiddle = getMaxToolAmountMiddle(dungeon.level);
+    let availableToolBoxesFlank = CombatConst.getToolSlotCountFlank(dungeon.level);
+    let availableToolBoxesMiddle = CombatConst.getToolSlotCountFront(dungeon.level);
+    let maxToolAmountFlank = CombatConst.getTotalAmountToolsFlank(dungeon.level);
+    let maxToolAmountMiddle = CombatConst.getTotalAmountToolsMiddle(dungeon.level);
     let lordRangeDefenceBonus = 0;
     for (let k in dungeon.lord.effects) {
         let __effect = dungeon.lord.effects[k];
@@ -699,17 +698,11 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
     }
     let meleeSoldiersSorted = availableSoldiers.filter(x => x.item.meleeAttack !== undefined);
     let rangeSoldiersSorted = availableSoldiers.filter(x => x.item.rangeAttack !== undefined);
-    /**
-     *
-     * @type {ArmyWave[]}
-     */
+    /** @type {ArmyWave[]} */
     let army = [];
-    let waveCount = getMaxWaves(player.playerLevel, false);
+    let waveCount = CombatConst.getMaxWaveCountWithBonus(player.playerLevel, false);
     for (let w = 0; w < waveCount; w++) {
-        /**
-         *
-         * @type {ArmyWave}
-         */
+        /** @type {ArmyWave} */
         let wave = {
             left: {units: [], tools: []}, middle: {units: [], tools: []}, right: {units: [], tools: []}
         }
@@ -717,8 +710,8 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
             if (wave[side] == null) continue;
             let fillRange = false;
             let fillMelee = false;
-            let maxSoldiersOnSide = side === "M" ? getMaxSoldiersMiddle(dungeon.level, frontUnitAmountBonus) : getMaxSoldiersFlank(dungeon.level, flankUnitAmountBonus);
-            let maxSoldierBoxesOnSide = side === "M" ? getSoldierBoxesCountMiddle(dungeon.level) : getSoldierBoxesCountFlank(dungeon.level);
+            let maxSoldiersOnSide = CombatConst.getAmountSoldiers(side === "M" ? 1 : 0, dungeon.level, flankUnitAmountBonus, frontUnitAmountBonus);
+            let maxSoldierBoxesOnSide = side === "M" ? CombatConst.getUnitSlotCountFront(dungeon.level) : CombatConst.getUnitSlotCountFlank(dungeon.level);
             meleeSoldiersSorted.sort((a, b) => -(a.item.meleeAttack * Math.min(a.count, maxSoldiersOnSide) - b.item.meleeAttack * Math.min(b.count, maxSoldiersOnSide)));
             rangeSoldiersSorted.sort((a, b) => -(a.item.rangeAttack * Math.min(a.count, maxSoldiersOnSide) - b.item.rangeAttack * Math.min(b.count, maxSoldiersOnSide)));
             if (defenceStrength[side].melee < defenceStrength[side].range) {
@@ -791,119 +784,6 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
         army.push(wave);
     }
     return army;
-}
-
-/**
- *
- * @param {number} defenderLevel
- * @returns {number}
- */
-function getSoldierBoxesCountMiddle(defenderLevel) {
-    if (defenderLevel < 26) return 2;
-    return 3
-}
-
-/**
- *
- * @param {number} defenderLevel
- * @returns {number}
- */
-function getSoldierBoxesCountFlank(defenderLevel) {
-    if (defenderLevel < 37) return 1;
-    return 2;
-}
-
-/**
- *
- * @param {number} defenderLevel
- * @returns {number}
- */
-function getToolBoxesCountMiddle(defenderLevel) {
-    if (defenderLevel < 11) return 1;
-    if (defenderLevel < 37) return 2;
-    return 3
-}
-
-/**
- *
- * @param {number} defenderLevel
- * @returns {number}
- */
-function getToolBoxesCountFlank(defenderLevel) {
-    if (defenderLevel < 37) return 1;
-    return 2;
-}
-
-/**
- *
- * @param {number} defenderLevel
- * @returns {number}
- */
-function getMaxToolAmountMiddle(defenderLevel) {
-    if (defenderLevel < 11) return 10;
-    if (defenderLevel < 37) return 20;
-    if (defenderLevel < 50) return 30;
-    if (defenderLevel < 69) return 40;
-    return 50;
-}
-
-/**
- *
- * @param {number} defenderLevel
- * @param {number} toolFlankBonus
- * @returns {number}
- */
-function getMaxToolAmountFlank(defenderLevel, toolFlankBonus = 0) {
-    if (defenderLevel < 37) return 10;
-    if (defenderLevel < 50) return 20;
-    if (defenderLevel < 69) return 30;
-    return Math.ceil(40 + toolFlankBonus);
-}
-
-/**
- *
- * @param {number} defenderLevel
- * @param {number} soldierFrontBonus
- * @returns {number}
- */
-function getMaxSoldiersMiddle(defenderLevel, soldierFrontBonus = 0) {
-    return Math.ceil((getMaxSoldiersPerWave(defenderLevel) - getMaxSoldiersFlank(defenderLevel) * 2) * (1 + soldierFrontBonus / 100))
-}
-
-/**
- *
- * @param {number} defenderLevel
- * @param {number} soldierFlankBonus
- * @returns {number}
- */
-function getMaxSoldiersFlank(defenderLevel, soldierFlankBonus = 0) {
-    return Math.ceil(getMaxSoldiersPerWave(defenderLevel) * 0.2 * (1 + soldierFlankBonus / 100))
-}
-
-/**
- *
- * @param {number} defenderLevel
- * @returns {number}
- */
-function getMaxSoldiersPerWave(defenderLevel) {
-    if (defenderLevel <= 69) return Math.min(260, 5 * defenderLevel + 8);
-    return 320;
-}
-
-/**
- *
- * @param {number} level
- * @param {boolean} conquerAttack
- * @param {number} additionalWaves
- * @returns {number}
- */
-function getMaxWaves(level, conquerAttack = false, additionalWaves = 0) {
-    let waveCount = level >= 51 ? 4 : level >= 26 ? 3 : level >= 13 ? 2 : 1;
-    if (conquerAttack) {
-        waveCount += 2;
-    }
-    waveCount += additionalWaves;
-    return waveCount;
 }
 
 /**

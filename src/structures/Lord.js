@@ -1,10 +1,7 @@
 const Equipment = require("./Equipment");
 const RelicEquipment = require("./RelicEquipment");
 const Effect = require('./Effect');
-const e4kData = require('e4k-data').data;
-const equipmentSets = e4kData.equipment_sets;
-const effectCaps = e4kData.effectCaps;
-const lords = e4kData.lords;
+const {equipment_sets: equipmentSets, effectCaps, lords} = require('e4k-data').data;
 
 class Lord {
     /**

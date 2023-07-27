@@ -21,7 +21,7 @@ module.exports = {
     connect(socket) {
         const serverInstance = socket.client._serverInstance;
         //_socket = new WebSocket(`wss://${serverInstance.server}:${serverInstance.port}`); //empire? WebSocket ipv net.Socket
-        socket.connect(serverInstance.port, serverInstance.server, null);
+        socket.connect(serverInstance.port, serverInstance.server || serverInstance.ip, null);
     }, login(socket, name, password) {
         loginCommand(socket, name, password);
     }, onConnection(socket, obj) {
@@ -29,38 +29,42 @@ module.exports = {
             let languageCode = socket.client._language;
             let distributorID = 0;
             let zone = socket.client._serverInstance.zone;
-            _login(socket, zone, "", `1${languageCode}%${distributorID}`);//empire: `${versionDateGame}%${languageCode}%${distributorID}`
-            socket["__connected"] = true;
+            _login(socket, zone, "", `1%${languageCode}%${distributorID}`);//empire: `${versionDateGame}%${languageCode}%${distributorID}`
         } else {
             socket["__connected"] = false;
             socket["__connection_error"] = obj.error;
             console.log("\x1b[31m[API ERROR]\x1b[0m" + obj.error);
         }
     }, async onLogin(socket, error = "") {
-        socket["__login_error"] = error;
-        if (error !== "") {
-            socket["__loggedIn"] = false;
-            console.error(error);
-            return;
+        try {
+            socket["__login_error"] = error;
+            if (error !== "") {
+                socket["__loggedIn"] = false;
+                console.error(error);
+                return;
+            }
+            if (socket['mailMessages'] == null) socket['mailMessages'] = [];
+            socket['isWaitingForSNE'] = false;
+            pingpong(socket);
+            await WaitUntil(socket, 'gdb finished');
+            socket["__loggedIn"] = true;
+            collectTaxCommand(socket);
+            await dailyQuestListParser(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]})
+            if (!socket["inDungeonInterval"]) {
+                setInterval(async () => {
+                    if (!socket["__connected"]) return;
+                    socket["inDungeonInterval"] = true;
+                    await dailyQuestListParser(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]})
+                }, 18 * 60 * 1010); // 18 minutes
+                setInterval(() => {
+                    if (!socket["__connected"]) return;
+                    if (socket['isWaitingForSNE']) return;
+                    showMessages(socket)
+                }, 1000)
+            }
         }
-        socket['mailMessages'] = [];
-        socket['isWaitingForSNE'] = false;
-        pingpong(socket);
-        await WaitUntil(socket, 'gdb finished');
-        socket["__loggedIn"] = true;
-        collectTaxCommand(socket);
-        await dailyQuestListParser(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]})
-        if (!socket["inDungeonInterval"]) {
-            setInterval(async () => {
-                if (!socket["__connected"]) return;
-                socket["inDungeonInterval"] = true;
-                await dailyQuestListParser(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]})
-            }, 18 * 60 * 1010); // 18 minutes
-            setInterval(() => {
-                if (!socket["__connected"]) return;
-                if (socket['isWaitingForSNE']) return;
-                showMessages(socket)
-            }, 1000)
+        catch (e) {
+            console.log(e);
         }
     }, _sendVersionCheck(socket) {
         sendVersionCheck(socket);

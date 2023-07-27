@@ -1,5 +1,5 @@
-const units = require('e4k-data').data.units;
 const Effect = require("./Effect");
+const {units} = require('e4k-data').data;
 
 class Unit {
     /**
@@ -10,13 +10,13 @@ class Unit {
     constructor(client, wodId) {
         this.wodId = wodId;
         this.rawData = getData(wodId);
-        if(!this.rawData) return;
+        if (!this.rawData) return;
         for (let i in this.rawData) {
             /** @type {number | string} */
             let item = this.rawData[i];
             if (i === "kIDs" || i === "slotTypes" || i === "lowLevelRecruitmentTime") {
                 this[i] = [];
-                if(typeof item == "number"){
+                if (typeof item == "number") {
                     this[i].push(item);
                     continue;
                 }
@@ -45,14 +45,11 @@ class Unit {
                 })
                 continue;
             }
-            if (i === "researchLocked" || i === "canBeUsedByNPC" || i === "hybrid" || i === "canBeUsedToAttackNPC" ||
-                i === "isAuxiliary" || i === "isKamikaze" || i === "allowedToTravel" || i === "attackscreenBuyable" ||
-                i === "allowedToAttack" || i === "deleteToolAfterBattle" || i === "isYardTool"
-            ) {
+            if (i === "researchLocked" || i === "canBeUsedByNPC" || i === "hybrid" || i === "canBeUsedToAttackNPC" || i === "isAuxiliary" || i === "isKamikaze" || i === "allowedToTravel" || i === "attackscreenBuyable" || i === "allowedToAttack" || i === "deleteToolAfterBattle" || i === "isYardTool") {
                 this[i] = item === 1;
                 continue;
             }
-            if(typeof item == "number"){
+            if (typeof item == "number") {
                 this[i] = item;
                 continue;
             }
@@ -63,7 +60,7 @@ class Unit {
             }
             this[i] = item;
         }
-        if(this.canBeUsedToAttackNPC !== false) this.canBeUsedToAttackNPC = true;
+        if (this.canBeUsedToAttackNPC !== false) this.canBeUsedToAttackNPC = true;
         this.isSoldier = isSoldier(this.rawData);
     }
 }
@@ -84,8 +81,8 @@ function isSoldier(rawData) {
  * @returns {Unit}
  */
 function getData(wodId) {
-    for (let i in units) {
-        if (wodId === units[i].wodID) return units[i];
+    for (const unit of units) {
+        if (wodId === unit.wodID) return unit;
     }
     console.error("Unit not recognized. Please update your npm modules")
 }

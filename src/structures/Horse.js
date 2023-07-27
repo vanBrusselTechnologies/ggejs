@@ -1,7 +1,5 @@
 const {HorseType} = require("../utils/Constants");
-const e4kData = require('e4k-data').data;
-const horses = e4kData.horses;
-const buildings = e4kData.buildings;
+const {horses, buildings} = require('e4k-data').data;
 
 class Horse {
     /**

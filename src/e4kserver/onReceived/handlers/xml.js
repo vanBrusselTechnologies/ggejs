@@ -13,8 +13,7 @@ module.exports = {
         let type = _msg.$?.t;
         if (type === "xt") {
             xtHandleMessage(socket, _msg)
-        }
-        else if (type === "sys") {
+        } else if (type === "sys") {
             sys.onResponse(socket, _msg);
         }
     }
@@ -34,15 +33,14 @@ function xtHandleMessage(socket, msgObj) {
         _loc7_ = msgObj.body.toString();
         _loc5_ = ObjectSerializer.getInstance().deserialize(_loc7_);
         let event = {
-            dataObj: _loc5_,
-            type: "xml",
+            dataObj: _loc5_, type: "xml",
         }
         xt.onResponse(socket, event);
     }
 }
 
 /**
- * 
+ *
  * @param {string} xmlString
  */
 function stringToXml(xmlString) {
@@ -86,8 +84,7 @@ function stringToXml(xmlString) {
                 objXml[key] = children[key];
             }
         }
-    }
-    else {
+    } else {
         endTag = '/>';
         endTagIndex = xmlString.indexOf(endTag);
     }

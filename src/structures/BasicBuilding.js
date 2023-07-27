@@ -1,11 +1,11 @@
 const Coordinate = require("./Coordinate");
-const buildingData = require('e4k-data').data.buildings;
+const {buildings} = require('e4k-data').data;
 
 class BasicBuilding {
     /**
-     * 
-     * @param {Client} client 
-     * @param {Array} data 
+     *
+     * @param {Client} client
+     * @param {Array} data
      */
     constructor(client, data) {
         /** @type {number} */
@@ -16,9 +16,8 @@ class BasicBuilding {
         this.position = new Coordinate(client, data.slice(2, 4));
         /** @type {number} */
         this.isoRotation = data[4];
-        if (data[5] > 0)
-            /** @type {Date} */
-            this.objectConstructionStartTime = new Date(Date.now() - data[5] * 1000);
+        if (data[5] > 0) /** @type {Date} */
+        this.objectConstructionStartTime = new Date(Date.now() - data[5] * 1000);
         /** @type {number} */
         this.buildingState = data[6];
         /** @type {number} */
@@ -39,8 +38,7 @@ class BasicBuilding {
         this.isInDistrict = data[14] === 1;
         /** @type {number} */
         this.districtSlotId = data[15];
-
-        this.rawData = buildingData.find(b => b.wodID === this.wodId);
+        this.rawData = buildings.find(b => b.wodID === this.wodId);
     }
 }
 

@@ -1,5 +1,4 @@
-const e4kData = require('e4k-data').data;
-const generals = e4kData.generals;
+const {generals} = require('e4k-data').data;
 
 class General {
     /**

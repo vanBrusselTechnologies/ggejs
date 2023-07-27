@@ -1,25 +1,22 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const searchAllianceByIdCommand = require('./../e4kserver/commands/searchAllianceById');
-const getAllianceRankingsCommand = require('./../e4kserver/commands/getAllianceRankings');
+const {execute:searchAllianceByIdCommand} = require('./../e4kserver/commands/searchAllianceById');
+const {execute:getAllianceRankingsCommand} = require('./../e4kserver/commands/getAllianceRankings');
 const {WaitUntil} = require('./../tools/wait');
+const Localize = require("../tools/Localize");
 
 class AllianceManager extends BaseManager {
-    /** @type {Alliance[]} */
-    #alliances = [];
 
     /**
      *
      * @param {number} id
-     * @returns {Promise<Alliance>}
+     * @returns {Promise<Alliance | MyAlliance>}
      */
     getById(id) {
         return new Promise(async (resolve, reject) => {
             try {
-                await _getAllianceById(this._socket, id);
-                let _alliance = this.#alliances.find(alliance => alliance.allianceId === id);
-                resolve(_alliance);
+                resolve(await _getAllianceById(this._socket, id));
             } catch (e) {
                 reject(e);
             }
@@ -29,37 +26,19 @@ class AllianceManager extends BaseManager {
     /**
      *
      * @param {string} name
-     * @returns {Promise<Alliance>}
+     * @returns {Promise<Alliance | MyAlliance>}
      */
     find(name) {
         return new Promise(async (resolve, reject) => {
             try {
-                let _allianceId = await _getAllianceByName(this._socket, name);
+                let _allianceId = await _getAllianceIdByName(this._socket, name);
                 if (_allianceId === 0) reject("Alliance not found!");
                 let _alliance = await this.getById(_allianceId);
                 resolve(_alliance);
             } catch (e) {
-                reject(e);
+                reject(Localize.text(this._client, 'errorCode_114'));
             }
         })
-    }
-
-    /**
-     *
-     * @param {Alliance | MyAlliance} _alliance
-     */
-    _add_or_update(_alliance) {
-        let found = false;
-        for (let j in this.#alliances) {
-            if (this.#alliances[j].allianceId === _alliance.allianceId) {
-                this.#alliances[j] = _alliance;
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            this.#alliances.push(_alliance);
-        }
     }
 
     /** @returns {Promise<MyAlliance>} */
@@ -71,7 +50,7 @@ class AllianceManager extends BaseManager {
                 let alliance = this.getById(_player.allianceId);
                 resolve(alliance);
             } catch (e) {
-                reject(e);
+                reject(Localize.text(this._client, 'errorCode_114'));
             }
         })
     }
@@ -81,20 +60,21 @@ class AllianceManager extends BaseManager {
  *
  * @param {Socket} socket
  * @param {number} id
- * @returns {Promise<void>}
+ * @returns {Promise<Alliance | MyAlliance>}
  */
 function _getAllianceById(socket, id) {
     return new Promise(async (resolve, reject) => {
         try {
-            if (id == null) reject('missing alliance id');
-            socket["_searching_alliance_id"] = id;
-            socket["__alliance_found"] = false;
-            socket["__get_alliance_error"] = "";
-            searchAllianceByIdCommand.execute(socket, id);
-            await WaitUntil(socket, "__alliance_found", "__get_alliance_error");
-            resolve();
+            if (id == null) {
+                reject('Missing alliance id!');
+                return;
+            }
+            searchAllianceByIdCommand(socket, id);
+            const alliance = await WaitUntil(socket, `_alliance_${id}_data`, "", 1000);
+            delete socket[`_alliance_${id}_data`];
+            resolve(alliance);
         } catch (e) {
-            reject(e);
+            reject(Localize.text(socket.client, 'errorCode_114'));
         }
     });
 }
@@ -105,18 +85,16 @@ function _getAllianceById(socket, id) {
  * @param {string} name
  * @returns {Promise<number>}
  */
-function _getAllianceByName(socket, name) {
-    socket["_searching_alliance_name"] = name;
-    socket["__alliance_found"] = false;
-    socket["__get_alliance_error"] = "";
-    socket["__found_alliance_id"] = 0;
+function _getAllianceIdByName(socket, name) {
     return new Promise(async (resolve, reject) => {
         try {
-            getAllianceRankingsCommand.execute(socket, name);
-            await WaitUntil(socket, "__alliance_found", "__get_alliance_error");
-            resolve(socket["__found_alliance_id"]);
+            getAllianceRankingsCommand(socket, name);
+            name = name.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const id = await WaitUntil(socket, `__alliance_${name}_id`, "", 1000);
+            delete socket[`__alliance_${name}_id`];
+            resolve(id);
         } catch (e) {
-            reject(e);
+            reject(Localize.text(socket.client, 'errorCode_114'));
         }
     });
 }

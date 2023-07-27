@@ -1,4 +1,4 @@
-const constructionItems= require('e4k-data').data.constructionItems;
+const {constructionItems} = require('e4k-data').data;
 
 class CastleConstructionItemBuilding {
     /**
@@ -15,7 +15,7 @@ class CastleConstructionItemBuilding {
     }
 }
 
-function getConstructionItem(id){
+function getConstructionItem(id) {
     return constructionItems.find(ci => ci.constructionItemID === id);
 }
 

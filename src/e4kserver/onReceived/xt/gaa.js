@@ -1,37 +1,30 @@
-const {parseMapObject} = require("../../../utils/MapObjectParser")
+const {parseMapObject} = require("../../../utils/MapObjectParser");
 const Player = require("./../../../structures/Player");
 
-module.exports = {
-    name: "gaa", execute: execute
-}
-
+module.exports.name = "gaa";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
  * @param {{KID:number, AI:[], OI:[]}} params
  */
-function execute(socket, errorCode, params) {
-    if (params === undefined) return;
-    if(params.KID){
-        if(socket[`__worldmap_${params.KID}_searching_sectors`].length === 0) return;
-    }
-    let _worldmapAreas = parseWorldmapAreas(socket.client, params.AI);
-    if (_worldmapAreas.length === 0) {
-        socket[`__worldmap_${params.KID}_error`] = 'Received empty area!';
+module.exports.execute = function (socket, errorCode, params) {
+    if (params == null) return;
+    let kId = params.KID;
+    if (!params.AI || params.AI.length === 0) {
+        if (kId == null) return;
+        socket[`__worldmap_${kId}_error`] = 'Received empty area!';
         return;
     }
-    if(params.KID == null) params.KID = _worldmapAreas[0].kingdomId
-    if(params.KID == null) {
-        _worldmapAreas = null;
-        socket[`__worldmap_${params.KID}_error`] = 'Received incorrect input!';
-        return;
+    if (kId == null) {
+        kId = parseWorldmapAreas(socket.client, params.AI.slice(0, 1))[0].kingdomId;
+        if (kId == null) return;
     }
+
     /**  @type {{x: number, y: number}[]} */
-    const searchingSectors = socket[`__worldmap_${params.KID}_searching_sectors`];
-    if(searchingSectors.length === 0) {
-        _worldmapAreas = null;
-        return;
-    }
+    const searchingSectors = socket[`__worldmap_${kId}_searching_sectors`];
+    if (searchingSectors.length === 0) return;
+
+    let _worldmapAreas = parseWorldmapAreas(socket.client, params.AI);
     let _players = parsePlayers(socket.client, params.OI);
     /** @type {{x: number, y: number}} */
     const areaCenter = getCenterOfWorldmapAreas(_worldmapAreas)
@@ -40,28 +33,22 @@ function execute(socket, errorCode, params) {
         const sectorCenter = searchingSectors[i];
         const distance = getDistance(areaCenter, sectorCenter);
         if (distance < 2.5 || (distance < 10 && (areaCenter.x > 1000 || areaCenter.y > 1000))) {
-            socket[`__worldmap_${params.KID}_searching_sectors`].splice(i, 1);
-            const str = `__worldmap_${params.KID}_specific_sector_${sectorCenter.x}_${sectorCenter.y}`
-            socket[`${str}_data`] = {
-                worldmapAreas: _worldmapAreas, players: _players
-            };
-            socket[`${str}_found`] = true;
+            socket[`__worldmap_${kId}_searching_sectors`].splice(i, 1);
+            const str = `__worldmap_${kId}_specific_sector_${sectorCenter.x}_${sectorCenter.y}`
+            socket[`${str}_data`] = {worldmapAreas: _worldmapAreas, players: _players};
             foundRequest = true;
         }
     }
-    if(!foundRequest){
-        const sorted = searchingSectors.sort((a,b)=>{
+    if (!foundRequest) {
+        const sorted = searchingSectors.sort((a, b) => {
             return getDistance(a, areaCenter) - getDistance(b, areaCenter);
         })
         const sectorCenter = sorted[0];
-        if(getDistance(sectorCenter, areaCenter) < 50) {
+        if (getDistance(sectorCenter, areaCenter) < 50) {
             const i = searchingSectors.indexOf(sectorCenter)
-            socket[`__worldmap_${params.KID}_searching_sectors`].splice(i, 1);
-            const str = `__worldmap_${params.KID}_specific_sector_${sectorCenter.x}_${sectorCenter.y}`
-            socket[`${str}_data`] = {
-                worldmapAreas: _worldmapAreas, players: _players
-            };
-            socket[`${str}_found`] = true;
+            socket[`__worldmap_${kId}_searching_sectors`].splice(i, 1);
+            const str = `__worldmap_${kId}_specific_sector_${sectorCenter.x}_${sectorCenter.y}`
+            socket[`${str}_data`] = {worldmapAreas: _worldmapAreas, players: _players};
         }
     }
 

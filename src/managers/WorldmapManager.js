@@ -7,54 +7,36 @@ const Worldmap = require('../structures/Worldmap');
 const WorldmapSector = require('../structures/WorldmapSector');
 const Coordinate = require("../structures/Coordinate");
 
-const cacheSec = 30;
-
 const kingdomIds = [0, 1, 2, 3, 4, 10]
 
 class WorldmapManager extends BaseManager {
-    _worldmapCaches = {};
-
-    /** @param {Client} client */
-    constructor(client) {
-        super(client);
-        for (const id of kingdomIds) {
-            client._socket[`__worldmap_${id}_searching_sectors`] = [];
-            this._worldmapCaches[id] = {date: new Date(0), worldmap: new Worldmap(this._client, id)};
+    get _socket() {
+        if (super._socket[`__worldmap_0_searching_sectors`] == null) {
+            for (const id of kingdomIds) {
+                super._socket[`__worldmap_${id}_searching_sectors`] = [];
+            }
         }
+        return super._socket;
     }
 
     /**
-     *
-     * @param {number} kingdomId
-     * @param {number} noCache
+     * Requests the complete worldmap, use {@link getSector} if only part of it is needed
+     * @param {number} kingdomId Only kingdoms you have a castle in are valid
      * @returns {Promise<Worldmap>}
      */
-    get(kingdomId, noCache = false) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                if (noCache || !isWorldmapCached(this, kingdomId)) await _getWorldmapById(this, this._socket, this._worldmapCaches[kingdomId]?.worldmap, kingdomId);
-                resolve(this._worldmapCaches[kingdomId]?.worldmap);
-            } catch (e) {
-                reject(e);
-            }
-        })
+    get(kingdomId) {
+        return _getWorldmapById(this, this._socket, new Worldmap(this._client, kingdomId), kingdomId);
     };
 
     /**
-     *
-     * @param {number} kingdomId
-     * @param {number} positionX
-     * @param {number} positionY
+     * Requests a 100x100 area of a certain worldmap with center centerX/centerY
+     * @param {number} kingdomId Only kingdoms you have a castle in are valid
+     * @param {number} centerX X coordinate that will be the center of sector
+     * @param {number} centerY Y coordinate that will be the center of sector
      * @returns {Promise<WorldmapSector>} 100x100 WorldmapSector
      */
-    getSector(kingdomId, positionX, positionY) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                resolve(await _getWorldmapSector(this, this._socket, kingdomId, positionX, positionY));
-            } catch (e) {
-                reject(e);
-            }
-        })
+    getSector(kingdomId, centerX, centerY) {
+        return _getWorldmapSector(this, this._socket, kingdomId, centerX, centerY);
     }
 }
 
@@ -81,15 +63,13 @@ function _getWorldmapById(thisManager, socket, _worldmap, kingdomId) {
                     _worldmap._addAreaMapObjects(sector.mapobjects);
                     _worldmap._addPlayers(sector.players);
                     sector = null;
-                }catch (e) {
-                    if(e !== 'Received empty area!'){
+                } catch (e) {
+                    if (e !== 'Received empty area!') {
                         reject(e);
                         return;
                     }
                 }
             }
-            thisManager._worldmapCaches[kingdomId].date = new Date(Date.now() + cacheSec * 1000);
-            thisManager._worldmapCaches[kingdomId].worldmap = _worldmap;
             resolve(_worldmap);
         } catch (e) {
             reject(e);
@@ -112,16 +92,13 @@ function _getWorldmapSector(thisManager, socket, kingdomId, x, y, tries = 0) {
         try {
             if (!socket["__connected"]) reject('Client disconnected');
             socket[`__worldmap_${kingdomId}_searching_sectors`].push({x: x, y: y});
-            socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`] = false;
             if (!socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`]) {
                 socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`] = true;
                 const bottomLeft = new Coordinate(socket.client, [x - 50, y - 50]);
-                const topRight = new Coordinate(socket.client, [x + 49.99, y + 49.99]);
+                const topRight = new Coordinate(socket.client, [x + 49, y + 49]);
                 getWorldmapCommand.execute(socket, kingdomId, bottomLeft, topRight);
             }
-            await WaitUntil(socket, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`, `__worldmap_${kingdomId}_error`);
-            let data = socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`];
-            delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`];
+            let data = await WaitUntil(socket, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`, `__worldmap_${kingdomId}_error`, 2500);
             delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`];
             delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`];
             if (!data) {
@@ -137,22 +114,11 @@ function _getWorldmapSector(thisManager, socket, kingdomId, x, y, tries = 0) {
             resolve(worldmapSector);
         } catch (e) {
             delete socket[`__worldmap_${kingdomId}_error`];
-            delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_found`];
             delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`];
             delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`];
             reject(e);
         }
     });
-}
-
-/**
- *
- * @param {WorldmapManager} thisManager
- * @param {number} kingdomId
- * @returns {boolean}
- */
-function isWorldmapCached(thisManager, kingdomId) {
-    return thisManager._worldmapCaches[kingdomId].date.getTime() >= Date.now();
 }
 
 module.exports = WorldmapManager

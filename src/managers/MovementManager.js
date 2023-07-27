@@ -20,10 +20,7 @@ class MovementManager extends BaseManager {
         return Math.sqrt(Math.pow(c1.position.X - c2.position.X, 2) + Math.pow(c1.position.Y - c2.position.Y, 2));
     }
 
-    /**
-     *
-     * @returns {Movement[]}
-     */
+    /** @returns {Movement[]} */
     get() {
         _checkMovements(this.#movements);
         return [...this.#movements];
@@ -42,15 +39,7 @@ class MovementManager extends BaseManager {
         /** @type {{L: {T: [number, number][], U: [number, number][]}, M: {T: [number, number][], U: [number, number][]}, R: {T: [number, number][], U: [number, number][]}}[]} */
         const armyWaves = [];
         for (let i in army) {
-            armyWaves.push({
-                L: {
-                    U: [], T: [],
-                }, M: {
-                    U: [], T: [],
-                }, R: {
-                    U: [], T: [],
-                }
-            })
+            armyWaves.push({L: {U: [], T: []}, M: {U: [], T: []}, R: {U: [], T: []}})
             const wave = army[i];
             for (let unit of wave.left.units) {
                 armyWaves[i].L.U.push([unit.item.wodId, unit.count]);
@@ -83,7 +72,7 @@ class MovementManager extends BaseManager {
      * @param {number} spyEffect
      * @param {Horse} horse
      */
-    startSpyMovement(castleFrom, castleTo, spyCount, spyType, spyEffect, horse = null){
+    startSpyMovement(castleFrom, castleTo, spyCount, spyType, spyEffect, horse = null) {
         spyEffect = spyType === SpyType.Sabotage ? Math.min(Math.max(spyEffect, 10), 50) : Math.min(Math.max(spyEffect, 50), 100);
         sendSpyMovement(this._socket, castleFrom, castleTo, spyCount, spyType, spyEffect, horse)
     }
@@ -92,10 +81,10 @@ class MovementManager extends BaseManager {
      *
      * @param {InteractiveMapobject | CapitalMapobject} castleFrom
      * @param {Mapobject} castleTo
-     * @param {Good[]} goods
+     * @param {["W" | "S" | "F" | "C" | "O" | "G" | "I" | "A" | "HONEY" | "MEAD", number][]} goods
      * @param {Horse} horse
      */
-    startMarketMovement(castleFrom, castleTo, goods, horse = null){
+    startMarketMovement(castleFrom, castleTo, goods, horse = null) {
         sendMarketMovement(this._socket, castleFrom, castleTo, goods, horse)
     }
 

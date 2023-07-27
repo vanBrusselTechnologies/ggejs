@@ -2,10 +2,10 @@ const AllianceStatusListItem = require("./AllianceStatusListItem");
 const Alliance = require("./Alliance");
 const Good = require("./Good");
 const AllianceDonations = require("./AllianceDonations");
-const CapitalMapobject = require("./CapitalMapobject");
-const KingstowerMapobject = require("./KingstowerMapobject");
-const MonumentMapobject = require("./MonumentMapobject");
-const MetropolMapobject = require("./MetropolMapobject");
+const CapitalMapobject = require("./mapobjects/CapitalMapobject");
+const KingstowerMapobject = require("./mapobjects/KingstowerMapobject");
+const MonumentMapobject = require("./mapobjects/MonumentMapobject");
+const MetropolMapobject = require("./mapobjects/MetropolMapobject");
 const {parseChatJSONMessage} = require("../tools/TextValide");
 
 class MyAlliance extends Alliance {

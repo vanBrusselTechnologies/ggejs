@@ -1,6 +1,6 @@
 const path = require('node:path');
 const fs = require('fs');
-const { setRoomList, onJoinRoom, getRoom, autoJoinRoom } = require('./../../room.js');
+const {setRoomList, onJoinRoom, getRoom, autoJoinRoom} = require('./../../room.js');
 
 let _hasAutoJoined = false;
 
@@ -31,14 +31,12 @@ module.exports = {
                 }
                 return;
             case "jro":
-                onJoinRoom(socket, { params: { "room": getRoom(parseInt(params.shift())) } });
+                onJoinRoom(socket, {params: {"room": getRoom(parseInt(params.shift()))}});
                 return;
             default:
                 params.shift();
                 let responseVO = {
-                    error: parseInt(params.shift()),
-                    commandID: command,
-                    paramArray: params,
+                    error: parseInt(params.shift()), commandID: command, paramArray: params,
                 }
                 executeResponse(socket, responseVO);
                 return;
@@ -57,31 +55,39 @@ function executeResponse(socket, _jsonResponseVO) {
         if (handler != null) {
             let params;
             try {
-                params = JSON.parse(_jsonResponseVO.paramArray[0]);
+                if (_jsonResponseVO.paramArray.length === 0) {
+                    params = _jsonResponseVO.paramArray;
+                } else if (_jsonResponseVO.paramArray.length === 1) {
+                    try {
+                        params = JSON.parse(_jsonResponseVO.paramArray[0]);
+                    } catch (e) {
+                        params = _jsonResponseVO.paramArray[0];
+                    }
+                } else {
+                    params = _jsonResponseVO.paramArray;
+                    if (socket.debug) {
+                        console.log('Received multi param jsonResponseVO')
+                        console.log(_jsonResponseVO)
+                    }
+                }
             } catch (e) {
-                if (cmd === "ain") {
-                    require('./../../commands/searchAllianceById.js').execute(socket, socket["_searching_alliance_id"]);
-                    return;
+                if (socket.debug) {
+                    console.log(_jsonResponseVO)
+                    console.error(e);
                 }
-                if (cmd === "gdi") {
-                    require('./../../commands/searchPlayerById').execute(socket, socket["_searching_player_id"]);
-                    return;
-                }
-                params = _jsonResponseVO.paramArray[0];
+                params = _jsonResponseVO.paramArray;
             }
             let error = _jsonResponseVO.error;
             handler.apply(this, [socket, error, params]);
-        }
-        else {
+        } else {
             const _params = _jsonResponseVO.paramArray.length === 0 ? "" : _jsonResponseVO.paramArray[0].substring(0, 124 - _jsonResponseVO.commandID.length);
-            if (socket.debug)
-                console.log('[RECEIVED UNKNOWN COMMAND] ' + _jsonResponseVO.commandID + ": " + _params.trim());
+            if (socket.debug) console.log('[RECEIVED UNKNOWN COMMAND] ' + _jsonResponseVO.commandID + ": " + _params.trim());
         }
-    }
-    catch (e) {
-        if(socket.debug)
+    } catch (e) {
+        if (socket.debug) {
             console.log("Error");
             console.log(_jsonResponseVO);
             console.log(e);
+        }
     }
 }

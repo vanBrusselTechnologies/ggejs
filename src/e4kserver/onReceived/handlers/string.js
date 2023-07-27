@@ -11,8 +11,7 @@ module.exports = {
         let type = (msgParts = msg.substring(1, msg.length - 1).split("%"))[0];
         if (type === "xt") {
             xtHandleMessage(socket, msgParts.splice(1, msgParts.length - 1))
-        }
-        else if (type === "sys") {
+        } else if (type === "sys") {
             sys.onResponse(socket, msgParts.splice(1, msgParts.length - 1));
         }
     }
@@ -24,8 +23,7 @@ module.exports = {
  */
 function xtHandleMessage(socket, msgObj) {
     let event = {
-        dataObj: msgObj,
-        type: "str",
+        dataObj: msgObj, type: "str",
     }
     xt.onResponse(socket, event);
 }

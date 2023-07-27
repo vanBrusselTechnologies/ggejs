@@ -7,7 +7,7 @@ const xt = require('./commands/handlers/xt');
  * @param {Socket} socket
  * @param {Buffer} data
  */
-function internal_OnData(socket, data) {
+module.exports.onData = function (socket, data) {
     let msg = data.toString('utf-8');
     if (msg.charCodeAt(msg.length - 1) !== 0) {
         socket["unfinishedDataString"] = socket["unfinishedDataString"] + msg;
@@ -49,7 +49,15 @@ function internal_OnData(socket, data) {
 
 /**
  * @param {Socket} socket
- * @param {object} commandVO
+ * @param {{commandVO: {getCmdId: string, params: object}}} sendJsonMessageVO
+ */
+module.exports.sendJsonVoSignal = function (socket, sendJsonMessageVO) {
+    sendCommandVO(socket, sendJsonMessageVO.commandVO);
+}
+
+/**
+ * @param {Socket} socket
+ * @param {{getCmdId: string, params: object}} commandVO
  */
 function sendCommandVO(socket, commandVO) {
     let msgId = commandVO.getCmdId;
@@ -59,12 +67,14 @@ function sendCommandVO(socket, commandVO) {
         0 === params[i] ? params[i] = "0" : params[i] ? "string" == typeof params[i] && (params[i] = getValideSmartFoxText(params[i])) : params[i] = "<RoundHouseKick>";
         i++;
     }
+    if(socket?.client == null) return;
     xt.sendMessage(socket, socket.client._serverInstance.zone, msgId, params, "str", require('./room.js').activeRoomId);
 }
 
 /**
  *
  * @param {string} value
+ * @returns {string}
  */
 function getValideSmartFoxText(value) {
     value = value.replace(/%/g, "&percnt;");
@@ -75,39 +85,17 @@ function getValideSmartFoxText(value) {
  * @param {Socket} socket
  * @param {string} msg
  */
-function internal_writeToSocket(socket, msg) {
-    if (socket["ultraDebug"]) {
-        console.log("[WRITE]: " + msg.substring(0, Math.min(150, msg.length)));
-    }
+module.exports.writeToSocket = function (socket, msg) {
+    if (!socket?._host || socket["__connected"] === false || socket["__disconnecting"] || socket.closed) return;
+    if (socket["ultraDebug"]) console.log("[WRITE]: " + msg.substring(0, Math.min(150, msg.length)));
     let _buff0 = Buffer.from(msg);
     let _buff1 = Buffer.alloc(1);
     _buff1.writeInt8(0);
     let bytes = Buffer.concat([_buff0, _buff1]);
+    if (!socket?._host || socket["__connected"] === false || socket["__disconnecting"] || socket.closed) return;
     socket.write(bytes, "utf-8", (err) => {
         if (err) {
-            console.log("\x1b[31m[SOCKET ERROR] " + err + "\x1b[0m");
+            console.log("\x1b[31m[SOCKET WRITE ERROR] " + err + "\x1b[0m");
         }
     });
-}
-
-module.exports = {
-    /**
-     * @param {Socket} socket
-     * @param {Buffer} data
-     */
-    onData(socket, data) {
-        internal_OnData(socket, data);
-    }, /**
-     * @param {Socket} socket
-     * @param {object} sendJsonMessageVO
-     */
-    sendJsonVoSignal(socket, sendJsonMessageVO) {
-        sendCommandVO(socket, sendJsonMessageVO.commandVO);
-    }, /**
-     * @param {Socket} socket
-     * @param {string} msg
-     */
-    writeToSocket(socket, msg) {
-        internal_writeToSocket(socket, msg);
-    }
 }

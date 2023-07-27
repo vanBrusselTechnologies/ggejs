@@ -1,10 +1,11 @@
+const {parseMapObject} = require("../utils/MapObjectParser");
 const Unit = require("./Unit");
-const VillageMapobject = require("./VillageMapobject");
-const CastleMapobject = require("./CastleMapobject");
-const KingstowerMapobject = require("./KingstowerMapobject");
-const MonumentMapobject = require("./MonumentMapobject");
-const CapitalMapobject = require("./CapitalMapobject");
-const InteractiveMapobject = require("./InteractiveMapobject");
+const VillageMapobject = require("./mapobjects/VillageMapobject");
+const CastleMapobject = require("./mapobjects/CastleMapobject");
+const KingstowerMapobject = require("./mapobjects/KingstowerMapobject");
+const MonumentMapobject = require("./mapobjects/MonumentMapobject");
+const CapitalMapobject = require("./mapobjects/CapitalMapobject");
+const InteractiveMapobject = require("./mapobjects/InteractiveMapobject");
 const Coordinate = require("./Coordinate");
 
 class Player {
@@ -129,21 +130,7 @@ function parseCastleList(client, data) {
     for (let i in data.C) {
         for (let j in data.C[i].AI) {
             let obj = data.C[i].AI[j];
-            let mapObject;
-            switch (obj.AI[0]) {
-                case 1:
-                case 4:
-                case 12:
-                    mapObject = new CastleMapobject(client, obj.AI);
-                    break;
-                case 3:
-                case 22:
-                    mapObject = new CapitalMapobject(client, obj.AI);
-                    break;
-                default:
-                    mapObject = new InteractiveMapobject(client, obj.AI);
-                    break;
-            }
+            let mapObject = parseMapObject(client, obj.AI);
             if (obj.OGT) mapObject["remainingOpenGateTime"] = obj.OGT;
             if (obj.OGC) mapObject["openGateCounter"] = obj.OGC;
             if (obj.AOT) mapObject["remainingAbandonOutpostTime"] = obj.AOT;

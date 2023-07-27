@@ -1,5 +1,5 @@
 const Effect = require("./Effect");
-const gems = require('e4k-data').data.gems;
+const {gems} = require('e4k-data').data;
 
 class Gem {
     /**
