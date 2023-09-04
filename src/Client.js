@@ -103,8 +103,7 @@ class Client extends EventEmitter {
             try {
                 if (!worldmapArea || !worldmapArea.objectId) reject("WorldmapArea is not valid");
                 require('./e4kserver/commands/joinAreaCommand').execute(this._socket, worldmapArea);
-                await WaitUntil(this._socket, `join_area_${worldmapArea.objectId}_finished`, "join_area_error");
-                const data = this._socket[`join_area_${worldmapArea.objectId}_data`];
+                const data = await WaitUntil(this._socket, `join_area_${worldmapArea.objectId}_data`, "join_area_error");
                 delete this._socket[`join_area_${worldmapArea.objectId}_data`];
                 delete this._socket[`join_area_${worldmapArea.objectId}_finished`];
                 resolve(data);
@@ -223,6 +222,7 @@ function _login(socket, name, password) {
 function _disconnect(socket) {
     return new Promise(async (resolve, reject) => {
         try {
+            if(socket?._host == null) reject("Socket missing!");
             socket["__disconnect"] = false;
             socket["__disconnecting"] = true;
             socket.end();

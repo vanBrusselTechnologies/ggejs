@@ -44,8 +44,7 @@ function getMessageBody(socket, messageId) {
     return new Promise(async (resolve, reject) => {
         try {
             readMessage(socket, messageId);
-            await WaitUntil(socket, `rms -> ${messageId}`);
-            const data = socket[`rms -> ${messageId}`];
+            const data = await WaitUntil(socket, `rms -> ${messageId}`);
             delete socket[`rms -> ${messageId}`];
             resolve(data);
         } catch (e) {

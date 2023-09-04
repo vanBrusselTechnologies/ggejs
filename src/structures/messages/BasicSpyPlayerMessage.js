@@ -27,11 +27,10 @@ class BasicSpyPlayerMessage extends BasicMessage {
             try {
                 try {
                     this.spyLog = await getMessageBody(this.#client._socket, this.messageId);
-                    delete this.#client._socket[`bsd -> ${this.spyLog.messageId}`];
                 } catch (e) {
-                    delete this.#client._socket[`bsd -> ${this.spyLog.messageId}`];
                     delete this.#client._socket[`bsd -> errorCode`];
                 }
+                delete this.#client._socket[`bsd -> ${this.spyLog.messageId}`];
                 resolve();
             } catch (e) {
                 reject(e);
@@ -72,8 +71,7 @@ function getMessageBody(socket, messageId) {
         try {
             socket['bsd -> errorCode'] = "";
             getSpyLog(socket, messageId);
-            await WaitUntil(socket, `bsd -> ${messageId}`, `bsd -> errorCode`, 30000);
-            resolve(socket[`bsd -> ${messageId}`]);
+            resolve(await WaitUntil(socket, `bsd -> ${messageId}`, `bsd -> errorCode`, 30000));
         } catch (e) {
             if (e !== 130) console.log(e);
             socket['bsd -> errorCode'] = "";

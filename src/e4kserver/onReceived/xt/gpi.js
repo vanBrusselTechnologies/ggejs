@@ -12,7 +12,7 @@ module.exports.execute = function (socket, errorCode, params) {
     playerInfoModel.playerId = params["PID"];
     playerInfoModel.userName = params["PN"];
     let email = params["E"];
-    if (email !== playerInfoModel.email)// && !CompilationFlags.CONFIG.isBrowserInvoked)
+    if (email !== playerInfoModel.email)// && !CompilationFlags.CONFIG.isBrowserInvoked
     {
         //_loc5_ = accountData.getAccountInfoForInstance(instanceData.selectedInstanceVO);
         //accountData.deleteAccount(_loc5_.instanceID);

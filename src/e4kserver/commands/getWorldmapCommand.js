@@ -13,7 +13,7 @@ module.exports = {
  * @private
  */
 function _execute(socket, kingdomId, bottomLeftCorner, topRightCorner) {
-    let C2SGetAreasVO = {
+    let C2SGetAreaVO = {
         getCmdId: "gaa",
         params: {
             KID: kingdomId,
@@ -24,7 +24,7 @@ function _execute(socket, kingdomId, bottomLeftCorner, topRightCorner) {
         },
     }
     require('./../data').sendJsonVoSignal(socket, {
-        "commandVO": C2SGetAreasVO,
+        "commandVO": C2SGetAreaVO,
         "lockConditionVO": "new DefaultLockConditionVO()"
     });
 }

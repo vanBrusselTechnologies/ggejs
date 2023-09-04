@@ -94,8 +94,7 @@ function getMessageBody(socket, messageId, battleLogMessage) {
             const body = {};
             socket[`${messageId} battleLogMessage`] = battleLogMessage;
             getBattleLogShort(socket, messageId);
-            await WaitUntil(socket, `bls -> ${messageId}`, "", 30000);
-            const battleLogShort = socket[`bls -> ${messageId}`];
+            const battleLogShort = await WaitUntil(socket, `bls -> ${messageId}`, "", 30000);
             for (let key in battleLogShort) {
                 if (battleLogShort[key] == null) continue;
                 body[key] = battleLogShort[key];
@@ -103,14 +102,12 @@ function getMessageBody(socket, messageId, battleLogMessage) {
             socket[`${body.battleLogId} battleLog`] = body;
             getBattleLogMiddle(socket, body.battleLogId);
             getBattleLogDetail(socket, body.battleLogId);
-            await WaitUntil(socket, `blm -> ${body.battleLogId}`, "", 30000);
-            await WaitUntil(socket, `bld -> ${body.battleLogId}`, "", 30000);
-            const battleLogMiddle = socket[`blm -> ${body.battleLogId}`];
+            const battleLogMiddle = await WaitUntil(socket, `blm -> ${body.battleLogId}`, "", 30000);
+            const battleLogDetail = await WaitUntil(socket, `bld -> ${body.battleLogId}`, "", 30000);
             for (let key in battleLogMiddle) {
                 if (battleLogMiddle[key] == null) continue;
                 body[key] = battleLogMiddle[key];
             }
-            const battleLogDetail = socket[`bld -> ${body.battleLogId}`];
             for (let key in battleLogDetail) {
                 if (battleLogDetail[key] == null) continue;
                 body[key] = battleLogDetail[key];

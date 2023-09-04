@@ -84,7 +84,7 @@ async function handleSNE(socket, msgs) {
                     continue;
                 }
             } else if (m.messageType === Constants.MessageType.SpyNPC || m.messageType === Constants.MessageType.SpyPlayer) {
-                if (m.subType === Constants.MessageSubType.SpyPlayer.Sabotage && m.spyLog.targetOwner.playerId === socket["___this_player_id"]) {
+                if (m.subType === Constants.MessageSubType.SpyPlayer.Sabotage && m.spyLog?.targetOwner.playerId === socket["___this_player_id"]) {
                     //When receiving sabotage, do not delete;
                 } else if (!m.isSuccessful) {
                     deleteMessage(socket, m.messageId); //auto delete failed spies

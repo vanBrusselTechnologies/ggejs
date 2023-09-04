@@ -1,11 +1,8 @@
 const {parseMapObject} = require("../utils/MapObjectParser");
 const Unit = require("./Unit");
 const VillageMapobject = require("./mapobjects/VillageMapobject");
-const CastleMapobject = require("./mapobjects/CastleMapobject");
 const KingstowerMapobject = require("./mapobjects/KingstowerMapobject");
 const MonumentMapobject = require("./mapobjects/MonumentMapobject");
-const CapitalMapobject = require("./mapobjects/CapitalMapobject");
-const InteractiveMapobject = require("./mapobjects/InteractiveMapobject");
 const Coordinate = require("./Coordinate");
 
 class Player {
@@ -26,9 +23,7 @@ class Player {
         this.playerLevel = data.O.L;
         /** @type {number} */
         this.paragonLevel = data.O.LL;
-        if (data.O.RNP > 0)
-            /** @type {Date} */
-            this.noobEndTime = new Date(Date.now() + data.O.RNP * 1000);
+        if (data.O.RNP > 0) this.noobEndTime = new Date(Date.now() + data.O.RNP * 1000);
         /** @type {number} */
         this.honor = data.O.H;
         /** @type {number} */
@@ -45,12 +40,10 @@ class Player {
         this.allianceRank = data.O.AR;
         /** @type {boolean} */
         this.isSearchingAlliance = data.O.SA === 1;
-        if (data.O.RPT > 0)
-            /** @type {Date} */
-            this.peaceEndTime = new Date(Date.now() + data.O.RPT * 1000);
+        if (data.O.RPT > 0) this.peaceEndTime = new Date(Date.now() + data.O.RPT * 1000);
         if (!data.gcl) {
             this.castles = parseSimpleCastleList(client, data.O.AP);
-            this.villages = {private:[], public:[]};
+            this.villages = {private: [], public: []};
             this.kingstowers = [];
             this.monuments = [];
         } else {
@@ -74,9 +67,7 @@ class Player {
         this.prefixTitleId = data.O.PRE;
         /** @type {number} */
         this.suffixTitleId = data.O.SUF;
-        if (data.O.RRD > 0)
-            /** @type {Date} */
-            this.relocateDurationEndTime = new Date(Date.now() + data.O.RRD * 1000);
+        if (data.O.RRD > 0) this.relocateDurationEndTime = new Date(Date.now() + data.O.RRD * 1000);
         if (data.O.FN && data.O.FN.FID !== -1) {
             /** @type {number} */
             this.factionId = data.O.FN.FID;
@@ -86,12 +77,10 @@ class Player {
             this.factionIsSpectator = data.O.FN.SPC === 1;
             /** @type {number} */
             this.factionProtectionStatus = data.O.FN.PMS;
-            if (data.O.FN.PMT > 0)
-                /** @type {Date} */
-                this.factionProtectionEndTime = new Date(Date.now() + data.O.FN.PMT * 1000);
-            if (data.O.FN.NS > 0)
-                /** @type {Date} */
-                this.factionNoobProtectionEndTime = new Date(Date.now() + data.O.FN.NS * 1000);
+            if (data.O.FN.PMT > 0) /** @type {Date} */
+            this.factionProtectionEndTime = new Date(Date.now() + data.O.FN.PMT * 1000);
+            if (data.O.FN.NS > 0) /** @type {Date} */
+            this.factionNoobProtectionEndTime = new Date(Date.now() + data.O.FN.NS * 1000);
         }
     }
 }
@@ -99,23 +88,14 @@ class Player {
 /**
  *
  * @param {Client} client
- * @param {Array} _data
+ * @param {Array} data
  * @returns {{areaType: number, position: Coordinate, objectId: number, kingdomId: number}[]}
  */
-function parseSimpleCastleList(client, _data) {
-    let output = [];
-    if (!_data) return output;
-    for (let i in _data) {
-        /** @type {Array} */
-        let data = _data[i];
-        output.push({
-            areaType: data[4],
-            position: new Coordinate(client, data.slice(2, 4)),
-            objectId: data[1],
-            kingdomId: data[0],
-        });
-    }
-    return output;
+function parseSimpleCastleList(client, data) {
+    if (!data) return [];
+    return data.map(d => {
+        return {areaType: d[4], position: new Coordinate(client, d.slice(2, 4)), objectId: d[1], kingdomId: d[0]}
+    })
 }
 
 /**
@@ -125,8 +105,8 @@ function parseSimpleCastleList(client, _data) {
  * @returns {(CastleMapobject | CapitalMapobject)[]}
  */
 function parseCastleList(client, data) {
+    if (!data) return [];
     let output = [];
-    if (!data) return output;
     for (let i in data.C) {
         for (let j in data.C[i].AI) {
             let obj = data.C[i].AI[j];
@@ -173,15 +153,10 @@ function parseVillageList(client, data) {
  * @returns {InventoryItem<Unit>[]}
  */
 function parseUnits(client, data) {
-    let output = [];
-    if (!data) return output;
-    for (let i in data) {
-        output.push({
-            item: new Unit(client, data[i][0]),
-            count: data[i][1],
-        });
-    }
-    return output;
+    if (!data) return [];
+    return data.map(d => {
+        return {item: new Unit(client, d[0]), count: d[1]}
+    })
 }
 
 /**
@@ -196,8 +171,7 @@ function parseKingstowers(client, data) {
     for (let i in data.AI) {
         let kingstower = new KingstowerMapobject(client, data.AI[i][0]);
         let units = [];
-        if (data.AI[i].length >= 2 && data.AI[i][1] && data.AI[i][1].length > 0)
-            units = parseUnits(client, data.AI[i][1]);
+        if (data.AI[i].length >= 2 && data.AI[i][1] && data.AI[i][1].length > 0) units = parseUnits(client, data.AI[i][1]);
         kingstowers.push({kingstower: kingstower, units: units});
     }
     return kingstowers;
@@ -215,8 +189,7 @@ function parseMonuments(client, data) {
     for (let i in data.AI) {
         let monument = new MonumentMapobject(client, data.AI[i][0]);
         let units = [];
-        if (data.AI[i].length >= 2 && data.AI[i][1] && data.AI[i][1].length > 0)
-            units = parseUnits(client, data.AI[i][1]);
+        if (data.AI[i].length >= 2 && data.AI[i][1] && data.AI[i][1].length > 0) units = parseUnits(client, data.AI[i][1]);
         monuments.push({monument: monument, units: units});
     }
     return monuments;

@@ -6,6 +6,7 @@ const BattleParticipant = require("../../../structures/BattleParticipant");
 const Lord = require("../../../structures/Lord");
 const General = require("../../../structures/General");
 const {parseMapObject} = require("../../../utils/MapObjectParser");
+const Good = require("../../../structures/Good");
 const {currencyMinutesSkipValues: minutesSkips} = require('e4k-data').data;
 
 module.exports = {
@@ -27,6 +28,7 @@ module.exports = {
         delete socket[`${params.MID} battleLogMessage`];
         const attackerLords = parseAttackerLords(socket.client, params, {attacker: pbiInfo.attacker});
         const defenderLords = parseDefenderLords(socket.client, params, {defender: pbiInfo.defender});
+        const autoSkips = parseAutoSkip(socket.client, params);
         socket[`bls -> ${params.MID}`] = {
             battleLogId: params["LID"],
             messageId: params["MID"],
@@ -68,6 +70,10 @@ module.exports = {
             defenderBaron: defenderLords?.baron,
             defenderGeneral: defenderLords?.general,
             defenderLegendSkills: defenderLords?.legendSkills,
+            autoSkipCooldownType: autoSkips.autoSkipCooldownType,
+            autoSkipMinuteSkips: autoSkips.autoSkipMinuteSkips,
+            autoSkipC2: autoSkips.autoSkipC2,
+            autoSkipSeconds: autoSkips.autoSkipSeconds,
         };
     }
 }
@@ -151,5 +157,29 @@ function parseDefenderLords(client, data, battleLog) {
         return {
             baron: lord, general: general, legendSkills: data["DLS"] ?? [],
         };
+    }
+}
+
+/**
+ *
+ * @param {Client} client
+ * @param {object} data
+ * @return {{autoSkipCooldownType:number, autoSkipMinuteSkips: Good[], autoSkipC2: number, autoSkipSeconds: number}}
+ */
+function parseAutoSkip(client, data) {
+    if (data["ASCT"] !== undefined) {
+        let _loc3_ = [];
+        let _loc5_ = data["ASMS"];
+        for (const _loc4_ of _loc5_) {
+            _loc3_.push(new Good(_loc4_[0], _loc4_[1]));
+        }
+        return {
+            autoSkipCooldownType: data["ASCT"],
+            autoSkipMinuteSkips: _loc3_,
+            autoSkipC2: data["ASC"],
+            autoSkipSeconds: data["ASS"]
+        }
+    } else return {
+        autoSkipCooldownType: -1, autoSkipMinuteSkips: [], autoSkipC2: -1, autoSkipSeconds: -1
     }
 }

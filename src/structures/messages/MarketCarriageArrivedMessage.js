@@ -41,11 +41,10 @@ class MarketCarriageArrivedMessage extends BasicMessage {
             try {
                 try {
                     this.tradeData = await getMessageBody(this.#client._socket, this.messageId);
-                    delete this.#client._socket[`mmn -> ${this.tradeData.messageId}`];
                 } catch (e) {
-                    delete this.#client._socket[`mmn -> ${this.tradeData.messageId}`];
                     delete this.#client._socket[`mmn -> errorCode`];
                 }
+                delete this.#client._socket[`mmn -> ${this.tradeData.messageId}`];
                 resolve();
             } catch (e) {
                 reject(e);
@@ -65,8 +64,7 @@ function getMessageBody(socket, messageId) {
         try {
             socket['mmn -> errorCode'] = "";
             getTradeData(socket, messageId);
-            await WaitUntil(socket, `mmn -> ${messageId}`, `mmn -> errorCode`, 30000);
-            resolve(socket[`mmn -> ${messageId}`]);
+            resolve(await WaitUntil(socket, `mmn -> ${messageId}`, `mmn -> errorCode`, 30000));
         } catch (e) {
             if (e !== 130) console.log(e);
             socket['mmn -> errorCode'] = "";

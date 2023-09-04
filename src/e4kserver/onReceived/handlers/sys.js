@@ -2,10 +2,10 @@ const path = require('node:path');
 const fs = require('fs');
 
 let commands = [];
-const commandsPath = path.join(__dirname, '../sys');
-const commandsFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-for (const file of commandsFiles) {
-    const filePath = path.join(commandsPath, file);
+const commandPath = path.join(__dirname, '../sys');
+const commandFiles = fs.readdirSync(commandPath).filter(file => file.endsWith('.js'));
+for (const file of commandFiles) {
+    const filePath = path.join(commandPath, file);
     const command = require(filePath);
     commands[command.name] = command.execute;
 }

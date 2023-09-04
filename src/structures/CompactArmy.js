@@ -4,11 +4,12 @@ class CompactArmy {
     armySize = 0;
     soldierCount = 0;
     toolCount = 0;
+
     /**
-     * 
-     * @param {Client} client 
-     * @param {object} data 
-     * @returns 
+     *
+     * @param {Client} client
+     * @param {object} data
+     * @returns
      */
     constructor(client, data) {
         if (!data) return;
@@ -19,66 +20,52 @@ class CompactArmy {
         /** @type {InventoryItem<Unit>[]} */
         this.right = parse(client, data.R);
         /** @type {InventoryItem<Tool>[]} */
-        this.supportTools = parse(client, data.AST);
-        for (let i in this.left) {
-            let _count = this.left[i].count;
+        this.supportTools = data.AST ? parse(client, data.AST) : [];
+        /** @type {InventoryItem<Unit>[]} */
+        this.finalWave = data.RW ? parse(client, data.RW) : [];
+        for (let item of this.left) {
+            let _count = item.count;
             this.armySize += _count;
-            let _unit = this.left[i].item;
-            if (_unit.isSoldier)
-                this.soldierCount += _count;
-            else
-                this.toolCount += _count;
+            let _unit = item.item;
+            if (_unit.isSoldier) this.soldierCount += _count; else this.toolCount += _count;
         }
-        for (let i in this.middle) {
-            let _count = this.middle[i].count;
+        for (let item of this.middle) {
+            let _count = item.count;
             this.armySize += _count;
-            let _unit = this.middle[i].item;
-            if (_unit.isSoldier)
-                this.soldierCount += _count;
-            else
-                this.toolCount += _count;
+            let _unit = item.item;
+            if (_unit.isSoldier) this.soldierCount += _count; else this.toolCount += _count;
         }
-        for (let i in this.right) {
-            let _count = this.right[i].count;
+        for (let item of this.right) {
+            let _count = item.count;
             this.armySize += _count;
-            let _unit = this.right[i].item;
-            if (_unit.isSoldier)
-                this.soldierCount += _count;
-            else
-                this.toolCount += _count;
+            let _unit = item.item;
+            if (_unit.isSoldier) this.soldierCount += _count; else this.toolCount += _count;
         }
-        for (let i in this.supportTools) {
-            let _count = this.supportTools[i].count;
+        for (let item of this.supportTools) {
+            let _count = item.count;
             this.armySize += _count;
-            let _unit = this.supportTools[i].item;
-            if (_unit.isSoldier)
-                this.soldierCount += _count;
-            else
-                this.toolCount += _count;
+            let _unit = item.item;
+            if (_unit.isSoldier) this.soldierCount += _count; else this.toolCount += _count;
+        }
+        for (let item of this.finalWave) {
+            let _count = item.count;
+            this.armySize += _count;
+            let _unit = item.item;
+            if (_unit.isSoldier) this.soldierCount += _count; else this.toolCount += _count;
         }
     }
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} data 
+ *
+ * @param {Client} client
+ * @param {Array} data
  * @returns {InventoryItem<Unit>[]}
  */
 function parse(client, data) {
-    /** @type {InventoryItem<Unit>[]} */
-    let output = [];
-    for (let i in data) {
-        /** @type {number} */
-        let _wodId = data[i][0];
-        /** @type {number} */
-        let _count = data[i][1];
-        output.push({
-            item: new Unit(client, _wodId),
-            count: _count,
-        });
-    }
-    return output;
+    return data.map(d => {
+        return {item: new Unit(client, d[0]), count: d[1]}
+    })
 }
 
 module.exports = CompactArmy;

@@ -1,5 +1,6 @@
 const BasicBuilding = require("./BasicBuilding");
 const InventoryItem = require("./InventoryItem");
+const Unit = require("./Unit");
 
 
 class CastleBuildingStorage {
@@ -39,9 +40,7 @@ class CastleBuildingStorage {
  * @returns {InventoryItem<BasicBuilding>[]}
  */
 function parseBuildings(client, data) {
-    const output = []
-    for (let i of data) output.push(new InventoryItem(new BasicBuilding(client, [i[0]]), i[1]))
-    return output
+    return data.map(d => new InventoryItem(new BasicBuilding(client, [d[0]]), d[1]))
 }
 
 /**
@@ -51,15 +50,13 @@ function parseBuildings(client, data) {
  * @returns {InventoryItem<BasicBuilding>[]}
  */
 function parseUniqueBuildings(client, data, isUnique) {
-    const output = []
-    for (let i of data) {
-        const building = new BasicBuilding(client, [i[0]])
-        building.uniqueDecorationId = i[1];
-        building.customAttributeValue = i[2];
+    return data.map(d => {
+        const building = new BasicBuilding(client, [d[0]])
+        building.uniqueDecorationId = d[1];
+        building.customAttributeValue = d[2];
         building.isFusionUniqueDeco = isUnique;
-        output.push(new InventoryItem(building, 1))
-    }
-    return output
+        return new InventoryItem(building, 1)
+    })
 }
 
 module.exports = CastleBuildingStorage;

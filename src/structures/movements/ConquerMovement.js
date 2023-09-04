@@ -3,9 +3,9 @@ const BasicMovement = require("./BasicMovement");
 
 class ConquerMovement extends BasicMovement {
     /**
-     * 
-     * @param {Client} client 
-     * @param {object} data 
+     *
+     * @param {Client} client
+     * @param {object} data
      */
     constructor(client, data) {
         super(client, data);
@@ -15,21 +15,15 @@ class ConquerMovement extends BasicMovement {
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} obj 
+ *
+ * @param {Client} client
+ * @param {Array} data
  * @returns {InventoryItem<Unit>[]}
  */
-function parse(client, obj) {
-    /** @type {InventoryItem<Unit>[]} */
-    let output = [];
-    for (let i in obj) {
-        output.push({
-            item: new Unit(client, obj[i][0]),
-            count: obj[i][1],
-        });
-    }
-    return output;
+function parse(client, data) {
+    return data.map(d => {
+        return {item: new Unit(client, d[0]), count: d[1]}
+    })
 }
 
 module.exports = ConquerMovement;

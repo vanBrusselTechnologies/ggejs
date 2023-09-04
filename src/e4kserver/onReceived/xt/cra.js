@@ -5,10 +5,11 @@ module.exports = {
     /**
      * @param {Socket} socket
      * @param {number} errorCode
-     * @param {object} params
+     * @param {{AAM:object}} params
      */
     execute(socket, errorCode, params) {
+        if(errorCode === 90) return; // Can't start armies
         if(!params) return;
-        gam(socket, 0, { M: [params.AAM] });
+        gam(socket, 0, {M:[params.AAM]} );
     }
 }

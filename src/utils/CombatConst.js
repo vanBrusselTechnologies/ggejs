@@ -26,7 +26,7 @@ module.exports.getFlankBonus = function (defeatedLWall = false, defeatedMWall = 
  * @returns {number}
  */
 module.exports.getAmountSoldiers = function (side, defenderLevel, flankBonus = 0, frontBonus = 0) {
-    side === 1 ? this.getAmountSoldiersMiddle(defenderLevel, frontBonus) : this.getAmountSoldiersFlank(defenderLevel, flankBonus);
+    return side === 1 ? this.getAmountSoldiersMiddle(defenderLevel, frontBonus) : this.getAmountSoldiersFlank(defenderLevel, flankBonus);
 }
 /**
  *
@@ -387,11 +387,11 @@ module.exports.getTotalDefenseBonus = function (defWall, defGate, defMoat) {
  * @param {number} islandTitleBonus
  * @param {number} highestFameTitleBonus
  * @param {number} allianceAttackStrengthBuffBonus
- * @param {number} kingsTowerBonus
+ * @param {number} kingstowerBonus
  * @returns {number}
  */
-module.exports.getAttackBonus = function (moralBonus, islandTitleBonus, highestFameTitleBonus, allianceAttackStrengthBuffBonus, kingsTowerBonus) {
-    return moralBonus + islandTitleBonus + highestFameTitleBonus + allianceAttackStrengthBuffBonus + kingsTowerBonus;
+module.exports.getAttackBonus = function (moralBonus, islandTitleBonus, highestFameTitleBonus, allianceAttackStrengthBuffBonus, kingstowerBonus) {
+    return moralBonus + islandTitleBonus + highestFameTitleBonus + allianceAttackStrengthBuffBonus + kingstowerBonus;
 }
 /**
  *

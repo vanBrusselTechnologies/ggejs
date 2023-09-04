@@ -9,7 +9,7 @@ module.exports = {
      */
     execute(socket, errorCode, params) {
         if(!params) return;
-        //castleUserData.castleListVO.publicVillages = castleListParser.parsePublicVillageList(params,worldMapOwnerInfoData.ownInfoVO);
-        //castleUserData.castleListVO.privateVillages = castleListParser.parsePrivateVillageList(params,worldMapOwnerInfoData.ownInfoVO);
+        //castleUserData.castleListVO.publicVillages = castleListParser.parsePublicVillageList(params, worldMapOwnerInfoData.ownInfoVO);
+        //castleUserData.castleListVO.privateVillages = castleListParser.parsePrivateVillageList(params, worldMapOwnerInfoData.ownInfoVO);
     }
 }

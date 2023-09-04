@@ -32,7 +32,7 @@ class SpyNPCMessage extends BasicMessage {
     }
 
     /**
-     * @param {Client} client,
+     * @param {Client} client
      * @param {string} spyTypeName
      * @protected
      */

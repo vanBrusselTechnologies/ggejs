@@ -118,14 +118,14 @@ function handlePostGBDCommandInNextFrame(socket) {
      */
     require('./../../commands/getSubscriptionInformationCommand').execute(socket);
     /*
-    *  directCommandMap.map(InitPaymentShopCommand).execute();
-    *  if(!featureRestrictionsModel.isFeatureRestrictedWithType("accountCode",FeatureRestrictionType.HIDDEN))
-    *  {
-    *     directCommandMap.map(WebshopGetAccountIdCommand).execute();
-    *  }
-    *  sendInstallerPackageSignal.dispatch();
-    *  requestTimeForRuinPushNotification();
-    */
+     * directCommandMap.map(InitPaymentShopCommand).execute();
+     * if(!featureRestrictionsModel.isFeatureRestrictedWithType("accountCode",FeatureRestrictionType.HIDDEN))
+     * {
+     *    directCommandMap.map(WebshopGetAccountIdCommand).execute();
+     * }
+     * sendInstallerPackageSignal.dispatch();
+     * requestTimeForRuinPushNotification();
+     */
     requestLoginBonusInfo(socket);
     requestMessagesData(socket);
     //requestAllianceData(); alles in false if-statement

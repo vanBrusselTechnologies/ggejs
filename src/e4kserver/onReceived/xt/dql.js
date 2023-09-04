@@ -1,5 +1,5 @@
 const {buildings, dailyactivities: dailyActivities} = require('e4k-data').data;
-const mercenariesPackageCommand = require('../../commands/mercenariesPackageCommand');
+const mercenaryPackageCommand = require('../../commands/mercenaryPackageCommand');
 const Horse = require('../../../structures/Horse');
 const MovementManager = require('../../../managers/MovementManager');
 const {HorseType, WorldmapArea, SpyType} = require("../../../utils/Constants");
@@ -130,6 +130,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                         case 9:
                         case 10:
                             try {
+                                if (dailyActivity.triggerKingdomID !== 0) break;
                                 let myCastle = dailyActivity.triggerKingdomID === 0 ? myMainCastle : thisPlayer.castles.find(x => x.kingdomId === dailyActivity.triggerKingdomID && x.areaType === WorldmapArea.KingdomCastle);
                                 if (myCastle == null) break;
                                 let lord = socket.client.equipments.getAvailableCommandants()[0];
@@ -154,7 +155,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                         case 21:
                             break; //requestAllianceHelp
                         case 22:
-                            mercenariesPackageCommand.execute(socket, -1);
+                            mercenaryPackageCommand.execute(socket, -1);
                             break; //completeMercenaryMission
                         case 24:
                             console.log("countDungeons tempServer");
@@ -710,8 +711,8 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
             if (wave[side] == null) continue;
             let fillRange = false;
             let fillMelee = false;
-            let maxSoldiersOnSide = CombatConst.getAmountSoldiers(side === "M" ? 1 : 0, dungeon.level, flankUnitAmountBonus, frontUnitAmountBonus);
-            let maxSoldierBoxesOnSide = side === "M" ? CombatConst.getUnitSlotCountFront(dungeon.level) : CombatConst.getUnitSlotCountFlank(dungeon.level);
+            let maxSoldiersOnSide = CombatConst.getAmountSoldiers(side === "middle" ? 1 : 0, dungeon.level, flankUnitAmountBonus, frontUnitAmountBonus);
+            let maxSoldierBoxesOnSide = side === "middle" ? CombatConst.getUnitSlotCountFront(dungeon.level) : CombatConst.getUnitSlotCountFlank(dungeon.level);
             meleeSoldiersSorted.sort((a, b) => -(a.item.meleeAttack * Math.min(a.count, maxSoldiersOnSide) - b.item.meleeAttack * Math.min(b.count, maxSoldiersOnSide)));
             rangeSoldiersSorted.sort((a, b) => -(a.item.rangeAttack * Math.min(a.count, maxSoldiersOnSide) - b.item.rangeAttack * Math.min(b.count, maxSoldiersOnSide)));
             if (defenceStrength[side].melee < defenceStrength[side].range) {
@@ -740,13 +741,13 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
                 fillMelee = true;
             }
 
-            let sideAttackBonus = side === "M" ? frontAttackBonus : flankAttackBonus;
+            let sideAttackBonus = side === "middle" ? frontAttackBonus : flankAttackBonus;
             if (fillRange) {
                 let unitCount = Math.min(maxSoldiersOnSide, rangeSoldiersSorted[0].count);
                 let _unitCount = !rangeSoldiersSorted[1] ? 0 : Math.max(0, Math.min(maxSoldiersOnSide - unitCount, rangeSoldiersSorted[1].count));
                 let bonus = 1 + lordRangeBonus + sideAttackBonus;
-                let unitsStrength = (unitCount * rangeSoldiersSorted[0].item.rangeAttack * bonus) + (!rangeSoldiersSorted[1] ? 0 : (_unitCount * rangeSoldiersSorted[1].item.rangeAttack * bonus));
-                if (unitsStrength > defenceStrength[side].range) {
+                let unitStrength = (unitCount * rangeSoldiersSorted[0].item.rangeAttack * bonus) + (!rangeSoldiersSorted[1] ? 0 : (_unitCount * rangeSoldiersSorted[1].item.rangeAttack * bonus));
+                if (unitStrength > defenceStrength[side].range) {
                     wave[side].units.push({item: rangeSoldiersSorted[0].item, count: unitCount});
                     rangeSoldiersSorted[0].count -= unitCount;
                     if (maxSoldierBoxesOnSide > 1 && _unitCount > 0) {
@@ -759,8 +760,8 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
                 let unitCount = Math.min(maxSoldiersOnSide, meleeSoldiersSorted[0].count);
                 let _unitCount = !meleeSoldiersSorted[1] ? 0 : Math.max(0, Math.min(maxSoldiersOnSide - unitCount, meleeSoldiersSorted[1].count));
                 let bonus = 1 + lordMeleeBonus + sideAttackBonus;
-                let unitsStrength = (unitCount * meleeSoldiersSorted[0].item.meleeAttack * bonus) + (!meleeSoldiersSorted[1] ? 0 : (_unitCount * meleeSoldiersSorted[1].item.meleeAttack * bonus));
-                if (unitsStrength > defenceStrength[side].melee) {
+                let unitStrength = (unitCount * meleeSoldiersSorted[0].item.meleeAttack * bonus) + (!meleeSoldiersSorted[1] ? 0 : (_unitCount * meleeSoldiersSorted[1].item.meleeAttack * bonus));
+                if (unitStrength > defenceStrength[side].melee) {
                     wave[side].units.push({item: meleeSoldiersSorted[0].item, count: unitCount});
                     meleeSoldiersSorted[0].count -= unitCount;
                     if (maxSoldierBoxesOnSide > 1 && _unitCount > 0) {

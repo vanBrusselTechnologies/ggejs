@@ -13,7 +13,7 @@ module.exports = {
      * @param {object} params
      */
     execute(socket, errorCode, params) {
-        if (params == null) {
+        if (params == null || errorCode === 130) {
             socket[`bsd -> errorCode`] = errorCode;
             return;
         }

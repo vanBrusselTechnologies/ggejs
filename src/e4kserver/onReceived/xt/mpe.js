@@ -1,4 +1,4 @@
-const {execute: mercenariesPackageCommand} = require('./../../commands/mercenariesPackageCommand');
+const {execute: mercenaryPackageCommand} = require('../../commands/mercenaryPackageCommand');
 
 module.exports = {
     name: "mpe",
@@ -40,7 +40,7 @@ module.exports = {
                 bestMission.missionId = -1;
                 setTimeout(() => {
                     if(!socket["__connected"]) return;
-                    mercenariesPackageCommand(socket, __mission.missionId);
+                    mercenaryPackageCommand(socket, __mission.missionId);
                 }, __mission.remainingDuration * 1100)
                 break;
             }
@@ -54,7 +54,7 @@ module.exports = {
             }
         }
         if (bestMission.missionId !== -1) {
-            mercenariesPackageCommand(socket, bestMission.missionId)
+            mercenaryPackageCommand(socket, bestMission.missionId)
         }
     }
 }

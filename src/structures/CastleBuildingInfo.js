@@ -58,7 +58,7 @@ class CastleBuildingInfo {
         const baseBuildingGround = this.buildingGround.find(bg => bg.wodId === 200)
         this.startPointX = baseBuildingGround.position.X;
         this.startPointY = baseBuildingGround.position.Y;
-        if (data["scl"]) this.constructionList = SCLParser(client._socket, 0, data["scl"]["OIDL"]);
+        if (data["scl"]) this.constructionList = SCLParser(client._socket, 0, data["scl"]);
         if (data["FP"]) this.fixedPositionBuildings = parseBuildings(client, data["FP"]);
         this.resourceFields = {
             food: data["RAF"], stone: data["RAS"], wood: data["RAW"]

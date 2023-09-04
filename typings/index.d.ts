@@ -32,7 +32,7 @@ declare class Client extends EventEmitter {
      * @example ```js
      * const e4kNetworkInstances = require('e4k-data').network.instances.instance;
      * const worldNetworkInstance = e4kNetworkInstances.find(i => i.instanceLocaId === "generic_country_world");
-     * const client = new Client('playername', 'password', worldNetworkInstance)
+     * const client = new Client(playername, password, worldNetworkInstance)
      */
     public constructor(name: string, password: string, serverInstance: NetworkInstance);
 
@@ -65,6 +65,8 @@ declare class Client extends EventEmitter {
 declare class Socket extends netSocket {
     public client: Client;
     public debug: boolean;
+    public ultraDebug: boolean;
+    public _host: string;
 }
 
 //#region Managers
@@ -374,6 +376,7 @@ declare class CompactArmy {
     public middle: InventoryItem<Unit>[];
     public right: InventoryItem<Unit>[];
     public supportTools: InventoryItem<Tool>[];
+    public finalWave: InventoryItem<Unit>[];
     public armySize: number;
     public soldierCount: number;
     public toolCount: number;
@@ -757,7 +760,6 @@ declare class FactionCampMapobject extends FactionInteractiveMapobject {
 
 declare class FactionCapitalMapobject extends FactionInteractiveMapobject {
     travelDistance: number;
-    aliveProtectorPositions: Array<[number, number]>
     dungeonLevel: number;
 
     get areaName(): string;
@@ -1064,6 +1066,10 @@ interface BattleLog {
     finalWaveAttacker: BattleLogUnit<Unit>[],
     supportToolsAttacker: BattleLogUnit<Unit>[],
     supportToolsDefender: BattleLogUnit<Unit>[],
+    autoSkipCooldownType: number;
+    autoSkipC2: number;
+    autoSkipMinuteSkips: Good[];
+    autoSkipSeconds: number;
 }
 
 declare class BattleLogUnit<Unit> extends InventoryItem<Unit> {
