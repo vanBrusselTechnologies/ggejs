@@ -1,5 +1,4 @@
 const Constants = require('../utils/Constants')
-const e4kData = require('e4k-data').data
 
 class ClientUserDataManager {
     /** @private */
@@ -99,13 +98,13 @@ class ClientUserDataManager {
         maxSpies: 0, availablePlagueMonks: 0,
     }
     /** @private */
-    _titlesData: {
-        titlePoints: {}
-        highestPoints: {}
-        currentTitle: {}
-        titlesRatingStatus: {}
-        prefix: Constants.TitleType.Unknown
-        suffix: Constants.TitleType.Unknown
+    _titlesData = {
+        titlePoints: {},
+        highestPoints: {},
+        currentTitle: {},
+        titlesRatingStatus: {},
+        prefix: Constants.TitleType.UNKNOWN,
+        suffix: Constants.TitleType.UNKNOWN,
         highestTitlesByTypeVO: {}
     }
 
@@ -587,7 +586,6 @@ class ClientUserDataManager {
         this._titlesData.prefix = val
     }
 
-    /** @returns {Title} */
     get titlePrefix(){
         return this.currentTitle(this._titlesData.prefix)
     }
@@ -597,7 +595,6 @@ class ClientUserDataManager {
         this._titlesData.suffix = val
     }
 
-    /** @returns {Title} */
     get titleSuffix(){
         return this.currentTitle(this._titlesData.suffix)
     }
@@ -639,20 +636,11 @@ class ClientUserDataManager {
         return this._titlesData.titlePoints[titleType]
     }
 
-    /**
-     *
-     * @param {number} titleType see Constants.TitleType for possibilities
-     * @param {Title} title
-     */
+
     setCurrentTitle(titleType, title){
         this._titlesData.currentTitle[titleType] = title
     }
 
-    /**
-     *
-     * @param {number} titleType see Constants.TitleType for possibilities
-     * @returns {Title}
-     */
     currentTitle(titleType){
         return this._titlesData.currentTitle[titleType]
     }
