@@ -45,9 +45,9 @@ class AllianceManager extends BaseManager {
     getMyAlliance() {
         return new Promise(async (resolve, reject) => {
             try {
-                let _player = await this._client.players.getThisPlayer();
-                if (!_player.allianceId) reject("You are not in an alliance!");
-                let alliance = this.getById(_player.allianceId);
+                const allianceId = this._client.clientUserData.allianceId;
+                if (allianceId === -1) reject("You are not in an alliance!");
+                let alliance = this.getById(allianceId);
                 resolve(alliance);
             } catch (e) {
                 reject(Localize.text(this._client, 'errorCode_114'));

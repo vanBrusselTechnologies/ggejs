@@ -216,7 +216,7 @@ exports.MessageSubType = {
     }, SpyCancelled: {
         Aborted: 0
     }, SpecialEvent: {
-        Start: 12, VIPInfo: 16, Update: 32, MonumentReset: 66
+        Start: 12, End: 13, VIPInfo: 16, Update: 32, MonumentReset: 66
     }, PrivateOffer: {
         Tipp: 1, DungeonChest: 5, WhaleChest: 6, TimeChallenge: 12, BestsellerShop: 14
     }
@@ -235,4 +235,8 @@ exports.EquipmentRarity = {
     Orange: 4,
     Relic: 5,
     Blue: 5,
+}
+
+exports.TitleType = {
+    UNKNOWN: 0, FAME: 1, ISLE: 2, FACTION: 3
 }

@@ -35,7 +35,7 @@ module.exports = {
  * @returns {Mapobject[]}
  */
 function parseWorldmapAreas(client, _data) {
-    let worldmapAreas = [];
+    const worldmapAreas = [];
     for (const data of _data) {
         worldmapAreas.push(parseMapObject(client, data))
     }

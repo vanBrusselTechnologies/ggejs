@@ -13,6 +13,7 @@ class FactionTowerMapobject extends FactionInteractiveMapobject {
      */
     constructor(client, data) {
         super(client, data.slice(0, 3));
+        if (data.length <= 3) return;
         this.#client = client;
         this.ownerId = data[3];
         this.isDestroyed = data[4] === 1;

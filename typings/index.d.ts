@@ -8,6 +8,7 @@ import {
     General as RawGeneral,
     Lord as RawLord,
     NetworkInstance,
+    Title,
     Unit as RawUnit
 } from 'e4k-data'
 
@@ -17,6 +18,7 @@ export const Constants: IConstants;
 /** Base class for a player account */
 declare class Client extends EventEmitter {
     public alliances: AllianceManager;
+    public clientUserData: ClientUserDataManager;
     public equipments: EquipmentManager;
     public movements: MovementManager;
     public players: PlayerManager;
@@ -89,10 +91,200 @@ declare class AllianceManager extends BaseManager {
     private _add_or_update(_alliance: Alliance | MyAlliance): void;
 }
 
+declare class ClientUserDataManager {
+    private constructor(client: Client);
+
+    public get isXPDataInitialized(): boolean;
+    private set isXPDataInitialized(val: number);
+
+    public get userXp(): number;
+    private set userXp(val: number);
+
+    public get userXpCurrentLevel(): number;
+    private set userXpCurrentLevel(val: number);
+
+    public get userXPtoNextLevel(): number;
+    private set userXPtoNextLevel(val: number);
+
+    public get displayXP(): number;
+    private set displayXP(val: number);
+
+    public get hasPremiumFlag(): boolean;
+    private set hasPremiumFlag(val: boolean);
+
+    public get userRanking(): number;
+    private set userRanking(val: number);
+
+    public get mightpoints(): number;
+    private set mightpoints(val: number);
+
+    public get highestAchievedMight(): number;
+    private set highestAchievedMight(val: number);
+
+    public get paymentDoublerCount(): number;
+    private set paymentDoublerCount(val: number);
+
+    public get isPayUser(): boolean;
+    private set isPayUser(val: boolean);
+
+    public get userId(): number;
+    private set userId(val: number);
+
+    public get playerId(): number;
+    private set playerId(val: number);
+
+    public get userName(): string;
+    private set userName(val: string);
+
+    public get email(): string;
+    private set email(val: string);
+
+    public get pendingEmailChange(): string | null;
+    private set pendingEmailChange(val: string | null);
+
+    public get isCheater(): boolean;
+    private set isCheater(val: boolean);
+
+    public get hasEverChangedName(): boolean;
+    private set hasEverChangedName(val: boolean);
+
+    public get hasConfirmedTOC(): boolean;
+    private set hasConfirmedTOC(val: boolean);
+
+    public get isAccountSaved(): boolean;
+    private set isAccountSaved(val: boolean);
+
+    public get hasFreeCastleRename(): boolean;
+    private set hasFreeCastleRename(val: boolean);
+
+    public get facebookId(): string | null;
+    private set facebookId(val: string | null);
+
+    public get allianceId(): number;
+    private set allianceId(val: number);
+
+    public get allianceRank(): number;
+    private set allianceRank(val: number);
+
+    public get allianceCurrentFame(): number;
+    private set allianceCurrentFame(val: number);
+
+    public get isSearchingAlliance(): boolean;
+    private set isSearchingAlliance(val: boolean);
+
+    public get wasResetted(): boolean;
+    private set wasResetted(val: boolean);
+
+    public get selectedHeroId(): number;
+    private set selectedHeroId(val: number);
+
+    public get lastUserActivity(): Date;
+    private set lastUserActivity(val: number);
+
+    public get maxSpies(): number;
+    private set maxSpies(val: number);
+
+    public get availablePlagueMonks(): number;
+    private set availablePlagueMonks(val: number);
+
+    public get noobProtectionEndTime(): Date;
+    private set noobProtectionEndTime(val: Date);
+
+    public get noobProtected(): boolean;
+    private set noobProtected(val: boolean);
+
+    public get peaceProtectionStatusEndTime(): Date;
+    private set peaceProtectionStatusEndTime(val: Date);
+
+    public get peaceModeStatus(): number;
+    private set peaceModeStatus(val: number);
+
+    public get activeMovementFilters(): number[];
+    private set activeMovementFilters(val: number[]);
+
+    public get relocationCount(): number;
+    private set relocationCount(val: number);
+
+    public get relocationDurationEndTime(): Date;
+    private set relocationDurationEndTime(val: Date);
+
+    public get relocationCooldownEndTime(): Date;
+    private set relocationCooldownEndTime(val: Date);
+
+    public get relocationDestination(): Coordinate;
+    private set relocationDestination(val: Coordinate);
+
+    public get mayChangeCrest(): boolean;
+    private set mayChangeCrest(val: boolean);
+
+    public get playerCrest(): Crest;
+    private set playerCrest(val: Crest);
+
+    public get globalCurrencies(): Good[]
+    private set globalCurrencies(val: Good);
+
+    public get titlePrefix(): Title
+    private set titlePrefix(val: number);
+
+    public get titleSuffix(): Title
+    private set titleSuffix(val: number);
+
+    public get level(): number;
+
+    public get legendaryLevel(): number;
+
+    public get honor(): number;
+
+    public get registrationDate(): Date;
+
+    private set userLevel(val: number);
+
+    private set userParagonLevel(val: number);
+
+    private set userHonor(val: number);
+
+    private set registrationTimestamp(val: number);
+
+    public isLegendLevel(): boolean;
+
+    public titlePoints(titleType: number): number
+
+    public currentTitle(titleType: number): Title
+
+    public highestTitlePoints(titleType: number): number
+
+    private setKingdomNoobProtection(kingdomID: number, remainingNoobTimeInSeconds: number): void;
+
+    private setTitlePoints(points: number, titleType: number): void
+
+    private setCurrentTitle(titleType: number, title: Title): void
+
+    private clearCurrentTitle(titleType: number): void
+
+    private setHighestTitlePoints(points: number, titleType: number): void
+
+    /* todo: TitleRatingStatus
+    setTitleRatingStatus(titleRatingStatus: TitleRatingStatus, titleType: number): void;
+    titleRatingStatus(titleType: number): TitleRatingStatus
+     */
+}
+
 declare class EquipmentManager extends BaseManager {
     private constructor(client: Client);
 
     public set autoDeleteAtOrBelowRarity(rarity: number);
+
+    public get equipmentSpaceLeft(val: number);
+    private set equipmentSpaceLeft(val: number);
+
+    public get equipmentTotalInventorySpace(val: number);
+    private set equipmentTotalInventorySpace(val: number);
+
+    public get gemSpaceLeft(val: number);
+    private set gemSpaceLeft(val: number);
+
+    public get gemTotalInventorySpace(val: number);
+    private set gemTotalInventorySpace(val: number);
 
     public getCommandants(): Lord[];
 
@@ -146,8 +338,6 @@ declare class MovementManager extends BaseManager {
 }
 
 declare class PlayerManager extends BaseManager {
-    private _thisPlayerId: number;
-
     private constructor(client: Client);
 
     public getById(id: number): Promise<Player>;
@@ -157,8 +347,6 @@ declare class PlayerManager extends BaseManager {
     public getThisPlayer(): Promise<Player>;
 
     private _add_or_update(_player: Player): void;
-
-    private _setThisPlayer(id: number): void;
 }
 
 declare class WorldmapManager extends BaseManager {
@@ -946,8 +1134,10 @@ type Message =
     | PlayerGiftMessage
     | UserSurveyMessage
     | RebuyMessage
+    | RuinInfoMessage
     | SpecialEventStartMessage
     | SpecialEventUpdateMessage
+    | SpecialEventEndMessage
     | SpecialEventVIPInfoMessage
     | SpecialEventMonumentResetMessage
     | AllianceWarEnemyAttackMessage
@@ -1226,6 +1416,11 @@ declare class RebuyMessage extends BasicMessage {
     boosterId?: number;
 }
 
+declare class RuinInfoMessage extends BasicMessage {
+    position: Coordinate;
+    remainingRuinTime: Date;
+}
+
 //#region AttackCancelledMessage
 declare class BasicAttackCancelledMessage extends BasicMessage {
     kingdomId: number;
@@ -1288,6 +1483,10 @@ declare class SpecialEventStartMessage extends BasicSpecialEventMessage {
 }
 
 declare class SpecialEventUpdateMessage extends BasicSpecialEventMessage {
+    eventId: number;
+}
+
+declare class SpecialEventEndMessage extends BasicSpecialEventMessage {
     eventId: number;
 }
 
@@ -1557,6 +1756,19 @@ declare class PrimeTime {
     get isActive(): boolean;
 }
 
+declare class Crest {
+    public backgroundType: number;
+    public backgroundColor1: number;
+    public backgroundColor2: number;
+    public symbolPosType: number;
+    public symbolType1: number;
+    public symbolType2: number;
+    public symbolColor1: number;
+    public symbolColor2: number;
+    public colors: number[];
+    public colorsTwo: number[];
+}
+
 //#region Constants
 /**
  *
@@ -1575,6 +1787,7 @@ interface IConstants {
     MessageType: MessageType;
     MessageSubType: MessageSubType;
     EquipmentRarity: EquipmentRarity;
+    TitleType: TitleType;
 }
 
 interface Kingdom {
@@ -1810,6 +2023,7 @@ interface MessageSubType {
     },
     SpecialEvent: {
         Start: 12,
+        End: 13,
         VIPInfo: 16,
         Update: 32,
         MonumentReset: 66
@@ -1836,6 +2050,13 @@ interface EquipmentRarity {
     Orange: 4,
     Relic: 5,
     Blue: 5,
+}
+
+interface TitleType {
+    UNKNOWN: 0,
+    FAME: 1,
+    ISLE: 2,
+    FACTION: 3
 }
 
 //#endregion

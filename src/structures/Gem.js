@@ -47,11 +47,11 @@ function getDataFromJson(id) {
  */
 function parseEffects(client, _data) {
     let _effects = _data.split(",");
-    let data = [];
+    const data = [];
     for (let e of _effects) {
         data.push(e.split("&amp;"));
     }
-    let effects = [];
+    const effects = [];
     for (let d of data) {
         effects.push(new Effect(client, d));
     }

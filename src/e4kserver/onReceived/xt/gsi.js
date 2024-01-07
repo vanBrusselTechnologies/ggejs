@@ -26,7 +26,7 @@ module.exports = {
  * @return {InventoryItem<Unit>[]}
  */
 function parseUnits(client, data) {
-    let units = [];
+    const units = [];
     for (let u of data) {
         units.push({
             item: new Unit(client, u[0]),

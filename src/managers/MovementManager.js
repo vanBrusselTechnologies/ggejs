@@ -5,6 +5,7 @@ const {execute: sendArmyAttackMovement} = require("./../e4kserver/commands/sendA
 const {execute: sendMarketMovement} = require("./../e4kserver/commands/sendMarketMovement");
 const {execute: sendSpyMovement} = require("./../e4kserver/commands/sendSpyMovement");
 const {SpyType} = require("../utils/Constants");
+const Constants = require("../utils/Constants");
 
 class MovementManager extends BaseManager {
     /** @type {Movement[]} */
@@ -108,7 +109,7 @@ class MovementManager extends BaseManager {
             }
             if (!found) {
                 this.#movements.push(_newMovement);
-                this.emit("movementAdd", _newMovement);
+                this.emit(Constants.Events.MOVEMENT_ADD, _newMovement);
             }
         }
     }

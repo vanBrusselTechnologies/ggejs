@@ -30,6 +30,7 @@ class ArmyAttackMovement extends BasicMovement {
       this.isShadowMovement = data.SM === 1;
       /** @type {boolean} */
       this.isForceCancelable = !!data.FC ? data.FC === 1 : false;
+      this.autoSkipCooldownType = data.ASCT;
    }
 }
 

@@ -1,13 +1,10 @@
-module.exports.name = "spl";
+module.exports.name = "cpi";
 /**
- *
  * @param {Socket} socket
  * @param {number} errorCode
  * @param {object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
-    if(socket.debug) {
-        console.log("spl:")
-        console.log(params)
-    }
+    if (!params) return;
+    socket.client.clientUserData.availablePlagueMonks = params.MC;
 }

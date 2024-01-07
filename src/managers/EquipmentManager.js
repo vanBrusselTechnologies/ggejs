@@ -16,10 +16,54 @@ class EquipmentManager extends BaseManager {
     #equipmentInventory = [];
     /** @type {number} */
     #atOrBelowDeleteRarity = -1;
+    /** @type {number} */
+    #equipmentSpaceLeft = -1;
+    /** @type {number} */
+    #equipmentTotalInventorySpace = -1;
+    /** @type {number} */
+    #gemSpaceLeft = -1;
+    /** @type {number} */
+    #gemTotalInventorySpace = -1;
 
     /** @param {number} rarity */
     set autoDeleteAtOrBelowRarity(rarity) {
         this.#atOrBelowDeleteRarity = rarity % 10;
+    }
+
+    get equipmentSpaceLeft(){
+        return this.#equipmentSpaceLeft;
+    }
+
+    /** @param {number} val */
+    set equipmentSpaceLeft(val){
+        this.#equipmentSpaceLeft = val;
+    }
+
+    get equipmentTotalInventorySpace(){
+        return this.#equipmentTotalInventorySpace;
+    }
+
+    /** @param {number} val */
+    set equipmentTotalInventorySpace(val){
+        this.#equipmentTotalInventorySpace = val;
+    }
+
+    get gemSpaceLeft(){
+        return this.#gemSpaceLeft;
+    }
+
+    /** @param {number} val */
+    set gemSpaceLeft(val){
+        this.#gemSpaceLeft = val;
+    }
+
+    get gemTotalInventorySpace(){
+        return this.#gemTotalInventorySpace;
+    }
+
+    /** @param {number} val */
+    set gemTotalInventorySpace(val){
+        this.#gemTotalInventorySpace = val;
     }
 
     /**
@@ -52,7 +96,7 @@ class EquipmentManager extends BaseManager {
 
     /** @returns {Lord[]} All idle commandants */
     getAvailableCommandants() {
-        const thisPlayerId = this._client.players._thisPlayerId;
+        const thisPlayerId = this._client.clientUserData.playerId;
         const myMovements = this._client.movements.get().filter(m => (m.direction === 0 && m.sourceArea.ownerId === thisPlayerId) || (m.direction === 1 && m.targetArea.ownerId === thisPlayerId));
         if (myMovements.length === 0) return this.#commandants;
         return this.#commandants.filter(l => {

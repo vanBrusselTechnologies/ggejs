@@ -1,7 +1,7 @@
 const path = require('node:path');
 const fs = require('fs');
 
-let commands = [];
+const commands = [];
 const commandPath = path.join(__dirname, '../sys');
 const commandFiles = fs.readdirSync(commandPath).filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
@@ -10,18 +10,16 @@ for (const file of commandFiles) {
     commands[command.name] = command.execute;
 }
 
-module.exports = {
-    /**
-     * @param {Socket} socket
-     * @param {object} event
-     */
-    onResponse(socket, event) {
-        let action = event.body["$"].action;
-        let handler = commands[action];
-        if (handler != null) {
-            handler.apply(this, [socket, event]);
-        } else {
-            if (socket.debug) console.log('[RECEIVED UNKNOWN EVENT] ' + JSON.stringify(event));
-        }
+/**
+ * @param {Socket} socket
+ * @param {object} event
+ */
+module.exports.onResponse = function (socket, event) {
+    let action = event.body["$"].action;
+    let handler = commands[action];
+    if (handler != null) {
+        handler.apply(this, [socket, event]);
+    } else {
+        if (socket.debug) console.log('[RECEIVED UNKNOWN EVENT] ' + JSON.stringify(event));
     }
 }

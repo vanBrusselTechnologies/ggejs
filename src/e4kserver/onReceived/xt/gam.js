@@ -6,6 +6,7 @@ const SpyMovement = require('../../../structures/movements/SpyMovement');
 const BasicMovement = require('../../../structures/movements/BasicMovement');
 const NpcAttackMovement = require('../../../structures/movements/NpcAttackMovement');
 const CollectorAttackMovement = require('../../../structures/movements/CollectorAttackMovement');
+const ShapeShifterAttackMovement = require('../../../structures/movements/ShapeshifterAttackMovement')
 
 module.exports.name = "gam";
 /**
@@ -17,7 +18,7 @@ module.exports.execute = function (socket, errorCode, params) {
     if (!params.M) return;
     let i = 0;
     /** @type {Movement[]} */
-    let movements = [];
+    const movements = [];
     for (i in params.M) {
         if (!params.M[i]) continue;
         let _movement;
@@ -40,6 +41,9 @@ module.exports.execute = function (socket, errorCode, params) {
                 break;
             case 11:
                 _movement = new NpcAttackMovement(socket.client, _movObj);
+                break;
+            case 22:
+                _movement = new ShapeShifterAttackMovement(socket.client, _movObj);
                 break;
             case 23:
                 _movement = new CollectorAttackMovement(socket.client, _movObj);

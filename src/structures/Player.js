@@ -4,6 +4,7 @@ const VillageMapobject = require("./mapobjects/VillageMapobject");
 const KingstowerMapobject = require("./mapobjects/KingstowerMapobject");
 const MonumentMapobject = require("./mapobjects/MonumentMapobject");
 const Coordinate = require("./Coordinate");
+const Crest = require("./Crest");
 
 class Player {
     /**
@@ -18,7 +19,7 @@ class Player {
         this.isDummy = data.O.DUM === 1;
         /** @type {string} */
         this.playerName = data.O.N;
-        //this.crest = new Crest(client, data.O.E);
+        this.crest = new Crest(client, data.O.E);
         /** @type {number} */
         this.playerLevel = data.O.L;
         /** @type {number} */

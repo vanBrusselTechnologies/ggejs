@@ -35,7 +35,6 @@ function _WaitUntil(socket, field, errorField = "", endDateTimestamp) {
             if (socket.debug) console.log(`Socket was disconnecting or disconnected while requesting field: '${field}'`);
             reject("Socket disconnected!")
         } else if (endDateTimestamp < Date.now()) {
-            if (socket.debug) console.log(`Socket exceeded max time while requesting field: '${field}'`)
             reject("Exceeded max time!");
         } else {
             try {

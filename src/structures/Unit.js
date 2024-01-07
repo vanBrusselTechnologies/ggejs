@@ -12,6 +12,7 @@ class Unit {
         this.rawData = getData(wodId);
         if (!this.rawData) return;
         for (let i in this.rawData) {
+            if (i === 'wodID') continue;
             /** @type {number | string} */
             let item = this.rawData[i];
             if (i === "kIDs" || i === "slotTypes" || i === "lowLevelRecruitmentTime") {

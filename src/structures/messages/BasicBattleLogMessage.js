@@ -33,6 +33,7 @@ class BasicBattleLogMessage extends BasicMessage {
             try {
                 this.battleLog = await getMessageBody(this.#client._socket, this.messageId, this);
                 delete this.#client._socket[`bls -> ${this.messageId}`];
+                delete this.#client._socket['bls error'];
                 if (this.battleLog) {
                     delete this.#client._socket[`blm -> ${this.battleLog.battleLogId}`];
                     delete this.#client._socket[`bld -> ${this.battleLog.battleLogId}`];
@@ -40,6 +41,7 @@ class BasicBattleLogMessage extends BasicMessage {
                 resolve();
             } catch (e) {
                 delete this.#client._socket[`bls -> ${this.messageId}`];
+                delete this.#client._socket['bls error'];
                 if (this.battleLog) {
                     delete this.#client._socket[`blm -> ${this.battleLog.battleLogId}`];
                     delete this.#client._socket[`bld -> ${this.battleLog.battleLogId}`];
@@ -94,7 +96,7 @@ function getMessageBody(socket, messageId, battleLogMessage) {
             const body = {};
             socket[`${messageId} battleLogMessage`] = battleLogMessage;
             getBattleLogShort(socket, messageId);
-            const battleLogShort = await WaitUntil(socket, `bls -> ${messageId}`, "", 30000);
+            const battleLogShort = await WaitUntil(socket, `bls -> ${messageId}`, "bls error", 30000);
             for (let key in battleLogShort) {
                 if (battleLogShort[key] == null) continue;
                 body[key] = battleLogShort[key];

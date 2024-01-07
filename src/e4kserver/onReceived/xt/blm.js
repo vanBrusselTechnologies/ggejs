@@ -1,27 +1,27 @@
 const Lord = require("../../../structures/Lord");
 const General = require("../../../structures/General");
-module.exports = {
-    name: "blm", /**
-     * @param {Socket} socket
-     * @param {number} errorCode
-     * @param {object} params
-     */
-    execute(socket, errorCode, params) {
-        /** @type {BattleLog} */
-        const battleLog = socket[`${params.LID} battleLog`];
-        delete socket[`${params.LID} battleLog`];
-        const attackerLords = parseAttackerLords(socket.client, params, battleLog);
-        const defenderLords = parseDefenderLords(socket.client, params, battleLog);
-        socket[`blm -> ${params.LID}`] = {
-            battleLogId: params["LID"],
-            messageId: params["MID"],
-            attackerCommandant: attackerLords?.commandant,
-            attackerGeneral: attackerLords?.general,
-            attackerLegendSkills: attackerLords?.legendSkills,
-            defenderBaron: defenderLords?.baron,
-            defenderGeneral: defenderLords?.general,
-            defenderLegendSkills: defenderLords?.legendSkills,
-        }
+
+module.exports.name = "blm"
+/**
+ * @param {Socket} socket
+ * @param {number} errorCode
+ * @param {object} params
+ */
+module.exports.execute = function (socket, errorCode, params) {
+    /** @type {BattleLog} */
+    const battleLog = socket[`${params.LID} battleLog`];
+    delete socket[`${params.LID} battleLog`];
+    const attackerLords = parseAttackerLords(socket.client, params, battleLog);
+    const defenderLords = parseDefenderLords(socket.client, params, battleLog);
+    socket[`blm -> ${params.LID}`] = {
+        battleLogId: params["LID"],
+        messageId: params["MID"],
+        attackerCommandant: attackerLords?.commandant,
+        attackerGeneral: attackerLords?.general,
+        attackerLegendSkills: attackerLords?.legendSkills,
+        defenderBaron: defenderLords?.baron,
+        defenderGeneral: defenderLords?.general,
+        defenderLegendSkills: defenderLords?.legendSkills,
     }
 }
 
@@ -35,7 +35,7 @@ module.exports = {
 function parseAttackerLords(client, data, battleLog) {
     if (data["AL"]) {
         const lord = new Lord(client, data["AL"]);
-        if (battleLog?.attacker.playerId === client.players._thisPlayerId) {
+        if (battleLog?.attacker.playerId === client.clientUserData.playerId) {
             const lord2 = client.equipments.getCommandants().find(c => c.id === lord.id);
             lord.name = !!lord2 ? lord2.name : "";
         }
@@ -61,7 +61,7 @@ function parseAttackerLords(client, data, battleLog) {
 function parseDefenderLords(client, data, battleLog) {
     if (data["DB"]) {
         const lord = new Lord(client, data["DB"]);
-        if (battleLog?.defender.playerId === client.players._thisPlayerId) {
+        if (battleLog?.defender.playerId === client.clientUserData.playerId) {
             const lord2 = client.equipments.getBarons().find(b => b.id === lord.id);
             lord.name = lord2 ? lord2.name : "";
         }

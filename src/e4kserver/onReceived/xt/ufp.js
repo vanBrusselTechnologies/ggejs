@@ -1,12 +1,13 @@
-module.exports = {
-    name: "ufp",
-    /**
-     * @param {Socket} socket
-     * @param {number} errorCode
-     * @param {object} params
-     */
-    execute(socket, errorCode, params) {
-        socket.client["factionPoints"] = params["CFP"];
-        socket.client["highestFactionPoints"] = params["HFP"];
-    }
+const {TitleType} = require("../../../utils/Constants");
+
+module.exports.name = "ufp";
+/**
+ * @param {Socket} socket
+ * @param {number} errorCode
+ * @param {object} params
+ */
+module.exports.execute = function (socket, errorCode, params) {
+    const cud = socket.client.clientUserData;
+    cud.setTitlePoints(params["CFP"], TitleType.FACTION)
+    cud.setHighestTitlePoints(params["HFP"], TitleType.FACTION)
 }

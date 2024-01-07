@@ -18,8 +18,8 @@ module.exports.onData = function (socket, data) {
         console.log("[RECEIVED]: " + msg.substring(0, Math.min(150, msg.length)));
     }
     socket["unfinishedDataString"] = "";
-    let msgParts = [];
-    let msgChars = msg.split("");
+    const msgParts = [];
+    const msgChars = msg.split("");
     let _msgPart = "";
     for (let i = 0; i < msgChars.length; i++) {
         if (msgChars[i].charCodeAt(0) === 0) {

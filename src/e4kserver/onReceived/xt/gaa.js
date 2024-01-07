@@ -8,6 +8,7 @@ module.exports.name = "gaa";
  * @param {{KID:number, AI:[], OI:[]}} params
  */
 module.exports.execute = function (socket, errorCode, params) {
+    if (errorCode === 337) return;
     if (params == null) return;
     let kId = params.KID;
     if (!params.AI || params.AI.length === 0) {
@@ -62,7 +63,7 @@ module.exports.execute = function (socket, errorCode, params) {
  * @returns {Mapobject[]}
  */
 function parseWorldmapAreas(client, _data) {
-    let worldmapAreas = [];
+    const worldmapAreas = [];
     for (const data of _data) {
         worldmapAreas.push(parseMapObject(client, data))
     }
@@ -76,7 +77,7 @@ function parseWorldmapAreas(client, _data) {
  * @returns {Player[]}
  */
 function parsePlayers(client, _data) {
-    let players = [];
+    const players = [];
     for (let i in _data) {
         let data = {O: _data[i]};
         let _player = new Player(client, data);

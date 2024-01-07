@@ -1,4 +1,3 @@
-const castleUserData = require('./../../../structures/CastleUserData');
 const MonumentMapobject = require("../../../structures/mapobjects/MonumentMapobject");
 
 module.exports.name = "gml";
@@ -9,9 +8,9 @@ module.exports.name = "gml";
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params) return;
-    let monuments = [];
+    const monuments = [];
     for (let obj of params.AI) {
         monuments.push(new MonumentMapobject(socket.client, obj));
     }
-    castleUserData.castleListVO.monuments = monuments;
+    //socket.client.castleUserData.castleListVO.monuments = monuments;
 }

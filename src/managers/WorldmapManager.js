@@ -6,6 +6,7 @@ const {WaitUntil} = require('./../tools/wait');
 const Worldmap = require('../structures/Worldmap');
 const WorldmapSector = require('../structures/WorldmapSector');
 const Coordinate = require("../structures/Coordinate");
+const Localize = require("../tools/Localize");
 
 const kingdomIds = [0, 1, 2, 3, 4, 10]
 
@@ -25,7 +26,16 @@ class WorldmapManager extends BaseManager {
      * @returns {Promise<Worldmap>}
      */
     get(kingdomId) {
-        return _getWorldmapById(this, this._socket, new Worldmap(this._client, kingdomId), kingdomId);
+        return new Promise(async (res, rej) => {
+            try {
+                const player = await this._client.players.getThisPlayer();
+                if (player.castles.filter(c => c.kingdomId === kingdomId).length === 0) {
+                    rej(Localize.text(this._client, 'errorCode_337'));
+                } else res(await _getWorldmapById(this, new Worldmap(this._client, kingdomId), kingdomId));
+            }catch (e) {
+                rej(e);
+            }
+        })
     };
 
     /**
@@ -36,30 +46,39 @@ class WorldmapManager extends BaseManager {
      * @returns {Promise<WorldmapSector>} 100x100 WorldmapSector
      */
     getSector(kingdomId, centerX, centerY) {
-        return _getWorldmapSector(this, this._socket, kingdomId, centerX, centerY);
+        return new Promise(async (res, rej) => {
+            try {
+                const player = await this._client.players.getThisPlayer();
+                if (player.castles.filter(c => c.kingdomId === kingdomId).length === 0) {
+                    rej(Localize.text(this._client, 'errorCode_337'));
+                } else res(await _getWorldmapSector(this, kingdomId, centerX, centerY));
+            }
+            catch (e) {
+                rej(e);
+            }
+        })
     }
 }
 
 /**
  *
  * @param {WorldmapManager} thisManager
- * @param {Socket} socket
  * @param {Worldmap} _worldmap
  * @param {number} kingdomId
  * @returns {Promise<Worldmap>}
  */
-function _getWorldmapById(thisManager, socket, _worldmap, kingdomId) {
+function _getWorldmapById(thisManager, _worldmap, kingdomId) {
     if (!_worldmap) return new Promise((resolve, reject) => reject("missing worldmap"));
     _worldmap._clear();
     return new Promise(async (resolve, reject) => {
         try {
             let worldmapSize = 15;
             for (let i = 0; i < worldmapSize * worldmapSize; i++) {
-                if (!socket["__connected"]) break;
+                if (!thisManager._socket["__connected"]) break;
                 let col = Math.floor(i / worldmapSize) * 100 + 50;
                 let row = i % worldmapSize * 100 + 50;
                 try {
-                    let sector = await _getWorldmapSector(thisManager, socket, kingdomId, col, row);
+                    let sector = await _getWorldmapSector(thisManager, kingdomId, col, row);
                     _worldmap._addAreaMapObjects(sector.mapobjects);
                     _worldmap._addPlayers(sector.players);
                     sector = null;
@@ -80,15 +99,15 @@ function _getWorldmapById(thisManager, socket, _worldmap, kingdomId) {
 /**
  * Returns a 100x100 worldmapsector
  * @param {WorldmapManager} thisManager
- * @param {Socket} socket
  * @param {number} kingdomId
  * @param {number} x
  * @param {number} y
  * @param {number} tries
  * @returns {Promise<WorldmapSector>}
  */
-function _getWorldmapSector(thisManager, socket, kingdomId, x, y, tries = 0) {
+function _getWorldmapSector(thisManager, kingdomId, x, y, tries = 0) {
     return new Promise(async (resolve, reject) => {
+        const socket = thisManager._socket;
         try {
             if (!socket["__connected"]) reject('Client disconnected');
             socket[`__worldmap_${kingdomId}_searching_sectors`].push({x: x, y: y});
@@ -106,16 +125,27 @@ function _getWorldmapSector(thisManager, socket, kingdomId, x, y, tries = 0) {
                     new WorldmapSector(socket.client, kingdomId, {players: [], worldmapAreas: []});
                     return;
                 }
-                let sector = await _getWorldmapSector(thisManager, socket, kingdomId, x, y, tries + 1);
-                resolve(sector);
+                resolve(await _getWorldmapSector(thisManager, kingdomId, x, y, tries + 1));
                 return;
             }
-            let worldmapSector = new WorldmapSector(socket.client, kingdomId, data);
-            resolve(worldmapSector);
+            resolve(new WorldmapSector(socket.client, kingdomId, data));
         } catch (e) {
             delete socket[`__worldmap_${kingdomId}_error`];
             delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`];
             delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`];
+            if (e.toString() === "Exceeded max time!") {
+                try{
+                    if (tries >= 3) {
+                        new WorldmapSector(socket.client, kingdomId, {players: [], worldmapAreas: []});
+                        return;
+                    }
+                    resolve(await _getWorldmapSector(thisManager, kingdomId, x, y, tries + 1));
+                    return;
+                }
+                catch (e){
+
+                }
+            }
             reject(e);
         }
     });

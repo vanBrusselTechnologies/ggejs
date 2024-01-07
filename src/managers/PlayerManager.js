@@ -1,15 +1,12 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const {execute:searchPlayerByIdCommand} = require('./../e4kserver/commands/searchPlayerById');
-const {execute:getPlayerRankingsCommand} = require('./../e4kserver/commands/getPlayerRankings');
+const {execute: searchPlayerByIdCommand} = require('./../e4kserver/commands/searchPlayerById');
+const {execute: getPlayerRankingsCommand} = require('./../e4kserver/commands/getPlayerRankings');
 const {WaitUntil} = require('./../tools/wait');
 const Localize = require("../tools/Localize");
 
 class PlayerManager extends BaseManager {
-    /** @type {number} */
-    _thisPlayerId = 0;
-
     /**
      *
      * @param {number} id
@@ -48,22 +45,7 @@ class PlayerManager extends BaseManager {
      * @returns {Promise<Player>}
      */
     getThisPlayer() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let _player = await this.getById(this._thisPlayerId);
-                resolve(_player);
-            } catch (e) {
-                reject(e);
-            }
-        })
-    }
-
-    /**
-     * @param {number} id
-     */
-    _setThisPlayer(id) {
-        this._thisPlayerId = id;
-        this._socket["___this_player_id"] = id;
+        return this.getById(this._client.clientUserData.playerId);
     }
 }
 
@@ -85,6 +67,15 @@ function _getPlayerById(socket, id) {
             delete socket[`__player_${id}_data`];
             resolve(player);
         } catch (e) {
+            if(e.toString() === "Exceeded max time!"){
+                try{
+                    const player = await _getPlayerById(socket, id);
+                    resolve(player);
+                    return;
+                }
+                catch (e){
+                }
+            }
             reject(Localize.text(socket.client, 'errorCode_21'));
         }
     });

@@ -3,6 +3,7 @@ const {parseChatJSONMessage} = require("../tools/TextValide");
 
 class Alliance {
     #landmarks = [];
+
     constructor(client, data) {
         /** @type {number} */
         this.allianceId = data.AID;
@@ -16,9 +17,7 @@ class Alliance {
         this.memberLevel = data.ML;
         /** @type {AllianceMember[]} */
         this.memberList = parseMembers(client, data.M, this);
-        if (data.DOA)
-            /** @type {number} */
-            this.allianceStatusToOwnAlliance = data.DOA;
+        if (data.DOA) /** @type {number} */ this.allianceStatusToOwnAlliance = data.DOA;
         /** @type {number} */
         this.allianceFamePoints = data.CF;
         /** @type {number} */
@@ -27,17 +26,14 @@ class Alliance {
         this.canInvitedForHardPact = data.HP === 1;
         /** @type {boolean} */
         this.canInvitedForSoftPact = data.SP === 1;
-        if (data.IS)
-            /** @type {boolean} */
-            this.isSearchingMembers = data.IS === 1;
+        if (data.IS) /** @type {boolean} */ this.isSearchingMembers = data.IS === 1;
         /** @type {boolean} */
         this.isOpenAlliance = data.IA !== 0;
-        if (data.FR)
-            /** @type {number} */
-            this.freeRenames = data.FR;
+        if (data.FR) /** @type {number} */ this.freeRenames = data.FR;
         /** @type {number} */
         this.might = parseInt(data.MP);
     }
+
     /** @returns {Promise<(CapitalMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject)[]>} */
     get landmarks() {
         return new Promise((resolve, reject) => {
@@ -47,6 +43,7 @@ class Alliance {
             reject(this.#landmarks);
         })
     }
+
     /**
      * @private
      * @param {(CapitalMapobject | MetropolMapobject | MonumentMapobject | KingstowerMapobject)[]} value
@@ -54,6 +51,7 @@ class Alliance {
     set _landmarks(value) {
         this.#landmarks = value;
     }
+
     _add_or_update_landmarks(landmarks) {
         console.error("_add_or_update_landmarks Not Implememented");
     }

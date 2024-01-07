@@ -1,25 +1,24 @@
 const LogUnit = require("../../../structures/LogUnit");
-module.exports = {
-    name: "bld", /**
-     * @param {Socket} socket
-     * @param {number} errorCode
-     * @param {object} params
-     */
-    execute(socket, errorCode, params) {
-        const client = socket.client;
-        const supportTools = parseSupportToolsDetails(client, params.S);
-        const yard = parseYardDetailed(client, params.Y);
-        const waves = parseWavesDetails(client, params.W);
-        socket[`bld -> ${params.LID}`] = {
-            courtyardAttacker: yard.attacker,
-            courtyardDefender: yard.defender,
-            wavesAttacker: waves.attacker,
-            wavesDefender: waves.defender,
-            finalWaveAttacker: parseFinalWaveDetails(client, params.RW).attacker,
-            supportToolsAttacker: supportTools.attacker,
-            supportToolsDefender: supportTools.defender,
-        };
-    }
+module.exports.name = "bld"
+/**
+ * @param {Socket} socket
+ * @param {number} errorCode
+ * @param {object} params
+ */
+module.exports.execute = function (socket, errorCode, params) {
+    const client = socket.client;
+    const supportTools = parseSupportToolsDetails(client, params.S);
+    const yard = parseYardDetailed(client, params.Y);
+    const waves = parseWavesDetails(client, params.W);
+    socket[`bld -> ${params.LID}`] = {
+        courtyardAttacker: yard.attacker,
+        courtyardDefender: yard.defender,
+        wavesAttacker: waves.attacker,
+        wavesDefender: waves.defender,
+        finalWaveAttacker: parseFinalWaveDetails(client, params.RW).attacker,
+        supportToolsAttacker: supportTools.attacker,
+        supportToolsDefender: supportTools.defender,
+    };
 }
 
 /**
@@ -63,13 +62,13 @@ function parseWavesDetails(client, params) {
     const output = {attacker: [], defender: []};
     if (params.length === 0) return;
     for (let wave of params) {
-        let flanksAtt = [];
+        const flanksAtt = [];
         wave[0].shift();
         for (let flank of wave[0]) {
             flanksAtt.push({soldiers: parseUnits(client, flank[0]), tools: parseTools(client, flank[1])})
         }
         output.attacker.push({left: flanksAtt[0], middle: flanksAtt[0], right: flanksAtt[0]});
-        let flanksDef = [];
+        const flanksDef = [];
         wave[1].shift();
         for (let flank of wave[1]) {
             flanksDef.push({soldiers: parseUnits(client, flank[0]), tools: parseTools(client, flank[1])})

@@ -44,6 +44,8 @@ const ConquerableAreaConqueredMessage = require("../../../structures/messages/Co
 const ConquerableAreaLostMessage = require("../../../structures/messages/ConquerableAreaLostMessage");
 const RebuyMessage = require("../../../structures/messages/RebuyMessage");
 const {execute: deleteMessage} = require("../../commands/deleteMessageCommand");
+const SpecialEventEndMessage = require("../../../structures/messages/SpecialEventEndMessage");
+const RuinInfoMessage = require("../../../structures/messages/RuinInfoMessage");
 
 module.exports.name = "sne";
 /**
@@ -84,7 +86,7 @@ async function handleSNE(socket, msgs) {
                     continue;
                 }
             } else if (m.messageType === Constants.MessageType.SpyNPC || m.messageType === Constants.MessageType.SpyPlayer) {
-                if (m.subType === Constants.MessageSubType.SpyPlayer.Sabotage && m.spyLog?.targetOwner.playerId === socket["___this_player_id"]) {
+                if (m.subType === Constants.MessageSubType.SpyPlayer.Sabotage && m.spyLog?.targetOwner.playerId === socket.client.clientUserData.playerId) {
                     //When receiving sabotage, do not delete;
                 } else if (!m.isSuccessful) {
                     deleteMessage(socket, m.messageId); //auto delete failed spies
@@ -272,6 +274,9 @@ async function parseMessageInfo(socket, messageInfo) {
                 case Constants.MessageSubType.SpecialEvent.Start:
                     message = new SpecialEventStartMessage(socket.client, messageInfo);
                     break;
+                case Constants.MessageSubType.SpecialEvent.End:
+                    message = new SpecialEventEndMessage(socket.client, messageInfo);
+                    break;
                 case Constants.MessageSubType.SpecialEvent.VIPInfo:
                     message = new SpecialEventVIPInfoMessage(socket.client, messageInfo);
                     break;
@@ -356,6 +361,9 @@ async function parseMessageInfo(socket, messageInfo) {
             break;
         case Constants.MessageType.Rebuy:
             message = new RebuyMessage(socket.client, messageInfo);
+            break;
+        case Constants.MessageType.RuinInfo:
+            message = new RuinInfoMessage(socket.client, messageInfo);
             break;
         default:
             if (socket["mailMessages"].find(m => m.messageId === message.messageId) != null) break;

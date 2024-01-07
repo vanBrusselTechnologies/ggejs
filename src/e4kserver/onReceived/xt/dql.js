@@ -99,7 +99,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                             try {
                                 if (socket["dailySpyAt"] !== quest.P || socket["dailySpyTime"] + 1800000 < Date.now()) {
                                     const dungeon = await getClosestDungeon(client, myMainCastle, false);
-                                    client.movements.startSpyMovement(myMainCastle, dungeon, Math.round(client["maxSpies"] / 4), SpyType.Military, 50);
+                                    client.movements.startSpyMovement(myMainCastle, dungeon, Math.round(client.clientUserData.maxSpies / 4), SpyType.Military, 50);
                                     socket["dailySpyAt"] = quest.P;
                                     socket["dailySpyTime"] = Date.now();
                                 }
@@ -115,7 +115,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                                 const closestRuinsOutpost = await getClosestRuinsOutpost(client, ClassicMap, myMainCastle);
                                 ClassicMap = null;
                                 if (socket["dailySabotageAt"] !== quest.P || socket["dailySabotageTime"] + 1800000 < Date.now()) {
-                                    client.movements.startSpyMovement(myMainCastle, closestRuinsOutpost, Math.round(client["maxSpies"] / 4), SpyType.Sabotage, 10);
+                                    client.movements.startSpyMovement(myMainCastle, closestRuinsOutpost, Math.round(client.clientUserData.maxSpies / 4), SpyType.Sabotage, 10);
                                     socket["dailySabotageAt"] = quest.P;
                                     socket["dailySabotageTime"] = Date.now();
                                 }
@@ -700,7 +700,7 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
     let meleeSoldiersSorted = availableSoldiers.filter(x => x.item.meleeAttack !== undefined);
     let rangeSoldiersSorted = availableSoldiers.filter(x => x.item.rangeAttack !== undefined);
     /** @type {ArmyWave[]} */
-    let army = [];
+    const army = [];
     let waveCount = CombatConst.getMaxWaveCountWithBonus(player.playerLevel, false);
     for (let w = 0; w < waveCount; w++) {
         /** @type {ArmyWave} */

@@ -10,6 +10,7 @@ const WorldmapManager = require('./managers/WorldmapManager');
 const {WaitUntil} = require('./tools/wait');
 const EventEmitter = require('node:events');
 const {NetworkInstance} = require('e4k-data');
+const ClientUserDataManager = require("./managers/ClientUserDataManager");
 
 class Client extends EventEmitter {
     #name = "";
@@ -35,6 +36,7 @@ class Client extends EventEmitter {
         this._socket["__reconnTimeoutSec"] = 300;
         this._socket.debug = debug;
         this.alliances = new AllianceManager(this);
+        this.clientUserData = new ClientUserDataManager();
         this.equipments = new EquipmentManager(this);
         this.movements = new MovementManager(this);
         this.players = new PlayerManager(this);

@@ -17,12 +17,17 @@ module.exports = {
  * @returns {Promise<void>}
  */
 async function checkMaintenanceOver(client) {
-    let response = await fetch('https://media.goodgamestudios.com/games-config/network/status/16/maint.json');
-    let json = await response.json();
-    if (json.toString() === "") {
-        await client.connect();
-        client.emit('serverShutdownEnd');
-    } else {
+    try{
+        let response = await fetch('https://media.goodgamestudios.com/games-config/network/status/16/maint.json');
+        let json = await response.json();
+        if (json.toString() === "") {
+            await client.connect();
+            client.emit('serverShutdownEnd');
+        } else {
+            setTimeout(checkMaintenanceOver, 10000, client);
+        }
+    }
+    catch (e){
         setTimeout(checkMaintenanceOver, 10000, client);
     }
 }

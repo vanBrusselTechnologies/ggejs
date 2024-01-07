@@ -23,6 +23,7 @@ class VillageMapobject extends BasicMapobject {
         /** @type {string} */
         this.customName = data[8];
         const _data = parseVillageData(this.kingdomId, this.villageType);
+        if(_data == null) return;
         this.wallLevel = buildings.find(b => b.wodID === _data.wallWodId)?.level;
         this.gateLevel = buildings.find(b => b.wodID === _data.gateWodId)?.level;
         this.keepLevel = buildings.find(b => b.wodID === _data.keepWodId)?.level;
@@ -51,6 +52,7 @@ class VillageMapobject extends BasicMapobject {
 
 function parseVillageData(kId, villageType) {
     const data = villages.find(v => v.kID === kId);
+    if(data == null) return null;
     data.productivityWoodBoost = villageType === 0 ? data.productivityWoodBoost : 0;
     data.productivityStoneBoost = villageType === 1 ? data.productivityStoneBoost : 0;
     data.productivityFoodBoost = villageType === 2 ? data.productivityFoodBoost : 0;

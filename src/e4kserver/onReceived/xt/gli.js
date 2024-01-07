@@ -15,7 +15,7 @@ module.exports = {
 }
 
 function parseLords(client, data) {
-    let lords = [];
+    const lords = [];
     for (let i in data) {
         lords.push(new Lord(client, data[i]));
     }

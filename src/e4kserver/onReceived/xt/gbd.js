@@ -1,6 +1,3 @@
-const playerInfoModel = require('./../../../structures/PlayerInfoModel');
-const castleUserData = require('./../../../structures/CastleUserData');
-
 module.exports.name = "gbd";
 /**
  * @param {Socket} socket
@@ -8,20 +5,17 @@ module.exports.name = "gbd";
  * @param {object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
-    /**
-     * setUpActiveActionsServiceSignal.dispatch();
-     * castleUserData.parse_GAL(paramObj.gal);
-     */
+    //setUpActiveActionsServiceSignal.dispatch();
     for (let x in params) {
         switch (x.toLowerCase()) {
             case "wr":
-                playerInfoModel.wasResetted = params[x];
+                socket.client.clientUserData.wasResetted = params[x];
                 break;
             case "la":
-                castleUserData.lastUserActivity = params[x];
+                socket.client.clientUserData.lastUserActivity = params[x];
                 break;
             case "ch":
-                castleUserData.selectedHeroId = params[x]["HID"];
+                socket.client.clientUserData.selectedHeroId = params[x]["HID"];
                 break;
             case "gcu":
             case "gho":
@@ -75,6 +69,9 @@ module.exports.execute = function (socket, errorCode, params) {
             case "pre":
             case "gls":
             case "gal":
+            case "mcd":
+            case "gmu":
+            case "cpi":
                 try {
                     require(`./${x}`).execute(socket, errorCode, params[x]);
                 } catch (e) {
@@ -86,7 +83,7 @@ module.exports.execute = function (socket, errorCode, params) {
                 break;
         }
     }
-    setTimeout(() => handlePostGBDCommandInNextFrame(socket), 100);
+    setTimeout(() => handlePostGBDCommandInNextFrame(socket), 10);
 }
 
 function handlePostGBDCommandInNextFrame(socket) {
@@ -128,7 +125,7 @@ function handlePostGBDCommandInNextFrame(socket) {
      */
     requestLoginBonusInfo(socket);
     requestMessagesData(socket);
-    //requestAllianceData(); alles in false if-statement
+    //requestAllianceData(); all in false if-statement
     requestBookmarkData(socket);
     requestConstructionItemInventory(socket);
     requestEquipmentInventory(socket);

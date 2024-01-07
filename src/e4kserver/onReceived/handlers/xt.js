@@ -12,35 +12,32 @@ for (const file of commandFiles) {
     const command = require(filePath);
     commands[command.name] = command.execute;
 }
-
-module.exports = {
-    /**
-     * @param {Socket} socket
-     * @param {object} event
-     */
-    onResponse(socket, event) {
-        /** @type Array */
-        let params = [];
-        let command = (params = event.dataObj).shift();
-        switch (command) {
-            case "rlu":
-                setRoomList(params);
-                if (!_hasAutoJoined) {
-                    _hasAutoJoined = true;
-                    autoJoinRoom(socket);
-                }
-                return;
-            case "jro":
-                onJoinRoom(socket, {params: {"room": getRoom(parseInt(params.shift()))}});
-                return;
-            default:
-                params.shift();
-                let responseVO = {
-                    error: parseInt(params.shift()), commandID: command, paramArray: params,
-                }
-                executeResponse(socket, responseVO);
-                return;
-        }
+/**
+ * @param {Socket} socket
+ * @param {object} event
+ */
+module.exports.onResponse = function (socket, event) {
+    /** @type Array */
+    let params = event.dataObj;
+    let command = params.shift();
+    switch (command) {
+        case "rlu":
+            setRoomList(params);
+            if (!_hasAutoJoined) {
+                _hasAutoJoined = true;
+                autoJoinRoom(socket);
+            }
+            return;
+        case "jro":
+            onJoinRoom(socket, {params: {"room": getRoom(parseInt(params.shift()))}});
+            return;
+        default:
+            params.shift();
+            let responseVO = {
+                error: parseInt(params.shift()), commandID: command, paramArray: params,
+            }
+            executeResponse(socket, responseVO);
+            return;
     }
 }
 
