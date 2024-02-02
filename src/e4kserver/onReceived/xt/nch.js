@@ -1,4 +1,4 @@
-let firstTime = false;
+let firstTime = true;
 
 module.exports.name = "nch";
 /**
@@ -10,5 +10,5 @@ module.exports.execute = function (socket, errorCode, params) {
     if(firstTime){
         if(socket.debug) console.log(`Received NCH (NEW_CASH_HASH), but no file found in source code`)
     }
-    firstTime = true
+    firstTime = false
 }

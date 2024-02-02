@@ -173,7 +173,16 @@ class Client extends EventEmitter {
                 new_socket.client = this;
                 this._socket = new_socket;
                 if (new_socket.debug) console.log("Reconnecting!");
-                await this.connect();
+                let connected = false
+                while(!connected){
+                    try {
+                        await this.connect();
+                        connected = true
+                    }
+                    catch (e) {
+                        await new Promise((res)=> setTimeout(res, 1000));
+                    }
+                }
             }, new_socket["__reconnTimeoutSec"] * 1000);
         });
     }

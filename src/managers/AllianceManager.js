@@ -32,7 +32,7 @@ class AllianceManager extends BaseManager {
         return new Promise(async (resolve, reject) => {
             try {
                 let _allianceId = await _getAllianceIdByName(this._socket, name);
-                if (_allianceId === 0) reject("Alliance not found!");
+                if (_allianceId === 0) reject(Localize.text(this._client, 'errorCode_114'));
                 let _alliance = await this.getById(_allianceId);
                 resolve(_alliance);
             } catch (e) {

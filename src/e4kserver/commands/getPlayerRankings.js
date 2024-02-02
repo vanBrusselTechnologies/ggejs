@@ -3,7 +3,7 @@ module.exports = {
      * @param {Socket} socket
      * @param {string} searchValue
      * @param {string} rankingType
-     * @param {number} listId
+     * @param {number} listId Bracket based on level, starting with 1
      */
     execute(socket, searchValue = "1", rankingType = "might", listId = 6) {
         let listType = 2;
@@ -109,7 +109,7 @@ module.exports = {
         }
         let C2SGetHighscoreVO = {
             params: {
-                SV: searchValue, LT: listType, LID: listId //LID = bracket based on level, starting with 1
+                SV: searchValue, LT: listType, LID: listId
             }, getCmdId: "hgh",
         }
         require('./../data').sendJsonVoSignal(socket, {
