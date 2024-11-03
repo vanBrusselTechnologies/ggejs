@@ -26,13 +26,13 @@ module.exports.WaitUntil = function (socket, field, errorField = "", maxMs = _ma
 function _WaitUntil(socket, field, errorField = "", endDateTimestamp) {
     return new Promise(async (resolve, reject) => {
         if (socket?._host == null) {
-            reject("Socket missing!");
+            reject(`WaitUntil: Socket missing! field: ${field}, errorField: ${errorField}`);
         } else if (socket[field]) {
             resolve(socket[field]);
         } else if (errorField !== "" && socket[errorField] && socket[errorField] !== "") {
             reject(socket[errorField]);
         } else if ((socket["__disconnecting"] && field !== "__disconnect") || socket.closed) {
-            if (socket.debug) console.log(`Socket was disconnecting or disconnected while requesting field: '${field}'`);
+            if (socket.debug) console.warn(`Socket was disconnecting or disconnected while requesting field: '${field}'`);
             reject("Socket disconnected!")
         } else if (endDateTimestamp < Date.now()) {
             reject("Exceeded max time!");

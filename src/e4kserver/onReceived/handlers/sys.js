@@ -12,7 +12,7 @@ for (const file of commandFiles) {
 
 /**
  * @param {Socket} socket
- * @param {object} event
+ * @param {Object} event
  */
 module.exports.onResponse = function (socket, event) {
     let action = event.body["$"].action;
@@ -20,6 +20,6 @@ module.exports.onResponse = function (socket, event) {
     if (handler != null) {
         handler.apply(this, [socket, event]);
     } else {
-        if (socket.debug) console.log('[RECEIVED UNKNOWN EVENT] ' + JSON.stringify(event));
+        if (socket.debug) console.warn(`[RECEIVED UNKNOWN EVENT] ${JSON.stringify(event)}`);
     }
 }

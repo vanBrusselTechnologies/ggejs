@@ -1,3 +1,5 @@
+const {tmaps, tmapnodes} = require('e4k-data').data;
+
 const EmptyMapobject = require("../structures/mapobjects/EmptyMapobject");
 const CastleMapobject = require("../structures/mapobjects/CastleMapobject");
 const DungeonMapobject = require("../structures/mapobjects/DungeonMapobject");
@@ -24,6 +26,14 @@ const FactionCampMapobject = require("../structures/mapobjects/FactionCampMapobj
 const FactionTowerMapobject = require("../structures/mapobjects/FactionTowerMapobject");
 const FactionVillageMapobject = require("../structures/mapobjects/FactionVillageMapobject");
 const FactionCapitalMapobject = require("../structures/mapobjects/FactionCapitalMapobject");
+const WolfKingMapobject = require("../structures/mapobjects/WolfKingMapobject");
+const TreasureMapMapobject = require("../structures/mapobjects/TreasureMapMapobject");
+const InteractiveMapobject = require("../structures/mapobjects/InteractiveMapobject");
+const SeaqueenMapCastleObject = require("../structures/mapobjects/SeaqueenMapCastleObject");
+const SeaqueenMapBigCastleObject = require("../structures/mapobjects/SeaqueenMapBigCastleObject");
+const SeaqueenMapCampObject = require("../structures/mapobjects/SeaqueenMapCampObject");
+const SeaqueenMapShipObject = require("../structures/mapobjects/SeaqueenMapShipObject");
+const SeaqueenMapKrakenObject = require("../structures/mapobjects/SeaqueenMapKrakenObject");
 
 /**
  *
@@ -47,8 +57,10 @@ function parseMapobject(client, data) {
             return new CapitalMapobject(client, data);
         case 4:
             return new CastleMapobject(client, data);
-        //case 7:
-        //case 8:
+        case 7:
+            return new TreasureMapMapobject(client, -1);
+        case 8:
+            return new SeaqueenMapCampObject(client, -1);
         case 9:
             return new ShadowAreaMapobject(client, data);
         case 10:
@@ -99,11 +111,73 @@ function parseMapobject(client, data) {
             return new DaimyoCastleMapobject(client, data);
         case 38:
             return new DaimyoTownshipMapobject(client, data);
+        case 42:
+            return new WolfKingMapobject(client, data);
         default:
-            console.log(`Current mapobject (areatype ${data[0]}) isn't fully supported!`);
+            console.warn(`Current mapobject (areatype ${areaType}) isn't fully supported!`);
             console.log(data);
             return new BasicMapobject(client, data);
     }
 }
 
+
+/**
+ *
+ * @param {Client} client
+ * @param {number} mapId
+ * @param {number} type
+ * @param {number} position
+ * @returns {TreasureMapMapobject}
+ */
+function parseTreasureMapObject(client, mapId, type, position = -1) {
+    /** @type {TreasureMapMapobject} */
+    let treasureMapObject;
+    switch (type) {
+        case 3:
+            treasureMapObject = new SeaqueenMapShipObject(client, type);
+            break;
+        case 10:
+            treasureMapObject = new SeaqueenMapKrakenStandObject(client, type);
+            break;
+        case 7:
+            treasureMapObject = new SeaqueenMapKrakenObject(client, type);
+            break;
+        case 2:
+            const treasureMap = tmaps.find(map => map.mapID === mapId)
+            const treasureMapNodeIds = treasureMap.tmapnodeIDs.split('+').map(id => parseInt(id))
+            const treasureMapNode = tmapnodes.find(node => node.pos === position && treasureMapNodeIds.includes(node.tmapnodeID));
+            if (treasureMapNode && treasureMapNode.type === "BRIDGEDUNGEON") {
+                treasureMapObject = new SeaqueenMapBigCastleObject(client, type);
+            } else {
+                treasureMapObject = new SeaqueenMapCastleObject(client, type);
+            }
+            break;
+        case 0:
+            treasureMapObject = new SeaqueenMapCampObject(client, type);
+            break;
+        case 9:
+            treasureMapObject = new SeaqueenMapCloudObject(client, type);
+            break;
+        case 4:
+            treasureMapObject = new SeaqueenMapFogObject(client, type);
+            break;
+        case 1:
+            treasureMapObject = new SeaqueenMapIslandObject(client, type);
+            break;
+        case 5:
+            treasureMapObject = new SeaqueenMapLongIslandObject(client, type);
+            break;
+        case 6:
+            treasureMapObject = new SeaqueenMapRockObject(client, type);
+            break;
+        default:
+            treasureMapObject = new TreasureMapMapobject(client, type);
+            break;
+    }
+    treasureMapObject.mapId = mapId;
+    treasureMapObject.tMapPosition = position;
+    return treasureMapObject;
+}
+
 module.exports.parseMapObject = parseMapobject;
+module.exports.parseTreasureMapObject = parseTreasureMapObject;

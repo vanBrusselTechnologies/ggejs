@@ -1,78 +1,50 @@
-const { sendAction } = require("./commands/handlers/xml");
+const {sendAction} = require("./commands/handlers/xml");
 
-let _activeRoomId = 0;//-1;
 let roomList = [];
 
-module.exports = {
-    get activeRoomId() { return _activeRoomId; },
-    set activeRoomId(val) { _activeRoomId = val; },
-    checkRoomList() {
-        return _checkRoomList();
-    },
-    /**
-     * 
-     * @param {Array} data
-     */
-    setRoomList(data) {
-        _setRoomList(data);
-    },
-    /**
-     * @param {Socket} socket
-     * @param {object} event
-     */
-    onJoinRoom(socket, event) {
-        _onJoinRoom(socket, event);
-    },
-    /**
-     * 
-     * @param {number} index
-     */
-    getRoom(index) {
-        return _getRoom(index);
-    },
-    autoJoinRoom(socket) {
-        if (!_checkRoomList()) return;
-        let headers = { "t": "sys" };
-        sendAction(socket, headers, "autoJoin", !!_activeRoomId ? _activeRoomId : -1, "");
-    },
-    /**
-     * 
-     * @param {object} u
-     * @param {number} id
-     * @param {number} roomID
-     */
-    addUserToRoom(u, id, roomID) {
-        console.log("addUserToRoom");
-        console.log(u);
-        console.log(id);
-        console.log(roomID);
-        roomList[roomID].userList[id] = u;
-        if (roomList[roomID].game && u.isSpectator()) {
-            roomList[roomID].specCount++;
-        }
-        else {
-            roomList[roomID].userCount++;
-        }
-    },
-    /**
-     * 
-     * @param {number} index
-     * @param {object} room
-     */
-    setRoomListIndex(index, room) {
-        roomList[index] = room;
+/**
+ *
+ * @param {Object} u
+ * @param {number} id
+ * @param {number} roomId
+ */
+module.exports.addUserToRoom = function (u, id, roomId) {
+    console.log("addUserToRoom", u, id, roomId);
+    roomList[roomId].userList[id] = u;
+    if (roomList[roomId].game && u.isSpectator()) {
+        roomList[roomId].specCount++;
+    } else {
+        roomList[roomId].userCount++;
     }
 }
 
+/**
+ *@param {number} index
+ * @param {Object} room
+ */
+module.exports.setRoomListIndex = function (index, room) {
+    roomList[index] = room;
+}
+
+/** @return {boolean} */
 function _checkRoomList() {
     return roomList !== null;
 }
 
+module.exports.checkRoomList = _checkRoomList
+
+/** @param {Socket} socket */
+module.exports.autoJoinRoom = function (socket) {
+    if (!_checkRoomList()) return;
+    let headers = {"t": "sys"};
+    sendAction(socket, headers, "autoJoin", !!socket["_activeRoomId"] ? socket["_activeRoomId"] : -1, "");
+}
+
 /**
- * 
+ *
  * @param {Array} data
  */
-function _setRoomList(data) {
+module.exports.setRoomList = function (data) {
     let rooms = getAllRooms();
     let index = data[1];
     let userCount = decompressInt(data[2]);
@@ -95,21 +67,22 @@ function _setRoomList(data) {
     };
 }
 
+/** @return {Object[]}*/
 function getAllRooms() {
     return roomList;
 }
 
 /**
- * 
+ *
  * @param {number} index
  */
-function _getRoom(index) {
+module.exports.getRoom = function (index) {
     if (!_checkRoomList()) return null;
     return roomList[index];
 }
 
 /**
- * 
+ *
  * @param {string} input
  */
 function decompressInt(input) {
@@ -133,13 +106,15 @@ function decompressInt(input) {
 
 /**
  * @param {Socket} socket
- * @param {object} event
+ * @param {Object} event
  */
-function _onJoinRoom(socket, event) {
+module.exports.onJoinRoom = function (socket, event) {
     let room = event.params["room"];
-    _activeRoomId = room.id;
-    if (room.name === "Lobby") {
-        sendAction(socket, { "t": "sys" }, "roundTrip", _activeRoomId, "");
-        require('./../e4kserver/commands/pingpong').execute(socket);
-    }
+    socket["_activeRoomId"] = room.id;
+
+    //todo: move and make available to public: register account
+    // const { execute: requestLoginData} = require('./commands/requestLoginData')
+    // requestLoginData(socket)
+
+    socket.client._verifyLoginData()
 }

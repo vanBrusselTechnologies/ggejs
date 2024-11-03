@@ -12,6 +12,8 @@ class BasicConquerableMessage extends BasicMessage {
         this.subType = parseInt(metaArray[0]);
         this.kingdomId = parseInt(metaArray[1]);
         this.initSubject(client, this.areaType);
+
+        this.setSenderToAreaName(this.areaName, this.areaType, this.kingdomId)
     }
 
     /**

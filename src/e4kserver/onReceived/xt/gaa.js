@@ -1,5 +1,4 @@
 const {parseMapObject} = require("../../../utils/MapObjectParser");
-const Player = require("./../../../structures/Player");
 
 module.exports.name = "gaa";
 /**
@@ -16,6 +15,7 @@ module.exports.execute = function (socket, errorCode, params) {
         socket[`__worldmap_${kId}_error`] = 'Received empty area!';
         return;
     }
+    socket.client.worldmaps._ownerInfoData.parseOwnerInfoArray(params.OI);
     if (kId == null) {
         kId = parseWorldmapAreas(socket.client, params.AI.slice(0, 1))[0].kingdomId;
         if (kId == null) return;
@@ -23,10 +23,9 @@ module.exports.execute = function (socket, errorCode, params) {
 
     /**  @type {{x: number, y: number}[]} */
     const searchingSectors = socket[`__worldmap_${kId}_searching_sectors`];
-    if (searchingSectors.length === 0) return;
+    if (searchingSectors === undefined || searchingSectors.length === 0) return;
 
     let _worldmapAreas = parseWorldmapAreas(socket.client, params.AI);
-    let _players = parsePlayers(socket.client, params.OI);
     /** @type {{x: number, y: number}} */
     const areaCenter = getCenterOfWorldmapAreas(_worldmapAreas)
     let foundRequest = false;
@@ -36,7 +35,7 @@ module.exports.execute = function (socket, errorCode, params) {
         if (distance < 2.5 || (distance < 10 && (areaCenter.x > 1000 || areaCenter.y > 1000))) {
             socket[`__worldmap_${kId}_searching_sectors`].splice(i, 1);
             const str = `__worldmap_${kId}_specific_sector_${sectorCenter.x}_${sectorCenter.y}`
-            socket[`${str}_data`] = {worldmapAreas: _worldmapAreas, players: _players};
+            socket[`${str}_data`] = {worldmapAreas: _worldmapAreas};
             foundRequest = true;
         }
     }
@@ -49,12 +48,11 @@ module.exports.execute = function (socket, errorCode, params) {
             const i = searchingSectors.indexOf(sectorCenter)
             socket[`__worldmap_${kId}_searching_sectors`].splice(i, 1);
             const str = `__worldmap_${kId}_specific_sector_${sectorCenter.x}_${sectorCenter.y}`
-            socket[`${str}_data`] = {worldmapAreas: _worldmapAreas, players: _players};
+            socket[`${str}_data`] = {worldmapAreas: _worldmapAreas};
         }
     }
 
     _worldmapAreas = null;
-    _players = null;
 }
 
 /**
@@ -64,26 +62,10 @@ module.exports.execute = function (socket, errorCode, params) {
  */
 function parseWorldmapAreas(client, _data) {
     const worldmapAreas = [];
-    for (const data of _data) {
+    for (const data of (_data || [])) {
         worldmapAreas.push(parseMapObject(client, data))
     }
     return worldmapAreas;
-}
-
-/**
- *
- * @param {Client} client
- * @param {[]} _data
- * @returns {Player[]}
- */
-function parsePlayers(client, _data) {
-    const players = [];
-    for (let i in _data) {
-        let data = {O: _data[i]};
-        let _player = new Player(client, data);
-        players.push(_player);
-    }
-    return players;
 }
 
 /**

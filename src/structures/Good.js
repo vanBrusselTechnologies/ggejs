@@ -5,16 +5,15 @@ const goodNames = {
     W: "wood",
     S: "stone",
     F: "food",
-    C1: "coin",
-    C2: "ruby",
+    C1: "currency1",
+    C2: "currency2",
     G: "glass",
     O: "oil",
     C: "coal",
     I: "iron",
     A: "aquamarine",
     HONEY: "honey",
-    MEAD: "mead",
-    PTT: "pegasus_travel_tickets"
+    MEAD: "mead"
 }
 
 class Good extends InventoryItem {

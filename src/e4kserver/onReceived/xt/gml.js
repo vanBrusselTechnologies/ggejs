@@ -4,7 +4,7 @@ module.exports.name = "gml";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params) return;
@@ -12,5 +12,5 @@ module.exports.execute = function (socket, errorCode, params) {
     for (let obj of params.AI) {
         monuments.push(new MonumentMapobject(socket.client, obj));
     }
-    //socket.client.castleUserData.castleListVO.monuments = monuments;
+    socket.client.clientUserData._userData.castleList.monuments = monuments;
 }

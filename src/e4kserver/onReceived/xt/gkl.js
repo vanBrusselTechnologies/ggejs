@@ -2,9 +2,9 @@ module.exports.name = "gkl";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params) return;
-    //socket.client.castleUserData.castleListVO.kingstowers = castleListParser.parseKingsTowerList(params);
+    //socket.client.clientUserData._userData.castleList.kingstowers = castleListParser.parseKingsTowerList(params);
 }

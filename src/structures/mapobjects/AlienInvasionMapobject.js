@@ -1,6 +1,6 @@
-const BasicMapobject = require("./BasicMapobject");
+const InteractiveMapobject = require("./InteractiveMapobject");
 
-class AlienInvasionMapobject extends BasicMapobject {
+class AlienInvasionMapobject extends InteractiveMapobject {
     travelDistance = 50;
     eventId = 71;
 
@@ -10,10 +10,11 @@ class AlienInvasionMapobject extends BasicMapobject {
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data);
+        super(client, data.slice(0,3));
         if (data.length <= 3) return;
         /** @type {number} */
         this.dungeonLevel = data[3];
+        this.ownerInfo.paragonLevel = this._dungeonLevel >= 70 ? 1: 0;
         /** @type {boolean} */
         this.hasPeaceMode = data[5] === 1;
         /** @type {number} */

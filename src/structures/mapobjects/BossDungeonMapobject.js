@@ -1,13 +1,13 @@
-const BasicMapobject = require("./BasicMapobject");
+const InteractiveMapobject = require("./InteractiveMapobject");
 
-class BossDungeonMapobject extends BasicMapobject {
+class BossDungeonMapobject extends InteractiveMapobject {
     /**
      * 
      * @param {Client} client 
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data);
+        super(client, data.slice(0,3));
         if (data.length <= 3) return;
         if (data[3] !== -1)
         /** @type {Date} */
@@ -21,6 +21,8 @@ class BossDungeonMapobject extends BasicMapobject {
         this.defeaterPlayerId = data[6];
         /** @type {number} */
         this.kingdomId = data[7];
+
+        this.ownerInfo = client.worldmaps._ownerInfoData.getKingdomBossDungeonOwnerByKingdomId(this.kingdomId);
     }
 }
 

@@ -8,8 +8,8 @@ class BasicAttackCancelledMessage extends BasicMessage {
 
     parseMetaData(client, metaArray) {
         this.subType = parseInt(metaArray[0]);
-        this.kingdomID = parseInt(metaArray[1]);
-        this.targetPlayerID = parseInt(metaArray[2]);
+        this.kingdomId = parseInt(metaArray[1]);
+        this.targetPlayerId = parseInt(metaArray[2]);
         this.areaName = metaArray[3];
         this.position = new Coordinate(client, metaArray.slice(4, 6));
         this.subject = Localize.text(client, "dialog_messageHeader_noFight");

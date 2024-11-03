@@ -1,14 +1,16 @@
-const BasicMapobject = require("./BasicMapobject");
+const InteractiveMapobject = require("./InteractiveMapobject");
 
-class DungeonIsleMapobject extends BasicMapobject {
+class DungeonIsleMapobject extends InteractiveMapobject {
+    occupierId = -223
     /**
      * 
      * @param {Client} client 
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data);
+        super(client, data.slice(0,3));
         if (data.length <= 3) return;
+        this.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(this.occupierId);
         /** @type {number} */
         this.kingdomId = data[3];
         if (data[4] > 0)
@@ -24,7 +26,6 @@ class DungeonIsleMapobject extends BasicMapobject {
             if (this.isVisibleOnMap)
                 /** @type {Date} */
                 this.attackCooldownEnd = new Date(Date.now() + data[6] * 1000);
-
             else
                 /** @type {Date} */
                 this.reappearDate = new Date(Date.now() + data[6] * 1000);

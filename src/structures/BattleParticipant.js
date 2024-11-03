@@ -8,6 +8,7 @@ class BattleParticipant {
      */
     constructor(client, data) {
         this.playerId = data[0];
+        this.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(this.playerId);
         this.front = data[1];
         this.startArmySize = data[2];
         this.lostUnits = data[3];

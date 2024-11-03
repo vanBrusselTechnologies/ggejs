@@ -2,15 +2,13 @@ module.exports.name = "vip";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {{VP:number,VRS:number,UPG:number,VRL:number}} params
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params) return;
-    /*
-    (model = CastleVIPData)
-     model.vipPoints = obj.VP;
-     model.vipTimeExpireTimestamp = obj.VRS;
-     model.usedPremiumGenerals = obj.UPG;
-     model.maxVIPLevelReached = obj.VRL;
-     */
+    const cud = socket.client.clientUserData
+    cud.vipPoints = params.VP;
+    cud.vipTimeExpireTimestamp = params.VRS;
+    cud.usedPremiumGenerals = params.UPG;
+    cud.maxVIPLevelReached = params.VRL;
 }

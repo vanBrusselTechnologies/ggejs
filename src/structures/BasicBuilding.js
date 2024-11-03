@@ -10,14 +10,14 @@ class BasicBuilding {
     constructor(client, data) {
         /** @type {number} */
         this.wodId = data[0];
+        this.rawData = buildings.find(b => b.wodID === this.wodId);
         /** @type {number} */
         this.objectId = data[1];
         /** @type {Coordinate} */
         this.position = new Coordinate(client, data.slice(2, 4));
         /** @type {number} */
         this.isoRotation = data[4];
-        if (data[5] > 0) /** @type {Date} */
-        this.objectConstructionStartTime = new Date(Date.now() - data[5] * 1000);
+        if (data[5] > 0) /** @type {Date} */this.objectConstructionStartDate = new Date(Date.now() - data[5] * 1000);
         /** @type {number} */
         this.buildingState = data[6];
         /** @type {number} */
@@ -38,7 +38,6 @@ class BasicBuilding {
         this.isInDistrict = data[14] === 1;
         /** @type {number} */
         this.districtSlotId = data[15];
-        this.rawData = buildings.find(b => b.wodID === this.wodId);
     }
 }
 

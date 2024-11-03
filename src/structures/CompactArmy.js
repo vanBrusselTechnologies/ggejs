@@ -6,10 +6,8 @@ class CompactArmy {
     toolCount = 0;
 
     /**
-     *
      * @param {Client} client
-     * @param {object} data
-     * @returns
+     * @param {Object} data
      */
     constructor(client, data) {
         if (!data) return;

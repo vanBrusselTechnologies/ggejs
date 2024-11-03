@@ -1,11 +1,11 @@
-const {execute: parseCSL} = require("../e4kserver/onReceived/xt/csl");
-const {execute: parseGCA} = require("../e4kserver/onReceived/xt/gca");
-const {execute: parseGUI} = require("../e4kserver/onReceived/xt/gui");
-const {execute: parseGRC} = require("../e4kserver/onReceived/xt/grc");
-const {execute: parseGPA} = require("../e4kserver/onReceived/xt/gpa");
-const {execute: parseSIN} = require("../e4kserver/onReceived/xt/sin");
-const {execute: parseGAB} = require("../e4kserver/onReceived/xt/gab");
-const {execute: parseHIN} = require("../e4kserver/onReceived/xt/hin");
+const {execute: csl} = require("../e4kserver/onReceived/xt/csl");
+const {execute: gca} = require("../e4kserver/onReceived/xt/gca");
+const {execute: gui} = require("../e4kserver/onReceived/xt/gui");
+const {execute: grc} = require("../e4kserver/onReceived/xt/grc");
+const {execute: gpa} = require("../e4kserver/onReceived/xt/gpa");
+const {execute: sin} = require("../e4kserver/onReceived/xt/sin");
+const {execute: gab} = require("../e4kserver/onReceived/xt/gab");
+const {execute: hin} = require("../e4kserver/onReceived/xt/hin");
 
 class Castle {
     /** @type {number} */
@@ -34,25 +34,24 @@ class Castle {
     /**
      *
      * @param {Client} client
-     * @param {object} data
+     * @param {Object} data
      */
     constructor(client, data) {
         if(!data) return;
         this.kingdomId = data["KID"];
         this.areaType = data["T"];
-        this.slumLevel = parseCSL(client._socket, 0, data["csl"]);
-        this.buildingInfo = parseGCA(client._socket, 0, data["gca"]);
-        this.unitInventory = parseGUI(client._socket, 0, data["gui"]);
-        this.resourceStorage = parseGRC(client._socket, 0, data["grc"]);
-        this.productionData = parseGPA(client._socket, 0, data["gpa"]);
-        this.buildingStorage = parseSIN(client._socket, 0, data["sin"]);
-        this.builderDiscount = parseGAB(client._socket, 0, data["gab"]);
-        this.hunterInfo = parseHIN(client._socket, 0, data["hin"]);
+        this.slumLevel = csl(client._socket, 0, data["csl"]);
+        this.buildingInfo = gca(client._socket, 0, data["gca"]);
+        this.unitInventory = gui(client._socket, 0, data["gui"]);
+        this.resourceStorage = grc(client._socket, 0, data["grc"]);
+        this.productionData = gpa(client._socket, 0, data["gpa"]);
+        this.buildingStorage = sin(client._socket, 0, data["sin"]);
+        this.builderDiscount = gab(client._socket, 0, data["gab"]);
+        this.hunterInfo = hin(client._socket, 0, data["hin"]);
         this.mapobject = this.buildingInfo.mapobject;
-        this.owner = this.buildingInfo.owner;
 
         /* todo
-            Missing in Castle:
+            Missing in Castle: (see "jaa")
                 - spl: spl0,spl1,spl2,spl3: ShowPackageList (also productionQueue info).
                 - uap: UserAttackProtection
                 - gsm: GetStatusMines

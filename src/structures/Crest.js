@@ -35,11 +35,7 @@ class Crest {
         this.fillClipColor()
     }
 
-    /**
-     *
-     * @returns {{SC1: number, SC2: number, SPT: number, BGC2: number, BGC1: number, BGT: number, S1: number, S2: number}}
-     * @private
-     */
+    /** @returns {{SC1: number, SC2: number, SPT: number, BGC2: number, BGC1: number, BGT: number, S1: number, S2: number}}*/
     getParamObject() {
         return {
             "BGT": this.backgroundType,

@@ -1,8 +1,8 @@
 const BasicConquerableMessage = require("./BasicConquerableMessage");
 const Localize = require("../../tools/Localize");
+
 class ConquerableNewSiegeMessage extends BasicConquerableMessage {
-    parseMetaData(client, metaArray)
-    {
+    parseMetaData(client, metaArray) {
         this.areaType = parseInt(metaArray[0]);
         this.ownerId = parseInt(metaArray[3]);
         this.areaName = metaArray[4];
@@ -13,9 +13,11 @@ class ConquerableNewSiegeMessage extends BasicConquerableMessage {
         this.subType = parseInt(metaArray[0]);
         this.kingdomId = parseInt(metaArray[1]);
         this.initSubject(this.areaType);
+
+        this.setSenderToAreaName(this.areaName, this.areaType, this.kingdomId)
     }
 
-    initSubject(client, _){
+    initSubject(client, _) {
         this.subject = Localize.text(client, "dialog_messageHeader_outpostNewConquering");
     }
 }

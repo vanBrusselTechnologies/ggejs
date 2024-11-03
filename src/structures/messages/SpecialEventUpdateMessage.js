@@ -16,4 +16,5 @@ module.exports = SpecialEventUpdateMessage;
 const updateMail = {
     97: "dialog_shapeshifterDaily_mailHeader",
     110: "message_header_outerrealms_start",
+    123: "dialog_mainDonationEvent_title",
 }

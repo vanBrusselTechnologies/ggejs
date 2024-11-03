@@ -17,7 +17,7 @@ class Effect {
         }
         let _data = getDataFromJson(this.effectId);
         if (_data === null || _data === undefined) return;
-        /** @type {object} */
+        /** @type {Object} */
         this.rawData = _data;
         /** @type {string} */
         this.name = _data.name;
@@ -31,7 +31,7 @@ class Effect {
 /**
  *
  * @param {number} id
- * @returns {object}
+ * @returns {Object}
  */
 function getDataFromJson(id) {
     for (let effect of effects) {
@@ -39,7 +39,7 @@ function getDataFromJson(id) {
             return effect;
         }
     }
-    console.log("Unknown effect id: " + id);
+    console.warn(`Unknown effect id: ${id}`);
     return null;
 }
 

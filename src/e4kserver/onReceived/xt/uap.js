@@ -2,7 +2,7 @@ module.exports.name = "uap";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params) return;

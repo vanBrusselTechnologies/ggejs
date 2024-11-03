@@ -1,4 +1,7 @@
 const BasicMapobject = require("./BasicMapobject");
+const WorldMapOwnerInfoData = require("../../utils/WorldMapOwnerInfoData");
+const WorldmapOwnerInfo = require("../WorldmapOwnerInfo");
+const ConstantsIsland = require("../../utils/ConstantsIslands");
 
 class InteractiveMapobject extends BasicMapobject {
     /**
@@ -8,11 +11,15 @@ class InteractiveMapobject extends BasicMapobject {
      */
     constructor(client, data) {
         super(client, data);
-        if (data.length <= 3) return;
+        if (data.length <= 3) {
+            this.ownerInfo = getDefaultOwnerInfo(client, this)
+            return;
+        }
         /** @type {number} */
         this.objectId = data[3];
         /** @type {number} */
         this.ownerId = data[4];
+        this.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(this.ownerId)
         /** @type {number} */
         this.keepLevel = data[5];
         /** @type {number} */
@@ -54,6 +61,39 @@ class InteractiveMapobject extends BasicMapobject {
         this.equipmentId = data.EID;
         this.outpostType = data.RT;
         return this;
+    }
+}
+
+/**
+ * @param {Client} client
+ * @param {InteractiveMapobject} mapobject
+ * @return {WorldmapOwnerInfo}
+ */
+function getDefaultOwnerInfo(client, mapobject) {
+    const areaType = mapobject.areaType;
+    switch (areaType) {
+        case 22:
+            return client.worldmaps._ownerInfoData.getOwnerInfo(-440);
+        case 4:
+            return client.worldmaps._ownerInfoData.getOwnerInfo(-300);
+        case 13:
+            return client.worldmaps._ownerInfoData.getOwnerInfo(-500);
+        case 23:
+            return client.worldmaps._ownerInfoData.getOwnerInfo(-450);
+        case 24:
+            return client.worldmaps._ownerInfoData.getOwnerInfo(ConstantsIsland.NPC_ID_ISLAND_VILLAGE);
+        case 36:
+            return client.worldmaps._ownerInfoData.getOwnerInfo(-901);
+        case 37:
+            return client.worldmaps._ownerInfoData.getOwnerInfo(-811);
+        case 38:
+            return client.worldmaps._ownerInfoData.getOwnerInfo(-815);
+        case 39:
+            return client.worldmaps._ownerInfoData.getOwnerInfo(-821);
+        case 42:
+            return client.worldmaps._ownerInfoData.getOwnerInfo(-1201);
+        default:
+            return new WorldmapOwnerInfo(client);
     }
 }
 

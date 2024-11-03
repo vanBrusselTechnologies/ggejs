@@ -1,8 +1,6 @@
 const path = require('node:path');
 const fs = require('fs');
-const {setRoomList, onJoinRoom, getRoom, autoJoinRoom} = require('./../../room.js');
-
-let _hasAutoJoined = false;
+const {setRoomList, onJoinRoom, getRoom, autoJoinRoom} = require('../../room.js');
 
 let commands = [];
 const commandPath = path.join(__dirname, '../xt');
@@ -12,9 +10,10 @@ for (const file of commandFiles) {
     const command = require(filePath);
     commands[command.name] = command.execute;
 }
+
 /**
  * @param {Socket} socket
- * @param {object} event
+ * @param {Object} event
  */
 module.exports.onResponse = function (socket, event) {
     /** @type Array */
@@ -22,13 +21,15 @@ module.exports.onResponse = function (socket, event) {
     let command = params.shift();
     switch (command) {
         case "rlu":
+            //todo: RLU
             setRoomList(params);
-            if (!_hasAutoJoined) {
-                _hasAutoJoined = true;
+            if (!socket["_hasAutoJoined"]) {
+                socket["_hasAutoJoined"] = true;
                 autoJoinRoom(socket);
-            }
+            } else socket.client._verifyLoginData()
             return;
         case "jro":
+            //todo: JRO
             onJoinRoom(socket, {params: {"room": getRoom(parseInt(params.shift()))}});
             return;
         default:
@@ -36,14 +37,33 @@ module.exports.onResponse = function (socket, event) {
             let responseVO = {
                 error: parseInt(params.shift()), commandID: command, paramArray: params,
             }
-            executeResponse(socket, responseVO);
+            switch (responseVO.error) {
+                case 0:
+                case 10005:
+                    executeResponse(socket, responseVO);
+                    break;
+                case 1:
+                    if (socket.debug) console.warn(`${responseVO.commandID} GENERAL_ERROR ${responseVO.paramArray}`);
+                    break;
+                case 2:
+                    if (socket.debug) console.warn(`${responseVO.commandID} INVALID_PARAMETER_VALUE ${responseVO.paramArray}`);
+                    break;
+                case 3:
+                    if (socket.debug) console.warn(`${responseVO.commandID} MISSING_PARAMETER ${responseVO.paramArray}`);
+                    break;
+                default:
+                    //todo: replace by processError, all ALL_OK responses are handled in errorcode 0 and 10005
+                    if (socket.debug) console.warn(`[RECEIVED ERROR]: ${responseVO.commandID}, ${responseVO.error}: ${responseVO.paramArray.toString().substring(0, 100)}`);
+                    executeResponse(socket, responseVO);
+                    break;
+            }
             return;
     }
 }
 
 /**
  * @param {Socket} socket
- * @param {object} _jsonResponseVO
+ * @param {Object} _jsonResponseVO
  */
 function executeResponse(socket, _jsonResponseVO) {
     try {
@@ -63,8 +83,7 @@ function executeResponse(socket, _jsonResponseVO) {
                 } else {
                     params = _jsonResponseVO.paramArray;
                     if (socket.debug) {
-                        console.log('Received multi param jsonResponseVO')
-                        console.log(_jsonResponseVO)
+                        console.warn('Received multi param jsonResponseVO', _jsonResponseVO)
                     }
                 }
             } catch (e) {
@@ -78,13 +97,11 @@ function executeResponse(socket, _jsonResponseVO) {
             handler.apply(this, [socket, error, params]);
         } else {
             const _params = _jsonResponseVO.paramArray.length === 0 ? "" : _jsonResponseVO.paramArray[0].substring(0, 124 - _jsonResponseVO.commandID.length);
-            if (socket.debug) console.log('[RECEIVED UNKNOWN COMMAND] ' + _jsonResponseVO.commandID + ": " + _params.trim());
+            if (socket.debug) console.warn(`[RECEIVED UNKNOWN COMMAND] ${_jsonResponseVO.commandID}: ${_params.trim()}`);
         }
     } catch (e) {
         if (socket.debug) {
-            console.log("Error");
-            console.log(_jsonResponseVO);
-            console.log(e);
+            console.error("Error", _jsonResponseVO, e);
         }
     }
 }

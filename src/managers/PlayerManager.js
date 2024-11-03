@@ -1,12 +1,19 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const {execute: searchPlayerByIdCommand} = require('./../e4kserver/commands/searchPlayerById');
-const {execute: getPlayerRankingsCommand} = require('./../e4kserver/commands/getPlayerRankings');
-const {WaitUntil} = require('./../tools/wait');
+const {execute: getDetailedPlayerInfo} = require('../e4kserver/commands/getDetailedPlayerInfo');
+const {execute: searchPlayer} = require('../e4kserver/commands/searchPlayer');
+const {WaitUntil} = require('../tools/wait');
 const Localize = require("../tools/Localize");
 
 class PlayerManager extends BaseManager {
+    get _socket() {
+        if (super._socket[`__requesting_players`] === undefined) {
+            super._socket[`__requesting_players`] = [];
+        }
+        return super._socket;
+    }
+
     /**
      *
      * @param {number} id
@@ -14,13 +21,21 @@ class PlayerManager extends BaseManager {
      */
     getById(id) {
         return new Promise(async (resolve, reject) => {
+            /** @type {Array} */
+            const reqPlayers = this._socket[`__requesting_players`]
             try {
-                let _player = await _getPlayerById(this._socket, id);
-                resolve(_player);
+                if (!reqPlayers.includes(id)) getDetailedPlayerInfo(this._socket, id);
+                reqPlayers.push(id);
+                const player = await WaitUntil(this._socket, `__get_player_${id}`, "__get_player_error");
+                reqPlayers.splice(reqPlayers.indexOf(id), 1);
+                if (!reqPlayers.includes(id)) delete this._socket[`__get_player_${id}`];
+                resolve(player);
             } catch (e) {
-                reject(Localize.text(this._client, 'errorCode_21'));
+                reqPlayers.splice(reqPlayers.indexOf(id), 1);
+                delete this._socket["__get_player_error"];
+                reject(Localize.text(this._socket.client, e));
             }
-        })
+        });
     }
 
     /**
@@ -31,74 +46,27 @@ class PlayerManager extends BaseManager {
     find(name) {
         return new Promise(async (resolve, reject) => {
             try {
-                let _playerId = await _getPlayerIdByName(this._socket, name);
-                if (_playerId === 0) reject("Player not found!");
-                let _player = await this.getById(_playerId);
-                resolve(_player);
+                searchPlayer(this._socket, name);
+                name = name.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                /** @type {number} */
+                const playerId = await WaitUntil(this._socket, `__search_player_${name}`, "__search_player_error", 1000);
+                delete this._socket[`__search_player_${name}`];
+                resolve(await this.getById(playerId));
             } catch (e) {
-                reject(Localize.text(this._client, 'errorCode_21'));
+                delete this._socket[`__search_player_${name}`];
+                delete this._socket["__search_player_error"];
+                reject(Localize.text(this._socket.client, e));
             }
-        })
+        });
     }
 
     /**
      * @returns {Promise<Player>}
      */
     getThisPlayer() {
+        if(this._client.clientUserData.playerId === -1) return new Promise(resolve => {resolve(null)})
         return this.getById(this._client.clientUserData.playerId);
     }
-}
-
-/**
- *
- * @param {Socket} socket
- * @param {number} id
- * @returns {Promise<Player>}
- */
-function _getPlayerById(socket, id) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            if (id == null) {
-                reject('Missing player id!');
-                return;
-            }
-            searchPlayerByIdCommand(socket, id);
-            const player = await WaitUntil(socket, `__player_${id}_data`, "", 1000);
-            delete socket[`__player_${id}_data`];
-            resolve(player);
-        } catch (e) {
-            if(e.toString() === "Exceeded max time!"){
-                try{
-                    const player = await _getPlayerById(socket, id);
-                    resolve(player);
-                    return;
-                }
-                catch (e){
-                }
-            }
-            reject(Localize.text(socket.client, 'errorCode_21'));
-        }
-    });
-}
-
-/**
- *
- * @param {Socket} socket
- * @param {string} name
- * @returns {Promise<number>}
- */
-function _getPlayerIdByName(socket, name) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            getPlayerRankingsCommand(socket, name);
-            name = name.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            const id = await WaitUntil(socket, `__player_${name}_id`, "", 1000);
-            delete socket[`__player_${name}_id`];
-            resolve(id);
-        } catch (e) {
-            reject(Localize.text(socket.client, 'errorCode_21'));
-        }
-    });
 }
 
 module.exports = PlayerManager

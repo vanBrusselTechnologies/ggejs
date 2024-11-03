@@ -1,23 +1,23 @@
 /**
  * @param {Socket} socket
- * @param {object} header
+ * @param {Object} header
  * @param {string} action
  * @param {number} fromRoom
  * @param {string} message
  */
 module.exports.sendAction = function (socket, header, action, fromRoom, message) {
     let msg = makeXmlHeader(header) + (`<body action=\'${action}\' r=\'${fromRoom}\'>${message}</body></msg>`);
-    require('./../../data.js').writeToSocket(socket, msg);
+    require('../../data.js').writeToSocket(socket, msg);
 }
 
 /**
- *
- * @param {object} headerObj
+ * @param {Object} headerObj
+ * @returns {string}
  */
 function makeXmlHeader(headerObj) {
     let header = "<msg";
-    for (let _loc2_ in headerObj) {
-        header += ` ${_loc2_}=\'${headerObj[_loc2_]}\'`;
+    for (let attribute in headerObj) {
+        header += ` ${attribute}=\'${headerObj[attribute]}\'`;
     }
     return header + ">";
 }

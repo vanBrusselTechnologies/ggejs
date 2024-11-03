@@ -1,9 +1,9 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const {execute: sendArmyAttackMovement} = require("./../e4kserver/commands/sendArmyAttackMovement");
-const {execute: sendMarketMovement} = require("./../e4kserver/commands/sendMarketMovement");
-const {execute: sendSpyMovement} = require("./../e4kserver/commands/sendSpyMovement");
+const {execute: sendArmyAttackMovement} = require("../e4kserver/commands/sendArmyAttackMovement");
+const {execute: sendMarketMovement} = require("../e4kserver/commands/sendMarketMovement");
+const {execute: sendSpyMovement} = require("../e4kserver/commands/sendSpyMovement");
 const {SpyType} = require("../utils/Constants");
 const Constants = require("../utils/Constants");
 
@@ -13,8 +13,18 @@ class MovementManager extends BaseManager {
 
     /**
      *
-     * @param {Mapobject} c1
-     * @param {Mapobject} c2
+     * @param {BasicMapobject | CastlePosition} c1
+     * @param {BasicMapobject | CastlePosition} c2
+     * @returns {number}
+     */
+    getDistance(c1, c2) {
+        return Math.sqrt(Math.pow(c1.position.X - c2.position.X, 2) + Math.pow(c1.position.Y - c2.position.Y, 2));
+    }
+
+    /**
+     *
+     * @param {BasicMapobject | CastlePosition} c1
+     * @param {BasicMapobject | CastlePosition} c2
      * @returns {number}
      */
     static getDistance(c1, c2) {
@@ -29,8 +39,8 @@ class MovementManager extends BaseManager {
 
     /**
      *
-     * @param {InteractiveMapobject | CapitalMapobject} castleFrom
-     * @param {Mapobject} castleTo
+     * @param {InteractiveMapobject} castleFrom
+     * @param {Mapobject | CastlePosition} castleTo
      * @param {ArmyWave[]} army
      * @param {Lord} lord
      * @param {Horse} horse
@@ -66,8 +76,8 @@ class MovementManager extends BaseManager {
 
     /**
      *
-     * @param {InteractiveMapobject | CapitalMapobject} castleFrom
-     * @param {Mapobject} castleTo
+     * @param {InteractiveMapobject} castleFrom
+     * @param {Mapobject | CastlePosition} castleTo
      * @param {number} spyCount
      * @param {number} spyType
      * @param {number} spyEffect
@@ -80,8 +90,8 @@ class MovementManager extends BaseManager {
 
     /**
      *
-     * @param {InteractiveMapobject | CapitalMapobject} castleFrom
-     * @param {Mapobject} castleTo
+     * @param {InteractiveMapobject} castleFrom
+     * @param {Mapobject | CastlePosition} castleTo
      * @param {["W" | "S" | "F" | "C" | "O" | "G" | "I" | "A" | "HONEY" | "MEAD", number][]} goods
      * @param {Horse} horse
      */
@@ -102,7 +112,7 @@ class MovementManager extends BaseManager {
                 let _oldMovement = this.#movements[j];
                 if (_oldMovement.movementId === _newMovement.movementId) {
                     this.#movements[j] = _newMovement;
-                    this.emit('movementUpdate', _oldMovement, _newMovement);
+                    this.emit(Constants.Events.MOVEMENT_UPDATE, _oldMovement, _newMovement);
                     found = true;
                     break;
                 }
@@ -121,7 +131,7 @@ class MovementManager extends BaseManager {
     _remove(_movementId) {
         for (let i in this.#movements) {
             if (this.#movements[i].movementId === _movementId) {
-                this.emit('movementCancelled', this.#movements[i]);
+                this.emit(Constants.Events.MOVEMENT_CANCEL, this.#movements[i]);
                 this.#movements.splice(parseInt(i), 1);
             }
         }

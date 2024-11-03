@@ -7,7 +7,7 @@ class NomadKhanInvasionMapobject extends InvasionMapobject {
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data);
+        super(client, data.slice(0,3));
         if (data.length <= 3) return;
         if (data[3] > 0)
             /** @type {Date} */

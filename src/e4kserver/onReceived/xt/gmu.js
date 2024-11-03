@@ -1,4 +1,4 @@
-module.exports.name = "gmu"
+module.exports.name = "gmu";
 /**
  * @param {Socket} socket
  * @param {number} errorCode

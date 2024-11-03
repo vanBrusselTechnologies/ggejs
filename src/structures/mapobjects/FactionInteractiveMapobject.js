@@ -4,13 +4,11 @@ class FactionInteractiveMapobject extends InteractiveMapobject {
     isDestroyed = false;
     aliveProtectorPositions = [];
 
-    get titleText()
-    {
+    get titleText() {
         return "";
     }
 
-    get levelText()
-    {
+    get levelText() {
         return "";
     }
 

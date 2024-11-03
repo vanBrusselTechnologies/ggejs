@@ -50,7 +50,14 @@ class ClientUserDataManager {
         peaceModeStatus: 0,
         noobProtectedPerKingdom: {},
         kingdomIdToRename: -1,
-        castleListVO: {/**@type {MonumentMapobject[]}*/monuments: []},
+        castleList: {
+            ownerId: -1,
+            /**@type {MonumentMapobject[]}*/monuments: [],
+            /**@type {{[kId: number]:(CastleMapobject | CapitalMapobject)[]}}*/castles: {},
+            /**@type {KingstowerMapobject[]}*/kingstowers: [],
+            /**@type {{ village: VillageMapobject, units: InventoryItem<Unit>[] }[]}*/publicVillages: [],
+            /**@type {{ privateVillageId: number, uniqueId: number }[]}*/privateVillages: [],
+        },
         joinCastleCount: 0,
         mayChangeCrest: true,
         shadowUnitInventory: {},
@@ -107,13 +114,29 @@ class ClientUserDataManager {
         suffix: Constants.TitleType.UNKNOWN,
         highestTitlesByTypeVO: {}
     }
+    /** @private */
+    _vipData = {
+        showVIPFlagOption: false,
+        _currentVIPPoints: 0,
+        _maxVIPLevelReached: 0,
+        _usedPremiumGenerals: 0,
+        _vipTimeExpireTimestamp: 0
+    }
+    /** @private */
+    _allianceData = {
+        _myAlliance: null
+    }
+    /** @type {PremiumBoostData} */
+    boostData;
+    /** @type {QuestData} */
+    questData;
 
     /** @returns {boolean} */
     get isXPDataInitialized() {
         return this._userData.isXPDataInitialized;
     }
 
-    /** @param {number} val */
+    /** @param {boolean} val */
     set isXPDataInitialized(val) {
         this._userData.isXPDataInitialized = val;
     }
@@ -259,6 +282,8 @@ class ClientUserDataManager {
         this._playerInfo.userId = val;
     }
 
+    //todo: pingVO + pingDashed
+
     /** @returns {number} */
     get playerId() {
         return this._playerInfo.playerId;
@@ -359,6 +384,16 @@ class ClientUserDataManager {
         this._userData.hasFreeCastleRename = val;
     }
 
+    /** @returns {number} */
+    get lifeTimeSpent() {
+        return this._userData.lifeTimeSpent;
+    }
+
+    /** @param {number} val */
+    set lifeTimeSpent(val) {
+        this._userData.lifeTimeSpent = val;
+    }
+
     /** @returns {string | null} */
     get facebookId() {
         return this._userData.facebookId;
@@ -367,6 +402,16 @@ class ClientUserDataManager {
     /** @param {string | null} val */
     set facebookId(val) {
         this._userData.facebookId = val;
+    }
+
+    /** @returns {number} */
+    get minUserNameLength() {
+        return this._userData.minUserNameLength;
+    }
+
+    /** @param {number} val */
+    set minUserNameLength(val) {
+        this._userData.minUserNameLength = val;
     }
 
     /** @returns {number} */
@@ -450,12 +495,12 @@ class ClientUserDataManager {
     }
 
     /** @returns {number} */
-    get availablePlagueMonks(){
+    get availablePlagueMonks() {
         return this._spyData.availablePlagueMonks;
     }
 
     /** @param {number} val */
-    set availablePlagueMonks(val){
+    set availablePlagueMonks(val) {
         this._spyData.availablePlagueMonks = val;
     }
 
@@ -575,32 +620,31 @@ class ClientUserDataManager {
     }
 
     /** @param {Good} val */
-    set globalCurrencies(val) {
+    setGlobalCurrency(val) {
         /** @type {Good} */
         const g = this._goodsData.globalCurrencies.find(g => g.item === val.item);
         if (g == null) this._goodsData.globalCurrencies.push(val); else g.count = val.count;
     }
 
     /** @param {number} val see Constants.TitleType for possibilities */
-    set titlePrefix(val){
+    set titlePrefix(val) {
         this._titlesData.prefix = val
     }
 
-    get titlePrefix(){
+    get titlePrefix() {
         return this.currentTitle(this._titlesData.prefix)
     }
 
     /** @param {number} val see Constants.TitleType for possibilities */
-    set titleSuffix(val){
+    set titleSuffix(val) {
         this._titlesData.suffix = val
     }
 
-    get titleSuffix(){
+    get titleSuffix() {
         return this.currentTitle(this._titlesData.suffix)
     }
 
     //
-
 
 
     //
@@ -624,7 +668,7 @@ class ClientUserDataManager {
      * @param {number} points
      * @param {number} titleType see Constants.TitleType for possibilities
      */
-    setTitlePoints(points, titleType){
+    setTitlePoints(points, titleType) {
         this._titlesData.titlePoints[titleType] = points
     }
 
@@ -632,16 +676,15 @@ class ClientUserDataManager {
      * @param {number} titleType see Constants.TitleType for possibilities
      * @returns {number}
      */
-    titlePoints(titleType){
+    titlePoints(titleType) {
         return this._titlesData.titlePoints[titleType]
     }
 
-
-    setCurrentTitle(titleType, title){
+    setCurrentTitle(titleType, title) {
         this._titlesData.currentTitle[titleType] = title
     }
 
-    currentTitle(titleType){
+    currentTitle(titleType) {
         return this._titlesData.currentTitle[titleType]
     }
 
@@ -649,8 +692,7 @@ class ClientUserDataManager {
      *
      * @param {number} titleType see Constants.TitleType for possibilities
      */
-    clearCurrentTitle(titleType)
-    {
+    clearCurrentTitle(titleType) {
         delete this._titlesData.currentTitle[titleType];
     }
 
@@ -659,7 +701,7 @@ class ClientUserDataManager {
      * @param {number} points
      * @param {number} titleType see Constants.TitleType for possibilities
      */
-    setHighestTitlePoints(points, titleType){
+    setHighestTitlePoints(points, titleType) {
         this._titlesData.highestPoints[titleType] = points
     }
 
@@ -668,7 +710,7 @@ class ClientUserDataManager {
      * @param {number} titleType see Constants.TitleType for possibilities
      * @returns {number}
      */
-    highestTitlePoints(titleType){
+    highestTitlePoints(titleType) {
         return this._titlesData.highestPoints[titleType]
     }
 
@@ -690,6 +732,78 @@ class ClientUserDataManager {
          return this._titlesData.titlesRatingStatus[titleType]
      }
      */
+
+    /** @return {boolean} */
+    get showVIPFlagOption() {
+        return this._vipData.showVIPFlagOption
+    }
+
+    /** @param {Boolean} val */
+    set showVIPFlagOption(val) {
+        this._vipData.showVIPFlagOption = val
+    }
+
+    /** @return {number} */
+    get vipPoints() {
+        return this._vipData._currentVIPPoints
+    }
+
+    /** @param {number} points */
+    set vipPoints(points) {
+        this._vipData._currentVIPPoints = points < 0 ? 0 : points;
+        //todo: this._vipData._currentVIPLevel = getVIPLevelInfoVOByPoints(points);
+    }
+
+    /** @return {number} */
+    get maxVIPLevelReached() {
+        return this._vipData._maxVIPLevelReached
+    }
+
+    /** @param {number} level */
+    set maxVIPLevelReached(level) {
+        //todo: if(_maxVIPLevelReached >= 1 && level > _maxVIPLevelReached) vipLevelReachedSignal.dispatch(_currentVIPLevel);
+        this._vipData._maxVIPLevelReached = level < 1 ? 1 : level;
+    }
+
+    /** @return {number} */
+    get usedPremiumGenerals() {
+        return this._vipData._usedPremiumGenerals
+    }
+
+    /** @param {number} val */
+    set usedPremiumGenerals(val) {
+        this._vipData._usedPremiumGenerals = val
+    }
+
+    /** @return {Date} */
+    get vipTimeExpireDate() {
+        return new Date(this._vipData._vipTimeExpireTimestamp)
+    }
+
+    /** @param {number} val */
+    set vipTimeExpireTimestamp(val) {
+        const active = val > 0
+        //todo: this._vipData._vipModeStatusVO.isActive = active;
+        this._vipData._vipTimeExpireTimestamp = active ? Date.now() + val * 1000 : 0;
+    }
+
+    get isVIPModeActive() {
+        return this.vipTimeExpireDate.getTime() > Date.now();
+    }
+
+    get showVIPFlagOnCastle() {
+        return this.showVIPFlagOption && this.isVIPModeActive;
+    }
+
+    /** @return {MyAlliance} */
+    get myAlliance() {
+        return this._allianceData._myAlliance
+    }
+
+    /** @param {MyAlliance} val */
+    set myAlliance(val) {
+        this._allianceData._myAlliance = val
+    }
 }
 
 module.exports = ClientUserDataManager;

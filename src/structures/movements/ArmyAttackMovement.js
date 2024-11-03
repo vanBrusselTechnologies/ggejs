@@ -11,7 +11,6 @@ class ArmyAttackMovement extends BasicMovement {
    constructor(client, data) {
       super(client, data);
       if (data.FA) {
-         /** @type {CompactArmy} */
          this.army = parseArmy(client, data.FA);
          this.armyState = 0;
       }
@@ -34,6 +33,10 @@ class ArmyAttackMovement extends BasicMovement {
    }
 }
 
+/**
+ * @param {Client} client
+ * @param {Object} data
+ */
 function parseArmy(client, data) {
    return new CompactArmy(client, data);
 }

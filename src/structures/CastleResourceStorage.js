@@ -1,16 +1,16 @@
 const Good = require("./Good");
 
 class CastleResourceStorage {
-    wood = 0;
-    stone = 0;
-    food = 0;
-    coal = 0;
-    oil = 0;
-    glass = 0;
-    aquamarine = 0;
-    iron = 0;
-    honey = 0;
-    mead = 0;
+    wood = new Good(null, ["W", 0]);
+    stone = new Good(null, ["S", 0]);
+    food = new Good(null, ["F", 0]);
+    coal = new Good(null, ["C", 0]);
+    oil = new Good(null, ["O", 0]);
+    glass = new Good(null, ["G", 0]);
+    aquamarine = new Good(null, ["A", 0]);
+    iron = new Good(null, ["I", 0]);
+    honey = new Good(null, ["HONEY", 0]);
+    mead = new Good(null, ["MEAD", 0]);
 
     /**
      *

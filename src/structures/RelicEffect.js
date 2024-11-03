@@ -21,7 +21,7 @@ class RelicEffect extends Effect {
 /**
  * 
  * @param {number} id 
- * @returns {object}
+ * @returns {Object}
  */
 function getDataFromJson(id){
     for(const relicEffect of relicEffects){

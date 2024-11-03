@@ -1,13 +1,13 @@
-const BasicMapobject = require("./BasicMapobject");
+const InteractiveMapobject = require("./InteractiveMapobject");
 
-class InvasionMapobject extends BasicMapobject {
+class InvasionMapobject extends InteractiveMapobject {
     /**
      *
      * @param {Client} client
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data);
+        super(client, data.slice(0,3));
         if (data[3] > 0)
             /** @type {Date} */
             this.lastSpyDate = new Date(Date.now() - data[3] * 1000);

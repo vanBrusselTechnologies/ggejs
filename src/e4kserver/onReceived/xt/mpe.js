@@ -1,10 +1,10 @@
-const {execute: mercenaryPackageCommand} = require('../../commands/mercenaryPackageCommand');
+const {execute: mercenaryPackageCommand} = require('../../commands/mercenaryPackage');
 
 module.exports.name = "mpe";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {{NM:number, M:{D:number, RD:number, P:number, Q:number, S:number, R:[], ID: number}[]}} params
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params?.M) return;
@@ -23,6 +23,7 @@ module.exports.execute = function (socket, errorCode, params) {
         }
         mercenaryCampMissions.push(mission);
     }
+
     let bestMission = /* MercenariesCampMissionItemVO */{
         missionId: -1,
         duration: 0,
@@ -40,7 +41,7 @@ module.exports.execute = function (socket, errorCode, params) {
             setTimeout(() => {
                 if (!socket["__connected"]) return;
                 mercenaryPackageCommand(socket, __mission.missionId);
-            }, __mission.remainingDuration * 1100)
+            }, __mission.remainingDuration * 1005 + 5000)
             break;
         }
         if (__mission.state === 2) {
@@ -54,5 +55,10 @@ module.exports.execute = function (socket, errorCode, params) {
     }
     if (bestMission.missionId !== -1) {
         mercenaryPackageCommand(socket, bestMission.missionId)
+    } else {
+        setTimeout(() => {
+            if (!socket["__connected"]) return;
+            mercenaryPackageCommand(socket, -1);
+        }, params.NM * 1005 + 5000)
     }
 }

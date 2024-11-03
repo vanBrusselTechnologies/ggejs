@@ -12,7 +12,7 @@ class MyAlliance extends Alliance {
     /**
      * 
      * @param {Client} client 
-     * @param {object} data 
+     * @param {Object} data 
      */
     constructor(client, data) {
         super(client, data);
@@ -26,8 +26,7 @@ class MyAlliance extends Alliance {
         this.aquaPoints = data.AP;
         /** @type {number} */
         this.cargoPointsRanking = data.AR;
-        /** @type {Good[]} */
-        this.storage = parseStorage(client, data.STO);
+        this.parseStorage(client, data.STO);
         /** @type {AllianceStatusListItem[]} */
         this.statusList = parseStatusList(client, data.ADL);
         /** @type {AllianceMember[]} */
@@ -47,21 +46,20 @@ class MyAlliance extends Alliance {
         /** @type {number} */
         this.highestFamePoints = data.HF;
     }
-}
 
-/**
- * 
- * @param {Client} client 
- * @param {object} data 
- * @returns {Good[]}
- */
-function parseStorage(client, data) {
-    let goods = []
-    for (let i in data) {
-        let _array = [i, data[i]];
-        goods.push(new Good(client, _array));
+    /**
+     * @private
+     * @param {Client} client
+     * @param {Object} data
+     */
+    parseStorage(client, data) {
+        let goods = []
+        for (let i in data) {
+            let _array = [i, data[i]];
+            goods.push(new Good(client, _array));
+        }
+        this.storage = goods;
     }
-    return goods;
 }
 
 /**

@@ -1,7 +1,7 @@
 'use strict'
 
 const connection = require('./e4kserver/connection');
-const e4kData = require('./e4kserver/data');
+const {onData} = require('./e4kserver/data');
 const AllianceManager = require('./managers/AllianceManager');
 const EquipmentManager = require("./managers/EquipmentManager");
 const MovementManager = require('./managers/MovementManager');
@@ -9,15 +9,25 @@ const PlayerManager = require('./managers/PlayerManager');
 const WorldmapManager = require('./managers/WorldmapManager');
 const {WaitUntil} = require('./tools/wait');
 const EventEmitter = require('node:events');
-const {NetworkInstance} = require('e4k-data');
+const {NetworkInstance, languages} = require('e4k-data');
 const ClientUserDataManager = require("./managers/ClientUserDataManager");
+const PremiumBoostData = require("./structures/boosters/PremiumBoostData");
+const QuestData = require("./structures/quests/QuestData");
+const {execute: verifyLoginData} = require('./e4kserver/commands/verifyLoginData');
+const {execute: registerOrLogin} = require('./e4kserver/commands/registerOrLogin');
 
 class Client extends EventEmitter {
     #name = "";
     #password = "";
+    /** @type {{token:string, tokenExpirationDate: Date}} */
+    #apiToken;
+    uniqueAccountId = "";
+    externalClient = null;
+
     _serverInstance = require('e4k-data').network.instances.instance[33];
     /** @type {Socket} */
     _socket = new (require("net").Socket)();
+    _networkId = -1;
 
     /**
      *
@@ -37,6 +47,8 @@ class Client extends EventEmitter {
         this._socket.debug = debug;
         this.alliances = new AllianceManager(this);
         this.clientUserData = new ClientUserDataManager();
+        this.clientUserData.boostData = new PremiumBoostData(this);
+        this.clientUserData.questData = new QuestData(this);
         this.equipments = new EquipmentManager(this);
         this.movements = new MovementManager(this);
         this.players = new PlayerManager(this);
@@ -44,11 +56,15 @@ class Client extends EventEmitter {
         this.#addSocketListeners(this._socket);
     }
 
+    static registerNewAccount() {
+        // see room
+    }
+
     _language = 'en';
 
     /** @param {string} val */
     set language(val) {
-        if (require('e4k-data').languages[val] == null) return;
+        if (languages[val] == null) return;
         this._language = val;
     }
 
@@ -63,18 +79,16 @@ class Client extends EventEmitter {
     }
 
     /** @returns {Promise<Client>} */
-    connect() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                if (this._socket["__connected"]) resolve(this);
-                await _connect(this._socket);
-                await _login(this._socket, this.#name, this.#password);
-                this.emit('connected');
-                resolve(this);
-            } catch (e) {
-                reject(e);
-            }
-        })
+    async connect() {
+        if (this._socket["__connected"]) return this;
+        await _connect(this._socket);
+        this.emit('connected');
+        return this;
+    }
+
+    _verifyLoginData() {
+        if (this.#name === "" && this.#password !== "") return registerOrLogin(this._socket, this.#password);
+        verifyLoginData(this._socket, this.#name, this.#password);
     }
 
     /**
@@ -82,7 +96,7 @@ class Client extends EventEmitter {
      * @param {string} message
      */
     sendChatMessage(message) {
-        require('./e4kserver/commands/sendAllianceChatMessageCommand').execute(this._socket, message);
+        require('./e4kserver/commands/sendAllianceChatMessage').execute(this._socket, message);
     }
 
     /**
@@ -92,7 +106,7 @@ class Client extends EventEmitter {
      * @param {string} message
      */
     sendMailMessage(playerName, subject, message) {
-        require('./e4kserver/commands/sendMailMessageCommand').execute(this._socket, playerName, subject, message);
+        require('./e4kserver/commands/sendMailMessage').execute(this._socket, playerName, subject, message);
     }
 
     /**
@@ -104,7 +118,7 @@ class Client extends EventEmitter {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!worldmapArea || !worldmapArea.objectId) reject("WorldmapArea is not valid");
-                require('./e4kserver/commands/joinAreaCommand').execute(this._socket, worldmapArea);
+                require('./e4kserver/commands/joinArea').execute(this._socket, worldmapArea);
                 const data = await WaitUntil(this._socket, `join_area_${worldmapArea.objectId}_data`, "join_area_error");
                 delete this._socket[`join_area_${worldmapArea.objectId}_data`];
                 delete this._socket[`join_area_${worldmapArea.objectId}_finished`];
@@ -120,50 +134,41 @@ class Client extends EventEmitter {
     }
 
     /** @returns {Promise<void>} */
-    __x__x__relogin() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                await _disconnect(this._socket);
-                await WaitUntil(this._socket, "__connected", "__connection_error");
-                resolve();
-            } catch (e) {
-                reject(e);
-            }
-        })
+    async __x__x__relogin() {
+        await _disconnect(this._socket);
+        await WaitUntil(this._socket, "__connected", "__connection_error");
     }
 
-    /**
-     *
-     * @param {Socket} socket
-     */
+    /** @param {Socket} socket */
     #addSocketListeners(socket) {
         socket["unfinishedDataString"] = "";
         socket.addListener("error", (err) => {
-            console.log("\x1b[31m[SOCKET ERROR] " + err + "\x1b[0m");
+            console.error(`\x1b[31m[SOCKET ERROR] ${err}\x1b[0m`);
+            console.error(err)
             socket.end();
         });
         socket.addListener('data', (data) => {
-            e4kData.onData(socket, data);
+            onData(socket, data);
         });
         socket.addListener('ready', () => {
-            connection._sendVersionCheck(socket);
+            connection.sendVersionCheck(socket);
         })
         socket.addListener('end', () => {
             if (socket["isReconnecting"]) return;
-            if (socket.debug) console.log("Socket Ended!");
+            if (socket.debug) console.warn("Socket Ended!");
             socket["__disconnecting"] = false;
             socket["__connected"] = false;
             socket["__disconnect"] = true;
         });
         socket.addListener('timeout', () => {
-            if (socket.debug) console.log("Socket Timeout!");
+            if (socket.debug) console.warn("Socket Timeout!");
             socket.end();
         });
         socket.addListener('close', hadError => {
             if (socket["isReconnecting"]) return;
             socket["isReconnecting"] = true;
             this._socket = {};
-            if (socket.debug) console.log("Socket Closed!" + (hadError ? " Caused by error!" : ""));
+            if (socket.debug) console.warn(`Socket Closed${hadError ? ", caused by error" : ""}!`);
             socket.removeAllListeners()
             /** @type {Socket} */
             const new_socket = createCleanSocket(socket);
@@ -174,17 +179,43 @@ class Client extends EventEmitter {
                 this._socket = new_socket;
                 if (new_socket.debug) console.log("Reconnecting!");
                 let connected = false
-                while(!connected){
+                while (!connected) {
                     try {
                         await this.connect();
                         connected = true
-                    }
-                    catch (e) {
-                        await new Promise((res)=> setTimeout(res, 1000));
+                    } catch (e) {
+                        await new Promise((res) => setTimeout(res, 1000));
                     }
                 }
             }, new_socket["__reconnTimeoutSec"] * 1000);
         });
+    }
+
+    /** @param {{token:string, tokenExpirationDate: Date}} val */
+    set _apiToken(val) {
+        this.#apiToken = val;
+        (async () => {
+            try {
+                const gameId = 16
+                const f = await fetch(`https://accounts.public.ggs-ep.com/players/${gameId}-${this._networkId}-${this._serverInstance.value}-${this.clientUserData.playerId}/gnip-phrase`, {
+                    headers: {Authorization: `Bearer ${val.token}`}
+                })
+                this.uniqueAccountId = JSON.parse(Buffer.from(await f.arrayBuffer()).toString())["gnipPhrase"] ?? "";
+                /*
+                    const f2 = await fetch(`https://accounts.public.ggs-ep.com/players/${gameId}-${this._networkId}-${this._serverInstance.value}-${this.clientUserData.playerId}/onetime-links/mbs`, {
+                        headers: {Authorization: `Bearer ${val.token}`}
+                    })
+                    this.webshopOneTimeLink = JSON.parse(Buffer.from(await f2.arrayBuffer()).toString())["link"];
+
+                    const storeId = "googleplay" // "googleplay" || "local"
+                    const f3 = await fetch(`https://mobile-payments.public.ggs-e4k.com/api/players/${gameId}-${this._networkId}-${this._serverInstance.value}-${this.clientUserData.playerId}/catalog/${storeId}`, {
+                        headers: {Authorization: `Bearer ${val.token}`}
+                    })
+                    console.log( JSON.parse(Buffer.from(await f3.arrayBuffer()).toString()) );
+                 */
+            } catch (e) {
+            }
+        })()
     }
 }
 
@@ -193,16 +224,9 @@ class Client extends EventEmitter {
  * @param {Socket} socket
  * @returns {Promise<void>}
  */
-function _connect(socket) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            connection.connect(socket);
-            await WaitUntil(socket, "__connected", "__connection_error");
-            resolve();
-        } catch (e) {
-            reject(e);
-        }
-    });
+async function _connect(socket) {
+    connection.connect(socket);
+    await WaitUntil(socket, "__connected", "__connection_error");
 }
 
 /**
@@ -212,13 +236,13 @@ function _connect(socket) {
  * @param {string} password
  * @returns {Promise<void>}
  */
-function _login(socket, name, password) {
+function login(socket, name, password) {
     return new Promise(async (resolve, reject) => {
         try {
-            if (name === "") reject("Missing name while logging in");
-            if (password === "") reject("Missing password while logging in");
+            if (name === "") return reject("Missing name while logging in");
+            if (password === "") return reject("Missing password while logging in");
             connection.login(socket, name, password);
-            await WaitUntil(socket, "__loggedIn", "__login_error");
+            await WaitUntil(socket, "__connected", "__connection_error");
             resolve();
         } catch (e) {
             reject(e);
@@ -233,9 +257,9 @@ function _login(socket, name, password) {
 function _disconnect(socket) {
     return new Promise(async (resolve, reject) => {
         try {
-            if(socket?._host == null) reject("Socket missing!");
             socket["__disconnect"] = false;
             socket["__disconnecting"] = true;
+            if (socket?._host == null) return reject("Socket missing!");
             socket.end();
             await WaitUntil(socket, "__disconnect");
             resolve();
@@ -256,10 +280,7 @@ function createCleanSocket(old_socket) {
     new_socket["__reconnTimeoutSec"] = old_socket["__reconnTimeoutSec"];
     new_socket.debug = old_socket.debug;
     new_socket["ultraDebug"] = old_socket["ultraDebug"];
-    new_socket['mailMessages'] = old_socket['mailMessages'];
-    delete new_socket["__disconnecting"];
-    delete new_socket["__connected"];
-    delete new_socket["__disconnect"];
+    new_socket['mailMessages'] = old_socket['mailMessages'] || [];
     return new_socket;
 }
 

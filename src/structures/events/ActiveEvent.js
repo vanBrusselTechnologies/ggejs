@@ -66,7 +66,7 @@ class ActiveEvent {
     }
 
     get eventTitleTextId() {
-        return "event_title_" + this.eventId;
+        return `event_title_${this.eventId}`;
     }
 
     get eventStarterDescTextId() {

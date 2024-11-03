@@ -1,9 +1,9 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const {execute:searchAllianceByIdCommand} = require('./../e4kserver/commands/searchAllianceById');
-const {execute:getAllianceRankingsCommand} = require('./../e4kserver/commands/getAllianceRankings');
-const {WaitUntil} = require('./../tools/wait');
+const {execute: searchAllianceByIdCommand} = require('../e4kserver/commands/searchAllianceById');
+const {execute: getAllianceRankingsCommand} = require('../e4kserver/commands/getAllianceRankings');
+const {WaitUntil} = require('../tools/wait');
 const Localize = require("../tools/Localize");
 
 class AllianceManager extends BaseManager {
@@ -13,14 +13,8 @@ class AllianceManager extends BaseManager {
      * @param {number} id
      * @returns {Promise<Alliance | MyAlliance>}
      */
-    getById(id) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                resolve(await _getAllianceById(this._socket, id));
-            } catch (e) {
-                reject(e);
-            }
-        })
+    async getById(id) {
+        return await _getAllianceById(this._socket, id);
     }
 
     /**
@@ -34,6 +28,8 @@ class AllianceManager extends BaseManager {
                 let _allianceId = await _getAllianceIdByName(this._socket, name);
                 if (_allianceId === 0) reject(Localize.text(this._client, 'errorCode_114'));
                 let _alliance = await this.getById(_allianceId);
+                 */
+
                 resolve(_alliance);
             } catch (e) {
                 reject(Localize.text(this._client, 'errorCode_114'));

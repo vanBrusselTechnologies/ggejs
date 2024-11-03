@@ -2,8 +2,7 @@ const BasicMessage = require("./BasicMessage");
 const Localize = require("../../tools/Localize");
 
 class PlayerGiftMessage extends BasicMessage {
-    parseMetaData(client, metaArray)
-    {
+    parseMetaData(client, metaArray) {
         const metaArray2 = metaArray[0].split("#");
         this.senderId = parseInt(metaArray2[0]);
         this.senderName = metaArray2[1];

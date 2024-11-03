@@ -1,10 +1,8 @@
-module.exports = {
-    name: "pin",
-    execute(socket) {
-        let PingPongVO = {
-            getCmdId: "pin",
-            params: [""],
-        }
-        require('./../data').sendJsonVoSignal(socket, {"commandVO": PingPongVO, "lockConditionVO": null});
+module.exports.name = "pin";
+/** @param {Socket} socket */
+module.exports.execute = function (socket) {
+    let PingPongVO = {
+        getCmdId: "pin", params: [""],
     }
+    require('../data').sendCommandVO(socket, PingPongVO);
 }

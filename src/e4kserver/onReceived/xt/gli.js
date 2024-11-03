@@ -1,19 +1,23 @@
-const Lord = require("./../../../structures/Lord");
+const Lord = require("../../../structures/Lord");
 
-module.exports = {
-    name: "gli",
-    /**
-     * @param {Socket} socket
-     * @param {number} errorCode
-     * @param {object} params
-     */
-    execute(socket, errorCode, params) {
-        const barons = parseLords(socket.client, params.B);
-        const commandants = parseLords(socket.client, params.C);
-        socket.client.equipments._setCommandantsAndBarons(barons, commandants);
-    }
+module.exports.name = "gli";
+/**
+ * @param {Socket} socket
+ * @param {number} errorCode
+ * @param {Object} params
+ */
+module.exports.execute = function (socket, errorCode, params) {
+    const barons = parseLords(socket.client, params.B).sort((l1, l2) => l1.id - l2.id);
+    const commandants = parseLords(socket.client, params.C).sort((l1, l2) => l1.id - l2.id);
+    socket.client.equipments._setCommandantsAndBarons(barons, commandants);
 }
 
+/**
+ *
+ * @param client
+ * @param data
+ * @return {Lord[]}
+ */
 function parseLords(client, data) {
     const lords = [];
     for (let i in data) {

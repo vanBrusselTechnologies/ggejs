@@ -4,7 +4,7 @@ exports.Events = {
     MOVEMENT_UPDATE: "movementUpdate",
     MOVEMENT_CANCEL: "movementCancelled",
     SERVER_SHUTDOWN: "serverShutdown",
-    SERVER_SHUTDOWN_OVER: "serverShutdownOver",
+    SERVER_SHUTDOWN_END: "serverShutdownEnd",
     CONNECTED: "connected",
     CHAT_MESSAGE: "chatMessage",
     MAIL_MESSAGE_NEW: "mailMessageAdd",
@@ -153,7 +153,7 @@ exports.MessageType = {
     UserOut: 2,
     SpyPlayer: 3,
     SpyNPC: 4,
-    ConquerableArea: 5,
+    Conquerable: 5,
     BattleLog: 6,
     AllianceRequest: 20,
     AllianceWar: 21,
@@ -199,7 +199,7 @@ exports.MessageType = {
 exports.MessageSubType = {
     SpyPlayer: {
         Sabotage: 0, Defence: 1, Economic: 2
-    }, ConquerableArea: {
+    }, Conquerable: {
         SiegeCancelled: 0, NewSiege: 1, AreaConquered: 2, AreaLost: 3
     }, BattleLog: {
         NormalAttack: 0, Conquer: 1, NPCAttack: 2, Occupy: 3, ShadowAttack: 4
@@ -216,9 +216,11 @@ exports.MessageSubType = {
     }, SpyCancelled: {
         Aborted: 0
     }, SpecialEvent: {
-        Start: 12, End: 13, VIPInfo: 16, Update: 32, MonumentReset: 66
+        Start: 12, End: 13, VIPInfo: 16, HospitalCapacityExceeded: 20, Update: 32, MonumentReset: 66
     }, PrivateOffer: {
         Tipp: 1, DungeonChest: 5, WhaleChest: 6, TimeChallenge: 12, BestsellerShop: 14
+    }, Popup: {
+        RegistrationGift: 0, FacebookConnection: 1, LoginBonus: 2
     }
 }
 
@@ -239,4 +241,8 @@ exports.EquipmentRarity = {
 
 exports.TitleType = {
     UNKNOWN: 0, FAME: 1, ISLE: 2, FACTION: 3
+}
+
+exports.HighScore = {
+
 }

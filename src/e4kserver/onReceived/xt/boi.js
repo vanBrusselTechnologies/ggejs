@@ -1,0 +1,85 @@
+const {execute: bfs} = require('./bfs');
+const {execute: deleteMessages} = require("../../commands/deleteMessages");
+
+module.exports.name = "boi";
+/**
+ * @param {Socket} socket
+ * @param {number} errorCode
+ * @param {{BO:[], PB:[], SB:[], SU: Object, ST: Object, bfs: {T:number, RT:number}}} params
+ */
+module.exports.execute = function (socket, errorCode, params) {
+    if (!params) return;
+    const premiumBoostData = socket.client.clientUserData.boostData
+    removeBoosterExpiredMails(socket, premiumBoostData, params.BO);
+    parseTempBoosterObjects(premiumBoostData, params.BO);
+    parsePermBoosterObjects(premiumBoostData, params.PB);
+    if (params.SB) premiumBoostData.boughtBuildingSlots = params.SB.filter(s => s > 0).length
+    if (params.SU) premiumBoostData.boughtUnitSlots = params.SU.filter(s => s > 0).length
+    if (params.ST) premiumBoostData.boughtToolSlots = params.ST.filter(s => s > 0).length
+    bfs(socket, errorCode, params.bfs);
+}
+
+/**
+ * @param {Socket} socket
+ * @param {PremiumBoostData} premiumBoostData
+ * @param {{PC:number, ID: number, RT: number}[]} tempBoosterObjects
+ */
+function removeBoosterExpiredMails(socket, premiumBoostData, tempBoosterObjects) {
+    if (!tempBoosterObjects) return;
+    /** @type {number[]} */
+    const messageIds  = []
+    for(const tempBoosterObject of tempBoosterObjects){
+        let booster = premiumBoostData.getBoosterById(tempBoosterObject.ID);
+        if (booster !== undefined && booster.remainingTimeInSeconds <= 86400 && tempBoosterObject.RT > 86400) {
+            messageIds.push(booster.id);
+        }
+    }
+    if(messageIds.length > 0) deleteMessages(socket, messageIds);
+}
+
+/**
+ *
+ * @param {PremiumBoostData} premiumBoostData
+ * @param {{ID: number, B: number, L:number}[]} permBoosterObjects
+ */
+function parsePermBoosterObjects(premiumBoostData, permBoosterObjects) {
+    if (!permBoosterObjects) return;
+    for (const permBoosterObject of permBoosterObjects) {
+        const booster = premiumBoostData.getBoosterById(permBoosterObject.ID);
+        if (booster !== undefined) parseSingleBoost(premiumBoostData, booster, permBoosterObject, true);
+    }
+}
+
+/**
+ *
+ * @param {PremiumBoostData} premiumBoostData
+ * @param {{PC:number, ID: number, RT: number}[]} tempBoosterObjects
+ */
+function parseTempBoosterObjects(premiumBoostData, tempBoosterObjects) {
+    if (!tempBoosterObjects) return;
+    for (const tempBoosterObject of tempBoosterObjects) {
+        const booster = premiumBoostData.getBoosterById(tempBoosterObject.ID);
+        if (booster !== undefined) parseSingleBoost(premiumBoostData, booster, tempBoosterObject);
+    }
+}
+
+/**
+ * @param {PremiumBoostData} premiumBoostData
+ * @param {HeroBoosterShop} booster
+ * @param {{PC?:number, ID: number, RT?: number, B?:number, L?:number}} data
+ * @param {boolean} permanent
+ */
+function parseSingleBoost(premiumBoostData, booster, data, permanent = false) {
+    const wasActive = booster.isActive;
+    if (!permanent) {
+        booster.parseDuration(data.RT);
+        booster.continuousPurchaseCount = data.PC;
+    }
+    if (data.B) booster.bonusValue = data.B;
+    if (data.L) booster.level = data.L;
+    if (wasActive && !booster.isActive) {
+        premiumBoostData.removeActiveBooster(booster);
+    } else if (!wasActive && booster.isActive) {
+        premiumBoostData.addActiveBooster(booster);
+    }
+}

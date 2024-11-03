@@ -4,13 +4,14 @@ module.exports.name = "sei";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (socket["eventsssss"] == null) socket["eventsssss"] = []
     if (!params.E) return;
+    //console.log(params.E.filter(e=>e.EID === 15))
     /** @type {Client} */
-    /*const client = socket.client;
+    /*todo const client = socket.client;
     let _events = [];
     for (const ev of params.E) {
         if (!ev) continue;

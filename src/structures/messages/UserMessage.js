@@ -1,6 +1,6 @@
 const BasicMessage = require("./BasicMessage");
 const {WaitUntil} = require("../../tools/wait");
-const {execute: readMessage} = require("../../e4kserver/commands/readMessagesCommand");
+const {execute: readMessage} = require("../../e4kserver/commands/readMessages");
 
 class UserMessage extends BasicMessage {
     /** @type {Client} */

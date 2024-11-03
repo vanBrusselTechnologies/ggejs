@@ -61,16 +61,16 @@ module.exports = Alliance;
 
 /**
  * @param {Client} client
- * @param {object[]} members
+ * @param {Object[]} members
  * @param {Alliance} _alliance
  * @returns {AllianceMember[]}
  */
 function parseMembers(client, members, _alliance) {
+    client.worldmaps._ownerInfoData.parseOwnerInfoArray(members);
     /**@type {AllianceMember[]} */
     let allianceMembers = [];
-    for (let i in members) {
-        let _memberData = members[i];
-        let _member = new AllianceMember(client, _memberData, _alliance);
+    for (let memberData of members) {
+        let _member = new AllianceMember(client, memberData, _alliance);
         allianceMembers.push(_member);
     }
     allianceMembers.sort((a, b) => {

@@ -1,7 +1,7 @@
 const BasicMessage = require("./BasicMessage");
 const Localize = require("../../tools/Localize");
 const {WaitUntil} = require("../../tools/wait");
-const {execute: getTradeData} = require("../../e4kserver/commands/getTradeDataCommand");
+const {execute: getTradeData} = require("../../e4kserver/commands/getTradeData");
 
 class MarketCarriageArrivedMessage extends BasicMessage {
     /** @type{Client}*/
@@ -25,15 +25,15 @@ class MarketCarriageArrivedMessage extends BasicMessage {
     }
 
     parseMetaData(client, metaArray) {
-        if(metaArray.length > 0)
-        {
+        if (metaArray.length > 0) {
             this.areaName = metaArray[0];
         }
         this.subject = Localize.text(client, "dialog_tradeMessage_title");
-        if(this.areaName)
-        {
-            this.senderName = this.areaName === -24 ? Localize.text(client, "monthevents_expeditioncamp") : this.areaName;
+        if (this.areaName) {
+            this.senderName = this.areaName.toString() === "-24" ? Localize.text(client, "monthevents_expeditioncamp") : this.areaName;
         }
+
+        this.setSenderToAreaName(this.areaName, this.areaType, this.kingdomId)
     }
 
     init() {
@@ -57,7 +57,7 @@ class MarketCarriageArrivedMessage extends BasicMessage {
  *
  * @param {Socket} socket
  * @param {number} messageId
- * @returns {Promise<SpyLog>}
+ * @returns {Promise<TradeData>}
  */
 function getMessageBody(socket, messageId) {
     return new Promise(async (resolve, reject) => {
@@ -66,7 +66,6 @@ function getMessageBody(socket, messageId) {
             getTradeData(socket, messageId);
             resolve(await WaitUntil(socket, `mmn -> ${messageId}`, `mmn -> errorCode`, 30000));
         } catch (e) {
-            if (e !== 130) console.log(e);
             socket['mmn -> errorCode'] = "";
             reject(e);
         }

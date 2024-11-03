@@ -1,4 +1,3 @@
-const Player = require("../../../structures/Player");
 const Equipment = require("../../../structures/Equipment");
 const RelicEquipment = require("../../../structures/RelicEquipment");
 const Gem = require("../../../structures/Gem");
@@ -7,49 +6,60 @@ const Lord = require("../../../structures/Lord");
 const General = require("../../../structures/General");
 const {parseMapObject} = require("../../../utils/MapObjectParser");
 const Good = require("../../../structures/Good");
-const {currencyMinutesSkipValues: minutesSkips} = require('e4k-data').data;
+const TreasureMapMapobject = require("../../../structures/mapobjects/TreasureMapMapobject");
+const SeasonEventsConstants = require("../../../utils/SeasonEventsConstants");
+const {currencyMinutesSkipValues: minutesSkips, tmaps, tmapnodes} = require('e4k-data').data;
 
-module.exports.name = "bls"
+module.exports.name = "bls";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
+    //todo: BattleLog short
     if (!params || errorCode === 66 || errorCode === 225) {
-        socket['bls error'] = `${errorCode}`
+        socket['bls -> errorCode'] = errorCode
         return;
     }
     const _client = socket.client;
-    /** @type {Player[]} */
-    const players = [];
-    for (let p of params["PI"]) {
-        players.push(new Player(_client, {O: p}));
-    }
+    _client.worldmaps._ownerInfoData.parseOwnerInfoArray(params["PI"]);
     const pbiInfo = parsePBIinfo(_client, params["PBI"], params);
     const isDefenseReport = socket[`${params.MID} battleLogMessage`]?.isDefenseReport;
     delete socket[`${params.MID} battleLogMessage`];
     const attackerLords = parseAttackerLords(socket.client, params, {attacker: pbiInfo.attacker});
     const defenderLords = parseDefenderLords(socket.client, params, {defender: pbiInfo.defender});
     const autoSkips = parseAutoSkip(socket.client, params);
+
+    const mapObject = parseWorldmapArea(_client, params["AI"])
+    if (mapObject instanceof TreasureMapMapobject) {
+        const mapSeed = String(params["MS"]).split("+").map(s => parseInt(s));
+        /** @type {TreasureMapMapobject} */
+        let treasureMapMapObject = mapObject;
+        treasureMapMapObject.mapId = params["AI"]["MID"] ?? mapSeed[3];
+        const tMap = tmaps.find(m => m.mapID === treasureMapMapObject.mapId);
+        const tMapNode = tmapnodes.find(n => n.tmapnodeID === treasureMapMapObject.nodeId);
+        treasureMapMapObject.isSurroundingDungeon = SeasonEventsConstants.isSurroundingDungeon(tMapNode.ownerID);
+        treasureMapMapObject.isEndNode = tMap.endNodeID === tMapNode.tmapnodeID;
+    }
+
     socket[`bls -> ${params.MID}`] = {
         battleLogId: params["LID"],
         messageId: params["MID"],
         messageType: params["MT"],
-        mapobject: parseWorldmapArea(_client, params["AI"]),
+        mapobject: mapObject,
         attacker: pbiInfo.attacker,
         defender: pbiInfo.defender,
         winner: pbiInfo.winner,
         loser: pbiInfo.loser,
-        players: players,
-        defWon: params["DW"],
+        defWon: params["DW"] === 1,
         honor: params["H"],
         survivalRate: params["SR"],
         ragePoints: params["RP"],
         shapeshifterPoints: params["SSP"],
         shapeshifterId: params["SSID"],
         rewardEquipment: params["EQF"] == null ? null : params["EQF"][11] === 3 ? new RelicEquipment(_client, params["EQF"]) : new Equipment(_client, params["EQF"]),
-        rewardGemId: params["GF"] == null ? null : new Gem(_client, params["GF"]),
+        rewardGem: params["GF"] == null ? null : new Gem(_client, params["GF"]),
         rewardMinuteSkips: params["MSF"] == null ? null : minutesSkips.find(ms => ms.MinuteSkipIndex === params["MSF"] - 1),
         attackerHomeCastleId: params["AHC"],
         attackerHadHospital: params["AHH"] === 1,
@@ -99,14 +109,17 @@ function parseWorldmapArea(client, data) {
  */
 function parsePBIinfo(client, data, battleLogParams) {
     /** @type {BattleParticipant[]} */
-    const players = [];
+    const battleParticipants = [];
     for (let p of data) {
-        players.push(new BattleParticipant(client, p))
+        battleParticipants.push(new BattleParticipant(client, p))
     }
-    let winnerIndex = battleLogParams["DW"] && players[0].front === 1 || !battleLogParams["DW"] && players[0].front === 0 ? 0 : 1;
+    let winnerIndex = battleLogParams["DW"] && battleParticipants[0].front === 1 || !battleLogParams["DW"] && battleParticipants[0].front === 0 ? 0 : 1;
     let loserIndex = 1 - winnerIndex;
     return {
-        winner: players[winnerIndex], loser: players[loserIndex], attacker: players[0], defender: players[1],
+        winner: battleParticipants[winnerIndex],
+        loser: battleParticipants[loserIndex],
+        attacker: battleParticipants[0],
+        defender: battleParticipants[1],
     }
 }
 
@@ -114,7 +127,7 @@ function parsePBIinfo(client, data, battleLogParams) {
 /**
  *
  * @param {Client} client
- * @param {object} data
+ * @param {Object} data
  * @param {BattleLog} battleLog
  * @return {{commandant: Lord, general: Lord, legendSkills: int[]}}
  */
@@ -139,7 +152,7 @@ function parseAttackerLords(client, data, battleLog) {
 /**
  *
  * @param {Client} client
- * @param {object} data
+ * @param {Object} data
  * @param {BattleLog} battleLog
  * @return {{baron: Lord, general: Lord, legendSkills: int[]}}
  */
@@ -164,19 +177,18 @@ function parseDefenderLords(client, data, battleLog) {
 /**
  *
  * @param {Client} client
- * @param {object} data
+ * @param {Object} data
  * @return {{autoSkipCooldownType:number, autoSkipMinuteSkips: Good[], autoSkipC2: number, autoSkipSeconds: number}}
  */
 function parseAutoSkip(client, data) {
     if (data["ASCT"] !== undefined) {
-        let _loc3_ = [];
-        let _loc5_ = data["ASMS"];
-        for (const _loc4_ of _loc5_) {
-            _loc3_.push(new Good(_loc4_[0], _loc4_[1]));
+        let minuteSkips = [];
+        for (const minuteSkipData of data["ASMS"]) {
+            minuteSkips.push(new Good(minuteSkipData[0], minuteSkipData[1]));
         }
         return {
             autoSkipCooldownType: data["ASCT"],
-            autoSkipMinuteSkips: _loc3_,
+            autoSkipMinuteSkips: minuteSkips,
             autoSkipC2: data["ASC"],
             autoSkipSeconds: data["ASS"]
         }

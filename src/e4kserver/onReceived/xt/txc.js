@@ -1,13 +1,11 @@
-const { execute: startTaxCommand } = require('./../../commands/startTaxCommand');
+const {execute: startTax} = require('../../commands/startTax');
 
-module.exports = {
-    name: "txc",
-    /**
-     * @param {Socket} socket
-     * @param {number} _
-     * @param {object} __
-     */
-    execute(socket, _, __) {
-        startTaxCommand(socket);
-    }
+module.exports.name = "txc";
+/**
+ * @param {Socket} socket
+ * @param {number} _
+ * @param {Object} __
+ */
+module.exports.execute = function (socket, _, __) {
+    startTax(socket, 0);
 }

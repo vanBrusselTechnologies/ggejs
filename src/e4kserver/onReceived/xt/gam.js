@@ -1,31 +1,35 @@
 const ArmyAttackMovement = require('../../../structures/movements/ArmyAttackMovement');
 const ArmyTravelMovement = require('../../../structures/movements/ArmyTravelMovement');
-const ConquerMovement = require('../../../structures/movements/ConquerMovement');
-const MarketMapmovement = require('../../../structures/movements/MarketMovement');
+const SiegeMovement = require('../../../structures/movements/SiegeMovement');
+const MarketMovement = require('../../../structures/movements/MarketMovement');
 const SpyMovement = require('../../../structures/movements/SpyMovement');
 const BasicMovement = require('../../../structures/movements/BasicMovement');
-const NpcAttackMovement = require('../../../structures/movements/NpcAttackMovement');
 const CollectorAttackMovement = require('../../../structures/movements/CollectorAttackMovement');
-const ShapeShifterAttackMovement = require('../../../structures/movements/ShapeshifterAttackMovement')
+const SupportDefenceMovement = require("../../../structures/movements/SupportDefenceMovement");
+const TreasureMapMovement = require("../../../structures/movements/TreasureMapMovement");
 
 module.exports.name = "gam";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params.M) return;
-    let i = 0;
+    socket.client.worldmaps._ownerInfoData.parseOwnerInfoArray(params.O);
+
     /** @type {Movement[]} */
     const movements = [];
-    for (i in params.M) {
-        if (!params.M[i]) continue;
+    const movementObjects = params.M.sort((m1, m2) => m1.M.MID - m2.M.MID);
+    for (const _movObj of movementObjects) {
+        if (!_movObj) continue;
         let _movement;
-        let _movObj = params.M[i];
         switch (_movObj.M.T) {
             case 0:
                 _movement = new ArmyAttackMovement(socket.client, _movObj);
+                break;
+            case 1:
+                _movement = new SupportDefenceMovement(socket.client, _movObj);
                 break;
             case 2:
                 _movement = new ArmyTravelMovement(socket.client, _movObj);
@@ -34,22 +38,37 @@ module.exports.execute = function (socket, errorCode, params) {
                 _movement = new SpyMovement(socket.client, _movObj);
                 break;
             case 4:
-                _movement = new MarketMapmovement(socket.client, _movObj);
+                _movement = new MarketMovement(socket.client, _movObj);
                 break;
             case 5:
-                _movement = new ConquerMovement(socket.client, _movObj);
+                _movement = new SiegeMovement(socket.client, _movObj);
                 break;
-            case 11:
-                _movement = new NpcAttackMovement(socket.client, _movObj);
+            case 6:
+                _movement = new TreasureMapMovement(socket.client, _movObj);
                 break;
-            case 22:
-                _movement = new ShapeShifterAttackMovement(socket.client, _movObj);
+            case 11: //MOVEMENTTYPE_NPC_ATTACK
+                _movement = new ArmyAttackMovement(socket.client, _movObj);
+                break;
+            case 18: //MOVEMENTTYPE_FACTION_ATTACK
+                _movement = new ArmyAttackMovement(socket.client, _movObj);
+                break;
+            case 20: //MOVEMENTTYPE_ALLIANCE_CAMP_TAUNT_ATTACK
+                _movement = new ArmyAttackMovement(socket.client, _movObj);
+                break;
+            case 21: //MOVEMENTTYPE_ALLIANCE_CAMP_ATTACK
+                _movement = new ArmyAttackMovement(socket.client, _movObj);
                 break;
             case 23:
                 _movement = new CollectorAttackMovement(socket.client, _movObj);
                 break;
+            case 24: //MOVEMENTTYPE_TEMP_SERVER_COLLECTOR_ATTACK
+                _movement = new ArmyAttackMovement(socket.client, _movObj);
+                break;
+            case 25: //MOVEMENTTYPE_TEMP_SERVER_RANKSWAP_ATTACK
+                _movement = new ArmyAttackMovement(socket.client, _movObj);
+                break;
             default: {
-                console.log(`Current movement (movementType ${_movObj.M.T}) isn't fully supported!`);
+                console.warn(`Current movement (movementType ${_movObj.M.T}) isn't fully supported!`);
                 if (socket.debug) {
                     console.log(_movObj);
                     console.log(_movObj.A);
@@ -58,11 +77,6 @@ module.exports.execute = function (socket, errorCode, params) {
             }
         }
         if (_movement.sourceArea !== null || _movement.movementType === 6) movements.push(_movement);
-        i++;
     }
-    /**
-     * @type {Client}
-     */
-    const client = socket.client;
-    client.movements._add_or_update(movements);
+    socket.client.movements._add_or_update(movements);
 }

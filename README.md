@@ -8,7 +8,7 @@ npm install ggejs
 
 ### Example usage
 ```js
-const { Client, Constants } = require('empirejs');
+const { Client, Constants } = require('ggejs');
 const networkInstances = require('e4k-data').network.instances.instance;
 const worldNetworkInstance = networkInstances.find(i => i.instanceLocaId === "generic_country_world");
 

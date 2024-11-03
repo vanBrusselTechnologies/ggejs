@@ -1,5 +1,5 @@
 const Unit = require("./Unit");
-const {execute: parseGSI} = require("../e4kserver/onReceived/xt/gsi");
+const {execute: gsi} = require("../e4kserver/onReceived/xt/gsi");
 
 class CastleUnitInventory {
 
@@ -30,7 +30,7 @@ class CastleUnitInventory {
         this.unitsInStronghold = parseUnits(client, data.SHI);
         this.unitsTraveling = parseUnits(client, data.TU);
         if (data.gsi) {
-            const shadowUnitsInfo = parseGSI(client._socket, 0, data.gsi);
+            const shadowUnitsInfo = gsi(client._socket, 0, data.gsi);
             this.totalShadowUnits = shadowUnitsInfo.totalShadowUnits
             this.travellingShadowUnits = shadowUnitsInfo.travellingShadowUnits
             this.shadowUnits = shadowUnitsInfo.shadowUnits

@@ -15,6 +15,7 @@ class CastleConstructionItemBuilding {
     }
 }
 
+/** @param {number} id */
 function getConstructionItem(id) {
     return constructionItems.find(ci => ci.constructionItemID === id);
 }

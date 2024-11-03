@@ -14,6 +14,8 @@ class SpyPlayerSabotageSuccessfulMessage extends BasicSpyPlayerMessage {
         this.areaType = parseInt(metaArray[0]);
         this.senderName = this.areaName = metaArray[1];
         this.initSubject(client, Localize.text(client, "dialog_spy_titleSabotage"));
+
+        this.setSenderToAreaName(this.areaName, this.areaType, this.kingdomId)
     }
 }
 

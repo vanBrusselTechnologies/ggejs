@@ -1,13 +1,13 @@
-const BasicMapobject = require("./BasicMapobject");
+const InteractiveMapobject = require("./InteractiveMapobject");
 
-class EventDungeonMapobject extends BasicMapobject {
+class EventDungeonMapobject extends InteractiveMapobject {
     /**
      *
      * @param {Client} client
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data);
+        super(client, data.slice(0,3));
         if (data[3] !== -1)
             /** @type {Date} */
             this.lastSpyDate = new Date(Date.now() - data[3] * 1000);

@@ -1,7 +1,6 @@
 const BasicBuilding = require("./BasicBuilding");
-const Player = require("./Player");
 const {parseMapObject} = require("../utils/MapObjectParser");
-const {execute: SCLParser} = require("./../e4kserver/onReceived/xt/scl");
+const {execute: scl} = require("../e4kserver/onReceived/xt/scl");
 const BuildingGround = require("./BuildingGround");
 const CastleConstructionItemBuilding = require("./CastleConstructionItemBuilding");
 
@@ -18,8 +17,6 @@ class CastleBuildingInfo {
     moat = null;
     /** @type {BasicBuilding[]} */
     fixedPositionBuildings = []
-    /** @type {Player} */
-    owner = null;
     /** @type {Mapobject} */
     mapobject = null;
     /** @type {BuildingGround[]} */
@@ -44,7 +41,6 @@ class CastleBuildingInfo {
      */
     constructor(client, data) {
         if (!data) return;
-        this.owner = new Player(client, {O: data["O"]});
         this.buildings = parseBuildings(client, data["BD"]);
         this.towers = parseBuildings(client, data["T"]);
         this.gates = parseBuildings(client, data["G"]);
@@ -58,7 +54,7 @@ class CastleBuildingInfo {
         const baseBuildingGround = this.buildingGround.find(bg => bg.wodId === 200)
         this.startPointX = baseBuildingGround.position.X;
         this.startPointY = baseBuildingGround.position.Y;
-        if (data["scl"]) this.constructionList = SCLParser(client._socket, 0, data["scl"]);
+        if (data["scl"]) this.constructionList = scl(client._socket, 0, data["scl"]);
         if (data["FP"]) this.fixedPositionBuildings = parseBuildings(client, data["FP"]);
         this.resourceFields = {
             food: data["RAF"], stone: data["RAS"], wood: data["RAW"]

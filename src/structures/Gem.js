@@ -11,7 +11,7 @@ class Gem {
      */
     constructor(client, id, equipment = null) {
         let _data = getDataFromJson(id);
-        if (!_data) { console.log(id + " without data"); return; }
+        if (!_data) { console.warn(`gem id ${id} without data`); return; }
         this.rawData = _data;
         /** @type {number} */
         this.id = _data.gemID;
@@ -29,7 +29,7 @@ class Gem {
 /**
  * 
  * @param {number} id 
- * @returns {object}
+ * @returns {Object}
  */
 function getDataFromJson(id) {
     for (let g of gems) {

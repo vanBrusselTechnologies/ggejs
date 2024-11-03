@@ -4,7 +4,7 @@ class General {
     /**
      *
      * @param {Client} client
-     * @param {object} data
+     * @param {Object} data
      * @returns
      */
     constructor(client, data) {
@@ -17,8 +17,8 @@ class General {
         this.isNew = data["IN"];
         this.leveledUp = data["LU"];
         if (this.rawData && data["GASAIDS"]) {
-            this.attackAbilities = parseAssignedAbilities(this.rawData.attackSlots, data["GASAIDS"]);
-            this.defenseAbilities = parseAssignedAbilities(this.rawData.defenseSlots, data["GASAIDS"]);
+            this.attackAbilities = parseAssignedAbilities(this.rawData.attackSlots.split(',').map(slot => parseInt(slot)), data["GASAIDS"]);
+            this.defenseAbilities = parseAssignedAbilities(this.rawData.defenseSlots.split(',').map(slot => parseInt(slot)), data["GASAIDS"]);
         }
         this.activatedSkillIds = data["SIDS"];
         this.wins = data["W"];

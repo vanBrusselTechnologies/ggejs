@@ -1,18 +1,19 @@
-const BasicMapobject = require("./BasicMapobject");
+const InteractiveMapobject = require("./InteractiveMapobject");
 
-class ShapeshifterMapobject extends BasicMapobject {
+class ShapeshifterMapobject extends InteractiveMapobject {
     /**
      * 
      * @param {Client} client 
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data);
+        super(client, data.slice(0,3));
         if (data.length <= 3) return;
         /** @type {number} */
         this.kingdomId = data[3];
         /** @type {number} */
         this.ownerId = data[4];
+        this.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(this.ownerId);
         if (data[5] > 0)
             /** @type {Date} */
             this.lastSpyDate = new Date(Date.now() - data[5] * 1000);
@@ -40,7 +41,7 @@ class ShapeshifterMapobject extends BasicMapobject {
 
     parseAreaInfoBattleLog(data){
         super.parseAreaInfoBattleLog(data);
-        this.equipmentID = 0;
+        this.equipmentId = 0;
         return this;
     }
 }

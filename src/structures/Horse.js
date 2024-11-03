@@ -10,9 +10,7 @@ class Horse {
      */
     constructor(client, castleData, horseType) {
         const isPegasusHorse = horseType === HorseType.Feather;
-        if (isPegasusHorse) {
-            horseType -= 1;
-        }
+        if (isPegasusHorse) horseType -= 1;
         this.wodId = getHorseWodId(castleData.buildingInfo.buildings, horseType);
         if (this.wodId === -1) return;
         let horse = horses.find(h => h.wodID === this.wodId);

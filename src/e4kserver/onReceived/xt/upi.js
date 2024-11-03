@@ -1,4 +1,4 @@
-module.exports.name = "upi"
+module.exports.name = "upi";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
@@ -7,5 +7,5 @@ module.exports.name = "upi"
 module.exports.execute = function (socket, errorCode, params) {
     if (!params) return;
     socket.client.clientUserData.isPayUser = params.PU === 1;
-    socket.client.clientUserData.paymentDoublerCount = params.DC
+    socket.client.clientUserData.paymentDoublerCount = params.DC;
 }

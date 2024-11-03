@@ -1,13 +1,14 @@
 const Lord = require("../../../structures/Lord");
 const General = require("../../../structures/General");
 
-module.exports.name = "blm"
+module.exports.name = "blm";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
+    //todo: BattleLog Medium
     /** @type {BattleLog} */
     const battleLog = socket[`${params.LID} battleLog`];
     delete socket[`${params.LID} battleLog`];
@@ -28,7 +29,7 @@ module.exports.execute = function (socket, errorCode, params) {
 /**
  *
  * @param {Client} client
- * @param {object} data
+ * @param {Object} data
  * @param {BattleLog} battleLog
  * @return {{commandant: Lord, general: Lord, legendSkills: int[]}}
  */
@@ -54,7 +55,7 @@ function parseAttackerLords(client, data, battleLog) {
 /**
  *
  * @param {Client} client
- * @param {object} data
+ * @param {Object} data
  * @param {BattleLog} battleLog
  * @return {{baron: Lord, general: Lord, legendSkills: int[]}}
  */
@@ -79,7 +80,7 @@ function parseDefenderLords(client, data, battleLog) {
 
 /**
  *
- * @param {object} data
+ * @param {Object} data
  * @return {{[key: number]: {abilityId: number, waveId: number, abilityValue: number}}}
  */
 function parseBattleLogGeneralAbilitiesPerWave(data) {

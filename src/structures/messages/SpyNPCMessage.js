@@ -29,6 +29,7 @@ class SpyNPCMessage extends BasicMessage {
         this.areaType = parseInt(metaArray2[0]);
         this.kingdomId = parseInt(metaArray2[1]);
         this.initSubject(client, Localize.text(client, "dialog_attack_spyInfo"));
+        this.setSenderToAreaName(this.areaName, this.areaType, this.kingdomId)
     }
 
     /**
@@ -38,10 +39,6 @@ class SpyNPCMessage extends BasicMessage {
      */
     initSubject(client, spyTypeName) {
         let val = "";
-        if (this.isForwarded) {
-            this.subject = Localize.text(client, "dialog_forwardlog_message", Localize.text(client, "dialog_spy_military"));
-            return;
-        }
         if (this.isSuccessful) {
             val = Localize.text(client, "dialog_spyLog_success");
         } else if (this.isAttacking) {

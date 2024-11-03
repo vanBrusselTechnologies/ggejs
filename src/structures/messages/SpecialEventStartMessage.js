@@ -1,8 +1,8 @@
 const BasicSpecialEventMessage = require("./BasicSpecialEventMessage");
 const Localize = require("../../tools/Localize");
+
 class SpecialEventStartMessage extends BasicSpecialEventMessage {
-    parseMetaData(client, metaArray)
-    {
+    parseMetaData(client, metaArray) {
         metaArray = metaArray[0].split("#");
         super.parseMetaData(client, metaArray);
         this.eventId = parseInt(metaArray[1]);
@@ -28,5 +28,6 @@ const starterMail = {
     103: "dialog_redAlienInvasion_message_header",
     106: "message_header_outerrealms_start",
     110: "message_header_outerrealms_start",
-    601: "message_header_seasonLeague_start"
+    601: "message_header_seasonLeague_start",
+    123: "dialog_mainDonationEvent_title",
 }

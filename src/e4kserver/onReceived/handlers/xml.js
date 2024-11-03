@@ -1,39 +1,35 @@
 const sys = require('./sys.js');
 const xt = require('./xt');
 
-module.exports = {
-    /**
-     * @param {Socket} socket
-     * @param {string} msg
-     */
-    execute(socket, msg) {
-        let xml = stringToXml(msg);
-        if (xml === 'ERROR') return;
-        let _msg = xml.msg;
-        let type = _msg.$?.t;
-        if (type === "xt") {
-            xtHandleMessage(socket, _msg)
-        } else if (type === "sys") {
-            sys.onResponse(socket, _msg);
-        }
+/**
+ * @param {Socket} socket
+ * @param {string} msg
+ */
+module.exports.execute = function (socket, msg) {
+    let xml = stringToXml(msg);
+    if (xml === 'ERROR') return;
+    let _msg = xml.msg;
+    let type = _msg.$?.t;
+    if (type === "xt") {
+        xtHandleMessage(socket, _msg)
+    } else if (type === "sys") {
+        sys.onResponse(socket, _msg);
     }
 }
 
 /**
  * @param {Socket} socket
- * @param {object} msgObj
+ * @param {Object} msgObj
  */
 function xtHandleMessage(socket, msgObj) {
     console.log(msgObj);
     let action = msgObj.body["$"].action;
-    let _loc7_ = null;
-    let _loc5_ = null;
     //let id = msgObj.body["$"].id;
     if (action === "xtRes") {
-        _loc7_ = msgObj.body.toString();
-        _loc5_ = ObjectSerializer.getInstance().deserialize(_loc7_);
+        const body = msgObj.body.toString();
+        const dataObject = ObjectSerializer.getInstance().deserialize(body);
         let event = {
-            dataObj: _loc5_, type: "xml",
+            dataObj: dataObject, type: "xml",
         }
         xt.onResponse(socket, event);
     }

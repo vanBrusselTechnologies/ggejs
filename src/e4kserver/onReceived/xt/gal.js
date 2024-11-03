@@ -1,4 +1,4 @@
-module.exports.name = "gal"
+module.exports.name = "gal";
 /**
  * @param {Socket} socket
  * @param {number} errorCode

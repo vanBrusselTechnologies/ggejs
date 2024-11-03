@@ -14,9 +14,6 @@ module.exports.onData = function (socket, data) {
         return;
     }
     msg = socket["unfinishedDataString"] + msg;
-    if (socket["ultraDebug"]) {
-        console.log("[RECEIVED]: " + msg.substring(0, Math.min(150, msg.length)));
-    }
     socket["unfinishedDataString"] = "";
     const msgParts = [];
     const msgChars = msg.split("");
@@ -32,6 +29,9 @@ module.exports.onData = function (socket, data) {
     }
     for (let i = 0; i < msgParts.length; i++) {
         let _msg = msgParts[i];
+        if (socket["ultraDebug"]) {
+            console.log(`[RECEIVED]: ${_msg.substring(0, Math.min(150, msg.length))}`);
+        }
         let firstChar = _msg.charAt(0);
         let lastChar = msgParts[i].charAt(msgParts[i].length - 1);
         if (firstChar === "<" && lastChar === ">") {
@@ -41,34 +41,25 @@ module.exports.onData = function (socket, data) {
         } else if (firstChar === "{" && lastChar === "}") {
             onJson.execute(socket, _msg);
         } else if (socket.debug) {
-            console.log("received unfinished message!");
-            console.log(msgParts[i]);
+            console.warn("received unfinished message!", msgParts[i]);
         }
     }
 }
 
 /**
  * @param {Socket} socket
- * @param {{commandVO: {getCmdId: string, params: object}}} sendJsonMessageVO
+ * @param {{getCmdId: string, params: Object}} commandVO
  */
-module.exports.sendJsonVoSignal = function (socket, sendJsonMessageVO) {
-    sendCommandVO(socket, sendJsonMessageVO.commandVO);
-}
-
-/**
- * @param {Socket} socket
- * @param {{getCmdId: string, params: object}} commandVO
- */
-function sendCommandVO(socket, commandVO) {
+module.exports.sendCommandVO = function (socket, commandVO) {
     let msgId = commandVO.getCmdId;
     let params = [JSON.stringify(commandVO.params)];
     let i = 0;
     while (i < params.length) {
-        0 === params[i] ? params[i] = "0" : params[i] ? "string" == typeof params[i] && (params[i] = getValideSmartFoxText(params[i])) : params[i] = "<RoundHouseKick>";
+        params[i] ? "string" == typeof params[i] && (params[i] = getValideSmartFoxText(params[i])) : params[i] = "<RoundHouseKick>";
         i++;
     }
     if(socket?.client == null) return;
-    xt.sendMessage(socket, socket.client._serverInstance.zone, msgId, params, "str", require('./room.js').activeRoomId);
+    xt.sendMessage(socket, socket.client._serverInstance.zone, msgId, params, "str", socket["_activeRoomId"]);
 }
 
 /**
@@ -87,7 +78,7 @@ function getValideSmartFoxText(value) {
  */
 module.exports.writeToSocket = function (socket, msg) {
     if (!socket?._host || socket["__connected"] === false || socket["__disconnecting"] || socket.closed) return;
-    if (socket["ultraDebug"]) console.log("[WRITE]: " + msg.substring(0, Math.min(150, msg.length)));
+    if (socket["ultraDebug"]) console.log(`[WRITE]: ${msg.substring(0, Math.min(150, msg.length))}`);
     let _buff0 = Buffer.from(msg);
     let _buff1 = Buffer.alloc(1);
     _buff1.writeInt8(0);
@@ -95,7 +86,7 @@ module.exports.writeToSocket = function (socket, msg) {
     if (!socket?._host || socket["__connected"] === false || socket["__disconnecting"] || socket.closed) return;
     socket.write(bytes, "utf-8", (err) => {
         if (err) {
-            console.log("\x1b[31m[SOCKET WRITE ERROR] " + err + "\x1b[0m");
+            console.error(`\x1b[31m[SOCKET WRITE ERROR] ${err}\x1b[0m`);
         }
     });
 }

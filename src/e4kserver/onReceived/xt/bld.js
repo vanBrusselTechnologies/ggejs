@@ -1,11 +1,13 @@
 const LogUnit = require("../../../structures/LogUnit");
-module.exports.name = "bld"
+
+module.exports.name = "bld";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
+    //todo: BattleLog Detailed
     const client = socket.client;
     const supportTools = parseSupportToolsDetails(client, params.S);
     const yard = parseYardDetailed(client, params.Y);

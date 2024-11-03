@@ -4,7 +4,7 @@ class SpyMovement extends BasicMovement {
     /**
      * 
      * @param {Client} client 
-     * @param {object} data 
+     * @param {Object} data 
      */
     constructor(client, data) {
         super(client, data);

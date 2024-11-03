@@ -4,85 +4,28 @@ const VillageMapobject = require("./mapobjects/VillageMapobject");
 const KingstowerMapobject = require("./mapobjects/KingstowerMapobject");
 const MonumentMapobject = require("./mapobjects/MonumentMapobject");
 const Coordinate = require("./Coordinate");
-const Crest = require("./Crest");
+const InventoryItem = require("./InventoryItem");
+const WorldmapOwnerInfo = require("./WorldmapOwnerInfo");
 
-class Player {
+class Player extends WorldmapOwnerInfo {
     /**
      *
      * @param {Client} client
-     * @param {object} data
+     * @param {Object} data
      */
     constructor(client, data) {
-        /** @type {number} */
-        this.playerId = data.O.OID;
-        /** @type {boolean} */
-        this.isDummy = data.O.DUM === 1;
-        /** @type {string} */
-        this.playerName = data.O.N;
-        this.crest = new Crest(client, data.O.E);
-        /** @type {number} */
-        this.playerLevel = data.O.L;
-        /** @type {number} */
-        this.paragonLevel = data.O.LL;
-        if (data.O.RNP > 0) this.noobEndTime = new Date(Date.now() + data.O.RNP * 1000);
-        /** @type {number} */
-        this.honor = data.O.H;
-        /** @type {number} */
-        this.famePoints = data.O.CF;
-        /** @type {number} */
-        this.highestFamePoints = data.O.HF;
-        /** @type {boolean} */
-        this.isRuin = data.O.R === 1;
-        /** @type {number} */
-        this.allianceId = data.O.AID;
-        /** @type {string} */
-        this.allianceName = data.O.AN;
-        /** @type {number} */
-        this.allianceRank = data.O.AR;
-        /** @type {boolean} */
-        this.isSearchingAlliance = data.O.SA === 1;
-        if (data.O.RPT > 0) this.peaceEndTime = new Date(Date.now() + data.O.RPT * 1000);
-        if (!data.gcl) {
-            this.castles = parseSimpleCastleList(client, data.O.AP);
-            this.villages = {private: [], public: []};
-            this.kingstowers = [];
-            this.monuments = [];
-        } else {
-            /** @type {(CastleMapobject | CapitalMapobject)[]} */
-            this.castles = parseCastleList(client, data.gcl);
-            /** @type {{public:{village:VillageMapobject,units?:InventoryItem<Unit>[]}[], private:{privateVillageId: number, uniqueId: number}[]}} */
-            this.villages = parseVillageList(client, data.kgv);
-            /** @type {KingstowerMapobject[]} */
-            this.kingstowers = parseKingstowers(client, data.gkl);
-            /** @type {MonumentMapobject[]} */
-            this.monuments = parseMonuments(client, data.gml);
-        }
+        super(client);
+        super.fillFromParamObject(data.O);
+
+        /** @type {(CastleMapobject | CapitalMapobject)[]} */
+        this.castles = parseCastleList(client, data.gcl);
+        /** @type {{public:{village:VillageMapobject,units?:InventoryItem<Unit>[]}[], private:{privateVillageId: number, uniqueId: number}[]}} */
+        this.villages = parseVillageList(client, data.kgv);
+        /** @type {{kingstower: KingstowerMapobject, units?: InventoryItem<Unit>[]}[]} */
+        this.kingstowers = parseKingstowers(client, data.gkl);
+        /** @type {{monument: MonumentMapobject, units?: InventoryItem<Unit>[]}[]} */
+        this.monuments = parseMonuments(client, data.gml);
         //this.allianceTowers = ; //horizon
-        /** @type {boolean} */
-        this.hasPremiumFlag = data.O.PF === 1;
-        /** @type {number} */
-        this.might = data.O.MP;
-        /** @type {number} */
-        this.achievementPoints = data.O.AVP;
-        /** @type {number} */
-        this.prefixTitleId = data.O.PRE;
-        /** @type {number} */
-        this.suffixTitleId = data.O.SUF;
-        if (data.O.RRD > 0) this.relocateDurationEndTime = new Date(Date.now() + data.O.RRD * 1000);
-        if (data.O.FN && data.O.FN.FID !== -1) {
-            /** @type {number} */
-            this.factionId = data.O.FN.FID;
-            /** @type {number} */
-            this.factionMainCampId = data.O.FN.MC;
-            /** @type {boolean} */
-            this.factionIsSpectator = data.O.FN.SPC === 1;
-            /** @type {number} */
-            this.factionProtectionStatus = data.O.FN.PMS;
-            if (data.O.FN.PMT > 0) /** @type {Date} */
-            this.factionProtectionEndTime = new Date(Date.now() + data.O.FN.PMT * 1000);
-            if (data.O.FN.NS > 0) /** @type {Date} */
-            this.factionNoobProtectionEndTime = new Date(Date.now() + data.O.FN.NS * 1000);
-        }
     }
 }
 
@@ -102,7 +45,7 @@ function parseSimpleCastleList(client, data) {
 /**
  *
  * @param {Client} client
- * @param {object} data
+ * @param {Object} data
  * @returns {(CastleMapobject | CapitalMapobject)[]}
  */
 function parseCastleList(client, data) {
@@ -126,7 +69,7 @@ function parseCastleList(client, data) {
 /**
  *
  * @param {Client} client
- * @param {object} data
+ * @param {Object} data
  * @returns {{ public: { village: VillageMapobject, units?: InventoryItem<Unit>[] }[], private: { privateVillageId: number, uniqueId: number }[]}}
  */
 function parseVillageList(client, data) {
@@ -150,21 +93,21 @@ function parseVillageList(client, data) {
 /**
  *
  * @param {Client} client
- * @param {Array} data
+ * @param {Array<[number, number]>} data
  * @returns {InventoryItem<Unit>[]}
  */
 function parseUnits(client, data) {
     if (!data) return [];
     return data.map(d => {
-        return {item: new Unit(client, d[0]), count: d[1]}
+        return new InventoryItem(new Unit(client, d[0]), d[1])
     })
 }
 
 /**
  *
  * @param {Client} client
- * @param {object} data
- * @returns {KingstowerMapobject[]}
+ * @param {Object} data
+ * @returns {{ kingstower: KingstowerMapobject, units?: InventoryItem<Unit>[] }[]}
  */
 function parseKingstowers(client, data) {
     let kingstowers = [];
@@ -181,8 +124,8 @@ function parseKingstowers(client, data) {
 /**
  *
  * @param {Client} client
- * @param {object} data
- * @returns {MonumentMapobject[]}
+ * @param {Object} data
+ * @returns {{ monument: MonumentMapobject, units?: InventoryItem<Unit>[] }[]}
  */
 function parseMonuments(client, data) {
     let monuments = [];

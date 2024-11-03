@@ -5,10 +5,10 @@ module.exports.name = "uar";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
-    if (socket.debug) console.log("uar, gml, gcl, kgv, gkl, opt, and vip not fully correctly working");
+    //todo: uar, gml, gcl, kgv, gkl, opt, and vip not fully correctly working
 
     const cud = socket.client.clientUserData;
     //cud.setTitleRatingStatus(createTitleRatingStatus(params.FTM), TitleType.FAME)

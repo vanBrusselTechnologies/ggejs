@@ -1,8 +1,8 @@
-module.exports.name = "gho"
+module.exports.name = "gho";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
     socket.client.clientUserData.userHonor = params["H"];

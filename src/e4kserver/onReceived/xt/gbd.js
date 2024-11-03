@@ -2,21 +2,22 @@ module.exports.name = "gbd";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {object} params
+ * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
-    //setUpActiveActionsServiceSignal.dispatch();
+    //todo?: setUpActiveActionsServiceSignal.dispatch();
     for (let x in params) {
         switch (x.toLowerCase()) {
-            case "wr":
+            case "WR".toLowerCase():
                 socket.client.clientUserData.wasResetted = params[x];
                 break;
-            case "la":
+            case "LA".toLowerCase():
                 socket.client.clientUserData.lastUserActivity = params[x];
                 break;
             case "ch":
                 socket.client.clientUserData.selectedHeroId = params[x]["HID"];
                 break;
+            case "gal":
             case "gcu":
             case "gho":
             case "gxp":
@@ -64,30 +65,60 @@ module.exports.execute = function (socket, errorCode, params) {
             case "gatp":
             case "bie":
             case "ree":
-            case "dts":
+            case "DTS".toLowerCase():
             case "mvf":
             case "pre":
             case "gls":
-            case "gal":
             case "mcd":
+//#region not handled in gbd source code
             case "gmu":
             case "cpi":
+            case "gas":
+//#endregion
                 try {
-                    require(`./${x}`).execute(socket, errorCode, params[x]);
+                    if (socket.ultraDebug) {
+                        const msg = JSON.stringify(params[x])
+                        console.log(`[RECEIVED-GBD] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`)
+                    }
+                    require(`./${x.toLowerCase()}`).execute(socket, errorCode, params[x]);
                 } catch (e) {
-                    if (socket.debug) console.log(e.toString().split('\n')[0]);
+                    if (socket.debug) console.warn("[GBD]", e);
+                }
+                break;
+//#region not handled in gbd source code
+            case "atl":
+            case "dsd":
+            case "fcs":
+            case "gll":
+            case "scd":
+                //Not implemented in game
+                if (socket.ultraDebug) {
+                    const msg = JSON.stringify(params[x])
+                    console.log(`[RECEIVED-GBD-not_implemented] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`)
+                }
+                break;
+            case "fii":
+            //Not implemented in game: Friend invite info
+            case "thi":
+            //Not implemented in game: Treasure hunt info
+            case "wbie":
+                //Not implemented in game: Welcome back message info event
+                if (socket.ultraDebug) {
+                    const msg = JSON.stringify(params[x])
+                    console.log(`[RECEIVED-GBD-not_implemented] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`)
                 }
                 break;
             default:
-                if (socket.debug) console.log("Unknown part in gbd command: " + x + ": " + JSON.stringify(params[x]));
+                if (socket.debug) console.warn(`Unknown part in gbd command: ${x}: ${JSON.stringify(params[x])}`);
                 break;
+//#endregion
         }
     }
-    setTimeout(() => handlePostGBDCommandInNextFrame(socket), 10);
+    setTimeout(async () => await handlePostGBDCommandInNextFrame(socket), 10);
 }
 
-function handlePostGBDCommandInNextFrame(socket) {
-    /*
+async function handlePostGBDCommandInNextFrame(socket) {
+    /* todo
      *  restoreTutorialIfRuined();
      *  enableIAPmanagerStartupIntervalSignal.dispatch(false);
      *  if(hasValidInvitation.approve())
@@ -113,8 +144,8 @@ function handlePostGBDCommandInNextFrame(socket) {
      *  trackDevice();
      *  trackDisconnection();
      */
-    require('./../../commands/getSubscriptionInformationCommand').execute(socket);
-    /*
+    requestSubscriptionsData(socket);
+    /*todo
      * directCommandMap.map(InitPaymentShopCommand).execute();
      * if(!featureRestrictionsModel.isFeatureRestrictedWithType("accountCode",FeatureRestrictionType.HIDDEN))
      * {
@@ -125,42 +156,65 @@ function handlePostGBDCommandInNextFrame(socket) {
      */
     requestLoginBonusInfo(socket);
     requestMessagesData(socket);
-    //requestAllianceData(); all in false if-statement
+    await requestAllianceData(socket);
     requestBookmarkData(socket);
     requestConstructionItemInventory(socket);
-    requestEquipmentInventory(socket);
-    socket['gdb finished'] = true;
-    /*
-     *  directCommandMap.map(SendDeviceMetaDataCommand).execute();
-     *  gameStatusModel.gameIsListening = true;
-     *  stopCachingJsonCommandsSignal.dispatch();
-     *  connectionLostModel.reset();
-     *  if(lockConditionModel.hasCondition())
-     *  {
-     *     _loc1_ = lockConditionModel.hasCondition();
-     *     debug("client has lock condition in GBD:",_loc1_.originalConditionIds + ", find the original reason where it came from and clean");
-     *     lockConditionModel.conditionComplete();
-     *  }
+    requestGeneralsInnData(socket);
+    /* todo
+         showAccountForcedDialog();
+         directCommandMap.map(SendDeviceMetaDataCommand).execute();
+         gameStatusModel.gameIsListening = true;
+         stopCachingJsonCommandsSignal.dispatch();
+         connectionLostModel.reset();
+         if(lockConditionModel.hasCondition()) {
+            _loc1_ = lockConditionModel.hasCondition();
+            debug("client has lock condition in GBD:",_loc1_.originalConditionIds + ", find the original reason where it came from and clean");
+            lockConditionModel.conditionComplete();
+         }
      */
+
+    //todo????: Code below is added and not in source code
+    require('../../commands/getEquipmentInventory').execute(socket);
+    socket['gdb finished'] = true;
 }
 
-function requestLoginBonusInfo(socket) {
-    require('./../../commands/getLoginBonusCommand').execute(socket);
-    require('./../../commands/getStartupLoginBonusCommand').execute(socket);
+/** @param {Socket} socket */
+function requestGeneralsInnData(socket) {
+    require('../../commands/getGeneralCharacter').execute(socket);
 }
 
-function requestMessagesData(socket) {
-    require('./../../commands/showMessagesCommand').execute(socket);
-}
-
+/** @param {Socket} socket */
 function requestBookmarkData(socket) {
-    require('./../../commands/getBookmarksListCommand').execute(socket);
+    require('../../commands/getBookmarksList').execute(socket);
 }
 
+/** @param {Socket} socket */
 function requestConstructionItemInventory(socket) {
-    require('./../../commands/getConstructionItemInventoryCommand').execute(socket);
+    require('../../commands/getConstructionItemInventory').execute(socket);
 }
 
-function requestEquipmentInventory(socket) {
-    require('./../../commands/getEquipmentInventoryCommand').execute(socket);
+/** @param {Socket} socket */
+function requestMessagesData(socket) {
+    require('../../commands/showMessages').execute(socket);
+}
+
+/** @param {Socket} socket */
+async function requestAllianceData(socket) {
+    const client = socket.client;
+    if (client.clientUserData.allianceId >= 0) {
+        require('../../commands/searchAllianceById').execute(socket, client.clientUserData.allianceId);
+        require('../../commands/getAllianceFame').execute(socket);
+        require('../../commands/getAllianceChatHistory').execute(socket);
+    }
+}
+
+/** @param {Socket} socket */
+function requestSubscriptionsData(socket) {
+    require('../../commands/getSubscriptionInformation').execute(socket);
+}
+
+/** @param {Socket} socket */
+function requestLoginBonusInfo(socket) {
+    require('../../commands/getLoginBonus').execute(socket);
+    require('../../commands/getStartupLoginBonus').execute(socket);
 }

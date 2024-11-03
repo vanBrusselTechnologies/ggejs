@@ -1,8 +1,8 @@
 const BasicMessage = require("./BasicMessage");
 const {WaitUntil} = require("../../tools/wait");
-const {execute: getBattleLogDetail} = require("../../e4kserver/commands/getBattleLogDetailCommand");
-const {execute: getBattleLogMiddle} = require("../../e4kserver/commands/getBattleLogMiddleCommand");
-const {execute: getBattleLogShort} = require("../../e4kserver/commands/getBattleLogShortCommand");
+const {execute: getBattleLogDetail} = require("../../e4kserver/commands/getBattleLogDetail");
+const {execute: getBattleLogMiddle} = require("../../e4kserver/commands/getBattleLogMiddle");
+const {execute: getBattleLogShort} = require("../../e4kserver/commands/getBattleLogShort");
 const Localize = require("../../tools/Localize");
 
 class BasicBattleLogMessage extends BasicMessage {
@@ -33,7 +33,7 @@ class BasicBattleLogMessage extends BasicMessage {
             try {
                 this.battleLog = await getMessageBody(this.#client._socket, this.messageId, this);
                 delete this.#client._socket[`bls -> ${this.messageId}`];
-                delete this.#client._socket['bls error'];
+                delete this.#client._socket['bls -> errorCode'];
                 if (this.battleLog) {
                     delete this.#client._socket[`blm -> ${this.battleLog.battleLogId}`];
                     delete this.#client._socket[`bld -> ${this.battleLog.battleLogId}`];
@@ -41,7 +41,7 @@ class BasicBattleLogMessage extends BasicMessage {
                 resolve();
             } catch (e) {
                 delete this.#client._socket[`bls -> ${this.messageId}`];
-                delete this.#client._socket['bls error'];
+                delete this.#client._socket['bls -> errorCode'];
                 if (this.battleLog) {
                     delete this.#client._socket[`blm -> ${this.battleLog.battleLogId}`];
                     delete this.#client._socket[`bld -> ${this.battleLog.battleLogId}`];
@@ -79,6 +79,8 @@ class BasicBattleLogMessage extends BasicMessage {
         } else {
             this.initSubject(client);
         }
+
+        this.setSenderToAreaName(this.areaName, this.areaType, this.kingdomId)
     }
 }
 
@@ -96,7 +98,7 @@ function getMessageBody(socket, messageId, battleLogMessage) {
             const body = {};
             socket[`${messageId} battleLogMessage`] = battleLogMessage;
             getBattleLogShort(socket, messageId);
-            const battleLogShort = await WaitUntil(socket, `bls -> ${messageId}`, "bls error", 30000);
+            const battleLogShort = await WaitUntil(socket, `bls -> ${messageId}`, "bls -> errorCode", 30000);
             for (let key in battleLogShort) {
                 if (battleLogShort[key] == null) continue;
                 body[key] = battleLogShort[key];
@@ -127,28 +129,25 @@ function getMessageBody(socket, messageId, battleLogMessage) {
  * @return {string}
  */
 function getExceptionalSenderName(client, thisMessage) {
-    if (thisMessage.areaType === 17) {
-        return Localize.text(client, "factionwatchtower_name");
+    switch (thisMessage.areaType) {
+        case 17:
+            return Localize.text(client, "factionwatchtower_name");
+        case 16:
+            return Localize.text(client, "faction_village");
+        case 18:
+            return Localize.text(client, "faction_capital");
+        case 7:
+            if (thisMessage.treasureMapNodeType === 2) {
+                return Localize.text(client, "bladecoast_finalboss");
+            }
+            return Localize.text(client, "bladecoast_tower");
+        case 41:
+            return Localize.text(client, "allianceTower_placeholder", thisMessage.areaName);
+        case 40:
+            return Localize.text(client, "resourceTower");
+        default:
+            return thisMessage.areaName;
     }
-    if (thisMessage.areaType === 16) {
-        return Localize.text(client, "faction_village");
-    }
-    if (thisMessage.areaType === 18) {
-        return Localize.text(client, "faction_capital");
-    }
-    if (thisMessage.areaType === 7) {
-        if (thisMessage.treasureMapNodeType === 2) {
-            return Localize.text(client, "bladecoast_finalboss");
-        }
-        return Localize.text(client, "bladecoast_tower");
-    }
-    if (thisMessage.areaType === 41) {
-        return Localize.text(client, "allianceTower_placeholder", thisMessage.areaName);
-    }
-    if (thisMessage.areaType === 40) {
-        return Localize.text(client, "resourceTower");
-    }
-    return thisMessage.areaName;
 }
 
 module.exports = BasicBattleLogMessage;

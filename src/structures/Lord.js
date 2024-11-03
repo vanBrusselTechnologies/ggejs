@@ -7,7 +7,7 @@ class Lord {
     /**
      *
      * @param {Client} client
-     * @param {object} data
+     * @param {Object} data
      * @returns
      */
     constructor(client, data) {
@@ -16,7 +16,7 @@ class Lord {
         if (this.isDummy) {
             /** @type {number} */
             this.id = data.DLID;
-            /** @type {object} */
+            /** @type {Object} */
             this.rawData = getDummyData(this.id);
             /** @type {string} */
             this.name = this.rawData.type
@@ -51,8 +51,7 @@ class Lord {
         this.name = data.N ?? "";
         /** @type {number} */
         this.pictureId = data.VIS;
-        if (data.LICID) /** @type {number} */
-        this.attachedCastleId = data.LICID;
+        if (data.LICID) /** @type {number} */ this.attachedCastleId = data.LICID;
     }
 }
 
@@ -213,7 +212,7 @@ function parseEffects(client, data, equipments) {
 /**
  *
  * @param {number} id
- * @returns {object}
+ * @returns {Object}
  */
 function getDummyData(id) {
     for (let lord of lords) {

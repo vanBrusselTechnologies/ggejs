@@ -1,11 +1,13 @@
 const {dungeons} = require('e4k-data').data;
-const BasicMapobject = require("./BasicMapobject");
+const InteractiveMapobject = require("./InteractiveMapobject");
 const Unit = require("../Unit");
 const Lord = require("../Lord");
+const DungeonConst = require("../../utils/DungeonConst");
+const CombatConst = require("../../utils/CombatConst");
 
-class DungeonMapobject extends BasicMapobject {
+class DungeonMapobject extends InteractiveMapobject {
     #client;
-    /** @type {object} */
+    /** @type {Dungeon} */
     _rawData = null;
 
     /**
@@ -14,7 +16,7 @@ class DungeonMapobject extends BasicMapobject {
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data);
+        super(client, data.slice(0, 3));
         this.#client = client;
         if (data[3] > 0) /** @type {Date} */
         this.lastSpyDate = new Date(Date.now() - data[3] * 1000);
@@ -24,24 +26,26 @@ class DungeonMapobject extends BasicMapobject {
         this.attackCooldownEnd = new Date(Date.now() + data[5] * 1000);
         /** @type {number} */
         this.kingdomId = data[6];
+        this.ownerInfo = parseOwnerInfo(client.worldmaps._ownerInfoData, this.kingdomId);
+
         /** @type {number} */
-        this.level = Math.floor(1.9 * Math.pow(Math.abs(this.attackCount), 0.555)) + getKingdomOffset(this.kingdomId);
+        this.level = DungeonConst.getLevel(this.attackCount, this.kingdomId)
         /** @type {number} */
-        this.resources = Math.floor(Math.pow(this.level, 2.2) * 1.2 + 90);
+        this.resources = DungeonConst.getResources(this.level);
         /** @type {number} */
-        this.coins = this.level >= 61 ? Math.floor(Math.pow(this.level, 1.1) * 210) : Math.round(Math.pow(this.level, 2.1) * 3.5 + 25);
+        this.coins = DungeonConst.getC1(this.level);
         /** @type {number} */
-        this.rubies = this.level < 3 ? 0 : Math.floor(Math.max(0, (Math.random() * 11 - 5 + this.level * 0.5 + 0.7) * 0.5));
+        this.rubies = DungeonConst.getC2(this.level);
         /** @type {number} */
-        this.rubyProbability = this.level >= 3 ? 0.5 : 0;
+        this.rubyProbability = DungeonConst.getC2Probability(this.level);
         /** @type {number} */
-        this.wallWodId = this.level < 11 ? 501 : this.level < 24 ? 502 : 503;
+        this.wallWodId = DungeonConst.getWallWOD(this.level);
         /** @type {number} */
-        this.gateWodId = this.level < 11 ? 450 : this.level < 24 ? 451 : 452;
+        this.gateWodId = DungeonConst.getGateWOD(this.level);
         /** @type {number} */
-        this.guards = Math.max(0, Math.min(50, Math.round(0.06 * (this.level - 4) * (this.level - 4) + 0.5 * (this.level - 4))));
+        this.guards = DungeonConst.getGuards(this.attackCount, this.kingdomId);
         /** @type {number} */
-        this.xp = Math.round(Math.max(1, Math.pow(0.5 * this.level, 1.1)));
+        this.xp = CombatConst.getXpForAttackingDungeon(this.level)
     }
 
     /**
@@ -84,7 +88,7 @@ class DungeonMapobject extends BasicMapobject {
             }
         }
         /** @type {Lord} */
-        this._lord = new Lord(this.#client, {DLID: parseInt(this._rawData.lordID)});
+        this._lord = new Lord(this.#client, {DLID: this._rawData.lordID});
         return this._lord;
     }
 
@@ -117,19 +121,17 @@ function parseUnits(client, _data) {
 
 /**
  *
- * @param {0 | 2 | 1 | 3} kingdomId
- * @returns {1 | 20 | 35 | 45}
+ * @param {WorldMapOwnerInfoData} ownerInfoData
+ * @param {number} kingdomId
+ * @return {WorldmapOwnerInfo}
  */
-function getKingdomOffset(kingdomId) {
+function parseOwnerInfo(ownerInfoData, kingdomId){
     switch (kingdomId) {
+        case undefined: return null;
         case 0:
-            return 1;
-        case 2:
-            return 20;
-        case 1:
-            return 35;
-        case 3:
-            return 45;
+            return ownerInfoData.getOwnerInfo(-202 - Math.floor(Math.random() * 13));
+        default:
+            return ownerInfoData.getKingdomDungeonOwnerByKingdomId(kingdomId);
     }
 }
 
