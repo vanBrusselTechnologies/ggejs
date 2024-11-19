@@ -7,7 +7,6 @@ const CAMP_SPOT_WIDTH = 3;
 const CAMP_SPOT_HEIGHT = 2;
 const BLUE_FACTION = 0;
 const RED_FACTION = 1;
-const FACTIONS = [BLUE_FACTION, RED_FACTION];
 const VILLAGE_POINTS = 5;
 const TOWER_POINTS = 15;
 const CAPITAL_POINTS = 30;
@@ -33,6 +32,7 @@ const FACTION_PROTECTION_STATUS_ACTIVE = 1;
 const FACTION_PROTECTION_STATUS_COOLDOWN = 2;
 const FACTION_ACTIVE_THRESHOLD = 250;
 const TITLE_RESET_INTERVAL_SECONDS = 14400;
+const FACTIONS = [BLUE_FACTION, RED_FACTION];
 
 /**
  *
@@ -44,13 +44,9 @@ function getOppositeFactionID(factionId) {
 }
 
 /** @return {number} */
-module.exports.getMapWidth = () => {
-    return 2600;
-}
+module.exports.getMapWidth = () => 2600;
 /** @return {number} */
-module.exports.getMapHeight = () => {
-    return 130;
-}
+module.exports.getMapHeight = () => 130;
 
 /**
  * @param {number} mapSeed

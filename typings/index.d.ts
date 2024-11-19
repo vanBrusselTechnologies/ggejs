@@ -45,7 +45,7 @@ declare class Client extends EventEmitter {
 
     public set language(val: string);
 
-    public get mailMessages(): Message[];
+    public get mailMessages(): MailMessage[];
 
     public set reconnectTimeout(val: number);
 
@@ -306,6 +306,8 @@ declare class EquipmentManager extends BaseManager {
 
     public set autoDeleteAtOrBelowRarity(rarity: number);
 
+    public set autoDeleteAtOrBelowGemLevel(rarity: number);
+
     public get equipmentSpaceLeft(val: number);
     private set equipmentSpaceLeft(val: number);
 
@@ -320,9 +322,7 @@ declare class EquipmentManager extends BaseManager {
 
     public getCommandants(): Lord[];
 
-    /**
-     * Returns Array with all idle commandants.
-     */
+    /** Returns Array with all idle commandants.*/
     public getAvailableCommandants(): Lord[];
 
     public getBarons(): Lord[];
@@ -335,6 +335,14 @@ declare class EquipmentManager extends BaseManager {
 
     public sellAllEquipmentsAtOrBelowRarity(rarity: number): Promise<void>;
 
+    public getRegularInventory(): { gem: Gem, amount: number }[];
+
+    public getRelicGemInventory(): RelicGem[];
+
+    public sellGem(gem: Gem | RelicGem): Promise<void>;
+
+    public sellAllGemsAtOrBelowLevel(level: number): Promise<void>;
+
     private _setCommandantsAndBarons(barons: Lord[], commandants: Lord[]): void;
 
     private _setGenerals(generals: General[]): void;
@@ -342,6 +350,12 @@ declare class EquipmentManager extends BaseManager {
     private _setEquipmentInventory(equipments: (Equipment | RelicEquipment)[]): void;
 
     private _autoSellEquipment(e: Equipment | RelicEquipment): Promise<void>;
+
+    private _setRegularGemInventory(gems: { gem: Gem, amount: number }[]): void;
+
+    private _setRelicGemInventory(gems: RelicGem[]): void;
+
+    private _autoSellGem(gem: Gem): Promise<void>;
 }
 
 declare class MovementManager extends BaseManager {
@@ -386,7 +400,14 @@ declare class WorldmapManager extends BaseManager {
 
     public get(kingdomId: number): Promise<Worldmap>;
 
-    public getSector(kingdomId: number, positionX: number, positionY: number): Promise<WorldmapSector>;
+    /**
+     * Requests a 100x100 area of a certain worldmap with center {@link centerX}/{@link centerY}
+     * @param kingdomId Only kingdoms you have a castle in are valid
+     * @param centerX X coordinate that will be the center of sector
+     * @param centerY Y coordinate that will be the center of sector
+     * @returns 100x100 WorldmapSector
+     */
+    public getSector(kingdomId: number, centerX: number, centerY: number): Promise<WorldmapSector>;
 }
 
 //#endregion
@@ -930,7 +951,6 @@ declare class CapitalMapobject extends InteractiveMapobject {
 }
 
 declare class CastleMapobject extends InteractiveMapobject {
-
 }
 
 declare class DaimyoMapobject extends SamuraiInvasionMapobject {
@@ -1140,9 +1160,9 @@ declare class WolfKingMapobject extends InteractiveMapobject {
 }
 
 //#endregion
-//#region Message
+//#region MailMessage
 /** All types of MailMessages */
-type Message =
+type MailMessage =
     BasicMessage
     | BattleLogConquerMessage
     | BattleLogNormalAttackMessage
@@ -1161,6 +1181,7 @@ type Message =
     | PrivateOfferTimeChallengeMessage
     | PrivateOfferTippMessage
     | PrivateOfferWhaleChestMessage
+    | BreweryMissingResourcesMessage
     | StarveInfoMessage
     | AttackCancelledAbortedMessage
     | AttackCancelledAutoRetreatMessage
@@ -1428,6 +1449,16 @@ interface TradeData {
 
 //#endregion
 
+declare class BreweryMissingResourcesMessage extends BasicMessage {
+    resourceName: string;
+    areaId: number;
+    kingdomId: number;
+    areaName: string;
+    areaType: number;
+    breweryObjectId: number;
+    breweryWodId: number;
+}
+
 declare class StarveInfoMessage extends BasicMessage {
     numberOfDesertedTroops: number;
     areaName: string;
@@ -1625,7 +1656,7 @@ declare class PopupLoginBonusMessage extends BasicPopupMessage {
 
 declare class PopupRegistrationGiftMessage extends BasicPopupMessage {
     isCollectable: boolean
-    nextCollectableDayReward: int
+    nextCollectableDayReward: number
 }
 
 //#endregion
@@ -1639,9 +1670,10 @@ interface ClientEvents {
     serverShutdownEnd: [];
     connected: [];
     chatMessage: [message: ChatMessage];
-    mailMessageAdd: [message: Message];
-    mailMessageRemove: [message: Message];
+    mailMessageAdd: [message: MailMessage];
+    mailMessageRemove: [message: MailMessage];
     primeTime: [primeTime: PrimeTime];
+    externalClientReady: [externalClient: Client];
 }
 
 interface MovementEvents {
@@ -1664,6 +1696,7 @@ interface ConstantsEvents {
     MAIL_MESSAGE_ADD: "mailMessageAdd";
     MAIL_MESSAGE_REMOVE: "mailMessageRemove";
     PRIME_TIME: "primeTime";
+    EXTERNAL_CLIENT_READY: "externalClientReady";
 }
 
 //#endregion
@@ -2208,7 +2241,7 @@ interface MessageType {
     UserOut: 2,
     SpyPlayer: 3,
     SpyNPC: 4,
-    Conquerable: 5,
+    ConquerableArea: 5,
     BattleLog: 6,
     AllianceRequest: 20,
     AllianceWar: 21,
@@ -2257,7 +2290,7 @@ interface MessageSubType {
         Defence: 1,
         Economic: 2
     },
-    Conquerable: {
+    ConquerableArea: {
         SiegeCancelled: 0,
         NewSiege: 1,
         AreaConquered: 2,

@@ -13,22 +13,22 @@ class MovementManager extends BaseManager {
 
     /**
      *
-     * @param {BasicMapobject | CastlePosition} c1
-     * @param {BasicMapobject | CastlePosition} c2
+     * @param {BasicMapobject | CastlePosition} castle1
+     * @param {BasicMapobject | CastlePosition} castle2
      * @returns {number}
      */
-    getDistance(c1, c2) {
-        return Math.sqrt(Math.pow(c1.position.X - c2.position.X, 2) + Math.pow(c1.position.Y - c2.position.Y, 2));
+    getDistance(castle1, castle2) {
+        return Math.sqrt(Math.pow(castle1.position.X - castle2.position.X, 2) + Math.pow(castle1.position.Y - castle2.position.Y, 2));
     }
 
     /**
      *
-     * @param {BasicMapobject | CastlePosition} c1
-     * @param {BasicMapobject | CastlePosition} c2
+     * @param {BasicMapobject | CastlePosition} castle1
+     * @param {BasicMapobject | CastlePosition} castle2
      * @returns {number}
      */
-    static getDistance(c1, c2) {
-        return Math.sqrt(Math.pow(c1.position.X - c2.position.X, 2) + Math.pow(c1.position.Y - c2.position.Y, 2));
+    static getDistance(castle1, castle2) {
+        return Math.sqrt(Math.pow(castle1.position.X - castle2.position.X, 2) + Math.pow(castle1.position.Y - castle2.position.Y, 2));
     }
 
     /** @returns {Movement[]} */

@@ -30,6 +30,8 @@ module.exports.execute = function (socket, errorCode, params) {
     console.log(output.items.map(i => {
         return {pos: i.rank, name: i.player?.playerName ?? i.alliance?.allianceName ?? i.playerName, points: i.points}
     }))
+    const SV = output.searchValue.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    socket[`hgh_${output.listType}_${SV}`] = output;
 }
 
 /**

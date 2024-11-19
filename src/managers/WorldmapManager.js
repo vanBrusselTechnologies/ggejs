@@ -2,7 +2,7 @@
 
 const e4kData = require('e4k-data').data
 const BaseManager = require('./BaseManager');
-const getWorldmapCommand = require('../e4kserver/commands/getWorldmap');
+const {execute: getWorldmap} = require('../e4kserver/commands/getWorldmap');
 const {WaitUntil} = require('../tools/wait');
 const Worldmap = require('../structures/Worldmap');
 const WorldmapSector = require('../structures/WorldmapSector');
@@ -21,6 +21,7 @@ const SeaqueenConstants = require("../utils/SeaqueenConstants");
 const ConstantsThornKing = require("../utils/ConstantsThornKing");
 const ConstantsUnderworld = require("../utils/ConstantsUnderworld");
 const FactionConstClient = require("../utils/FactionConstClient");
+const ConstantsGeneral = require("../utils/ConstantsGeneral");
 
 const kingdomIds = [0, 1, 2, 3, 4, 10]
 
@@ -138,7 +139,7 @@ function _getWorldmapSector(thisManager, kingdomId, x, y, tries = 0) {
                 socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`] = true;
                 const bottomLeft = new Coordinate(socket.client, [x - 50, y - 50]);
                 const topRight = new Coordinate(socket.client, [x + 49, y + 49]);
-                getWorldmapCommand.execute(socket, kingdomId, bottomLeft, topRight);
+                getWorldmap(socket, kingdomId, bottomLeft, topRight);
             }
             let data = await WaitUntil(socket, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`, `__worldmap_${kingdomId}_error`, 2500);
             delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`];
@@ -269,6 +270,8 @@ function loadNPCOwnerInfo(client, ownerInfoData) {
     ownerInfoData.addOwnerInfo(createWorldMapOwnerInfo(client, -701, null, `dialog_seasonEvent_${2}_DungeonOwner`, ConstantsThornKing.NPC_CREST, true));
     ownerInfoData.addOwnerInfo(createWorldMapOwnerInfo(client, -706, null, `dialog_seasonEvent_${64}_DungeonOwner`, ConstantsUnderworld.NPC_CREST, true));
     ownerInfoData.addOwnerInfo(createWorldMapOwnerInfo(client, -707, null, `dialog_seasonEvent_${64}_DungeonOwner`, ConstantsUnderworld.NPC_CREST, true));
+
+    ownerInfoData.addOwnerInfo(createWorldMapOwnerInfo(client, -1201, -1, `wolfgard_playerName`, ConstantsGeneral.NPC_CREST_WOLFKING, true));
 }
 
 /**

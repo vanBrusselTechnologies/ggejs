@@ -1,5 +1,6 @@
 const fs = require('fs');
 
+// TODO: https://github.com/danadum/empire-api
 exports.Client = require('./Client');
 
 //Managers
@@ -11,8 +12,7 @@ fs.readdirSync(__dirname + '/managers/').forEach(function (file) {
 fs.readdirSync(__dirname + '/structures/').forEach(function (file) {
     if (file.endsWith('.js')) {
         exports[file.replace('.js', '')] = require('./structures/' + file);
-    }
-    else{
+    } else {
         try {
             const folder = file;
             fs.readdirSync(`${__dirname}/structures/${folder}/`).forEach(function (subFile) {
@@ -20,8 +20,7 @@ fs.readdirSync(__dirname + '/structures/').forEach(function (file) {
                     exports[subFile.replace('.js', '')] = require(`./structures/${folder}/${subFile}`);
                 }
             });
-        }
-        catch (e) {
+        } catch (e) {
 
         }
     }

@@ -1,4 +1,4 @@
-const {execute: mercenaryPackageCommand} = require('../../commands/mercenaryPackage');
+const {execute: mercenaryPackage} = require('../../commands/mercenaryPackage');
 
 module.exports.name = "mpe";
 /**
@@ -8,6 +8,7 @@ module.exports.name = "mpe";
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params?.M) return;
+    if (socket["inMpeTimeout"]) return;
     const mercenaryCampMissions = [];
     for (let i in params.M) {
         let _mission = params.M[i];
@@ -38,9 +39,11 @@ module.exports.execute = function (socket, errorCode, params) {
         let __mission = mercenaryCampMissions[i];
         if (__mission.state === 1) {
             bestMission.missionId = -1;
+            socket["inMpeTimeout"] = true
             setTimeout(() => {
+                socket["inMpeTimeout"] = false
                 if (!socket["__connected"]) return;
-                mercenaryPackageCommand(socket, __mission.missionId);
+                mercenaryPackage(socket, __mission.missionId);
             }, __mission.remainingDuration * 1005 + 5000)
             break;
         }
@@ -54,11 +57,21 @@ module.exports.execute = function (socket, errorCode, params) {
         }
     }
     if (bestMission.missionId !== -1) {
-        mercenaryPackageCommand(socket, bestMission.missionId)
+        const currentCoins = socket.client.clientUserData.globalCurrencies.find(g => g.item === "currency1").count
+        if (bestMission.price > currentCoins) { // Having not enough coins
+            socket["inMpeTimeout"] = true
+            setTimeout(() => {
+                socket["inMpeTimeout"] = false
+                if (!socket["__connected"]) return;
+                mercenaryPackage(socket, -1);
+            }, 60000) // Retry after a minute
+        } else mercenaryPackage(socket, bestMission.missionId)
     } else {
+        socket["inMpeTimeout"] = true
         setTimeout(() => {
+            socket["inMpeTimeout"] = false
             if (!socket["__connected"]) return;
-            mercenaryPackageCommand(socket, -1);
+            mercenaryPackage(socket, -1);
         }, params.NM * 1005 + 5000)
     }
 }

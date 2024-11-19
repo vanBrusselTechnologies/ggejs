@@ -1,8 +1,8 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const {execute: searchAllianceByIdCommand} = require('../e4kserver/commands/searchAllianceById');
-const {execute: getAllianceRankingsCommand} = require('../e4kserver/commands/getAllianceRankings');
+const {execute: searchAllianceById} = require('../e4kserver/commands/searchAllianceById');
+const {execute: getAllianceRankings} = require('../e4kserver/commands/getAllianceRankings');
 const {WaitUntil} = require('../tools/wait');
 const Localize = require("../tools/Localize");
 
@@ -28,6 +28,16 @@ class AllianceManager extends BaseManager {
                 let _allianceId = await _getAllianceIdByName(this._socket, name);
                 if (_allianceId === 0) reject(Localize.text(this._client, 'errorCode_114'));
                 let _alliance = await this.getById(_allianceId);
+
+
+                /*
+                const position = params.FR < 0 ? params.LR : Math.max(1, Math.min(params.FR, params.LR));
+                const name = params.SV.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (Array.isArray(leaderboard[0][2])) {
+                    /** @type {[number, string, number, number]} * /
+                    let alliance = leaderboard.find(l => l[0] === position)[2];
+                    socket[`__alliance_${name}_id`] = alliance[0];
+                }
                  */
 
                 resolve(_alliance);
@@ -65,7 +75,7 @@ function _getAllianceById(socket, id) {
                 reject('Missing alliance id!');
                 return;
             }
-            searchAllianceByIdCommand(socket, id);
+            searchAllianceById(socket, id);
             const alliance = await WaitUntil(socket, `_alliance_${id}_data`, "", 1000);
             delete socket[`_alliance_${id}_data`];
             resolve(alliance);
@@ -84,11 +94,11 @@ function _getAllianceById(socket, id) {
 function _getAllianceIdByName(socket, name) {
     return new Promise(async (resolve, reject) => {
         try {
-            getAllianceRankingsCommand(socket, name);
+            getAllianceRankings(socket, name);
             name = name.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            const id = await WaitUntil(socket, `__alliance_${name}_id`, "", 1000);
-            delete socket[`__alliance_${name}_id`];
-            resolve(id);
+            const hghData = await WaitUntil(socket, `hgh_11_${name}`, "", 1000);
+            delete socket[`hgh_11_${name}`];
+            resolve(hghData.items.find(item => item.rank === hghData.foundRank).alliance.allianceId);
         } catch (e) {
             reject(Localize.text(socket.client, 'errorCode_114'));
         }

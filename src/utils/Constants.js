@@ -1,3 +1,5 @@
+const MessageConst = require('./MessageConst');
+
 exports.Events = {
     MOVEMENT_NEW: "movementAdd",
     MOVEMENT_ADD: "movementAdd",
@@ -10,7 +12,8 @@ exports.Events = {
     MAIL_MESSAGE_NEW: "mailMessageAdd",
     MAIL_MESSAGE_ADD: "mailMessageAdd",
     MAIL_MESSAGE_REMOVE: "mailMessageRemove",
-    PRIME_TIME: "primeTime"
+    PRIME_TIME: "primeTime",
+    EXTERNAL_CLIENT_READY: "externalClientReady"
 }
 
 exports.Kingdom = {
@@ -148,79 +151,101 @@ exports.ServerType = {
 }
 
 exports.MessageType = {
-    System: 0,
-    UserIn: 1,
-    UserOut: 2,
-    SpyPlayer: 3,
-    SpyNPC: 4,
-    Conquerable: 5,
-    BattleLog: 6,
-    AllianceRequest: 20,
-    AllianceWar: 21,
-    AllianceNewsletter: 22,
-    AllianceBookmark: 23,
-    FriendInviteTeaser: 30,
-    FriendJoinTheGame: 31,
-    FindAFriend: 32,
-    FriendReachedALevel: 33,
-    FriendBoughtRubies: 34,
-    XFriendsBoughtRubies: 35,
-    FriendInvite: 36,
-    NewFriendship: 37,
-    LowlevelUnderworld: 40,
-    UserSurvey: 50,
-    AttackCancelled: 67,
-    SpyCancelled: 68,
-    StarveInfo: 70,
-    BuildingDisabled: 71,
-    MarketCarriageArrived: 75,
-    Abo: 80,
-    PaymentDoppler: 81,
-    Rebuy: 90,
-    SpecialEvent: 95,
-    StarveVillageLost: 96,
-    TournamentOver: 97,
-    IslandKingdomTitle: 98,
-    IslandKingdomReward: 99,
-    StarveIsleResourceLost: 100,
-    RuinInfo: 102,
-    PlayerGift: 103,
-    Subscription: 104,
-    ThankyYouPackage: 117,
-    DowntimeStatus: 118,
-    HighscoreBonus: 122,
-    EventAnnouncement: 123,
-    Popup: 124,
-    PatchNotes: 125,
-    PrivateOffer: 126,
-    TextId: 127
+    System: MessageConst.MESSAGE_TYPE_SYSTEM,
+    UserIn: MessageConst.MESSAGE_TYPE_USER_IN,
+    UserOut: MessageConst.MESSAGE_TYPE_USER_OUT,
+    SpyPlayer: MessageConst.MESSAGE_TYPE_SPY_PLAYER,
+    SpyNPC: MessageConst.MESSAGE_TYPE_SPY_PLAYER,
+    ConquerableArea: MessageConst.MESSAGE_TYPE_CONQUERABLE_AREA,
+    BattleLog: MessageConst.MESSAGE_TYPE_BATTLE_LOG,
+    AllianceRequest: MessageConst.MESSAGE_TYPE_ALLIANCE_REQUEST,
+    AllianceWar: MessageConst.MESSAGE_TYPE_ALLIANCE_WAR,
+    AllianceNewsletter: MessageConst.MESSAGE_TYPE_ALLIANCE_NEWSLETTER,
+    AllianceBookmark: MessageConst.MESSAGE_TYPE_ALLIANCE_BOOKMARK,
+    FriendInvite: MessageConst.MESSAGE_TYPE_FRIEND_INVITE,
+    FriendInviteTeaser: MessageConst.MESSAGE_TYPE_FRIEND_INVITE_TEASER,
+    FriendJoinTheGame: MessageConst.MESSAGE_TYPE_FRIEND_JOIN_THE_GAME,
+    FindAFriend: MessageConst.MESSAGE_TYPE_FIND_A_FRIEND,
+    FriendReachedALevel: MessageConst.MESSAGE_TYPE_FRIEND_REACHED_A_LEVEL,
+    FriendBoughtRubies: MessageConst.MESSAGE_TYPE_FRIEND_BOUGHT_RUBIES,
+    XFriendsBoughtRubies: MessageConst.MESSAGE_TYPE_X_FRIENDS_BOUGHT_RUBIES,
+    NewFriendship: MessageConst.MESSAGE_TYPE_NEW_FRIENDSHIP,
+    LowlevelUnderworld: MessageConst.MESSAGE_TYPE_LOWLEVEL_UNDERWORLD,
+    UserSurvey: MessageConst.MESSAGE_TYPE_USER_SURVEY,
+    AttackCancelled: MessageConst.MESSAGE_TYPE_ATTACK_CANCELLED,
+    SpyCancelled: MessageConst.MESSAGE_TYPE_SPY_CANCELLED,
+    StarveInfo: MessageConst.MESSAGE_TYPE_STARVE_INFO,
+    BuildingDisabled: MessageConst.MESSAGE_TYPE_BUILDING_DISABLED,
+    MarketCarriageArrived: MessageConst.MESSAGE_TYPE_MARKET_CARRIAGE_ARRIVED,
+    Abo: MessageConst.MESSAGE_TYPE_ABO,
+    PaymentDoppler: MessageConst.MESSAGE_TYPE_PAYMENT_DOPPLER,
+    Rebuy: MessageConst.MESSAGE_TYPE_REBUY,
+    SpecialEvent: MessageConst.MESSAGE_TYPE_SPECIAL_EVENT,
+    StarveVillageLost: MessageConst.MESSAGE_TYPE_STARVE_VILLAGE_LOST,
+    TournamentOver: MessageConst.MESSAGE_TYPE_TOURNAMENT_OVER,
+    IslandKingdomTitle: MessageConst.MESSAGE_TYPE_ISLAND_KINGDOM_TITLE,
+    IslandKingdomReward: MessageConst.MESSAGE_TYPE_ISLAND_KINGDOM_REWARD,
+    StarveIsleResourceLost: MessageConst.MESSAGE_TYPE_STARVE_ISLE_RESOURCE_LOST,
+    RuinInfo: MessageConst.MESSAGE_RUIN_INFO,
+    PlayerGift: MessageConst.MESSAGE_TYPE_PLAYER_GIFT,
+    Subscription: MessageConst.MESSAGE_TYPE_SUBSCRIPTION,
+    ThankyYouPackage: MessageConst.MESSAGE_TYPE_THANKY_YOU_PACKAGE,
+    DowntimeStatus: MessageConst.MESSAGE_TYPE_DOWNTIME_STATUS,
+    HighscoreBonus: MessageConst.MESSAGE_TYPE_HIGHSCORE_BONUS,
+    EventAnnouncement: MessageConst.MESSAGE_TYPE_EVENT_ANNOUNCEMENT,
+    Popup: MessageConst.MESSAGE_TYPE_POPUP,
+    PatchNotes: MessageConst.MESSAGE_TYPE_PATCH_NOTES,
+    PrivateOffer: MessageConst.MESSAGE_TYPE_PRIVATE_OFFER,
+    TextId: MessageConst.MESSAGE_TYPE_TEXT_ID
 }
 
 exports.MessageSubType = {
     SpyPlayer: {
-        Sabotage: 0, Defence: 1, Economic: 2
-    }, Conquerable: {
-        SiegeCancelled: 0, NewSiege: 1, AreaConquered: 2, AreaLost: 3
+        Sabotage: MessageConst.SUBTYPE_SPY_SABOTAGE,
+        Defence: MessageConst.SUBTYPE_SPY_DEFENCE,
+        Economic: MessageConst.SUBTYPE_SPY_ECO
+    }, ConquerableArea: {
+        SiegeCancelled: MessageConst.SUBTYPE_SIEGE_CANCELED,
+        NewSiege: MessageConst.SUBTYPE_NEW_SIEGE,
+        AreaConquered: MessageConst.SUBTYPE_CONQUERABLE_AREA_CONQUERED,
+        AreaLost: MessageConst.SUBTYPE_CONQUERABLE_AREA_LOST
     }, BattleLog: {
-        NormalAttack: 0, Conquer: 1, NPCAttack: 2, Occupy: 3, ShadowAttack: 4
+        NormalAttack: MessageConst.SUBTYPE_ATTACK_NORMAL,
+        Conquer: MessageConst.SUBTYPE_ATTACK_CONQUER,
+        NPCAttack: MessageConst.SUBTYPE_ATTACK_NPC,
+        Occupy: MessageConst.SUBTYPE_ATTACK_OCCUPY,
+        ShadowAttack: MessageConst.SUBTYPE_ATTACK_SHADOW
     }, AllianceWar: {
-        EnemyAttack: 0,
-        EnemyDeclaration: 1,
-        OwnDeclaration: 2,
-        OwnAttack: 3,
-        OwnSabotage: 4,
-        EnemyEnd: 5,
-        EnemySabotage: 6
+        EnemyAttack: MessageConst.SUBTYPE_ALLIANCE_ENEMY_ATTACK_WAR,
+        EnemyDeclaration: MessageConst.SUBTYPE_ALLIANCE_ENEMY_DECLARED_WAR,
+        OwnDeclaration: MessageConst.SUBTYPE_ALLIANCE_OUR_DECLARED_WAR,
+        OwnAttack: MessageConst.SUBTYPE_ALLIANCE_OUR_ATTACK_WAR,
+        OwnSabotage: MessageConst.SUBTYPE_ALLIANCE_OUR_SABOTAGE_WAR,
+        EnemyEnd: MessageConst.SUBTYPE_ALLIANCE_ENEMY_END_WAR,
+        EnemySabotage: MessageConst.SUBTYPE_ALLIANCE_ENEMY_SABOTAGE_WAR
     }, AttackCancelled: {
-        Aborted: 0, AutoRetreat: 1, AutoRetreatEnemy: 2
+        Aborted: MessageConst.SUBTYPE_ATTACK_ABORTED,
+        AutoRetreat: MessageConst.SUBTYPE_ATTACK_AUTO_RETREAT,
+        AutoRetreatEnemy: MessageConst.SUBTYPE_ATTACK_AUTO_RETREAT_ENEMY
     }, SpyCancelled: {
-        Aborted: 0
+        Aborted: MessageConst.SUBTYPE_SPY_ABORTED
     }, SpecialEvent: {
-        Start: 12, End: 13, VIPInfo: 16, HospitalCapacityExceeded: 20, Update: 32, MonumentReset: 66
+        Start: MessageConst.SPECIAL_ID_SPECIAL_EVENT_START,
+        End: MessageConst.SPECIAL_ID_SPECIAL_EVENT_END,
+        VIPInfo: MessageConst.SPECIAL_ID_VIP_INFORMATION,
+        HospitalCapacityExceeded: MessageConst.SPECIAL_ID_HOSPITAL_CAPACITY_EXCEEDED,
+        Update: MessageConst.SPECIAL_ID_SPECIAL_EVENT_UPDATE,
+        MonumentReset: MessageConst.SPECIAL_ID_MONUMENT
     }, PrivateOffer: {
-        Tipp: 1, DungeonChest: 5, WhaleChest: 6, TimeChallenge: 12, BestsellerShop: 14
+        Tipp: MessageConst.PRIVATE_OFFER_TIPPMAIL,
+        DungeonChest: MessageConst.PRIVATE_OFFER_DUNGEON_TREASURE_CHEST,
+        WhaleChest: MessageConst.PRIVATE_OFFER_WHALE_CHEST,
+        TimeChallenge: MessageConst.PRIVATE_OFFER_TIME_CHALLENGE,
+        BestsellerShop: MessageConst.PRIVATE_OFFER_BESTSELLER_SHOP
     }, Popup: {
-        RegistrationGift: 0, FacebookConnection: 1, LoginBonus: 2
+        RegistrationGift: MessageConst.SUBTYPE_POPUP_REGISTRATION_GIFT,
+        FacebookConnection: MessageConst.SUBTYPE_POPUP_FACEBOOK_CONNECTION,
+        LoginBonus: MessageConst.SUBTYPE_POPUP_LOGIN_BONUS
     }
 }
 
@@ -243,6 +268,6 @@ exports.TitleType = {
     UNKNOWN: 0, FAME: 1, ISLE: 2, FACTION: 3
 }
 
-exports.HighScore = {
+exports.HighScore = {}
 
-}
+exports.EventType = {}

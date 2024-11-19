@@ -1,3 +1,5 @@
+const Constants = require('../../../utils/Constants');
+
 module.exports.name = "glt";
 /**
  * @param {Socket} socket
@@ -20,4 +22,5 @@ module.exports.execute = async function (socket, errorCode, params) {
     externalClient.language = socket.client._language;
     await externalClient.connect()
     socket.client.externalClient = externalClient
+    socket.client.emit(Constants.Events.EXTERNAL_CLIENT_READY, externalClient)
 }

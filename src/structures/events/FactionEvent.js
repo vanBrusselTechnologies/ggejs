@@ -1,0 +1,77 @@
+const PointEvent = require("./PointEvent");
+const {execute: afd} = require("../../e4kserver/onReceived/xt/afd")
+
+class FactionEvent extends PointEvent {
+    eventBuildingWodId = 267
+
+    /** @type {boolean} */
+    unlocked;
+    /** @type {number} */
+    payPartPriceId;
+    /** @type {boolean} */
+    isFinished;
+    /** @type {number} */
+    mapSeed;
+    /** @type {boolean} */
+    isSpectator;
+    /** @type {boolean} */
+    isSeasonLeagueModeEnabled;
+
+    /**
+     * @param {Client} client
+     * @param {{EID: number, RS: number, OP: number[], OR: number[], FN: { MC: number, FID: number, TID: number, NS: number, PMS: number, PMT: number, SPC: number}, UL: number, MS: number, LID: number, RSID: number, AC: number[], KL: number, KLAP: number}} data
+     */
+    loadFromParamObject(client, data) {
+        super.loadFromParamObject(client, data);
+        if (data.FN) this.isSpectator = data.FN.SPC === 1;
+        this.isSeasonLeagueModeEnabled = data.KL === 1;
+        this.payPartPriceId = this.rawData.partPayPriceID;
+
+        this.parseBasicParams(data);
+        if (data.UL) this.unlocked = data.UL === 1;
+        this.mapSeed = data.MS;
+        this.isFinished = data["F"] === 1;
+        if (data.FN) {
+            const ownInfo = client.worldmaps._ownerInfoData.ownInfo
+            const isSpectator = client.worldmaps._ownerInfoData.ownInfo.factionIsSpectator;
+            ownInfo.fillFromFactionParamObject(data.FN);
+            if (ownInfo.factionIsSpectator && !isSpectator) {
+                //spectatorModeActivatedSignal.dispatch();
+            }
+        }
+        if (data.AC) afd(client._socket, 0, data)
+        //todo: this.subType = factionData.ownFactionID;
+        //todo: factionData.activeEvent = _loc2_;
+    }
+
+    get isPaid() {
+        return this.unlocked;
+    }
+
+    /** @return {boolean} */
+    get isActive() {
+        return this.unlocked ? super.isActive || !this.isFinished : super.isActive;
+    }
+
+    get mailStarterDialogName() {
+        return "FactionMailStarterDialog";
+    }
+
+    get starterDialogName() {
+        return "FactionEventStartedDialog";
+    }
+
+    get mainDialogName() {
+        return "FactionOverviewDialog";
+    }
+
+    get eventTitleTextId() {
+        return "kingdomName_Faction"
+    }
+
+    get eventStarterDescTextId() {
+        return "questID_3000_info"
+    }
+}
+
+module.exports = FactionEvent;

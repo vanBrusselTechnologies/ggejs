@@ -1,4 +1,4 @@
-const {execute: sendPingPong} = require('../../commands/pingpong.js');
+const {execute: pingPong} = require('../../commands/pingpong.js');
 
 module.exports.name = "pin";
 /**
@@ -15,6 +15,6 @@ module.exports.execute = function (socket, errorCode, params) {
     socket["inPingTimeout"] = true;
     setTimeout(function () {
         socket["inPingTimeout"] = false;
-        sendPingPong(socket);
+        pingPong(socket);
     }, nextPingTimeout);
 }

@@ -73,7 +73,7 @@ class Client extends EventEmitter {
         this._socket["__reconnTimeoutSec"] = val;
     }
 
-    /** @return {Message[]} */
+    /** @return {MailMessage[]} */
     get mailMessages() {
         return this._socket['mailMessages'];
     }

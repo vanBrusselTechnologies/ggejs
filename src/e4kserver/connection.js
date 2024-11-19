@@ -1,11 +1,14 @@
 //const WebSocket = require('ws')
 const {WaitUntil} = require("../tools/wait");
-const {execute: loginCommand} = require('./commands/login');
-const {execute: showMessages} = require("./commands/showMessages");
 const {execute: collectTaxCommand} = require('./commands/collectTax');
-const {execute: dql} = require('./onReceived/xt/dql');
 const {execute: generateLoginToken} = require('./commands/generateLoginToken');
+const {execute: loginCommand} = require('./commands/login');
+const {execute: mercenaryPackage} = require('./commands/mercenaryPackage');
+const {execute: showMessages} = require("./commands/showMessages");
 const {sendAction: sendXmlAction} = require('./commands/handlers/xml.js');
+const {execute: dql} = require('./onReceived/xt/dql');
+const Constants = require("../utils/Constants");
+const EventConst = require("../utils/EventConst");
 
 const majVersion = 1;
 const minVersion = 6;
@@ -66,12 +69,13 @@ module.exports.onLogin = async function (socket, error = "") {
         await WaitUntil(socket, 'gdb finished');
 
         collectTaxCommand(socket);
+        mercenaryPackage(socket, -1)
 
-        await dql(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]})
-        if (!socket["inDungeonInterval"]) {
-            setInterval(async () => {
+        if (socket["currentServerType"] !== 3) await dql(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]})
+        if (!socket["isIntervalSetup"]) {
+            socket["isIntervalSetup"] = true;
+            if (socket["currentServerType"] !== 3) setInterval(async () => {
                 if (!socket["__connected"]) return;
-                socket["inDungeonInterval"] = true;
                 await dql(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]})
             }, 5 * 60 * 1010); // 5 minutes
             setInterval(() => {
@@ -80,7 +84,11 @@ module.exports.onLogin = async function (socket, error = "") {
                 showMessages(socket)
             }, 1000)
         }
-        if(socket["currentServerType"] === 1) generateLoginToken(socket)
+
+        if (socket.client.externalClient == null) {
+            if (socket["currentServerType"] === Constants.ServerType.NormalServer && socket["activeSpecialEvents"].map(e => e.eventId).includes(EventConst.EVENTTYPE_TEMPSERVER)) generateLoginToken(socket, Constants.ServerType.TempServer)
+            if (socket["currentServerType"] === Constants.ServerType.NormalServer && socket["activeSpecialEvents"].map(e => e.eventId).includes(EventConst.EVENTTYPE_ALLIANCE_BATTLEGROUND)) generateLoginToken(socket, Constants.ServerType.AllianceBattleGround)
+        }
     } catch (e) {
         console.error(e);
     }

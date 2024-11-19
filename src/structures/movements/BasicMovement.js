@@ -23,14 +23,14 @@ class BasicMovement {
         this.direction = data.M.D;
         /** @type {Mapobject} */
         this.sourceArea = parseMapObject(client, data.M.SA);
-        if(this.sourceArea) this.sourceArea.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(data.M.SID)
+        if (this.sourceArea) this.sourceArea.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(data.M.SID)
         /** @type {Mapobject} */
         this.targetArea = parseMapObject(client, data.M.TA);
-        if(this.targetArea) this.targetArea.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(data.M.TID)
+        if (this.targetArea) this.targetArea.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(data.M.TID)
         /** @type {Coordinate} */
-        let targetPos = this.sourceArea ? this.sourceArea.position : new Coordinate(client, [-1,-1]);;
+        let targetPos = this.sourceArea ? this.sourceArea.position : new Coordinate(client, [-1, -1]);
         /** @type {Coordinate} */
-        let sourcePos = this.targetArea ? this.targetArea.position : new Coordinate(client, [-1,-1]);
+        let sourcePos = this.targetArea ? this.targetArea.position : new Coordinate(client, [-1, -1]);
         /** @type {number} */
         this.distance = Math.round(Math.sqrt(Math.pow(Math.abs(sourcePos.X - targetPos.X), 2) + Math.pow(Math.abs(sourcePos.Y - targetPos.Y), 2)) * 10) / 10;
         /** @type {Mapobject} */

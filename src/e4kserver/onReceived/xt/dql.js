@@ -1,5 +1,5 @@
 const {buildings, dailyactivities: dailyActivities} = require('e4k-data').data;
-const {execute:mercenaryPackageCommand} = require('../../commands/mercenaryPackage');
+const {execute:mercenaryPackage} = require('../../commands/mercenaryPackage');
 const Horse = require('../../../structures/Horse');
 const MovementManager = require('../../../managers/MovementManager');
 const {HorseType, WorldmapArea, SpyType} = require("../../../utils/Constants");
@@ -132,7 +132,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                                 if (myCastle == null) break;
                                 let lord = socket.client.equipments.getAvailableCommandants()[0];
                                 if (lord == null) break;
-                                await attackDungeon(client, socket, thisPlayer, myCastle, lord);
+                                await attackDungeon(client, thisPlayer, myCastle, lord);
                                 await new Promise(resolve => setTimeout(resolve, 5000)); //Wait for the attack to be registered to avoid duplicate commander requests.
                             } catch (e) {
                                 if (socket.debug && false) console.log(e);
@@ -152,13 +152,12 @@ module.exports.execute = async function (socket, errorCode, params) {
                         case 21:
                             break; //requestAllianceHelp todo
                         case 22:
-                            mercenaryPackageCommand(socket, -1);
-                            break; //completeMercenaryMission
+                            break; //completeMercenaryMission, handled in 'connection'
                         case 24:
                             try {
                                 let lord = socket.client.equipments.getAvailableCommandants()[0];
                                 if (lord == null) break;
-                                await attackDungeon(client, socket, thisPlayer, myMainCastle, lord);
+                                await attackDungeon(client, thisPlayer, myMainCastle, lord);
                                 await new Promise(resolve => setTimeout(resolve, 5000)); //Wait for the attack to be registered to avoid duplicate commander requests.
                             } catch (e) {
                                 if (socket.debug && false) console.log(e);
@@ -777,13 +776,12 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
 /**
  *
  * @param {Client} client
- * @param {Socket} socket
  * @param {Player} thisPlayer
  * @param {CastleMapobject} castle
  * @param {Lord} lord
  * @returns {Promise<void>}
  */
-async function attackDungeon(client, socket, thisPlayer, castle, lord) {
+async function attackDungeon(client, thisPlayer, castle, lord) {
     return new Promise(async (resolve, reject) => {
         try {
             let dungeon = await getClosestDungeon(client, castle);

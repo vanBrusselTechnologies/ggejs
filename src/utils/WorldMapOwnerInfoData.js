@@ -140,9 +140,7 @@ class WorldMapOwnerInfoData {
      * @returns {WorldmapOwnerInfo}
      */
     parseOwnerInfo(ownerInfo) {
-        if (!ownerInfo || !ownerInfo.OID) {
-            return null;
-        }
+        if (!ownerInfo || !ownerInfo.OID) return null;
         const ownerId = ownerInfo.OID;
         let wmOwnerInfo = this.getOwnerInfoInternal(ownerId, false);
         if (ownerInfo.DUM) {

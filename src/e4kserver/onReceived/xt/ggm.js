@@ -1,4 +1,3 @@
-const playerEquipmentData = require('../../../structures/PlayerEquipmentData');
 const RelicGem = require("../../../structures/RelicGem");
 const Gem = require("../../../structures/Gem");
 
@@ -6,15 +5,20 @@ module.exports.name = "ggm";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {Object} params
+ * @param {{GEM: [number, number][], RGEM: (number | number[])[]}} params
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params) return;
-    playerEquipmentData.gemData.regularInventory = [];
-    for (let gem of params["GEM"]) {
-        playerEquipmentData.gemData.regularInventory.push({gem: new Gem(socket.client, gem[0]), amount: gem[1]});
-    }
-    for (let gem of params["RGEM"]) {
-        playerEquipmentData.gemData.relicInventory.push(new RelicGem(socket.client, gem));
-    }
+    socket.client.equipments._setRegularGemInventory(params.GEM.map(gemId_amount => {
+        return {gem: new Gem(socket.client, gemId_amount[0]), amount: gemId_amount[1]}
+    }));
+    socket.client.equipments._setRelicGemInventory(params.RGEM.map(gem => {
+        new RelicGem(socket.client, gem)
+    }));
+    (async () => {
+        try {
+            await socket.client.equipments.sellAllGemsAtOrBelowLevel(-1)
+        } catch (e) {
+        }
+    })()
 }

@@ -129,7 +129,7 @@ function parsePBIinfo(client, data, battleLogParams) {
  * @param {Client} client
  * @param {Object} data
  * @param {BattleLog} battleLog
- * @return {{commandant: Lord, general: Lord, legendSkills: int[]}}
+ * @return {{commandant: Lord, general: Lord, legendSkills: number[]}}
  */
 function parseAttackerLords(client, data, battleLog) {
     if (data["AL"]) {
@@ -154,7 +154,7 @@ function parseAttackerLords(client, data, battleLog) {
  * @param {Client} client
  * @param {Object} data
  * @param {BattleLog} battleLog
- * @return {{baron: Lord, general: Lord, legendSkills: int[]}}
+ * @return {{baron: Lord, general: Lord, legendSkills: number[]}}
  */
 function parseDefenderLords(client, data, battleLog) {
     if (data["DB"]) {

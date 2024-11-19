@@ -32,7 +32,7 @@ function updateThresholdsFor(titleType) {
     var _loc6_: Dictionary = titlesStaticData.mapTopPositionToTitleId[titleType];
     var _loc7_: Array = titlesStaticData.topTitlesPositionsInRating[titleType];
     var _loc8_: TitleRatingStatus;
-    var _loc9_:Vector.<Number> = (_loc8_ = titlesData.getRatingStatusFor(titleType)).thresholdsForTopX;
+    var _loc9_:number[] = (_loc8_ = titlesData.getRatingStatusFor(titleType)).thresholdsForTopX;
     _loc3_ = 0;
     while (_loc3_ < _loc7_.length) {
         _loc4_ = _loc9_[_loc3_];
@@ -61,6 +61,6 @@ function saveIsleTitle(cud, titleId) {
     _loc2_.ggs_e4k_titles_internal::setRemainingSeconds(TimeConverter.convertServerTimestampToClientTimestamp(data.RS));
     _loc2_.ggs_e4k_titles_internal::setTopOneId(data.TOID);
     _loc2_.ggs_e4k_titles_internal::setCurrentTopX(data.CTXT);
-    _loc2_.ggs_e4k_titles_internal::setThresholdsForTopX(Vector.<Number>(data.NTFP));
+    _loc2_.ggs_e4k_titles_internal::setThresholdsForTopX(data.NTFP);
     return _loc2_;
 }*/

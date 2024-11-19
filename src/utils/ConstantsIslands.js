@@ -9,12 +9,12 @@ module.exports.STORM_LORD_REWARD_RANK_ID = -1;
 module.exports.STORM_LORD_REWARD_TOP_X_VALUE = 1;
 module.exports.NPC_ID_ISLAND_DUNGEON = -223;
 module.exports.NPC_ID_ISLAND_VILLAGE = VillageConst.getVillageDefaultOwnerId(4);
-module.exports.NPC_SYMBOL = 100006;
+const NPC_SYMBOL = 100006;
 module.exports.NPC_CREST = (function () {
     const crest = new Crest(null, null);
     crest.backgroundType = 0;
     crest.symbolPosType = 1;
-    crest.symbolType1 = 100006;
+    crest.symbolType1 = NPC_SYMBOL;
     crest.backgroundColor1 = STORM_ISLAND_BACKGROUND;
     crest.symbolColor1 = 16777215;
     crest.fillClipColor();

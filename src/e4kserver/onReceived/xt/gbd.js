@@ -74,6 +74,7 @@ module.exports.execute = function (socket, errorCode, params) {
             case "gmu":
             case "cpi":
             case "gas":
+            case "gabgap":
 //#endregion
                 try {
                     if (socket.ultraDebug) {
