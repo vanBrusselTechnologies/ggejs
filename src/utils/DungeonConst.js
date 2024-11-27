@@ -81,7 +81,6 @@ module.exports.getBossDungeonOwnerId = function (kingdomId) {
 }
 
 /**
- *
  * @param {number} victories
  * @param {number} kingdomId
  * @return {number}
@@ -91,7 +90,6 @@ module.exports.getLevel = function (victories, kingdomId) {
 }
 
 /**
- *
  * @param {number} costFor180Minutes
  * @param {number} remainingTimeInSec
  * @return {number}
@@ -101,7 +99,6 @@ module.exports.getSkipCost = function (costFor180Minutes, remainingTimeInSec) {
 }
 
 /**
- *
  * @param {number} dungeonLevel
  * @param {number} kingdomId
  * @return {number}

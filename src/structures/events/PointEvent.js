@@ -25,14 +25,14 @@ class PointEvent extends ActiveEvent {
 
     /**
      * @param {Client} client
-     * @param {{EID: number, RS: number, OP: number[], OR: number[], LID: number, PET: number, RSID: number, R: [][][], SC: number}} data
+     * @param {{EID: number, RS: number, OP: number|number[], OR: number|number[], LID: number, PET: number, RSID: number, R: [][][], SC: number}} data
      */
     loadFromParamObject(client, data) {
         super.loadFromParamObject(client, data);
         this.parseBasicParams(data)
     }
 
-    /** @param {{OP: number[]|number}} data */
+    /** @param {{EID: number, RS: number, OP: number|number[], OR: number|number[], LID: number, PET: number, RSID: number, R: [][][], SC: number}} data */
     parseBasicParams(data) {
         if (data["LID"]) {
             this.leagueId = data["LID"];
@@ -40,12 +40,12 @@ class PointEvent extends ActiveEvent {
         if (Array.isArray(data["OP"])) {
             this.currentPoints = data["OP"];
         } else {
-            this.currentPoints = new Array(data["OP"]);
+            this.currentPoints = [data["OP"]];
         }
         if (Array.isArray(data["OR"])) {
             this.currentRank = data["OR"];
         } else {
-            this.currentRank = new Array(data["OR"]);
+            this.currentRank = [data["OR"]];
         }
         if (data["PET"]) {
             this.taskType = data["PET"];

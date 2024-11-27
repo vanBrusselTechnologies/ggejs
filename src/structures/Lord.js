@@ -1,6 +1,7 @@
 const Equipment = require("./Equipment");
 const RelicEquipment = require("./RelicEquipment");
 const Effect = require('./Effect');
+const Gem = require("./Gem");
 const {equipment_sets: equipmentSets, effectCaps, lords} = require('e4k-data').data;
 
 class Lord {
@@ -42,7 +43,7 @@ class Lord {
             this.isRelic = data.EQ[0][11] === 3
         }
         /** @type {Gem[] | RelicGem[]} */
-        this.gems = parseGems(data.GEM, this.equipments);
+        this.gems = parseGems(client, data.GEM, this.equipments);
         /** @type {Effect[] | RelicEffect[]} */
         this.effects = parseEffects(client, data, this.equipments);
         /** @type {number} */
@@ -73,20 +74,16 @@ function parseEquipments(client, data, lord) {
 }
 
 /**
- *
+ * @param {Client} client
  * @param {[]} data
  * @param {Equipment[] | RelicEquipment[]} equipments
  * @returns {Gem[] | RelicGem[]}
  */
-function parseGems(data, equipments) {
+function parseGems(client, data, equipments) {
     /** @type {Gem[] | RelicGem[]} */
     let _gems = [];
     if (data && data.length !== 0) {
-        console.log("received additional gems");
-        console.log(data);
-        for (let i in data) {
-            //_gems.push(createGemById(data[i]));
-        }
+        for (const gemId of data) _gems.push(new Gem(client, gemId));
     }
     for (let equipment of equipments) {
         let _gem = equipment.attachedGem;
