@@ -5,6 +5,7 @@ const {execute: getDetailedPlayerInfo} = require('../e4kserver/commands/getDetai
 const {execute: searchPlayer} = require('../e4kserver/commands/searchPlayer');
 const {WaitUntil} = require('../tools/wait');
 const Localize = require("../tools/Localize");
+const {execute: getPlayerRankings} = require("../e4kserver/commands/getPlayerRankings");
 
 class PlayerManager extends BaseManager {
     get _socket() {
@@ -15,7 +16,6 @@ class PlayerManager extends BaseManager {
     }
 
     /**
-     *
      * @param {number} id
      * @returns {Promise<Player>}
      */
@@ -39,21 +39,29 @@ class PlayerManager extends BaseManager {
     }
 
     /**
-     *
      * @param {string} name
      * @returns {Promise<Player>}
      */
     find(name) {
         return new Promise(async (resolve, reject) => {
+            const normalizedName = name.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             try {
-                searchPlayer(this._socket, name);
-                name = name.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 /** @type {number} */
-                const playerId = await WaitUntil(this._socket, `__search_player_${name}`, "__search_player_error", 1000);
-                delete this._socket[`__search_player_${name}`];
+                let playerId;
+                try { // Try to find user by rankings, otherwise use world map find
+                    getPlayerRankings(this._socket, name);
+                    const hghData = await WaitUntil(this._socket, `hgh_6_${normalizedName}`, "", 1000);
+                    delete this._socket[`hgh_6_${normalizedName}`];
+                    playerId = hghData.items.find(item => item.rank === hghData.foundRank).player.playerId;
+                } catch (e) {
+                    searchPlayer(this._socket, name);
+                    playerId = await WaitUntil(this._socket, `__search_player_${normalizedName}`, "__search_player_error", 1000);
+                    delete this._socket[`__search_player_${normalizedName}`];
+                }
                 resolve(await this.getById(playerId));
             } catch (e) {
-                delete this._socket[`__search_player_${name}`];
+                delete this._socket[`hgh_6_${normalizedName}`];
+                delete this._socket[`__search_player_${normalizedName}`];
                 delete this._socket["__search_player_error"];
                 reject(Localize.text(this._socket.client, e));
             }
@@ -63,9 +71,9 @@ class PlayerManager extends BaseManager {
     /**
      * @returns {Promise<Player>}
      */
-    getThisPlayer() {
-        if(this._client.clientUserData.playerId === -1) return new Promise(resolve => {resolve(null)})
-        return this.getById(this._client.clientUserData.playerId);
+    async getThisPlayer() {
+        if (this._client.clientUserData.playerId === -1) return null
+        return await this.getById(this._client.clientUserData.playerId);
     }
 }
 

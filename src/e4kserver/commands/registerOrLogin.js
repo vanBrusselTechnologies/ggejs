@@ -4,7 +4,7 @@ module.exports.name = "tle";
  * @param {string} loginToken
  */
 module.exports.execute = function (socket, loginToken) {
-    let C2SRegisterOrLoginVO = {
+    const C2SRegisterOrLoginVO = {
         getCmdId: "tle", params: {
             GST: socket["currentServerType"], TLT: loginToken, ADID: "null", AFUID: "appsFlyerUID", IDFV: null,
         }

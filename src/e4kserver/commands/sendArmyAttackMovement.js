@@ -8,7 +8,7 @@ module.exports.name = "cra";
  * @param {Horse} horse
  */
 module.exports.execute = function (socket, source, target, army, lord, horse = null) {
-    let C2SCreateArmyAttackMovementVO = {
+    const C2SCreateArmyAttackMovementVO = {
         getCmdId: "cra", params: {
             SX: source.position.X,
             SY: source.position.Y,

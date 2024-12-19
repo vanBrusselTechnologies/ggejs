@@ -9,7 +9,7 @@ module.exports.name = "csm"
  * @param {Horse} horse
  */
 module.exports.execute = function (socket, source, target, spyCount, spyTypeId, spyEffect, horse = null) {
-    let C2SSendMessageVO = {
+    const C2SSendMessageVO = {
         getCmdId: "csm", params: {
             SID: source.objectId,
             TX: target.position.X,

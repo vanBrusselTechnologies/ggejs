@@ -32,6 +32,12 @@ const GGSGiftEvent = require("../../../structures/events/GGSGiftEvent");
 const PrimeTimeAllianceEvent = require("../../../structures/events/PrimeTimeAllianceEvent");
 const GlobalPrimeTimeSkinEvent = require("../../../structures/events/GlobalPrimeTimeSkinEvent");
 const TempServerEvent = require("../../../structures/events/TempServerEvent");
+const PrimeDayEvent = require("../../../structures/events/PrimeDayEvent");
+const BountyhunterEvent = require("../../../structures/events/BountyhunterEvent");
+const GachaEvent = require("../../../structures/events/GachaEvent");
+const RandomDungeonEvent = require("../../../structures/events/RandomDungeonEvent");
+const GiftMerchantEvent = require("../../../structures/events/GiftMerchantEvent");
+const DonationEvent = require("../../../structures/events/DonationEvent");
 
 module.exports.name = "sei";
 /**
@@ -80,10 +86,18 @@ function getEventById(socket, eventId) {
             return new AllianceBattleGroundEvent();
         case EventConst.EVENTTYPE_ARMORER:
             return new ArmorerEvent();
+        case EventConst.EVENTTYPE_DUNGEON:
+            return new RandomDungeonEvent();
+        case EventConst.EVENTTYPE_BOUNTYHUNTER:
+            return new BountyhunterEvent();
         case EventConst.EVENTTYPE_EQUIPMENTMERCHANT:
             return new EquipmentMerchantEvent();
         case EventConst.EVENTTYPE_ENCHANTER:
             return new TechnicusEvent();
+        case EventConst.EVENTTYPE_GIFT_TRADER:
+            return new GiftMerchantEvent();
+        case EventConst.EVENTTYPE_DONATION:
+            return new DonationEvent();
         case EventConst.EVENTTYPE_MERCHANT:
         case EventConst.EVENTTYPE_MERCHANT_FACTION:
             return new ResourceMerchantEvent();
@@ -105,12 +119,17 @@ function getEventById(socket, eventId) {
             return new ArtifactEvent();
         case EventConst.EVENTTYPE_POINT_EVENT:
             return new PointEvent();
+        case EventConst.EVENTTYPE_DECO_GACHA:
+            return new GachaEvent();
         case EventConst.EVENTTYPE_RATINGEVENT:
             return new RatingEvent();
         case EventConst.EVENTTYPE_LUCKYWHEEL:
             return new LuckyWheelEvent();
         case EventConst.EVENTTYPE_LUCKYWHEEL_SD:
             return new SaleDaysLuckyWheelEvent();
+        case EventConst.EVENTTYPE_PAYMENTREWARD_SPECIAL_OFFER:
+        case EventConst.EVENTTYPE_REACTIVATION_PRIME_DAY:
+            return new PrimeDayEvent();
         case EventConst.EVENTTYPE_PRIME_SALES:
             return new PrimeSaleBuildingsEvent();
         case EventConst.EVENTTYPE_EVENT_PACKAGE_PRIME_SALES:

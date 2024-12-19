@@ -1,4 +1,5 @@
-const LogUnit = require("../../../structures/LogUnit");
+const BattleLogUnit = require("../../../structures/BattleLogUnit");
+const Unit = require("../../../structures/Unit");
 
 module.exports.name = "bld";
 /**
@@ -26,14 +27,14 @@ module.exports.execute = function (socket, errorCode, params) {
 /**
  * @param {Client} client
  * @param {Array} params
- * @returns {{attacker: {tools: LogUnit[]}, defender: {tools: LogUnit[]}}}
+ * @returns {{attacker: BattleLogUnit[], defender: BattleLogUnit[]}}
  */
 function parseSupportToolsDetails(client, params) {
-    if (!params || params.length === 0) return;
     const output = {attacker: [], defender: []};
+    if (!params || params.length === 0) return output;
     params[0].shift();
     output.attacker = parseTools(client, params[0]);
-    if (!params[1] || params[1].length === 0) return;
+    if (!params[1] || params[1].length === 0) return output;
     params[1].shift();
     output.defender = parseTools(client, params[1]);
     return output;
@@ -42,14 +43,14 @@ function parseSupportToolsDetails(client, params) {
 /**
  * @param {Client} client
  * @param {Array} params
- * @returns {{attacker: {soldiers: LogUnit[]}, defender: {soldiers: LogUnit[][]}}}
+ * @returns {{attacker: BattleLogUnit[], defender: BattleLogUnit[]}}
  */
 function parseYardDetailed(client, params) {
-    if (!params || params.length === 0) return;
     const output = {attacker: [], defender: []};
+    if (!params || params.length === 0) return output;
     params[0].shift();
     output.attacker = parseUnits(client, params[0]);
-    if (!params[1] || params[1].length === 0) return;
+    if (!params[1] || params[1].length === 0) return output;
     params[1].shift();
     output.defender = parseUnits(client, params[1]);
     return output;
@@ -62,7 +63,7 @@ function parseYardDetailed(client, params) {
  */
 function parseWavesDetails(client, params) {
     const output = {attacker: [], defender: []};
-    if (params.length === 0) return;
+    if (!params || params.length === 0) return output;
     for (let wave of params) {
         const flanksAtt = [];
         wave[0].shift();
@@ -83,7 +84,7 @@ function parseWavesDetails(client, params) {
 /**
  * @param {Client} client
  * @param {Array} params
- * @returns {{attacker: {soldiers: LogUnit[]}}}
+ * @returns {{attacker: BattleLogUnit[]}}
  */
 function parseFinalWaveDetails(client, params) {
     const output = {attacker: []};
@@ -97,13 +98,13 @@ function parseFinalWaveDetails(client, params) {
 /**
  * @param {Client} client
  * @param {number[][]} param
- * @return {LogUnit[]}
+ * @return {BattleLogUnit[]}
  */
 function parseUnits(client, param) {
     const units = [];
     if (param && param.length > 0) {
         if (typeof param[0] === 'number') {
-            if (param.length >= 3) units.push(parseData(param));
+            if (param.length >= 3) units.push(parseData(client, param));
         }
         if (Array.isArray(param[0])) {
             for (let data of param) {
@@ -117,7 +118,7 @@ function parseUnits(client, param) {
 /**
  * @param {Client} client
  * @param {number[][]} param
- * @return {LogUnit[]}
+ * @return {BattleLogUnit[]}
  */
 function parseTools(client, param) {
     const tools = [];
@@ -132,8 +133,8 @@ function parseTools(client, param) {
  *
  * @param {Client} client
  * @param {Array} data
- * @return {LogUnit}
+ * @return {BattleLogUnit}
  */
 function parseData(client, data) {
-    return new LogUnit(client, data[0], data[1], data[2]);
+    return new BattleLogUnit(new Unit(client, data[0]), data[1], data[2]);
 }

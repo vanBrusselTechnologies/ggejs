@@ -8,7 +8,7 @@ module.exports.name = "glt";
  */
 module.exports.execute = async function (socket, errorCode, params) {
     if (errorCode !== 0 || params == null) return;
-    let LoginTokenServerInfoVO = {
+    const LoginTokenServerInfoVO = {
         token: params["TLT"],
         ip: params["TSIP"],
         port: params["TSP"],

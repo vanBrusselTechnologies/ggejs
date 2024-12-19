@@ -86,12 +86,12 @@ function parseDefenderLords(client, data, battleLog) {
 function parseBattleLogGeneralAbilitiesPerWave(data) {
     let abilityId = 0;
     let waveAndAbilityValues = [];
-    let abilitiesPerWave = {};
-    for (let item of data) {
+    const abilitiesPerWave = {};
+    for (const item of data) {
         abilityId = item[0];
         waveAndAbilityValues = item[1];
-        for (let val of waveAndAbilityValues) {
-            let generalLogAbilityVO = {abilityId: abilityId, waveId: val[0], abilityValue: val[1]}
+        for (const val of waveAndAbilityValues) {
+            const generalLogAbilityVO = {abilityId: abilityId, waveId: val[0], abilityValue: val[1]}
             const waveId = `${generalLogAbilityVO.waveId}`;
             if (abilitiesPerWave[waveId] == null) abilitiesPerWave[waveId] = [];
             abilitiesPerWave[waveId].push(generalLogAbilityVO);

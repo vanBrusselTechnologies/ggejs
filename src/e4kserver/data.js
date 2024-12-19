@@ -29,9 +29,7 @@ module.exports.onData = function (socket, data) {
     }
     for (let i = 0; i < msgParts.length; i++) {
         let _msg = msgParts[i];
-        if (socket["ultraDebug"]) {
-            console.log(`[RECEIVED]: ${_msg.substring(0, Math.min(150, msg.length))}`);
-        }
+        if (socket["ultraDebug"]) console.log(`[RECEIVED]: ${_msg.substring(0, Math.min(150, msg.length))}`);
         let firstChar = _msg.charAt(0);
         let lastChar = msgParts[i].charAt(msgParts[i].length - 1);
         if (firstChar === "<" && lastChar === ">") {
@@ -51,14 +49,14 @@ module.exports.onData = function (socket, data) {
  * @param {{getCmdId: string, params: Object}} commandVO
  */
 module.exports.sendCommandVO = function (socket, commandVO) {
-    let msgId = commandVO.getCmdId;
-    let params = [JSON.stringify(commandVO.params)];
+    const msgId = commandVO.getCmdId;
+    const params = [JSON.stringify(commandVO.params)];
     let i = 0;
     while (i < params.length) {
         params[i] ? "string" == typeof params[i] && (params[i] = getValideSmartFoxText(params[i])) : params[i] = "<RoundHouseKick>";
         i++;
     }
-    if(socket?.client == null) return;
+    if (socket?.client == null) return;
     xt.sendMessage(socket, socket.client._serverInstance.zone, msgId, params, "str", socket["_activeRoomId"]);
 }
 

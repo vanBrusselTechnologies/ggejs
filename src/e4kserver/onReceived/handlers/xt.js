@@ -34,7 +34,7 @@ module.exports.onResponse = function (socket, event) {
             return;
         default:
             params.shift();
-            let responseVO = {
+            const responseVO = {
                 error: parseInt(params.shift()), commandID: command, paramArray: params,
             }
             switch (responseVO.error) {

@@ -1,8 +1,7 @@
 //const WebSocket = require('ws')
 const {WaitUntil} = require("../tools/wait");
-const {execute: collectTaxCommand} = require('./commands/collectTax');
+const {execute: collectTax} = require('./commands/collectTax');
 const {execute: generateLoginToken} = require('./commands/generateLoginToken');
-const {execute: loginCommand} = require('./commands/login');
 const {execute: mercenaryPackage} = require('./commands/mercenaryPackage');
 const {execute: showMessages} = require("./commands/showMessages");
 const {sendAction: sendXmlAction} = require('./commands/handlers/xml.js');
@@ -28,7 +27,7 @@ module.exports.connect = function (socket) {
  * @param {string} password
  */
 module.exports.login = function (socket, name, password) {
-    loginCommand(socket, name, password);
+    require('./commands/login').execute(socket, name, password);
 }
 
 /**
@@ -67,27 +66,26 @@ module.exports.onLogin = async function (socket, error = "") {
         if (socket['mailMessages'] === undefined) socket['mailMessages'] = [];
         socket['isWaitingForSNE'] = false;
         await WaitUntil(socket, 'gdb finished');
-
-        collectTaxCommand(socket);
+        collectTax(socket);
         mercenaryPackage(socket, -1)
-
-        if (socket["currentServerType"] !== 3) await dql(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]})
         if (!socket["isIntervalSetup"]) {
             socket["isIntervalSetup"] = true;
-            if (socket["currentServerType"] !== 3) setInterval(async () => {
-                if (!socket["__connected"]) return;
-                await dql(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]})
-            }, 5 * 60 * 1010); // 5 minutes
+            if (socket["currentServerType"] !== 3) {
+                dql(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]}).then()
+                setInterval(() => {
+                    if (!socket["__connected"]) return;
+                    dql(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]}).then()
+                }, 5 * 60 * 1010); // 5 minutes
+            }
             setInterval(() => {
                 if (!socket["__connected"]) return;
                 if (socket['isWaitingForSNE']) return;
                 showMessages(socket)
             }, 1000)
         }
-
-        if (socket.client.externalClient == null) {
-            if (socket["currentServerType"] === Constants.ServerType.NormalServer && socket["activeSpecialEvents"].map(e => e.eventId).includes(EventConst.EVENTTYPE_TEMPSERVER)) generateLoginToken(socket, Constants.ServerType.TempServer)
-            if (socket["currentServerType"] === Constants.ServerType.NormalServer && socket["activeSpecialEvents"].map(e => e.eventId).includes(EventConst.EVENTTYPE_ALLIANCE_BATTLEGROUND)) generateLoginToken(socket, Constants.ServerType.AllianceBattleGround)
+        if (socket.client.externalClient == null && socket["currentServerType"] === Constants.ServerType.NormalServer) {
+            if (socket["activeSpecialEvents"].map(e => e.eventId).includes(EventConst.EVENTTYPE_TEMPSERVER)) generateLoginToken(socket, Constants.ServerType.TempServer)
+            if (socket["activeSpecialEvents"].map(e => e.eventId).includes(EventConst.EVENTTYPE_ALLIANCE_BATTLEGROUND)) generateLoginToken(socket, Constants.ServerType.AllianceBattleGround)
         }
     } catch (e) {
         console.error(e);

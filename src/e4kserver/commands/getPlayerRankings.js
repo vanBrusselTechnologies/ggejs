@@ -111,8 +111,6 @@ module.exports.execute = function (socket, searchValue = "1", rankingType = "mig
             listType = rankingType
             break;
     }
-    let C2SGetHighscoreVO = {
-        getCmdId: "hgh", params: {SV: searchValue, LT: listType, LID: leagueTypeId},
-    }
+    const C2SGetHighscoreVO = {getCmdId: "hgh", params: {SV: searchValue, LT: listType, LID: leagueTypeId},}
     require('../data').sendCommandVO(socket, C2SGetHighscoreVO);
 }

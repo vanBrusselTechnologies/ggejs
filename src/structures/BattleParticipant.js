@@ -13,7 +13,7 @@ class BattleParticipant {
         this.startArmySize = data[2];
         this.lostUnits = data[3];
         let lootGoods = [];
-        for(let g of data[4]){
+        for(const g of data[4]){
             lootGoods.push(new Good(client, g))
         }
         this.lootGoods = lootGoods;

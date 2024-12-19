@@ -54,12 +54,9 @@ class WorldmapManager extends BaseManager {
     get(kingdomId) {
         return new Promise(async (res, rej) => {
             try {
-                const player = await this._client.players.getThisPlayer();
-                if (player.castles.filter(c => c.kingdomId === kingdomId).length === 0 && kingdomId !== -1) {
-                    rej(Localize.text(this._client, 'errorCode_337'));
-                } else res(await _getWorldmapById(this, new Worldmap(this._client, kingdomId), kingdomId));
+                res(await _getWorldmapById(this, new Worldmap(this._client, kingdomId), kingdomId));
             } catch (e) {
-                rej(e);
+                rej(e.toString().startsWith('errorCode_') ? Localize.text(this._client, e.toString()) : e)
             }
         })
     };
@@ -74,12 +71,9 @@ class WorldmapManager extends BaseManager {
     getSector(kingdomId, centerX, centerY) {
         return new Promise(async (res, rej) => {
             try {
-                const player = await this._client.players.getThisPlayer();
-                if (player.castles.filter(c => c.kingdomId === kingdomId).length === 0) {
-                    rej(Localize.text(this._client, 'errorCode_337'));
-                } else res(await _getWorldmapSector(this, kingdomId, centerX, centerY));
+                res(await _getWorldmapSector(this, kingdomId, centerX, centerY));
             } catch (e) {
-                rej(e);
+                rej(e.toString().startsWith('errorCode_') ? Localize.text(this._client, e.toString()) : e)
             }
         })
     }
@@ -97,21 +91,12 @@ function _getWorldmapById(thisManager, _worldmap, kingdomId) {
     _worldmap._clear();
     return new Promise(async (resolve, reject) => {
         try {
-            let worldmapSize = 15;
+            const worldmapSize = 15;
             for (let i = 0; i < worldmapSize * worldmapSize; i++) {
                 if (!thisManager._socket["__connected"]) break;
-                let col = Math.floor(i / worldmapSize) * 100 + 50;
-                let row = i % worldmapSize * 100 + 50;
-                try {
-                    let sector = await _getWorldmapSector(thisManager, kingdomId, col, row);
-                    _worldmap._addAreaMapObjects(sector.mapobjects);
-                    sector = null;
-                } catch (e) {
-                    if (e !== 'Received empty area!') {
-                        reject(e);
-                        return;
-                    }
-                }
+                const col = Math.floor(i / worldmapSize) * 100 + 50;
+                const row = i % worldmapSize * 100 + 50;
+                _worldmap._addAreaMapObjects((await _getWorldmapSector(thisManager, kingdomId, col, row)).mapobjects);
             }
             resolve(_worldmap);
         } catch (e) {
@@ -141,33 +126,33 @@ function _getWorldmapSector(thisManager, kingdomId, x, y, tries = 0) {
                 const topRight = new Coordinate(socket.client, [x + 49, y + 49]);
                 getWorldmap(socket, kingdomId, bottomLeft, topRight);
             }
-            let data = await WaitUntil(socket, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`, `__worldmap_${kingdomId}_error`, 2500);
+            /** @type {{worldmapAreas: Mapobject[]}} */
+            const data = await (async () => {
+                try {
+                    return await Promise.any([
+                        WaitUntil(socket, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`, `__worldmap__error`, 2500),
+                        WaitUntil(socket, `__worldmap_${kingdomId}_empty`, `__worldmap__error`, 2500)
+                    ])
+                } catch (/** @type {AggregateError}*/e) {
+                    if (e.errors[0] === "Exceeded max time!") {
+                        try {
+                            if (tries < 3) return resolve(await _getWorldmapSector(thisManager, kingdomId, x, y, tries + 1));
+                        } catch (e) {
+                            reject(e);
+                        }
+                    }
+                    return {worldmapAreas: []}
+                }
+            })()
             delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`];
             delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`];
-            if (!data) {
-                if (tries >= 3) {
-                    new WorldmapSector(socket.client, kingdomId, {worldmapAreas: []});
-                    return;
-                }
-                resolve(await _getWorldmapSector(thisManager, kingdomId, x, y, tries + 1));
-                return;
-            }
+            delete socket[`__worldmap_${kingdomId}_empty`];
             resolve(new WorldmapSector(socket.client, kingdomId, data));
         } catch (e) {
-            delete socket[`__worldmap_${kingdomId}_error`];
+            delete socket[`__worldmap__error`];
             delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_searching`];
             delete socket[`__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`];
-            if (e.toString() === "Exceeded max time!") {
-                try {
-                    if (tries >= 3) {
-                        resolve(new WorldmapSector(socket.client, kingdomId, {worldmapAreas: []}));
-                        return;
-                    }
-                    resolve(await _getWorldmapSector(thisManager, kingdomId, x, y, tries + 1));
-                    return;
-                } catch (e) {
-                }
-            }
+            delete socket[`__worldmap_${kingdomId}_empty`];
             reject(e);
         }
     });

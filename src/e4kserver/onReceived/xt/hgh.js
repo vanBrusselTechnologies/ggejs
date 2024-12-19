@@ -13,12 +13,11 @@ module.exports.execute = function (socket, errorCode, params) {
     const leaderboard = params.L;
     const highScoreItems = []
     if (Array.isArray(leaderboard)) {
-        for (let item of leaderboard) {
+        for (const item of leaderboard) {
             const highScoreItem = getHighScoreItem(socket.client, listType, item)
             if (highScoreItem) highScoreItems.push(highScoreItem);
         }
     }
-    //todo : output
     const output = {
         listType: listType,
         leagueId: params.LID,
@@ -27,9 +26,6 @@ module.exports.execute = function (socket, errorCode, params) {
         foundRank: params.FR,
         items: highScoreItems
     }
-    console.log(output.items.map(i => {
-        return {pos: i.rank, name: i.player?.playerName ?? i.alliance?.allianceName ?? i.playerName, points: i.points}
-    }))
     const SV = output.searchValue.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     socket[`hgh_${output.listType}_${SV}`] = output;
 }

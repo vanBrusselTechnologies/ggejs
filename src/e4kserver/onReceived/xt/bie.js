@@ -6,6 +6,6 @@ module.exports.name = "bie";
  */
 module.exports.execute = function (socket, errorCode, params) {
     const boosts = {};
-    for(let i in params["GE"]) boosts[i] = true;
+    for(const i in params["GE"]) boosts[i] = true;
     //todo: globalEffectsRuntimeData.setActiveBoosts(boosts);
 }

@@ -7,7 +7,7 @@ module.exports.name = "qst";
  */
 module.exports.execute = function (socket, errorCode, params) {
     const questData = socket.client.clientUserData.questData
-    for(let questId of params.QIDS){
+    for(const questId of params.QIDS){
         questData.startQuest(questId);
     }
 }

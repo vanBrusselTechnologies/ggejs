@@ -1026,6 +1026,9 @@ declare class EmptyMapobject extends BasicMapobject {
 declare class EventDungeonMapobject extends InteractiveMapobject {
     public dungeonLevel: number;
     public isDefeated: boolean;
+    public skinId: number;
+
+    get areaName(): string;
 }
 
 declare class FactionCampMapobject extends FactionInteractiveMapobject {

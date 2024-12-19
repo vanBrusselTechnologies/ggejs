@@ -43,7 +43,7 @@ module.exports.execute = function (socket, errorCode, params) {
             setTimeout(() => {
                 socket["inMpeTimeout"] = false
                 if (!socket["__connected"]) return;
-                mercenaryPackage(socket, __mission.missionId);
+                mercenaryPackage(socket, -1);
             }, __mission.remainingDuration * 1005 + 5000)
             break;
         }

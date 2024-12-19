@@ -7,12 +7,12 @@ module.exports.name = "gaa";
  * @param {{KID:number, AI:[], OI:[]}} params
  */
 module.exports.execute = function (socket, errorCode, params) {
-    if (errorCode === 337) return;
+    if (errorCode === 145 || errorCode === 337) return socket[`__worldmap__error`] = `errorCode_${errorCode}`;
     if (params == null) return;
     let kId = params.KID;
     if (!params.AI || params.AI.length === 0) {
         if (kId == null) return;
-        socket[`__worldmap_${kId}_error`] = 'Received empty area!';
+        socket[`__worldmap_${kId}_empty`] = {worldmapAreas: []};
         return;
     }
     socket.client.worldmaps._ownerInfoData.parseOwnerInfoArray(params.OI);
@@ -69,8 +69,7 @@ function parseWorldmapAreas(client, _data) {
 }
 
 /**
- *
- * @param {Mapobject[]} worldmapAreas
+ * @param {BasicMapobject[]} worldmapAreas
  * @returns {{x:number, y: number}}
  */
 function getCenterOfWorldmapAreas(worldmapAreas) {

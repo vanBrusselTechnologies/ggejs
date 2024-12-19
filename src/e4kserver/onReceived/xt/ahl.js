@@ -1,4 +1,4 @@
-const {execute: allianceHelpAllCommand} = require("../../commands/allianceHelpAll");
+const {execute: allianceHelpAll} = require("../../commands/allianceHelpAll");
 
 module.exports.name = "ahl";
 /**
@@ -28,7 +28,7 @@ module.exports.execute = function (socket, errorCode, params) {
     for (let i in _allianceHelpRequestList) {
         let helpRequest = _allianceHelpRequestList[i];
         if (helpRequest.AC === 0 && helpRequest.PID !== socket.client.clientUserData.playerId) {
-            allianceHelpAllCommand(socket);
+            allianceHelpAll(socket);
             return;
         }
     }

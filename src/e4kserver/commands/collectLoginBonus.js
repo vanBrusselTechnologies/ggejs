@@ -4,10 +4,10 @@ module.exports.name = "clb";
  * @param {Socket} socket
  * @param {{rewards: [{dailyRewards:{rewards:[]}}], activeDay: number}} loginBonusData
  * @param {number} dailyRewardIndex
- * @param {"ALLI" | "VIP"} specialRewardType
+ * @param {"ALLI" | "VIP" | ""} specialRewardType
  */
 module.exports.execute = function (socket, loginBonusData, dailyRewardIndex = -1, specialRewardType = "") {
-    let C2SCatchLoginBonusVO = {
+    const C2SCatchLoginBonusVO = {
         getCmdId: "clb", params: {
             I: null, ID: -1, SP: null
         },

@@ -4,7 +4,7 @@ module.exports.name = "mpe";
  * @param {number} missionId
  */
 module.exports.execute = function (socket, missionId) {
-    let C2SMercenariesPackageVO = {
+    const C2SMercenariesPackageVO = {
         getCmdId: "mpe", params: {MID: missionId,},
     }
     require('../data').sendCommandVO(socket, C2SMercenariesPackageVO);

@@ -143,8 +143,8 @@ class Client extends EventEmitter {
     #addSocketListeners(socket) {
         socket["unfinishedDataString"] = "";
         socket.addListener("error", (err) => {
-            console.error(`\x1b[31m[SOCKET ERROR] ${err}\x1b[0m`);
-            console.error(err)
+            if(socket.debug) console.error(`\x1b[31m[SOCKET ERROR] ${err}\x1b[0m`);
+            if(socket.debug) console.error(err)
             socket.end();
         });
         socket.addListener('data', (data) => {

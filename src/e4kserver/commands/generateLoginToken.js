@@ -4,6 +4,6 @@ module.exports.name = "glt";
  * @param {number} serverType
  */
 module.exports.execute = function (socket, serverType) {
-    let C2SGenerateLoginTokenVO = {getCmdId: "glt", params: {GST: serverType}}
+    const C2SGenerateLoginTokenVO = {getCmdId: "glt", params: {GST: serverType}}
     require('../data').sendCommandVO(socket, C2SGenerateLoginTokenVO);
 }

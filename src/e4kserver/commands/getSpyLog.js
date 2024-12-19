@@ -4,7 +4,7 @@ module.exports.name = "bsd";
  * @param {number} messageId
  */
 module.exports.execute = function (socket, messageId) {
-    let C2SSpyLogVO = {
+    const C2SSpyLogVO = {
         getCmdId: "bsd", params: {MID: messageId},
     }
     require('../data').sendCommandVO(socket, C2SSpyLogVO);

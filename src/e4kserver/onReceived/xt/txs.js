@@ -1,4 +1,4 @@
-const {execute: collectTaxCommand} = require('../../commands/collectTax');
+const {execute: collectTax} = require('../../commands/collectTax');
 
 module.exports.name = "txs";
 /**
@@ -11,6 +11,6 @@ module.exports.execute = function (socket, errorCode, params) {
     socket["inTaxTimeout"] = true;
     setTimeout(function () {
         socket["inTaxTimeout"] = false;
-        collectTaxCommand(socket);
+        collectTax(socket);
     }, (params.txi.TX.RT + Math.random() * 10) * 1000, socket);
 }

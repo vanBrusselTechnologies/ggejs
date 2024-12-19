@@ -1,5 +1,4 @@
 const {buildings, dailyactivities: dailyActivities} = require('e4k-data').data;
-const {execute:mercenaryPackage} = require('../../commands/mercenaryPackage');
 const Horse = require('../../../structures/Horse');
 const MovementManager = require('../../../managers/MovementManager');
 const {HorseType, WorldmapArea, SpyType} = require("../../../utils/Constants");
@@ -33,7 +32,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                                 socket["dailyGoodsTravelTryCount"] = 0;
                                 await client.__x__x__relogin();
                             } catch (e) {
-                                if (socket.debug) console.log(e);
+                                if (socket.debug) console.error('[DQL]', e);
                             }
                             break; //login;
                         case 2:
@@ -44,7 +43,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                                 let horse = new Horse(client, mainCastleInfo, HorseType.Ruby_1);
                                 client.movements.startSpyMovement(myMainCastle, dungeon, 1, SpyType.Military, 50, horse);
                             } catch (e) {
-                                if (socket.debug) console.log(e);
+                                if (socket.debug) console.error('[DQL]', e);
                             }
                             break; //spendC2
                         case 3:
@@ -90,7 +89,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                                 client.movements.startMarketMovement(myMainCastle, _targetArea, goods);
                                 socket["dailyGoodsTravelTryCount"] += 1;
                             } catch (e) {
-                                if (socket.debug) console.log(e);
+                                if (socket.debug) console.error('[DQL]', e);
                             }
                             break; //resourceToPlayer
                         case 5:
@@ -102,16 +101,14 @@ module.exports.execute = async function (socket, errorCode, params) {
                                     socket["dailySpyTime"] = Date.now();
                                 }
                             } catch (e) {
-                                if (socket.debug) console.log(e);
+                                if (socket.debug) console.error('[DQL]', e);
                             }
                             break; //spy
                         case 6:
                             try {
                                 if (socket["inDQL_q6"]) return;
                                 socket["inDQL_q6"] = true;
-                                let ClassicMap = await client.worldmaps.get(0);
-                                const closestRuinsOutpost = await getClosestRuinsOutpost(client, ClassicMap, myMainCastle);
-                                ClassicMap = null;
+                                const closestRuinsOutpost = await getClosestRuinsOutpost(client, await client.worldmaps.get(0), myMainCastle);
                                 if (socket["dailySabotageAt"] !== quest.P || socket["dailySabotageTime"] + 1800000 < Date.now()) {
                                     client.movements.startSpyMovement(myMainCastle, closestRuinsOutpost, Math.round(client.clientUserData.maxSpies / 4), SpyType.Sabotage, 10);
                                     socket["dailySabotageAt"] = quest.P;
@@ -120,7 +117,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                                 delete socket["inDQL_q6"];
                             } catch (e) {
                                 delete socket["inDQL_q6"];
-                                if (socket.debug) console.log(e);
+                                if (socket.debug) console.error('[DQL]', e);
                             }
                             break; //sabotageDamage
                         case 7:
@@ -128,14 +125,14 @@ module.exports.execute = async function (socket, errorCode, params) {
                         case 9:
                         case 10:
                             try {
-                                let myCastle = dailyActivity.triggerKingdomID === 0 ? myMainCastle : thisPlayer.castles.find(x => x.kingdomId === dailyActivity.triggerKingdomID && x.areaType === WorldmapArea.KingdomCastle);
+                                const myCastle = dailyActivity.triggerKingdomID === 0 ? myMainCastle : thisPlayer.castles.find(x => x.kingdomId === dailyActivity.triggerKingdomID && x.areaType === WorldmapArea.KingdomCastle);
                                 if (myCastle == null) break;
                                 let lord = socket.client.equipments.getAvailableCommandants()[0];
                                 if (lord == null) break;
                                 await attackDungeon(client, thisPlayer, myCastle, lord);
                                 await new Promise(resolve => setTimeout(resolve, 5000)); //Wait for the attack to be registered to avoid duplicate commander requests.
                             } catch (e) {
-                                if (socket.debug && false) console.log(e);
+                                if (socket.debug && false) console.error('[DQL]', e);
                             }
                             break; //countDungeons
                         case 13:
@@ -160,7 +157,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                                 await attackDungeon(client, thisPlayer, myMainCastle, lord);
                                 await new Promise(resolve => setTimeout(resolve, 5000)); //Wait for the attack to be registered to avoid duplicate commander requests.
                             } catch (e) {
-                                if (socket.debug && false) console.log(e);
+                                if (socket.debug && false) console.error('[DQL]', e);
                             }
                             break; //countDungeons tempServer
                         case 25:
@@ -168,14 +165,14 @@ module.exports.execute = async function (socket, errorCode, params) {
                         case 26:
                             break; //countBattles 15 tempServer todo
                         default:
-                            console.log("Unknown Daily Activity Quest!", quest);
+                            console.warn('[DQL]', "Unknown Daily Activity Quest!", quest);
                     }
                     break;
                 }
             }
         }
     } catch (e) {
-        if (socket.debug) console.log(e);
+        if (socket.debug) console.error('[DQL]', e);
     }
 }
 
@@ -220,11 +217,9 @@ function getClosestRuinsOutpost(client, ClassicMap, myMainCastle) {
 function getClosestDungeon(client, castle, attackable = true) {
     return new Promise(async (resolve, reject) => {
         try {
-            /** @type {WorldmapSector} */
-            let sector = await client.worldmaps.getSector(castle.kingdomId, castle.position.X, castle.position.Y);
             /** @type {DungeonMapobject[]} */
-            let dungeons = sector.mapobjects.filter(x => x.areaType === WorldmapArea.Dungeon && (!attackable || !x.attackCooldownEnd) && (x.attackCount >= 1 || MovementManager.getDistance(x, castle) <= 12.5));
-            sector = null;
+            const dungeons = (await client.worldmaps.getSector(castle.kingdomId, castle.position.X, castle.position.Y)).mapobjects.filter(x => x.areaType === WorldmapArea.Dungeon && (!attackable || !x.attackCooldownEnd) && (x.attackCount >= 1 || MovementManager.getDistance(x, castle) <= 12.5));
+            if(dungeons.length === 0) return reject("No target found!");
             dungeons.sort((a, b) => {
                 let distanceA = MovementManager.getDistance(castle, a);
                 let distanceB = MovementManager.getDistance(castle, b);
@@ -239,8 +234,7 @@ function getClosestDungeon(client, castle, attackable = true) {
                     if (__mov == null) break; else dungeons.shift();
                 }
             }
-            let targetDungeon = dungeons[0];
-            dungeons = null;
+            const targetDungeon = dungeons[0];
             if (MovementManager.getDistance(castle, targetDungeon) > 50) reject("Target too far away");
             resolve(targetDungeon);
         } catch (e) {

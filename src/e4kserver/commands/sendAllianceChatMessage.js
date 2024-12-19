@@ -4,7 +4,7 @@ module.exports.name = "acm";
  * @param {string} message
  */
 module.exports.execute = function (socket, message) {
-    let C2SAllianceChatVO = {
+    const C2SAllianceChatVO = {
         getCmdId: "acm", params: {M: validateMessage(message)}
     }
     require('../data').sendCommandVO(socket, C2SAllianceChatVO);

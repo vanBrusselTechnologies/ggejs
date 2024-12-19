@@ -1,4 +1,4 @@
-const {execute: allianceHelpAllCommand} = require("../../commands/allianceHelpAll");
+const {execute: allianceHelpAll} = require("../../commands/allianceHelpAll");
 
 module.exports.name = "ahh";
 /**
@@ -22,7 +22,7 @@ module.exports.execute = function (socket, errorCode, params) {
      */
 
     //todo: REMOVE below because not part of source code
-    if (params["AC"] === 0) allianceHelpAllCommand(socket);
+    if (params["AC"] === 0) allianceHelpAll(socket);
 }
 
 //todo: Move to seperate parser file

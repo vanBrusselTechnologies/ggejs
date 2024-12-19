@@ -7,7 +7,7 @@ module.exports.name = "crm";
  * @param {Horse} horse
  */
 module.exports.execute = function (socket, source, target, goods, horse) {
-    let C2SCreateMarketMovementVO = {
+    const C2SCreateMarketMovementVO = {
         getCmdId: "crm", params: {
             SID: source.objectId,
             TX: target.position.X,

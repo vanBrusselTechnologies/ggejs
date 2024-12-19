@@ -7,9 +7,7 @@ const {WaitUntil} = require('../tools/wait');
 const Localize = require("../tools/Localize");
 
 class AllianceManager extends BaseManager {
-
     /**
-     *
      * @param {number} id
      * @returns {Promise<Alliance | MyAlliance>}
      */
@@ -18,33 +16,12 @@ class AllianceManager extends BaseManager {
     }
 
     /**
-     *
      * @param {string} name
      * @returns {Promise<Alliance | MyAlliance>}
      */
-    find(name) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let _allianceId = await _getAllianceIdByName(this._socket, name);
-                if (_allianceId === 0) reject(Localize.text(this._client, 'errorCode_114'));
-                let _alliance = await this.getById(_allianceId);
-
-
-                /*
-                const position = params.FR < 0 ? params.LR : Math.max(1, Math.min(params.FR, params.LR));
-                const name = params.SV.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if (Array.isArray(leaderboard[0][2])) {
-                    /** @type {[number, string, number, number]} * /
-                    let alliance = leaderboard.find(l => l[0] === position)[2];
-                    socket[`__alliance_${name}_id`] = alliance[0];
-                }
-                 */
-
-                resolve(_alliance);
-            } catch (e) {
-                reject(Localize.text(this._client, 'errorCode_114'));
-            }
-        })
+    async find(name) {
+        const _allianceId = await _getAllianceIdByName(this._socket, name);
+        return await this.getById(_allianceId);
     }
 
     /** @returns {Promise<MyAlliance>} */
@@ -63,7 +40,6 @@ class AllianceManager extends BaseManager {
 }
 
 /**
- *
  * @param {Socket} socket
  * @param {number} id
  * @returns {Promise<Alliance | MyAlliance>}
@@ -86,7 +62,6 @@ function _getAllianceById(socket, id) {
 }
 
 /**
- *
  * @param {Socket} socket
  * @param {string} name
  * @returns {Promise<number>}

@@ -8,7 +8,7 @@ module.exports.name = "gaa";
  * @returns {void}
  */
 module.exports.execute = function (socket, kingdomId, bottomLeftCorner, topRightCorner) {
-    let C2SGetAreaVO = {
+    const C2SGetAreaVO = {
         getCmdId: "gaa", params: {
             KID: kingdomId,
             AX1: bottomLeftCorner.X,

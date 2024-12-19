@@ -93,13 +93,13 @@ class BasicBattleLogMessage extends BasicMessage {
  */
 function getMessageBody(socket, messageId, battleLogMessage) {
     return new Promise(async (resolve, reject) => {
+        /** @type {BattleLog} */
+        const body = {};
         try {
-            /** @type {BattleLog} */
-            const body = {};
             socket[`${messageId} battleLogMessage`] = battleLogMessage;
             getBattleLogShort(socket, messageId);
             const battleLogShort = await WaitUntil(socket, `bls -> ${messageId}`, "bls -> errorCode", 30000);
-            for (let key in battleLogShort) {
+            for (const key in battleLogShort) {
                 if (battleLogShort[key] == null) continue;
                 body[key] = battleLogShort[key];
             }
@@ -108,16 +108,18 @@ function getMessageBody(socket, messageId, battleLogMessage) {
             getBattleLogDetail(socket, body.battleLogId);
             const battleLogMiddle = await WaitUntil(socket, `blm -> ${body.battleLogId}`, "", 30000);
             const battleLogDetail = await WaitUntil(socket, `bld -> ${body.battleLogId}`, "", 30000);
-            for (let key in battleLogMiddle) {
+            for (const key in battleLogMiddle) {
                 if (battleLogMiddle[key] == null) continue;
                 body[key] = battleLogMiddle[key];
             }
-            for (let key in battleLogDetail) {
+            for (const key in battleLogDetail) {
                 if (battleLogDetail[key] == null) continue;
                 body[key] = battleLogDetail[key];
             }
             resolve(body);
         } catch (e) {
+            delete socket[`${messageId} battleLogMessage`]
+            delete socket[`${body.battleLogId} battleLog`]
             reject(e);
         }
     })

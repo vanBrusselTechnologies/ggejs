@@ -11,7 +11,9 @@ module.exports.execute = function (socket, errorCode, params) {
     //todo:
     switch (errorCode) {
         case -1:
-            console.error(Localize.text(socket.client, "generic_alert_connection_lost_copy"));
+            const error1 = Localize.text(socket.client, "generic_alert_connection_lost_copy");
+            socket["__connection_error"] = error1
+            if(socket.debug) console.error(error1);
             break;
         case 10005:
             login(socket, params.M, params.P);
@@ -24,7 +26,9 @@ module.exports.execute = function (socket, errorCode, params) {
         case 10011:
         case 10012:
         default:
-            console.error(Localize.text(socket.client, "generic_login_wronglogin"));
+            const error = Localize.text(socket.client, "generic_login_wronglogin");
+            socket["__connection_error"] = error
+            if(socket.debug) console.error(error);
     }
     //responseSignal.dispatch(value);
 }

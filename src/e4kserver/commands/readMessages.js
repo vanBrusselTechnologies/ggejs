@@ -5,7 +5,7 @@ module.exports.name = "rms";
  * @param {number} messageId
  */
 module.exports.execute = function (socket, messageId) {
-    let C2SReadMessagesVO = {
+    const C2SReadMessagesVO = {
         getCmdId: "rms", params: {MID: messageId},
     }
     require('../data').sendCommandVO(socket, C2SReadMessagesVO);

@@ -6,10 +6,10 @@ module.exports.name = "sms";
  * @param {string} msg
  */
 module.exports.execute = function (socket, receiverName, subject, msg) {
-    let _subject = getValideSmartFoxJSONMailMessage(subject);
-    let _msg = getValideSmartFoxJSONMailMessage(msg);
+    const _subject = getValideSmartFoxJSONMailMessage(subject);
+    const _msg = getValideSmartFoxJSONMailMessage(msg);
     if (_msg && _msg !== "") {
-        let C2SSendMessageVO = {
+        const C2SSendMessageVO = {
             getCmdId: "sms", params: {RN: receiverName, MH: _subject, TXT: _msg,},
         }
         require('../data').sendCommandVO(socket, C2SSendMessageVO);
