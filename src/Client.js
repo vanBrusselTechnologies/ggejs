@@ -22,6 +22,7 @@ class Client extends EventEmitter {
     /** @type {{token:string, tokenExpirationDate: Date}} */
     #apiToken;
     uniqueAccountId = "";
+    /** @type {Client | null} */
     externalClient = null;
 
     _serverInstance = require('e4k-data').network.instances.instance[33];

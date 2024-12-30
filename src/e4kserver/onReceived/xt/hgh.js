@@ -31,29 +31,14 @@ module.exports.execute = function (socket, errorCode, params) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {number} listType
  * @param {Array} itemData
- * @returns {{}}
  */
 function getHighScoreItem(client, listType, itemData) {
     if (listType !== 53 && !itemData[2]) return null;
-    const highScoreItem = {
-        alliance: null,
-        player: null,
-        rank: -1,
-        points: -1,
-        isKingAlliance: false,
-        playerName: "",
-        playerId: -1,
-        allianceId: -1,
-        allianceName: "",
-        seasonRankId: -1,
-        seasonMedalsData: null,
-        itemData: null,
-        highscoreTypeId: -1
-    }
+    /** @type {AllianceHighScoreItem | PlayerHighScoreItem} */
+    const highScoreItem = {}
     switch (listType) {
         case 10:
         case 12:
@@ -68,69 +53,73 @@ function getHighScoreItem(client, listType, itemData) {
         case 70:
         case 74:
         case 77:
-            highScoreItem.alliance = parseAlliance(itemData[2]);
-            highScoreItem.rank = itemData[0];
-            highScoreItem.points = itemData[1];
+            // TODO: AllianceHighscoreItemServerInfoVO
+            highScoreItem["alliance"] = parseAlliance(itemData[2]);
+            highScoreItem["rank"] = itemData[0];
+            highScoreItem["points"] = itemData[1];
             break;
         case 13:
-            highScoreItem.alliance = parseAlliance(itemData[3]);
-            highScoreItem.isKingAlliance = itemData[0];
-            highScoreItem.rank = itemData[1];
-            highScoreItem.points = itemData[2];
+            // TODO: AllianceHighscoreItemServerInfoVO
+            highScoreItem["alliance"] = parseAlliance(itemData[3]);
+            highScoreItem["isKingAlliance"] = itemData[0];
+            highScoreItem["rank"] = itemData[1];
+            highScoreItem["points"] = itemData[2];
             break;
         case 20:
-            highScoreItem.playerName = itemData[3];
-            highScoreItem.playerId = itemData[2];
-            highScoreItem.rank = itemData[0];
-            highScoreItem.points = itemData[1];
+            // TODO: SPTournamentHighscoreItemServerInfoVO
+            highScoreItem["playerName"] = itemData[3];
+            highScoreItem["playerId"] = itemData[2];
+            highScoreItem["rank"] = itemData[0];
+            highScoreItem["points"] = itemData[1];
             break;
         case 53:
-            highScoreItem.player = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[1]);
-            highScoreItem.rank = itemData[0];
+            // TODO: PlayerHighscoreItemServerInfoVO
+            highScoreItem["player"] = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[1]);
+            highScoreItem["rank"] = itemData[0];
             break;
         case 63:
         case 64:
-            highScoreItem.player = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[2]);
-            highScoreItem.rank = itemData[0];
-            highScoreItem.points = itemData[1];
-            highScoreItem.playerName = itemData[3];
-            highScoreItem.seasonRankId = itemData[2]["KLRID"];
-            highScoreItem.seasonMedalsData = itemData[2]["KLMO"];
+            // TODO: SeasonLeagueHighscoreItemServerInfoVO
+            highScoreItem["player"] = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[2]);
+            highScoreItem["rank"] = itemData[0];
+            highScoreItem["points"] = itemData[1];
+            highScoreItem["playerName"] = itemData[3];
+            highScoreItem["seasonRankId"] = itemData[2]["KLRID"];
+            highScoreItem["seasonMedalsData"] = itemData[2]["KLMO"];
             break;
         case 67:
         case 68:
-            //highScoreItem.player = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[2]);
-            highScoreItem.rank = itemData[0];
-            highScoreItem.points = itemData[1];
-            highScoreItem.allianceId = itemData[2][0];
-            highScoreItem.playerName = itemData[2][1];
-            highScoreItem.allianceName = highScoreItem.playerName;
-            highScoreItem.seasonRankId = highScoreItem.rank;
-            highScoreItem.seasonMedalsData = itemData[3]["KLMO"];
-            highScoreItem.amountVisible = listType !== 67;
+            // TODO: SeasonLeagueAllianceHighscoreItemServerInfoVO
+            highScoreItem["alliance"] = parseAlliance(itemData[2]);
+            highScoreItem["rank"] = itemData[0];
+            highScoreItem["points"] = itemData[1];
+            highScoreItem["seasonRankId"] = highScoreItem.rank;
+            highScoreItem["seasonMedalsData"] = itemData[3]["KLMO"];
+            highScoreItem["amountVisible"] = listType !== 67;
             break;
         case 73:
-            highScoreItem.player = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[2]);
-            highScoreItem.rank = itemData[4];
-            highScoreItem.points = itemData[1];
-            highScoreItem.playerName = itemData[3];
-            highScoreItem.rawValues = itemData;
+            // TODO: PlayerHighscoreItemServerInfoVO
+            highScoreItem["player"] = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[2]);
+            highScoreItem["rank"] = itemData[4];
+            highScoreItem["points"] = itemData[1];
+            highScoreItem["playerName"] = itemData[3];
+            highScoreItem["rawValues"] = itemData;
             break;
         default:
-            highScoreItem.player = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[2]);
-            highScoreItem.rank = itemData[0];
-            highScoreItem.points = itemData[1];
-            highScoreItem.playerName = itemData[3];
-            highScoreItem.rawValues = itemData;
+            // TODO: PlayerHighscoreItemServerInfoVO
+            highScoreItem["player"] = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[2]);
+            highScoreItem["rank"] = itemData[0];
+            highScoreItem["points"] = itemData[1];
+            highScoreItem["playerName"] = itemData[3];
+            highScoreItem["rawValues"] = itemData;
     }
-    highScoreItem.highscoreTypeId = listType;
+    highScoreItem["highscoreTypeId"] = listType;
     return highScoreItem;
 }
 
 /**
- *
- * @param {Array} params
- * @return {{allianceId: number, memberAmount: number, allianceCurrentFame: number, allianceName: string}}
+ * @param {[number, string, number, number]} params
+ * @return {{allianceId: number, allianceName: string, memberAmount: number, allianceCurrentFame: number}}
  */
 function parseAlliance(params) {
     return {

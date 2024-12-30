@@ -18,7 +18,7 @@ class MovementManager extends BaseManager {
      * @returns {number}
      */
     getDistance(castle1, castle2) {
-        return Math.sqrt(Math.pow(castle1.position.X - castle2.position.X, 2) + Math.pow(castle1.position.Y - castle2.position.Y, 2));
+        return MovementManager.getDistance(castle1, castle2)
     }
 
     /**

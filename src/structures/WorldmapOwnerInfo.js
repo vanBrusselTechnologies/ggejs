@@ -215,47 +215,47 @@ class WorldmapOwnerInfo {
     }
 
     /**
-     * @param {{OID: number,DUM: boolean,N: string,E: number[],L: number,LL: number, RNP:number,H: number,AVP: number,CF: number,HF: number,PRE: number,SUF: number,TOPX: number,MP: number,R: number,AID: number,AR:number,AN:string,ACF:number,RPT: number,AP: number[][],VP: number[][],SA: number,VF: number,PF: number,RRD: number,TI: number,FN: {FID: number, MC: number, SPC:number, PMS:number, PMT:number, NS:number}}} paramObj
+     * @param {{OID: number,DUM: boolean,N: string,E: number[],L: number,LL: number, RNP:number,H: number,AVP: number,CF: number,HF: number,PRE: number,SUF: number,TOPX: number,MP: number,R: number,AID: number,AR:number,AN:string,ACF:number,RPT: number,AP: number[][],VP: number[][],SA: number,VF: number,PF: number,RRD: number,TI: number,FN: {FID: number, MC: number, SPC:number, PMS:number, PMT:number, NS:number}}} params
      * @returns {this}
      */
-    fillFromParamObject(paramObj) {
-        this.playerId = paramObj.OID;
-        this._isDummy = paramObj.DUM;
+    fillFromParamObject(params) {
+        this.playerId = params.OID;
+        this._isDummy = params.DUM;
         if (this._isDummy) {
             this.dummyFill();
         } else {
-            this.playerName = paramObj.N;
-            this.crest = new Crest(this.#client, paramObj.E);
-            this.playerLevel = paramObj.L;
-            this.paragonLevel = paramObj.LL;
-            if (paramObj.RNP > 0) this.noobEndTime = new Date(Date.now() + paramObj.RNP * 1000);
-            this._honor = paramObj.H;
-            this._famePoints = paramObj.CF;
-            this.highestFamePoints = paramObj.HF;
-            this.fameTopX = paramObj.TOPX;
-            this._isRuin = paramObj.R === 1;
-            this._allianceId = paramObj.AID;
-            this._allianceRank = paramObj.AID === -1 ? -1 : paramObj.AR;
-            this._allianceName = paramObj.AID === -1 ? "" : paramObj.AN;
-            this._allianceFame = paramObj.AID === -1 ? -1 : paramObj.ACF;
-            this._isSearchingAlliance = paramObj.SA === 1;
-            if (paramObj.RPT > 0) this.peaceEndTime = new Date(Date.now() + paramObj.RPT * 1000);
+            this.playerName = params.N;
+            this.crest = new Crest(this.#client, params.E);
+            this.playerLevel = params.L;
+            this.paragonLevel = params.LL;
+            if (params.RNP > 0) this.noobEndTime = new Date(Date.now() + params.RNP * 1000);
+            this._honor = params.H;
+            this._famePoints = params.CF;
+            this.highestFamePoints = params.HF;
+            this.fameTopX = params.TOPX;
+            this._isRuin = params.R === 1;
+            this._allianceId = params.AID;
+            this._allianceRank = params.AID === -1 ? -1 : params.AR;
+            this._allianceName = params.AID === -1 ? "" : params.AN;
+            this._allianceFame = params.AID === -1 ? -1 : params.ACF;
+            this._isSearchingAlliance = params.SA === 1;
+            if (params.RPT > 0) this.peaceEndTime = new Date(Date.now() + params.RPT * 1000);
             const castlePosItems = [];
-            this.ungroupArrayFromServer(paramObj.AP, castlePosItems);
+            if(params.AP) this.ungroupArrayFromServer(params.AP, castlePosItems);
             this._castlePosList = this.parsePosList(castlePosItems);
-            if (paramObj.VP) {
-                this._villagePosList = this.parsePosList(paramObj.VP);
+            if (params.VP) {
+                this._villagePosList = this.parsePosList(params.VP);
             }
-            this._hasPremiumFlag = paramObj.PF === 1;
-            this._hasVIPFlag = paramObj.VF === 1;
-            this._might = !isNaN(paramObj.MP) ? paramObj.MP : -1;
-            this._achievementPoints = paramObj.AVP;
-            this._prefixTitleId = paramObj.PRE;
-            this._suffixTitleId = paramObj.SUF;
-            if (paramObj.RRD > 0) this.relocateDurationEndTime = new Date(Date.now() + paramObj.RRD * 1000);
+            this._hasPremiumFlag = params.PF === 1;
+            this._hasVIPFlag = params.VF === 1;
+            this._might = !isNaN(params.MP) ? params.MP : -1;
+            this._achievementPoints = params.AVP;
+            this._prefixTitleId = params.PRE;
+            this._suffixTitleId = params.SUF;
+            if (params.RRD > 0) this.relocateDurationEndTime = new Date(Date.now() + params.RRD * 1000);
 
-            if (paramObj.FN && paramObj.FN.FID !== -1) {
-                this.fillFromFactionParamObject(paramObj.FN);
+            if (params.FN && params.FN.FID !== -1) {
+                this.fillFromFactionParamObject(params.FN);
             }
         }
         return this;

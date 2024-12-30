@@ -27,7 +27,7 @@ class SkinnableAlienEvent extends PointEvent {
         //todo: this.loadFromSkin(skinFactory.getSkinByEventID(this.eventId));
     }
 
-    loadFromSkin(skin/*:IAlienProperties*/) {
+    loadFromSkin(skin/*TODO :IAlienProperties*/) {
         this.eventBuildingWodId = skin.eventBuildingWOD;
         this._eventBuildingName = skin.getText(0);
         this._eventStarterDescText = skin.getText(1);

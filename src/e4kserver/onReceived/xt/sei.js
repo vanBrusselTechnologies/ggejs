@@ -34,10 +34,14 @@ const GlobalPrimeTimeSkinEvent = require("../../../structures/events/GlobalPrime
 const TempServerEvent = require("../../../structures/events/TempServerEvent");
 const PrimeDayEvent = require("../../../structures/events/PrimeDayEvent");
 const BountyhunterEvent = require("../../../structures/events/BountyhunterEvent");
-const GachaEvent = require("../../../structures/events/GachaEvent");
+const DistrictGachaEvent = require("../../../structures/events/DistrictGachaEvent");
+const ChristmasGachaEvent = require("../../../structures/events/ChristmasGachaEvent");
 const RandomDungeonEvent = require("../../../structures/events/RandomDungeonEvent");
 const GiftMerchantEvent = require("../../../structures/events/GiftMerchantEvent");
 const DonationEvent = require("../../../structures/events/DonationEvent");
+const TempServerMultiplierEvent = require("../../../structures/events/TempServerMultiplierEvent");
+const ColossusVanillaEvent = require("../../../structures/events/ColossusVanillaEvent");
+const ColossusRiderEvent = require("../../../structures/events/ColossusRiderEvent");
 
 module.exports.name = "sei";
 /**
@@ -59,8 +63,7 @@ module.exports.execute = function (socket, errorCode, params) {
             if (event.eventId === EventConst.EVENTTYPE_GGS_GIFT) {
                 // TODO:
                 //  event.hasBeenCollected = true;
-                //  sendJsonVOSignal.dispatch(new SendJsonMessageVO(new C2SRequestGGSGiftVO(1)));
-                console.log(event)
+                //  require('../../commands/requestGGSGift').execute(socket, 1);
             }
         } else socket["activeSpecialEvents"][index].loadFromParamObject(socket.client, eventData)
     }
@@ -82,6 +85,8 @@ function getEventById(socket, eventId) {
             return new LTPointEvent();
         case EventConst.EVENTTYPE_TEMPSERVER:
             return new TempServerEvent();
+        case EventConst.EVENTTYPE_TEMPSERVER_MULTIPLIER:
+            return new TempServerMultiplierEvent();
         case EventConst.EVENTTYPE_ALLIANCE_BATTLEGROUND:
             return new AllianceBattleGroundEvent();
         case EventConst.EVENTTYPE_ARMORER:
@@ -90,6 +95,10 @@ function getEventById(socket, eventId) {
             return new RandomDungeonEvent();
         case EventConst.EVENTTYPE_BOUNTYHUNTER:
             return new BountyhunterEvent();
+        case EventConst.EVENTTYPE_COLOSSUS:
+            return new ColossusVanillaEvent();
+        case EventConst.EVENTTYPE_HORSE_COLOSSUS:
+            return new ColossusRiderEvent();
         case EventConst.EVENTTYPE_EQUIPMENTMERCHANT:
             return new EquipmentMerchantEvent();
         case EventConst.EVENTTYPE_ENCHANTER:
@@ -120,7 +129,9 @@ function getEventById(socket, eventId) {
         case EventConst.EVENTTYPE_POINT_EVENT:
             return new PointEvent();
         case EventConst.EVENTTYPE_DECO_GACHA:
-            return new GachaEvent();
+            return new DistrictGachaEvent();
+        case EventConst.EVENTTYPE_CHRISTMAS_GACHA:
+            return new ChristmasGachaEvent();
         case EventConst.EVENTTYPE_RATINGEVENT:
             return new RatingEvent();
         case EventConst.EVENTTYPE_LUCKYWHEEL:
@@ -158,8 +169,10 @@ function getEventById(socket, eventId) {
             return new MobileBrowserShopSpecialEvent();
         case EventConst.EVENTTYPE_GGS_GIFT:
             return new GGSGiftEvent();
+        case EventConst.EVENTTYPE_COIN_COLOSSUS:
         case EventConst.EVENTTYPE_PRIVATE_PRIME_TIME_EVENT:
         case EventConst.EVENTTYPE_UNIT_PRIME_SALE:
+        case EventConst.EVENTTYPE_SPECIAL_DAILY_BUNDLE:
             return new ActiveEvent(); // Those are not in source code
         default:
             if (socket.debug && !socket["activeSpecialEvents"].map(e => e.eventId).includes(eventId)) console.warn(`[SEI] Current event (eventId ${eventId}) isn't fully supported!`);

@@ -129,10 +129,7 @@ function _getWorldmapSector(thisManager, kingdomId, x, y, tries = 0) {
             /** @type {{worldmapAreas: Mapobject[]}} */
             const data = await (async () => {
                 try {
-                    return await Promise.any([
-                        WaitUntil(socket, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`, `__worldmap__error`, 2500),
-                        WaitUntil(socket, `__worldmap_${kingdomId}_empty`, `__worldmap__error`, 2500)
-                    ])
+                    return await Promise.any([WaitUntil(socket, `__worldmap_${kingdomId}_specific_sector_${x}_${y}_data`, `__worldmap__error`, 2500), WaitUntil(socket, `__worldmap_${kingdomId}_empty`, `__worldmap__error`, 2500)])
                 } catch (/** @type {AggregateError}*/e) {
                     if (e.errors[0] === "Exceeded max time!") {
                         try {
@@ -257,6 +254,29 @@ function loadNPCOwnerInfo(client, ownerInfoData) {
     ownerInfoData.addOwnerInfo(createWorldMapOwnerInfo(client, -707, null, `dialog_seasonEvent_${64}_DungeonOwner`, ConstantsUnderworld.NPC_CREST, true));
 
     ownerInfoData.addOwnerInfo(createWorldMapOwnerInfo(client, -1201, -1, `wolfgard_playerName`, ConstantsGeneral.NPC_CREST_WOLFKING, true));
+
+    const collectorEventOptions = e4kData.collectorEventOptions;
+    for (const collectorEventOption of collectorEventOptions) {
+        const collectorEventSkinName = collectorEventOption.collectorEventSkinName;
+        const colors = collectorEventOption.crestColors.split(',').map(c => parseInt(c, 16));
+        const crest = (function () {
+            const _loc2_ = new Crest(client, null);
+            _loc2_.backgroundType = 0;
+            _loc2_.backgroundColor1 = colors.length > 1 ? colors[1] : 0;
+            _loc2_.symbolPosType = 1;
+            _loc2_.symbolType1 = collectorEventOption.crestType;
+            _loc2_.symbolColor1 = colors.length > 0 ? colors[0] : 0;
+            _loc2_.fillClipColor();
+            return _loc2_;
+        })()
+        const playerNameTextId = `dialog_collector_battlelog_attackerName_0_${collectorEventSkinName}`
+        const collectorOwnerInfo = createWorldMapOwnerInfo(client, -1100 - collectorEventOption.collectorEventOptionID, -1, playerNameTextId, crest, false)
+        const staticAreaNameTextId = `collector_event_camp_${collectorEventSkinName}`
+        collectorOwnerInfo.staticAreaName = Localize.text(client, staticAreaNameTextId);
+        if (collectorOwnerInfo.playerName === playerNameTextId) collectorOwnerInfo.playerName = Localize.text(client, `dialog_collector_battlelog_attackerName_0_${collectorEventSkinName.toLowerCase()}`);
+        if (collectorOwnerInfo.staticAreaName === staticAreaNameTextId) collectorOwnerInfo.staticAreaName = Localize.text(client, `collector_event_camp_${collectorEventSkinName.toLowerCase()}`);
+        ownerInfoData.addOwnerInfo(collectorOwnerInfo);
+    }
 }
 
 /**

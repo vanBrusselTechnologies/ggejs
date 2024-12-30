@@ -92,6 +92,8 @@ declare class AllianceManager extends BaseManager {
     public find(name: string): Promise<Alliance>;
 
     public getMyAlliance(): Promise<MyAlliance>;
+
+    public getRankings(nameOrRanking: string | number, rankingType: AllianceHighScoreRankingTypes = "might", leagueId: number = 1): Promise<HighScore<AllianceHighScoreItem>>
 }
 
 declare class ClientUserDataManager {
@@ -393,6 +395,8 @@ declare class PlayerManager extends BaseManager {
     public find(name: string): Promise<Player>;
 
     public getThisPlayer(): Promise<Player>;
+
+    public getRankings(nameOrRanking: string | number, rankingType: PlayerHighScoreRankingTypes = "might", leagueId: number = 1): Promise<HighScore<PlayerHighScoreItem>>
 }
 
 declare class WorldmapManager extends BaseManager {
@@ -413,9 +417,7 @@ declare class WorldmapManager extends BaseManager {
 //#endregion
 
 //#region Movement
-/**
- *
- */
+/** */
 type Movement =
     BasicMovement
     | ArmyAttackMovement
@@ -528,9 +530,7 @@ declare class Horse {
 //#endregion
 
 //#region Alliance
-/**
- *
- */
+/** */
 declare class Alliance {
     public allianceId: number;
     public allianceName: string;
@@ -644,9 +644,7 @@ declare class Good extends InventoryItem<string> {
 }
 
 //#region Lord and Equipment
-/**
- *
- */
+/** */
 declare class Lord {
     public id: number;
     public isDummy: boolean;
@@ -1665,9 +1663,7 @@ declare class PopupRegistrationGiftMessage extends BasicPopupMessage {
 //#endregion
 //#endregion
 //#region Events
-/**
- *
- */
+/** */
 interface ClientEvents {
     serverShutdown: [];
     serverShutdownEnd: [];
@@ -1704,9 +1700,7 @@ interface ConstantsEvents {
 
 //#endregion
 //#region Castle
-/**
- *
- */
+/** */
 declare class Castle {
     kingdomId: number;
     areaType: number;
@@ -2036,6 +2030,50 @@ declare class XPBooster extends HeroBoosterShop {
 
 //#endregion
 
+//#region HighScore
+/** */
+declare interface HighScore<Item> {
+    listType: number;
+    leagueId: number;
+    lastRow: number;
+    searchValue: string | number;
+    foundRank: number;
+    items: Item[];
+}
+
+declare interface AllianceHighScoreItem {
+    alliance: {
+        allianceId: number;
+        allianceName: string;
+        memberAmount: number;
+        allianceCurrentFame: number;
+    };
+    rank: number;
+    points: number;
+    isKingAlliance?: boolean;
+    seasonRankId?: number;
+    seasonMedalsData?: [][];
+    amountVisible?: boolean;
+    highscoreTypeId: number;
+}
+
+declare interface PlayerHighScoreItem {
+    player?: WorldmapOwnerInfo;
+    rank: number;
+    points?: number;
+    playerName?: string;
+    playerId?: number;
+    seasonRankId?: number;
+    seasonMedalsData?: [][];
+    rawValues?: [];
+    highscoreTypeId: number;
+}
+
+declare type AllianceHighScoreRankingTypes = "honor" | "might" | "landMarks" | "aqua" | "tournamentFame" | "alienInvasion" | "nomadInvasion" | "samuraiInvasion" | "redAlienInvasion" | "kingdomsLeagueSeason" | "kingdomsLeagueSeasonEvent" | "daimyo" | "allianceBattleGroundCollector" | "allianceBattleGroundTower" | "allianceBattleGroundPreviousRun"
+declare type PlayerHighScoreRankingTypes = "achievementPoints" | "loot" | "honor" | "might" | "legendLevel" | "factionTournament" | "pointEvent" | "luckyWheel" | "alienInvasion" | "nomadInvasion" | "colossus" | "samuraiInvasion" | "longTermPointEvent" | "redAlienInvasion" | "tempServerDailyMight" | "tempServerGlobal" | "kingdomsLeagueSeason" | "kingdomsLeagueSeasonEvent" | "tempServerDailyCollector" | "tempServerDailyRankSwap" | "allianceBattleGroundCollector" | "SaleDaysLuckyWheel" | "allianceBattleGroundTower" | "tempServerPreviousRun" | "allianceBattleGroundPreviousRun" | "donationEvent" | "decoGachaEvent" | "christmasGachaEvent"
+
+//#endregion
+
 //#region Quests
 /** */
 declare class QuestData {
@@ -2072,9 +2110,7 @@ declare class Quest {
 //#endregion
 
 //#region Constants
-/**
- *
- */
+/** */
 interface IConstants {
     Events: ConstantsEvents;
     Kingdom: Kingdom;
