@@ -31,11 +31,11 @@ class BountyhunterEvent extends ActiveEvent {
 
     /**
      * @param {Client} client
-     * @param {{O:Object, A: [], HW: 0|1}} data
+     * @param {{OI:Object, A: [], HW: 0|1}} data
      */
     loadFromParamObject(client, data) {
         super.loadFromParamObject(client, data);
-        client.worldmaps._ownerInfoData.parseOwnerInfo(data.O);
+        client.worldmaps._ownerInfoData.parseOwnerInfo(data.OI);
         this.targetArea = parseMapObject(client, data.A);
         this.hasWon = data.HW === 1
 

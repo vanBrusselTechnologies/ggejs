@@ -13,9 +13,7 @@ class BattleParticipant {
         this.startArmySize = data[2];
         this.lostUnits = data[3];
         let lootGoods = [];
-        for(const g of data[4]){
-            lootGoods.push(new Good(client, g))
-        }
+        for (const g of data[4]) lootGoods.push(new Good(client, g));
         this.lootGoods = lootGoods;
         this.famePoints = data[5];
         this.xp = data[6];

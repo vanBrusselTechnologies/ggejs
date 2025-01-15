@@ -50,7 +50,7 @@ class PlayerManager extends BaseManager {
                 /** @type {number} */
                 let playerId;
                 try { // Try to find user by rankings, on fail use world map find
-                    const hghData = await this.getRankings(name, 'might');
+                    const hghData = await this.getRankings(name, 'might', 6);
                     playerId = hghData.items.find(item => item.rank === hghData.foundRank).player.playerId;
                 } catch (e) {
                     searchPlayer(this._socket, name);

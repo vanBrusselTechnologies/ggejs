@@ -8,7 +8,7 @@ module.exports.name = "cat";
  * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
-    if(errorCode === 197 || errorCode === 199) return;
+    if (errorCode === 197 || errorCode === 199) return;
     gam(socket, 0, {M: [params.A]});
     gcu(socket, 0, params.gcu);
 }

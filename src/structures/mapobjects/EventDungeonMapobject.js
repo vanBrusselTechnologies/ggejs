@@ -25,7 +25,7 @@ class EventDungeonMapobject extends InteractiveMapobject {
     }
 
     get areaName() {
-        /*TODO: if(geActiveSkinProperties()) return geActiveSkinProperties().areaTextID; */
+        /*TODO: if (geActiveSkinProperties()) return geActiveSkinProperties().areaTextID; */
         return Localize.text(this.#client, "fortress_robberbaron");
     }
 }

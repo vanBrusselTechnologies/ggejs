@@ -9,7 +9,7 @@ module.exports.execute = function (socket, errorCode, params) {
     // TODO:
     //  closeRingMenuSignal.dispatch();
     //  worldMapOwnerInfoData.parseOwnerInfoArray([paramObj]);
-    //  if(worldMapData.isInitialized)
+    //  if (worldMapData.isInitialized)
     //  {
     //      const _loc2_:InteractiveMapobjectVO = worldMapData.getMapobjectVO(paramObj.X,paramObj.Y);
     //      _loc2_.ownerId = paramObj.OID;

@@ -70,7 +70,7 @@ module.exports.onLogin = async function (socket, error = "") {
         mercenaryPackage(socket, -1)
         if (!socket["isIntervalSetup"]) {
             socket["isIntervalSetup"] = true;
-            if (socket["currentServerType"] !== 3) {
+            if (socket["currentServerType"] !== Constants.ServerType.AllianceBattleGround) {
                 dql(socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]}).then()
                 setInterval(() => {
                     if (!socket["__connected"]) return;

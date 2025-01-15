@@ -11,10 +11,8 @@ class WorldmapSector extends Worldmap {
      * @param {WorldmapSector} sectors
      * @returns {WorldmapSector}
      */
-    combine(...sectors){
-        for(const sector of sectors) {
-            this.mapobjects.concat(sector.mapobjects);
-        }
+    combine(...sectors) {
+        for (const sector of sectors) this.mapobjects.concat(sector.mapobjects);
         return this;
     }
 }

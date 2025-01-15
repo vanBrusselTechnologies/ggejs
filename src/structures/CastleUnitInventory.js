@@ -24,7 +24,7 @@ class CastleUnitInventory {
      * @param {{I:[], HI:[],SHI:[],TU:[],gsi:{}}} data
      */
     constructor(client, data) {
-        if(!data) return;
+        if (!data) return;
         this.units = parseUnits(client, data.I);
         this.unitsInHospital = parseUnits(client, data.HI);
         this.unitsInStronghold = parseUnits(client, data.SHI);
@@ -48,8 +48,7 @@ function parseUnits(client, data) {
     let units = [];
     for (let u of data) {
         units.push({
-            item: new Unit(client, u[0]),
-            count: u[1]
+            item: new Unit(client, u[0]), count: u[1]
         })
     }
     return units;

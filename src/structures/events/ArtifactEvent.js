@@ -14,9 +14,9 @@ class ArtifactEvent extends ActiveEvent {
      */
     loadFromParamObject(client, data) {
         super.loadFromParamObject(client, data);
-        if(data["SID"]) this.skinId = data["SID"];
-        if(data["ALID"]) this.artifactLeagueId = data["ALID"];
-        if(data["PF"]) this.piecesFound = data["PF"];
+        if (data["SID"]) this.skinId = data["SID"];
+        if (data["ALID"]) this.artifactLeagueId = data["ALID"];
+        if (data["PF"]) this.piecesFound = data["PF"];
         //todo: this.eventBuildingWodId = skinCreatorsManager.getSkinCreator(_loc2_.skinId).getSkinSettingsVO(_loc2_.skinId).eventBuildingWodId;
     }
 

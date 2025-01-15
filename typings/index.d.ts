@@ -1183,6 +1183,7 @@ type MailMessage =
     | PrivateOfferTippMessage
     | PrivateOfferWhaleChestMessage
     | BreweryMissingResourcesMessage
+    | DoubleRubiesMessage
     | StarveInfoMessage
     | AttackCancelledAbortedMessage
     | AttackCancelledAutoRetreatMessage
@@ -1458,6 +1459,9 @@ declare class BreweryMissingResourcesMessage extends BasicMessage {
     areaType: number;
     breweryObjectId: number;
     breweryWodId: number;
+}
+
+declare class DoubleRubiesMessage extends BasicMessage {
 }
 
 declare class StarveInfoMessage extends BasicMessage {

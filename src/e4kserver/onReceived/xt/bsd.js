@@ -17,10 +17,10 @@ module.exports.execute = function (socket, errorCode, params) {
         return;
     }
     const client = socket.client;
-    const mapObject = parseWorldmapArea(client, params["AI"]);
-    if (params["DAR"]) mapObject.rank = params["DAR"];
     const originOwner = client.worldmaps._ownerInfoData.parseOwnerInfo(params["SO"])
     const targetOwner = client.worldmaps._ownerInfoData.parseOwnerInfo(params["OI"])
+    const mapObject = parseWorldmapArea(client, params["AI"]);
+    if (params["DAR"]) mapObject.rank = params["DAR"];
     if (params["RS"]) {
         mapObject.attackCooldownEnd = new Date(Date.now() + params["RS"] * 1000);
         mapObject.isVisibleOnMap = true;

@@ -96,8 +96,6 @@ function getNPCMapObjectName(areaType, kingdomId) {
             return "kingstower";
         case 22:
             return "metropol";
-        case 36:
-            return "shapeshifter_PlayerName";
         case 38:
             return "township";
         case 37:

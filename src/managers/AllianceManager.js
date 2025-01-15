@@ -13,7 +13,21 @@ class AllianceManager extends BaseManager {
      * @returns {Promise<Alliance | MyAlliance>}
      */
     async getById(id) {
-        return await _getAllianceById(this._socket, id);
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (id == null) {
+                    reject('Missing alliance id!');
+                    return;
+                }
+                const socket = this._socket;
+                searchAllianceById(socket, id);
+                const alliance = await WaitUntil(socket, `_alliance_${id}_data`, "", 1000);
+                delete socket[`_alliance_${id}_data`];
+                resolve(alliance);
+            } catch (e) {
+                reject(Localize.text(this._client, 'errorCode_114'));
+            }
+        });
     }
 
     /**
@@ -21,8 +35,15 @@ class AllianceManager extends BaseManager {
      * @returns {Promise<Alliance | MyAlliance>}
      */
     async find(name) {
-        const _allianceId = await _getAllianceIdByName(this._socket, name);
-        return await this.getById(_allianceId);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const hghData = await this.getRankings(name, 'might');
+                const allianceId = hghData.items.find(item => item.rank === hghData.foundRank).alliance.allianceId;
+                resolve(await this.getById(allianceId));
+            } catch (e) {
+                reject(Localize.text(this._client, 'errorCode_114'));
+            }
+        });
     }
 
     /** @returns {Promise<MyAlliance>} */
@@ -98,44 +119,6 @@ class AllianceManager extends BaseManager {
             }
         });
     }
-}
-
-/**
- * @param {Socket} socket
- * @param {number} id
- * @returns {Promise<Alliance | MyAlliance>}
- */
-function _getAllianceById(socket, id) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            if (id == null) {
-                reject('Missing alliance id!');
-                return;
-            }
-            searchAllianceById(socket, id);
-            const alliance = await WaitUntil(socket, `_alliance_${id}_data`, "", 1000);
-            delete socket[`_alliance_${id}_data`];
-            resolve(alliance);
-        } catch (e) {
-            reject(Localize.text(socket.client, 'errorCode_114'));
-        }
-    });
-}
-
-/**
- * @param {Socket} socket
- * @param {string} name
- * @returns {Promise<number>}
- */
-function _getAllianceIdByName(socket, name) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const hghData = await this.getRankings(name, 'might');
-            resolve(hghData.items.find(item => item.rank === hghData.foundRank).alliance.allianceId);
-        } catch (e) {
-            reject(Localize.text(socket.client, 'errorCode_114'));
-        }
-    });
 }
 
 module.exports = AllianceManager

@@ -13,6 +13,7 @@ module.exports.execute = function (socket, errorCode, params) {
     const cud = socket.client.clientUserData;
     let alliance = (params.A.AID === cud.allianceId) ? new MyAlliance(socket.client, params.A) : new Alliance(socket.client, params.A);
     if (alliance.allianceId === cud.allianceId) {
+        // TODO: only reset the values, not overwriting whole myAlliance object
         cud.myAlliance = alliance;
 
         /** @type {AllianceMember} */

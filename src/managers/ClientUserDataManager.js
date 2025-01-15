@@ -761,7 +761,6 @@ class ClientUserDataManager {
 
     /** @param {number} level */
     set maxVIPLevelReached(level) {
-        //todo: if(_maxVIPLevelReached >= 1 && level > _maxVIPLevelReached) vipLevelReachedSignal.dispatch(_currentVIPLevel);
         this._vipData._maxVIPLevelReached = level < 1 ? 1 : level;
     }
 

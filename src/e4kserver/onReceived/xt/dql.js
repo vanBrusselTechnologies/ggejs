@@ -189,7 +189,7 @@ function getClosestRuinsOutpost(client, ClassicMap, myMainCastle) {
         try {
             /** @type {CastleMapobject[]}*/
             let ruinedPlayerOutposts = ClassicMap.mapobjects.filter(x => {
-                if(x.areaType !== WorldmapArea.Outpost) return false;
+                if (x.areaType !== WorldmapArea.Outpost) return false;
                 const owner = x.ownerInfo;
                 return owner.isRuin && !owner.isInAlliance;
             })
@@ -219,7 +219,7 @@ function getClosestDungeon(client, castle, attackable = true) {
         try {
             /** @type {DungeonMapobject[]} */
             const dungeons = (await client.worldmaps.getSector(castle.kingdomId, castle.position.X, castle.position.Y)).mapobjects.filter(x => x.areaType === WorldmapArea.Dungeon && (!attackable || !x.attackCooldownEnd) && (x.attackCount >= 1 || MovementManager.getDistance(x, castle) <= 12.5));
-            if(dungeons.length === 0) return reject("No target found!");
+            if (dungeons.length === 0) return reject("No target found!");
             dungeons.sort((a, b) => {
                 let distanceA = MovementManager.getDistance(castle, a);
                 let distanceB = MovementManager.getDistance(castle, b);
@@ -793,7 +793,7 @@ async function attackDungeon(client, thisPlayer, castle, lord) {
             } = getAttackLowerProtectionDungeon(dungeon, lord, dungeonProtection, availableDungeonAttackTools);
             let defenceStrengthTotal = getDungeonDefenceStrength(dungeon, dungeonProtection, attackLowerProtection, usedTools);
             let army = getBestArmyForDungeon(thisPlayer, dungeon, defenceStrengthTotal, availableSoldiers, lord, usedTools, availableDungeonAttackTools);
-            if(army.length === 0) return reject('Not enough attacking soldiers available');
+            if (army.length === 0) return reject('Not enough attacking soldiers available');
             const horse = new Horse(client, castleData, HorseType.Coin);
             client.movements.startAttackMovement(castle, dungeon, army, lord, horse);
             resolve();

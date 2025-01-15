@@ -22,11 +22,11 @@ module.exports.execute = function (socket, errorCode, params) {
     /* TODO
         const quest = questData.createQuest(questId);
         const gainedEquipment = params.GEQ;
-        if(gainedEquipment && gainedEquipment.length > 0) {
+        if (gainedEquipment && gainedEquipment.length > 0) {
             quest.rewardEquipments = [];
             let size = gainedEquipment.length;
             let i = 0;
-            while(i < size) {
+            while (i < size) {
                 quest.rewardEquipments.push(equipmentJSONParser.parse(gainedEquipment.pop()[1]));
                 i++;
             }

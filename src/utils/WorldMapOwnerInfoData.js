@@ -25,23 +25,12 @@ class WorldMapOwnerInfoData {
         this._ownInfo = new WorldmapOwnerInfo(client);
     }
 
-    /**
-     * @param {number} kID
-     * @returns {WorldmapOwnerInfo}
-     */
-    getKingdomDungeonOwnerByKingdomId(kID) {
-        return this.getOwnerInfo(-219 - kID);
-    }
+    /** @param {number} kID */
+    getKingdomDungeonOwnerByKingdomId = (kID) => this.getOwnerInfo(-219 - kID);
 
-    /**
-     * @param {number} kID
-     * @returns {WorldmapOwnerInfo}
-     */
-    getKingdomBossDungeonOwnerByKingdomId(kID) {
-        return this.getOwnerInfo(-229 - kID);
-    }
+    /** @param {number} kID */
+    getKingdomBossDungeonOwnerByKingdomId = (kID) => this.getOwnerInfo(-229 - kID);
 
-    /** @returns {WorldmapOwnerInfo} */
     get ownInfo() {
         const userData = this.#client.clientUserData._userData
         const playerInfoModel = this.#client.clientUserData._playerInfo
@@ -65,18 +54,12 @@ class WorldMapOwnerInfoData {
                 }
             }
         }
-        /** @type {number[][]} */
-        const villages = [];
         const publicVillages = this.#client.clientUserData._userData.castleList.publicVillages.map(pv => pv.village);
-        /*if (kingdomData && kingdomData.activeKingdomId !== 0 && publicVillages.length > 0) {
-            for (const village of publicVillages) {
-                villages.push([village.kingdomId, village.objectId, village.position.X, village.position.Y]);
-            }
-        }*/
+        const villages = publicVillages.map(v => [v.kingdomId, v.objectId, v.position.X, v.position.Y]);
         const crestParams = userData.playerCrest != null ? userData.playerCrest.getParamObject() : null;
         const showVIPFlag = vipData.showVIPFlagOnCastle;
-        const titlePrefix/*:TitleVO*/ = this.#client.clientUserData.titlePrefix;
-        const titleSuffix/*:TitleVO*/ = this.#client.clientUserData.titleSuffix;
+        const titlePrefix/* TODO :TitleVO*/ = this.#client.clientUserData.titlePrefix;
+        const titleSuffix/* TODO :TitleVO*/ = this.#client.clientUserData.titleSuffix;
         const params = {
             "PF": userData.hasPremiumFlag ? 1 : 0,
             "OID": playerInfoModel.playerId,
@@ -96,23 +79,18 @@ class WorldMapOwnerInfoData {
             "CF": titlesData.titlePoints[Constants.TitleType.FAME],
             "VF": showVIPFlag ? 1 : 0,
             "SA": userData.isSearchingAlliance ? 1 : 0,
-            "MP": mightData.might, //"PRE": titlePrefix.titleID,
-            //"SUF": titleSuffix.titleID
+            "MP": mightData.might,
+            // TODO: "PRE": titlePrefix.titleID,
+            // TODO: "SUF": titleSuffix.titleID
         };
         this._ownInfo.fillFromParamObject(params);
-        //const title = titlesData.currentTitle[Constants.TitleType.ISLE] ?? new TitleVO();
-        //this._ownInfo.titleVO = isleTitleHelper.getTitleVOByTitleId(title.titleID);
+        // TODO: const title = titlesData.currentTitle[Constants.TitleType.ISLE] ?? new TitleVO();
+        //  this._ownInfo.titleVO = isleTitleHelper.getTitleVOByTitleId(title.titleID);
         return this._ownInfo;
     }
 
-    /**
-     *
-     * @param {number} ownerId
-     * @returns {WorldmapOwnerInfo}
-     */
-    getOwnerInfo(ownerId) {
-        return this.getOwnerInfoInternal(ownerId, true);
-    }
+    /** @param {number} ownerId */
+    getOwnerInfo = (ownerId) => this.getOwnerInfoInternal(ownerId, true);
 
     /**
      *
@@ -130,15 +108,9 @@ class WorldMapOwnerInfoData {
     }
 
     /** @param {WorldmapOwnerInfo} ownerInfoVO */
-    addOwnerInfo(ownerInfoVO) {
-        this._ownerInfo[ownerInfoVO.playerId] = ownerInfoVO;
-    }
+    addOwnerInfo = (ownerInfoVO) => this._ownerInfo[ownerInfoVO.playerId] = ownerInfoVO;
 
-    /**
-     *
-     * @param {Object} ownerInfo
-     * @returns {WorldmapOwnerInfo}
-     */
+    /** @param {Object} ownerInfo */
     parseOwnerInfo(ownerInfo) {
         if (!ownerInfo || !ownerInfo.OID) return null;
         const ownerId = ownerInfo.OID;
@@ -153,9 +125,7 @@ class WorldMapOwnerInfoData {
             return wmOwnerInfo;
         }
         const isNPCPlayer = ownerId < 0// todo playerDataService.isNPCPlayer(ownerId);
-        if (isNPCPlayer) {
-            return null;
-        }
+        if (isNPCPlayer) return null;
         if (!wmOwnerInfo) {
             wmOwnerInfo = new WorldmapOwnerInfo(this.#client);
             wmOwnerInfo.fillFromParamObject(ownerInfo);
@@ -183,7 +153,7 @@ class WorldMapOwnerInfoData {
      * @private
      */
     setTitleForOwnerInfo(ownerInfo, titleId) {
-        // todo if(titleId !== -1) ownerInfo.titleVO = isleTitleHelper.getTitleVOByTitleId(titleId);
+        // todo if (titleId !== -1) ownerInfo.titleVO = isleTitleHelper.getTitleVOByTitleId(titleId);
     }
 }
 

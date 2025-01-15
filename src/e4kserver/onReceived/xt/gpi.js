@@ -30,6 +30,6 @@ module.exports.execute = function (socket, errorCode, params) {
      userNameChangedSignal.dispatch();
      backupGameDataSignal.dispatch();
      trackRetentionDaySignal.dispatch();
-     if(_loc3_) mailChangedSignal.dispatch();
+     if (_loc3_) mailChangedSignal.dispatch();
     */
 }

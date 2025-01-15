@@ -3,9 +3,9 @@ const {relicEffects} = require('e4k-data').data;
 
 class RelicEffect extends Effect {
     /**
-     * 
-     * @param {Client} client 
-     * @param {Array} data 
+     *
+     * @param {Client} client
+     * @param {Array} data
      */
     constructor(client, data) {
         let _data = getDataFromJson(data[0]);
@@ -19,16 +19,12 @@ class RelicEffect extends Effect {
 }
 
 /**
- * 
- * @param {number} id 
- * @returns {Object}
+ *
+ * @param {number} id
+ * @returns {RelicEffect}
  */
-function getDataFromJson(id){
-    for(const relicEffect of relicEffects){
-        if(relicEffect.id === id){
-            return relicEffect;
-        }
-    }
+function getDataFromJson(id) {
+    return relicEffects.find(e => e.id === id);
 }
 
 module.exports = RelicEffect;

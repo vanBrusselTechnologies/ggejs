@@ -102,7 +102,7 @@ function getHighScoreItem(client, listType, itemData) {
             highScoreItem["player"] = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[2]);
             highScoreItem["rank"] = itemData[4];
             highScoreItem["points"] = itemData[1];
-            highScoreItem["playerName"] = itemData[3];
+            highScoreItem["playerName"] = itemData[3] ?? highScoreItem["player"].playerName;
             highScoreItem["rawValues"] = itemData;
             break;
         default:
@@ -110,7 +110,7 @@ function getHighScoreItem(client, listType, itemData) {
             highScoreItem["player"] = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[2]);
             highScoreItem["rank"] = itemData[0];
             highScoreItem["points"] = itemData[1];
-            highScoreItem["playerName"] = itemData[3];
+            highScoreItem["playerName"] = itemData[3] ?? highScoreItem["player"].playerName;
             highScoreItem["rawValues"] = itemData;
     }
     highScoreItem["highscoreTypeId"] = listType;

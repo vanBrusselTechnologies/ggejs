@@ -19,7 +19,7 @@ class QuestData {
      */
     createQuest(questId) {
         const activeQuest = this._activeQuests.find(x => x.id === questId)
-        if(activeQuest !== undefined) return activeQuest;
+        if (activeQuest !== undefined) return activeQuest;
         const quest = quests.find(q => q.questID === questId);
         if (quest) return new Quest(this.#client, quest);
         return null;
@@ -56,7 +56,7 @@ class QuestData {
         this._completedQuests[questId] = true;
     }
 
-    getActiveQuests(){
+    getActiveQuests() {
         return this._activeQuests;
     }
 }

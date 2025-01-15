@@ -37,7 +37,7 @@ class Castle {
      * @param {Object} data
      */
     constructor(client, data) {
-        if(!data) return;
+        if (!data) return;
         this.kingdomId = data["KID"];
         this.areaType = data["T"];
         this.slumLevel = csl(client._socket, 0, data["csl"]);

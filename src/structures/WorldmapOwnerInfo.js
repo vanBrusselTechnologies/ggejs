@@ -5,17 +5,6 @@ const CastlePosition = require("./CastlePosition");
 class WorldmapOwnerInfo {
     /** @type {Client} */
     #client;
-    /*
-    private static const KINGDOM_ID_INDEX:int = 0;
-
-    private static const OBJECT_ID_INDEX:int = 1;
-
-    private static const X_POS_INDEX:int = 2;
-
-    private static const Y_POS_INDEX:int = 3;
-
-    private static const AREA_TYPE_INDEX:int = 4;
-     */
 
     /** @type {number} */
     playerId = -1;
@@ -241,7 +230,7 @@ class WorldmapOwnerInfo {
             this._isSearchingAlliance = params.SA === 1;
             if (params.RPT > 0) this.peaceEndTime = new Date(Date.now() + params.RPT * 1000);
             const castlePosItems = [];
-            if(params.AP) this.ungroupArrayFromServer(params.AP, castlePosItems);
+            if (params.AP) this.ungroupArrayFromServer(params.AP, castlePosItems);
             this._castlePosList = this.parsePosList(castlePosItems);
             if (params.VP) {
                 this._villagePosList = this.parsePosList(params.VP);

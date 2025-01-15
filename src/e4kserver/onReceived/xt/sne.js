@@ -53,6 +53,7 @@ const PopupFacebookConnectionMessage = require("../../../structures/messages/Pop
 const PopupLoginBonusMessage = require("../../../structures/messages/PopupLoginBonusMessage");
 const SpecialEventHospitalCapacityExceededMessage = require("../../../structures/messages/SpecialEventHospitalCapacityExceededMessage");
 const AllianceRequestMessage = require("../../../structures/messages/AllianceRequestMessage");
+const DoubleRubiesMessage = require("../../../structures/messages/DoubleRubiesMessage");
 
 module.exports.name = "sne";
 /**
@@ -280,11 +281,31 @@ async function parseMessageInfo(socket, messageInfo) {
                 case MessageConst.SPECIAL_ID_VIP_INFORMATION:
                     message = new SpecialEventVIPInfoMessage(socket.client, messageInfo);
                     break;
+                case MessageConst.SPECIAL_ID_HOSPITAL_CAPACITY_EXCEEDED:
+                    message = new SpecialEventHospitalCapacityExceededMessage(socket.client, messageInfo)
+                    break;
                 case MessageConst.SPECIAL_ID_MONUMENT:
                     message = new SpecialEventMonumentResetMessage(socket.client, messageInfo);
                     break;
-                case MessageConst.SPECIAL_ID_HOSPITAL_CAPACITY_EXCEEDED:
-                    message = new SpecialEventHospitalCapacityExceededMessage(socket.client, messageInfo)
+                case MessageConst.SPECIAL_ID_WORLD_CUP:
+                case MessageConst.SPECIAL_ID_UNDERWORLD:
+                case MessageConst.SPECIAL_ID_THORNKING:
+                case MessageConst.SPECIAL_ID_EMPIRE_DEALS_DAYS_MESSAGE:
+                case MessageConst.SPECIAL_ID_TERMS_AND_CONDITIONS:
+                case MessageConst.SPECIAL_ID_WAR_OF_EMPIRES_1:
+                case MessageConst.SPECIAL_ID_WAR_OF_EMPIRES_2:
+                case MessageConst.SPECIAL_ID_WAR_OF_EMPIRES_3:
+                case MessageConst.SPECIAL_ID_WAR_OF_EMPIRES_REWARD_1:
+                case MessageConst.SPECIAL_ID_WAR_OF_EMPIRES_REWARD_2:
+                case MessageConst.SPECIAL_ID_WAR_OF_EMPIRES_REWARD_3:
+                case MessageConst.SPECIAL_ID_ANNOUNCE_INSTANCE:
+                case MessageConst.SPECIAL_ID_FAIR_PLAY_MESSAGE:
+                case MessageConst.SPECIAL_ID_ALCHEMIST_RETIREMENT:
+                case MessageConst.SPECIAL_ID_TREASURE_MAP_PIECE_FOUND:
+                case MessageConst.SPECIAL_ID_LABORATORY:
+                case MessageConst.SPECIAL_ID_KINGSTOWER:
+                case MessageConst.SPECIAL_ID_METROPOLIS:
+                    // Not implemented in source code.
                     break;
                 default:
                     console.warn(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
@@ -381,6 +402,9 @@ async function parseMessageInfo(socket, messageInfo) {
             break;
         case MessageConst.MESSAGE_TYPE_ALLIANCE_REQUEST:
             message = new AllianceRequestMessage(socket.client, messageInfo);
+            break;
+        case MessageConst.MESSAGE_TYPE_PAYMENT_DOPPLER:
+            message = new DoubleRubiesMessage(socket.client, messageInfo);
             break;
         default:
             if (socket["mailMessages"].find(m => m.messageId === message.messageId) != null) break;

@@ -122,7 +122,7 @@ async function handlePostGBDCommandInNextFrame(socket) {
     /* todo
      *  restoreTutorialIfRuined();
      *  enableIAPmanagerStartupIntervalSignal.dispatch(false);
-     *  if(hasValidInvitation.approve())
+     *  if (hasValidInvitation.approve())
      *  {
      *     setFacebookConnectionSignal.dispatch();
      *  }
@@ -132,7 +132,7 @@ async function handlePostGBDCommandInNextFrame(socket) {
      *  }
      *  configureNotificationsSignal.dispatch();
      *  worldmapCameraData.currentCenteredWorldMapObject = castleListService.getMainCastleByKingdomId(kingdomData.activeKingdomID);
-     *  if(!_loc2_)
+     *  if (!_loc2_)
      *  {
      *     startTutorialSignal.dispatch(true);
      *  }
@@ -148,7 +148,7 @@ async function handlePostGBDCommandInNextFrame(socket) {
     requestSubscriptionsData(socket);
     /*todo
      * directCommandMap.map(InitPaymentShopCommand).execute();
-     * if(!featureRestrictionsModel.isFeatureRestrictedWithType("accountCode",FeatureRestrictionType.HIDDEN))
+     * if (!featureRestrictionsModel.isFeatureRestrictedWithType("accountCode",FeatureRestrictionType.HIDDEN))
      * {
      *    directCommandMap.map(WebshopGetAccountIdCommand).execute();
      * }
@@ -167,7 +167,7 @@ async function handlePostGBDCommandInNextFrame(socket) {
          gameStatusModel.gameIsListening = true;
          stopCachingJsonCommandsSignal.dispatch();
          connectionLostModel.reset();
-         if(lockConditionModel.hasCondition()) {
+         if (lockConditionModel.hasCondition()) {
             _loc1_ = lockConditionModel.hasCondition();
             debug("client has lock condition in GBD:",_loc1_.originalConditionIds + ", find the original reason where it came from and clean");
             lockConditionModel.conditionComplete();

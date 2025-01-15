@@ -17,7 +17,7 @@ class SeaqueenMapKrakenObject extends SeaqueenMapObject {
     }
 
     get areaName() {
-        /*if(isUnlocked) */return Localize.text(this.#client, "bladecoast_finalboss");
+        /*if (isUnlocked) */return Localize.text(this.#client, "bladecoast_finalboss");
         return Localize.text(this.#client, "bladecoast_fog");
     }
 }

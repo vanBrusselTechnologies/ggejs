@@ -52,7 +52,7 @@ function resetRewardItem(wofProperties) {
     /* TODO:
         var _loc3_ = wofProperties.getLocalStorageKeyById(0);
         var _loc2_ = wofProperties.getLocalStorageKeyById(1);
-        if(localStorageModel.getValue(_loc3_))
+        if (localStorageModel.getValue(_loc3_))
         {
             localStorageModel.removeValue(_loc3_);
             wheelOfFortuneData.rewardedItem = null;

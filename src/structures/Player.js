@@ -25,7 +25,7 @@ class Player extends WorldmapOwnerInfo {
         this.kingstowers = parseKingstowers(client, data.gkl);
         /** @type {{monument: MonumentMapobject, units?: InventoryItem<Unit>[]}[]} */
         this.monuments = parseMonuments(client, data.gml);
-        //this.allianceTowers = ; //horizon
+        //this.allianceTowers = ; //todo: horizon
     }
 }
 
