@@ -1,8 +1,8 @@
-module.exports.name = "csm"
+module.exports.name = "csm";
 /**
  * @param {Socket} socket
- * @param {InteractiveMapobject | CastlePosition} source
- * @param {Mapobject} target
+ * @param {InteractiveMapobject} source
+ * @param {Mapobject | CastlePosition} target
  * @param {number} spyCount
  * @param {number} spyTypeId
  * @param {number} spyEffect

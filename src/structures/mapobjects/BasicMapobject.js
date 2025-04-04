@@ -2,8 +2,8 @@ const Coordinate = require('../Coordinate');
 
 class BasicMapobject {
     #client;
+
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */
@@ -16,11 +16,7 @@ class BasicMapobject {
         this.position = new Coordinate(client, data.slice(1, 3));
     }
 
-    /**
-     *
-     * @param {{}}data
-     * @return {BasicMapobject}
-     */
+    /** @param {{}} data */
     parseAreaInfoBattleLog(data) {
         this.areaType = data.AT;
         this.position = new Coordinate(this.#client, [data.X, data.Y]);

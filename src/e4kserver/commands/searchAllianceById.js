@@ -5,8 +5,6 @@ module.exports.name = "ain";
  */
 module.exports.execute = function (socket, allianceId) {
     if (allianceId == null) return;
-    const C2SGetAllianceInfoVO = {
-        getCmdId: "ain", params: {AID: allianceId}
-    }
+    const C2SGetAllianceInfoVO = {getCmdId: "ain", params: {AID: allianceId}};
     require('../data').sendCommandVO(socket, C2SGetAllianceInfoVO);
 }

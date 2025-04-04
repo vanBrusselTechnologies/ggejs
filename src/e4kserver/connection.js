@@ -36,9 +36,9 @@ module.exports.login = function (socket, name, password) {
  */
 module.exports.onConnection = function (socket, obj) {
     if (obj.success) {
-        let languageCode = socket.client._language;
-        let distributorId = 0;
-        let zone = socket.client._serverInstance.zone;
+        const languageCode = socket.client._language;
+        const distributorId = 0;
+        const zone = socket.client._serverInstance.zone;
         login(socket, zone, "", `${versionDateGame}%${languageCode}%${distributorId}`);//empire: `${versionDateGame}%${languageCode}%${distributorID}`
     } else {
         socket["__connected"] = false;
@@ -62,10 +62,15 @@ module.exports.onLogin = async function (socket, error = "") {
         }
         //Added, not in source code
         socket["__connected"] = true;
-        //todo: Below isn't in source code
         if (socket['mailMessages'] === undefined) socket['mailMessages'] = [];
         socket['isWaitingForSNE'] = false;
         await WaitUntil(socket, 'gdb finished');
+        if (socket.client.externalClient == null && socket["currentServerType"] === Constants.ServerType.NormalServer) {
+            if (socket["activeSpecialEvents"].map(e => e.eventId).includes(EventConst.EVENTTYPE_TEMPSERVER)) generateLoginToken(socket, Constants.ServerType.TempServer)
+            if (socket["activeSpecialEvents"].map(e => e.eventId).includes(EventConst.EVENTTYPE_ALLIANCE_BATTLEGROUND)) generateLoginToken(socket, Constants.ServerType.AllianceBattleGround)
+        }
+
+        //todo: Below isn't in source code
         collectTax(socket);
         mercenaryPackage(socket, -1)
         if (!socket["isIntervalSetup"]) {
@@ -83,10 +88,6 @@ module.exports.onLogin = async function (socket, error = "") {
                 showMessages(socket)
             }, 1000)
         }
-        if (socket.client.externalClient == null && socket["currentServerType"] === Constants.ServerType.NormalServer) {
-            if (socket["activeSpecialEvents"].map(e => e.eventId).includes(EventConst.EVENTTYPE_TEMPSERVER)) generateLoginToken(socket, Constants.ServerType.TempServer)
-            if (socket["activeSpecialEvents"].map(e => e.eventId).includes(EventConst.EVENTTYPE_ALLIANCE_BATTLEGROUND)) generateLoginToken(socket, Constants.ServerType.AllianceBattleGround)
-        }
     } catch (e) {
         console.error(e);
     }
@@ -100,7 +101,6 @@ module.exports.sendVersionCheck = function (socket) {
 }
 
 /**
- *
  * @param {Socket} socket
  * @param {string} zone
  * @param {string} name

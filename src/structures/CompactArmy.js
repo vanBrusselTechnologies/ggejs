@@ -55,7 +55,6 @@ class CompactArmy {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Array} data
  * @returns {InventoryItem<Unit>[]}

@@ -23,7 +23,7 @@ declare class Client extends EventEmitter {
     public equipments: EquipmentManager;
     public movements: MovementManager;
     public players: PlayerManager;
-    public worldmaps: WorldmapManager;
+    public worldMaps: WorldMapManager;
     public externalClient: Client | null;
 
     private _serverInstance: NetworkInstance;
@@ -31,7 +31,6 @@ declare class Client extends EventEmitter {
     private _language: string;
 
     /**
-     *
      * @param name Your player account name
      * @param password Your player account password
      * @param serverInstance Your player account serverInstance
@@ -87,13 +86,13 @@ declare class BaseManager extends EventEmitter {
 declare class AllianceManager extends BaseManager {
     private constructor(client: Client);
 
-    public getById(id: number): Promise<Alliance>;
+    public async getById(id: number): Promise<Alliance>;
 
-    public find(name: string): Promise<Alliance>;
+    public async find(name: string): Promise<Alliance>;
 
-    public getMyAlliance(): Promise<MyAlliance>;
+    public async getMyAlliance(): Promise<MyAlliance>;
 
-    public getRankings(nameOrRanking: string | number, rankingType: AllianceHighScoreRankingTypes = "might", leagueId: number = 1): Promise<HighScore<AllianceHighScoreItem>>
+    public async getRankings(nameOrRanking: string | number, rankingType: AllianceHighScoreRankingTypes = "might", leagueId: number = 1): Promise<HighScore<AllianceHighScoreItem>>
 }
 
 declare class ClientUserDataManager {
@@ -337,7 +336,7 @@ declare class EquipmentManager extends BaseManager {
 
     public sellAllEquipmentsAtOrBelowRarity(rarity: number): Promise<void>;
 
-    public getRegularInventory(): { gem: Gem, amount: number }[];
+    public getRegularGemInventory(): { gem: Gem, amount: number }[];
 
     public getRelicGemInventory(): RelicGem[];
 
@@ -390,28 +389,32 @@ declare class MovementManager extends BaseManager {
 declare class PlayerManager extends BaseManager {
     private constructor(client: Client);
 
-    public getById(id: number): Promise<Player>;
+    public async getById(id: number): Promise<Player>;
 
-    public find(name: string): Promise<Player>;
+    public async find(name: string): Promise<Player>;
 
-    public getThisPlayer(): Promise<Player>;
+    public async getThisPlayer(): Promise<Player>;
 
-    public getRankings(nameOrRanking: string | number, rankingType: PlayerHighScoreRankingTypes = "might", leagueId: number = 1): Promise<HighScore<PlayerHighScoreItem>>
+    public async getRankings(nameOrRanking: string | number, rankingType: PlayerHighScoreRankingTypes = "might", leagueId: number = 1): Promise<LeaderboardList>
 }
 
-declare class WorldmapManager extends BaseManager {
+declare class WorldMapManager extends BaseManager {
     private _ownerInfoData
 
-    public get(kingdomId: number): Promise<Worldmap>;
+    /**
+     * Returns the complete worldMap, use {@link getSector} if only part of it is needed
+     * @param kingdomId Only kingdoms you have a castle in are valid
+     */
+    public async get(kingdomId: number): Promise<WorldMap>;
 
     /**
-     * Requests a 100x100 area of a certain worldmap with center {@link centerX}/{@link centerY}
+     * Returns a 100x100 area of a certain worldMap with center {@link centerX}/{@link centerY}
      * @param kingdomId Only kingdoms you have a castle in are valid
      * @param centerX X coordinate that will be the center of sector
      * @param centerY Y coordinate that will be the center of sector
-     * @returns 100x100 WorldmapSector
+     * @returns 100x100 WorldMapSector
      */
-    public getSector(kingdomId: number, centerX: number, centerY: number): Promise<WorldmapSector>;
+    public async getSector(kingdomId: number, centerX: number, centerY: number): Promise<WorldMapSector>;
 }
 
 //#endregion
@@ -550,7 +553,7 @@ declare class Alliance {
 
     protected constructor(client: Client, data);
 
-    public get landmarks(): Promise<(CapitalMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject)[]>;
+    public get landmarks(): (CapitalMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject)[];
 
     private set _landmarks(value: (CapitalMapobject | MonumentMapobject | KingstowerMapobject)[]);
 
@@ -575,7 +578,7 @@ declare class MyAlliance extends Alliance {
     private parseStorage(client: Client, data: Object): void;
 }
 
-declare class AllianceMember extends WorldmapOwnerInfo {
+declare class AllianceMember extends WorldMapOwnerInfo {
     public alliance: Alliance;
     public donations?: AllianceDonations;
     public activityStatus?: number;
@@ -743,7 +746,7 @@ declare class RelicEffect extends Effect {
     public relicEffectId: number;
 }
 
-declare class Player extends WorldmapOwnerInfo {
+declare class Player extends WorldMapOwnerInfo {
     public castles: (CastleMapobject | CapitalMapobject)[];
     public villages: {
         public: {
@@ -781,20 +784,20 @@ declare class Tool extends Unit {
 
 }
 
-declare class Worldmap {
+declare class WorldMap {
     public kingdomId: number;
-    public mapobjects: Mapobject[];
+    public mapObjects: Mapobject[];
 
     private _addAreaMapObjects(objs: Mapobject[]): void;
 
     private _clear(): void;
 }
 
-declare class WorldmapSector extends Worldmap {
-    public combine(...sectors: WorldmapSector[]): WorldmapSector
+declare class WorldMapSector extends WorldMap {
+    public combine(...sectors: WorldMapSector[]): WorldMapSector
 }
 
-declare class WorldmapOwnerInfo {
+declare class WorldMapOwnerInfo {
     public playerId: number;
     public playerLevel: number;
     public paragonLevel: number;
@@ -1071,7 +1074,7 @@ declare class FactionVillageMapobject extends FactionInteractiveMapobject {
 declare class InteractiveMapobject extends BasicMapobject {
     public objectId: number;
     public ownerId: number;
-    public ownerInfo: WorldmapOwnerInfo;
+    public ownerInfo: WorldMapOwnerInfo;
     public keepLevel: number;
     public wallLevel: number;
     public gateLevel: number;
@@ -1300,11 +1303,6 @@ interface BattleLog {
     defenderAllianceSubscribers: number,
     attackerHasIndividualSubscription: boolean,
     defenderHasIndividualSubscription: boolean,
-    isTempServerChargeAttack: boolean,
-    winnerChargeRankOld: number,
-    winnerChargeRankNew: number,
-    winnerChargePointsOld: number,
-    winnerChargePointsNew: number,
     allianceName: string,
     attackerCommandant: Lord,
     attackerGeneral?: General,
@@ -1348,7 +1346,7 @@ declare class BattleLogArmyWave {
 
 declare class BattleParticipant {
     public playerId: number;
-    public ownerInfo: WorldmapOwnerInfo;
+    public ownerInfo: WorldMapOwnerInfo;
     public front: number;
     public startArmySize: number;
     public lostUnits: number;
@@ -1415,8 +1413,8 @@ interface SpyLog {
     spyAccuracy: number,
     spyRisk: number,
     targetMapObject: Mapobject,
-    originOwner: WorldmapOwnerInfo,
-    targetOwner: WorldmapOwnerInfo,
+    originOwner: WorldMapOwnerInfo,
+    targetOwner: WorldMapOwnerInfo,
     spyResources?: Good[],
     armyInfo?: {
         army: {
@@ -1444,8 +1442,8 @@ declare class MarketCarriageArrivedMessage extends BasicMessage {
 
 interface TradeData {
     messageId: number,
-    sourceArea: WorldmapArea,
-    targetArea: WorldmapArea,
+    sourceArea: WorldMapArea,
+    targetArea: WorldMapArea,
     goods: Good[],
 }
 
@@ -1721,9 +1719,7 @@ declare class Castle {
     /** Only available at own castles */
     builderDiscount: number;
     /** Only available at own castles */
-    hunterInfo: {
-        foodBoost: number, woodStoneReduction: number
-    };
+    hunterInfo: { foodBoost: number, woodStoneReduction: number };
     mapobject: Mapobject;
 }
 
@@ -2056,26 +2052,122 @@ declare interface AllianceHighScoreItem {
     points: number;
     isKingAlliance?: boolean;
     seasonRankId?: number;
-    seasonMedalsData?: [][];
+    seasonMedalsData?: [number, number][];
     amountVisible?: boolean;
     highscoreTypeId: number;
 }
 
 declare interface PlayerHighScoreItem {
-    player?: WorldmapOwnerInfo;
+    player?: WorldMapOwnerInfo;
     rank: number;
     points?: number;
     playerName?: string;
     playerId?: number;
     seasonRankId?: number;
-    seasonMedalsData?: [][];
+    seasonMedalsData?: [number, number][];
     rawValues?: [];
     highscoreTypeId: number;
 }
 
-declare type AllianceHighScoreRankingTypes = "honor" | "might" | "landMarks" | "aqua" | "tournamentFame" | "alienInvasion" | "nomadInvasion" | "samuraiInvasion" | "redAlienInvasion" | "kingdomsLeagueSeason" | "kingdomsLeagueSeasonEvent" | "daimyo" | "allianceBattleGroundCollector" | "allianceBattleGroundTower" | "allianceBattleGroundPreviousRun"
-declare type PlayerHighScoreRankingTypes = "achievementPoints" | "loot" | "honor" | "might" | "legendLevel" | "factionTournament" | "pointEvent" | "luckyWheel" | "alienInvasion" | "nomadInvasion" | "colossus" | "samuraiInvasion" | "longTermPointEvent" | "redAlienInvasion" | "tempServerDailyMight" | "tempServerGlobal" | "kingdomsLeagueSeason" | "kingdomsLeagueSeasonEvent" | "tempServerDailyCollector" | "tempServerDailyRankSwap" | "allianceBattleGroundCollector" | "SaleDaysLuckyWheel" | "allianceBattleGroundTower" | "tempServerPreviousRun" | "allianceBattleGroundPreviousRun" | "donationEvent" | "decoGachaEvent" | "christmasGachaEvent"
+declare type AllianceHighScoreRankingTypes =
+    "honor"
+    | "might"
+    | "landMarks"
+    | "aqua"
+    | "tournamentFame"
+    | "alienInvasion"
+    | "nomadInvasion"
+    | "samuraiInvasion"
+    | "redAlienInvasion"
+    | "kingdomsLeagueSeason"
+    | "kingdomsLeagueSeasonEvent"
+    | "daimyo"
+    | "allianceBattleGroundCollector"
+    | "allianceBattleGroundTower"
+    | "allianceBattleGroundPreviousRun";
+declare type PlayerHighScoreRankingTypes =
+    "achievementPoints"
+    | "loot"
+    | "honor"
+    | "might"
+    | "legendLevel"
+    | "factionTournament"
+    | "pointEvent"
+    | "luckyWheel"
+    | "alienInvasion"
+    | "nomadInvasion"
+    | "colossus"
+    | "samuraiInvasion"
+    | "longTermPointEvent"
+    | "redAlienInvasion"
+    | "tempServerDailyMight"
+    | "tempServerGlobal"
+    | "kingdomsLeagueSeason"
+    | "kingdomsLeagueSeasonEvent"
+    | "tempServerDailyCollector"
+    | "tempServerDailyRankSwap"
+    | "allianceBattleGroundCollector"
+    | "SaleDaysLuckyWheel"
+    | "allianceBattleGroundTower"
+    | "tempServerPreviousRun"
+    | "allianceBattleGroundPreviousRun"
+    | "donationEvent"
+    | "decoGachaEvent"
+    | "christmasGachaEvent";
 
+declare interface LeaderboardList {
+    listType: number,
+    scoreId?: string,
+    numScores: number,
+    leagueType: number,
+    items: LeaderboardListItem[]
+}
+
+declare interface LeaderboardListItem {
+    listType: number;
+    playerName: string;
+    allianceName: string;
+    instanceId: number;
+    points: number;
+    rank: number;
+    scoreId: string;
+    playerId: number;
+}
+
+declare interface LeaderboardSearchList {
+    listType: number,
+    leagueType: number,
+    items: LeaderboardSearchListItem[]
+}
+
+declare interface LeaderboardSearchListItem {
+    leagueType: number;
+    scoreId: string;
+}
+
+declare public interface PlayerLeaderboard {
+    /** Leaderboard list ID */
+    listType: number,
+    /** Total entries in the leaderboard */
+    numScores: number,
+    /** Bracket ID based on level, starting with 1 */
+    leagueType: number,
+    /** Requested entries */
+    items: PlayerLeaderboardItem[]
+}
+
+declare public interface PlayerLeaderboardItem {
+    playerName: string;
+    /** The alliance the player is in, only set in global leaderboards */
+    allianceName?: string;
+    /** ID of the server the player is playing on */
+    instanceId: number;
+    points: number;
+    rank: number;
+    playerId: number;
+    seasonRankId?: number;
+    seasonMedalsData?: [number, number][];
+}
 //#endregion
 
 //#region Quests
@@ -2118,7 +2210,7 @@ declare class Quest {
 interface IConstants {
     Events: ConstantsEvents;
     Kingdom: Kingdom;
-    WorldmapArea: WorldmapArea;
+    WorldMapArea: WorldMapArea;
     MovementType: Movements;
     AllianceMemberOnlineState: AllianceMemberOnlineState;
     AllianceRank: AllianceRank;
@@ -2141,7 +2233,7 @@ interface Kingdom {
     Faction: 10
 }
 
-interface WorldmapArea {
+interface WorldMapArea {
     Empty: 0,
     MainCastle: 1,
     Dungeon: 2,

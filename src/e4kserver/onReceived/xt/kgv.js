@@ -15,7 +15,6 @@ module.exports.execute = function (socket, errorCode, params) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {{VI:[][], PV: {VID: number, XID: number}[]}} data
  * @returns {{ public: { village: VillageMapobject, units?: InventoryItem<Unit>[] }[], private: { privateVillageId: number, uniqueId: number }[]}}
@@ -39,7 +38,6 @@ function parseVillageList(client, data) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Array<[number, number]>} data
  * @returns {InventoryItem<Unit>[]}

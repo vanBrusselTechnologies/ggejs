@@ -2,7 +2,6 @@ const InventoryItem = require("./InventoryItem");
 
 class BattleLogUnit extends InventoryItem {
     /**
-     *
      * @param {Unit} unit
      * @param {number} count
      * @param {number} lost

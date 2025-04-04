@@ -27,7 +27,6 @@ module.exports.execute = function (socket, errorCode, params) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Object} data
  * @param {BattleLog} battleLog
@@ -53,7 +52,6 @@ function parseAttackerLords(client, data, battleLog) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Object} data
  * @param {BattleLog} battleLog
@@ -79,7 +77,6 @@ function parseDefenderLords(client, data, battleLog) {
 }
 
 /**
- *
  * @param {Object} data
  * @return {{[key: number]: {abilityId: number, waveId: number, abilityValue: number}}}
  */

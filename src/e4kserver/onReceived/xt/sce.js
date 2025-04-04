@@ -8,7 +8,7 @@ module.exports.name = "sce";
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params) return;
-    for (let g of params) {
+    for (const g of params) {
         socket.client.clientUserData.setGlobalCurrency(new Good(socket.client, g));
     }
 }

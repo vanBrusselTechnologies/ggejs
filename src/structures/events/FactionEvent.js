@@ -32,8 +32,8 @@ class FactionEvent extends PointEvent {
         this.mapSeed = data.MS;
         this.isFinished = data["F"] === 1;
         if (data.FN) {
-            const ownInfo = client.worldmaps._ownerInfoData.ownInfo
-            const isSpectator = client.worldmaps._ownerInfoData.ownInfo.factionIsSpectator;
+            const ownInfo = client.worldMaps._ownerInfoData.ownInfo
+            const isSpectator = client.worldMaps._ownerInfoData.ownInfo.factionIsSpectator;
             ownInfo.fillFromFactionParamObject(data.FN);
             if (ownInfo.factionIsSpectator && !isSpectator) {
                 //spectatorModeActivatedSignal.dispatch();

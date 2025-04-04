@@ -3,7 +3,6 @@ const Localize = require("../../tools/Localize");
 
 class ShadowAttackMessage extends BasicBattleLogMessage {
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */

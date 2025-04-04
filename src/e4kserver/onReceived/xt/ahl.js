@@ -23,7 +23,7 @@ module.exports.execute = function (socket, errorCode, params) {
      */
 
     //todo: REMOVE below because not part of source code
-    let _allianceHelpRequestList = params.AHL
+    let _allianceHelpRequestList = params.AHL;
     if (_allianceHelpRequestList.length === 0) return;
     for (let i in _allianceHelpRequestList) {
         let helpRequest = _allianceHelpRequestList[i];

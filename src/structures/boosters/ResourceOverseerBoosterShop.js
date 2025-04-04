@@ -7,7 +7,6 @@ class ResourceOverseerBoosterShop extends HeroBoosterShop {
 
     //todo: assetType is type GameAssetType instead of string
     /**
-     *
      * @param {Client} client
      * @param {string} assetType
      * @param {number} boostId

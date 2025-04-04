@@ -8,7 +8,6 @@ const unitSlotFrontUnlockLevels = [0, 0, 26];
 const toolSlotFrontUnlockLevels = [0, 11, 37];
 
 /**
- *
  * @param {boolean} defeatedLWall
  * @param {boolean} defeatedMWall
  * @param {boolean} defeatedRWall
@@ -18,7 +17,6 @@ module.exports.getFlankBonus = function (defeatedLWall = false, defeatedMWall = 
     return flankBonus[(defeatedLWall ? 1 : 0) + (defeatedMWall ? 1 : 0) + (defeatedRWall ? 1 : 0)];
 }
 /**
- *
  * @param {number} side
  * @param {number} defenderLevel
  * @param {number} flankBonus
@@ -26,44 +24,39 @@ module.exports.getFlankBonus = function (defeatedLWall = false, defeatedMWall = 
  * @returns {number}
  */
 module.exports.getAmountSoldiers = function (side, defenderLevel, flankBonus = 0, frontBonus = 0) {
-    return side === 1 ? this.getAmountSoldiersMiddle(defenderLevel, frontBonus) : this.getAmountSoldiersFlank(defenderLevel, flankBonus);
+    return side === 1 ? module.exports.getAmountSoldiersMiddle(defenderLevel, frontBonus) : module.exports.getAmountSoldiersFlank(defenderLevel, flankBonus);
 }
 /**
- *
  * @param {number} defenderLevel
  * @param {number} flankBonus
  * @returns {number}
  */
 module.exports.getAmountSoldiersFlank = function (defenderLevel, flankBonus = 0) {
-    return Math.ceil(this.getMaxAttackers(defenderLevel) * 0.2 * (1 + flankBonus / 100));
+    return Math.ceil(module.exports.getMaxAttackers(defenderLevel) * 0.2 * (1 + flankBonus / 100));
 }
 /**
- *
  * @param {number} defenderLevel
  * @returns {number}
  */
 module.exports.getAmountSoldiersFlankWithoutBonus = function (defenderLevel) {
-    return Math.ceil(this.getMaxAttackers(defenderLevel) * 0.2);
+    return Math.ceil(module.exports.getMaxAttackers(defenderLevel) * 0.2);
 }
 /**
- *
  * @param {number} defenderLevel
  * @param {number} frontBonus
  * @returns {number}
  */
 module.exports.getAmountSoldiersMiddle = function (defenderLevel, frontBonus = 0) {
-    return Math.ceil((this.getMaxAttackers(defenderLevel) - this.getAmountSoldiersFlankWithoutBonus(defenderLevel) * 2) * (1 + frontBonus / 100))
+    return Math.ceil((module.exports.getMaxAttackers(defenderLevel) - module.exports.getAmountSoldiersFlankWithoutBonus(defenderLevel) * 2) * (1 + frontBonus / 100));
 }
 /**
- *
  * @param {number} defenderLevel
  * @returns {number}
  */
 module.exports.getMinSoldiers = function (defenderLevel) {
-    return Math.floor(this.getMaxAttackers(defenderLevel) * 0.1);
+    return Math.floor(module.exports.getMaxAttackers(defenderLevel) * 0.1);
 }
 /**
- *
  * @param {number} level
  * @returns {number}
  */
@@ -71,24 +64,21 @@ module.exports.getMaxDamagedBuildings = function (level) {
     return Math.round(0.179 * Math.exp((level - 4) * 0.199));
 }
 /**
- *
  * @param {number} defenderLevel
  * @param {number} toolFlankBonus
  * @returns {number}
  */
 module.exports.getTotalAmountToolsFlank = function (defenderLevel, toolFlankBonus = 0) {
-    return this.getTotalAmountTools(0, defenderLevel, toolFlankBonus);
+    return module.exports.getTotalAmountTools(0, defenderLevel, toolFlankBonus);
 }
 /**
- *
  * @param {number} defenderLevel
  * @returns {number}
  */
 module.exports.getTotalAmountToolsMiddle = function (defenderLevel) {
-    return this.getTotalAmountTools(1, defenderLevel, 0);
+    return module.exports.getTotalAmountTools(1, defenderLevel, 0);
 }
 /**
- *
  * @param {number} side
  * @param {number} defenderLevel
  * @param {number} toolFlankBonus
@@ -108,7 +98,6 @@ module.exports.getTotalAmountTools = function (side, defenderLevel, toolFlankBon
     return Math.ceil(40 + toolFlankBonus);
 }
 /**
- *
  * @param {number} defenderLevel
  * @returns {number}
  */
@@ -128,7 +117,6 @@ module.exports.getMaxUnitsInReinforcementWave = function (attackerCumulatedLevel
     return Math.round(maxUnits * effectModifier);
 }
 /**
- *
  * @param {number} attackerLevel
  * @returns {number}
  */
@@ -136,7 +124,6 @@ module.exports.getMaxLevelDif1 = function (attackerLevel) {
     return Math.max(5, Math.round(0.002 * attackerLevel * attackerLevel + 0.17 * attackerLevel + 3));
 }
 /**
- *
  * @param {number} attackerLevel
  * @returns {number}
  */
@@ -144,7 +131,6 @@ module.exports.getMaxLevelDif2 = function (attackerLevel) {
     return Math.max(5, Math.round(0.0015 * attackerLevel * attackerLevel + 0.12 * attackerLevel + 3));
 }
 /**
- *
  * @param {number} attackerHonor
  * @param {number} defenderHonor
  * @param {number} attackerLevel
@@ -155,8 +141,8 @@ module.exports.getMaxLevelDif2 = function (attackerLevel) {
 module.exports.getHonorChange = function (attackerHonor, defenderHonor, attackerLevel, defenderLevel, attackerWon) {
     let winnerHonor = 0;
     let loserHonor = 0;
-    if (attackerLevel > defenderLevel + this.getMaxLevelDif2(attackerLevel)) {
-        if (attackerLevel > defenderLevel + this.getMaxLevelDif1(attackerLevel)) {
+    if (attackerLevel > defenderLevel + module.exports.getMaxLevelDif2(attackerLevel)) {
+        if (attackerLevel > defenderLevel + module.exports.getMaxLevelDif1(attackerLevel)) {
             return (defenderLevel - attackerLevel) * 3;
         }
         return 0;
@@ -171,7 +157,6 @@ module.exports.getHonorChange = function (attackerHonor, defenderHonor, attacker
     return Math.round(Math.max((loserHonor - winnerHonor) / 7 + 100, 0));
 }
 /**
- *
  * @param {number} attackerHonor
  * @param {number} defenderHonor
  * @param {number} attackerLevel
@@ -183,25 +168,9 @@ module.exports.getHonorChange = function (attackerHonor, defenderHonor, attacker
  * @returns {number}
  */
 module.exports.getHonorChangeWithBoost = function (attackerHonor, defenderHonor, attackerLevel, defenderLevel, titleBoost, researchHonorBoost, attackerHonorBoost, attackerWon) {
-    return Math.round(this.getHonorChange(attackerHonor, defenderHonor, attackerLevel, defenderLevel, attackerWon) * (1 + (attackerHonorBoost + researchHonorBoost + titleBoost) / 100));
+    return Math.round(module.exports.getHonorChange(attackerHonor, defenderHonor, attackerLevel, defenderLevel, attackerWon) * (1 + (attackerHonorBoost + researchHonorBoost + titleBoost) / 100));
 }
 /**
- *
- * @param {number} attackerHonor
- * @param {number} defenderHonor
- * @param {number} attackerLevel
- * @param {number} defenderLevel
- * @param {boolean} attackerWon
- * @returns {number}
- */
-module.exports.getAttackerHonorChangeOnShadowAttack = function (attackerHonor, defenderHonor, attackerLevel, defenderLevel, attackerWon) {
-    if (!attackerWon) return 0;
-    const _ = Math.min(Math.round(Math.max((attackerHonor - defenderHonor) / 7 + 100, 0)), 0);
-    const __ = (attackerLevel > defenderLevel + this.getMaxLevelDif1(attackerLevel)) ? (defenderLevel - attackerLevel) * 2 : 0;
-    return _ + __;
-}
-/**
- *
  * @param {number} moral
  * @returns {number}
  */
@@ -209,7 +178,6 @@ module.exports.getMoralBonus = function (moral) {
     return moral >= 0 ? 2 - 1 / (1 + Math.abs(moral) / 250) : 1 / (1 + Math.abs(moral) / 250);
 }
 /**
- *
  * @param {number} honorOfPlayer
  * @returns {number}
  */
@@ -218,37 +186,24 @@ module.exports.getFameBonusForHonor = function (honorOfPlayer) {
     return Math.min(1, (2 * Math.exp(0.00115 * honorOfPlayer) + (0.012 * honorOfPlayer + 1)) / 100);
 }
 /**
- *
  * @param {number} level
  * @param {boolean} conquerAttack
  * @returns {number}
  */
 module.exports.getMaxWaveCount = function (level, conquerAttack = false) {
-    let waveCount = getUnlockCountByLevel(waveUnlockLevels, level);
-    if (conquerAttack) waveCount += 2;
-    return waveCount;
+    const waveCount = getUnlockCountByLevel(waveUnlockLevels, level);
+    return conquerAttack ? waveCount + 2 : waveCount;
 }
 /**
- *
  * @param {number} level
  * @param {boolean} conquerAttack
  * @param {number} additionalWaves
  * @returns {number}
  */
 module.exports.getMaxWaveCountWithBonus = function (level, conquerAttack = false, additionalWaves = 0) {
-    return this.getMaxWaveCount(level, conquerAttack) + additionalWaves;
+    return module.exports.getMaxWaveCount(level, conquerAttack) + additionalWaves;
 }
 /**
- *
- * @param {number} userLevel
- * @returns {number}
- */
-module.exports.getShadowUnitCapacity = function (userLevel) {
-    const maxWaveCount = this.getMaxWaveCount(userLevel, false);
-    return Math.round(maxWaveCount * 1.02 * (5 * userLevel + 15) / 10) * 10 * 2;
-}
-/**
- *
  * @param {AttackType} attackType
  * @returns {boolean}
  */
@@ -268,7 +223,6 @@ module.exports.isConquerAttack = function (attackType) {
     }
 }
 /**
- *
  * @param {number} defenderLevel
  * @returns {number}
  */
@@ -276,7 +230,6 @@ module.exports.getSurvivingDefenderRate = function (defenderLevel) {
     return Math.max(0.1, (-0.25 * defenderLevel * defenderLevel + 104) / 100);
 }
 /**
- *
  * @param {number}dungeonLevel
  * @returns {number}
  */
@@ -284,7 +237,6 @@ module.exports.getXpForAttackingDungeon = function (dungeonLevel) {
     return Math.round(Math.max(1, Math.pow(0.5 * dungeonLevel, 1.1)));
 }
 /**
- *
  * @param {number} amountOfKilledEnemyUnits
  * @param {number} amountOfKilledPeasants
  * @returns {number}
@@ -293,7 +245,6 @@ module.exports.getXpForPlayerBattle = function (amountOfKilledEnemyUnits, amount
     return Math.round(Math.max(1, 0.05 * amountOfKilledEnemyUnits + 0.005 * amountOfKilledPeasants));
 }
 /**
- *
  * @param {number} attackerLevel
  * @param defenderLevel
  * @returns {boolean}
@@ -304,7 +255,6 @@ isTargetLowLevelProtected = function (attackerLevel, defenderLevel) {
     return false;
 }
 /**
- *
  * @param {number} attackerLevel
  * @param {number} defenderLevel
  * @param {number} defenderPlayerId
@@ -314,7 +264,6 @@ module.exports.isLowLevelProtectionActive = function (attackerLevel, defenderLev
     return isTargetLowLevelProtected(attackerLevel, defenderLevel) && defenderPlayerId > -1;
 }
 /**
- *
  * @param {number} attackerLevel
  * @returns {number}
  */
@@ -322,7 +271,6 @@ module.exports.getMinTargetLevelForFindEnemyCastle = function (attackerLevel) {
     return Math.max(5, attackerLevel - Math.max(5, Math.round(0.002 * attackerLevel * attackerLevel + 0.17 * attackerLevel + 3)) + 1);
 }
 /**
- *
  * @param {number} attackerLevel
  * @returns {number}
  */
@@ -330,7 +278,6 @@ module.exports.getMaxTargetLevelForFindEnemyCastle = function (attackerLevel) {
     return Math.round(attackerLevel * 1.3);
 }
 /**
- *
  * @param {number} defenderLevel
  * @returns {number}
  */
@@ -340,7 +287,6 @@ module.exports.getMaxUnitCountWallByLevelForVillages = function (defenderLevel) 
     return 200;
 }
 /**
- *
  * @param {number} defenderLevel
  * @param {boolean} isWall
  * @returns {number}
@@ -358,7 +304,6 @@ module.exports.getWallOrGateWodIdForVillages = function (defenderLevel, isWall) 
     return gateWodIdsVillages[0];
 }
 /**
- *
  * @param {number} buildingBonus
  * @param {number} defenderToolsBonus
  * @param {number} defenderBaronBonus
@@ -372,7 +317,6 @@ module.exports.getDefenseBonus = function (buildingBonus, defenderToolsBonus, de
     return 1 + Math.max(0, buildingBonus + defenderToolsBonus + defenderBaronBonus + defenderSkillBonus - attackerLordBonus - attackerToolsBonus - attackerSkillBonus) / 100;
 }
 /**
- *
  * @param {number} defWall
  * @param {number} defGate
  * @param {number} defMoat
@@ -382,7 +326,6 @@ module.exports.getTotalDefenseBonus = function (defWall, defGate, defMoat) {
     return defWall * defGate * defMoat;
 }
 /**
- *
  * @param {number} moralBonus
  * @param {number} islandTitleBonus
  * @param {number} highestFameTitleBonus
@@ -394,7 +337,6 @@ module.exports.getAttackBonus = function (moralBonus, islandTitleBonus, highestF
     return moralBonus + islandTitleBonus + highestFameTitleBonus + allianceAttackStrengthBuffBonus + kingstowerBonus;
 }
 /**
- *
  * @param {number} flankFactor
  * @param {number} attackBonus
  * @param {number} attackerGemBonus
@@ -411,7 +353,6 @@ module.exports.getAttackTypeSpecificBonus = function (flankFactor, attackBonus, 
     return flankFactor * (attackBonus + attackerGemBonus + attackerSkillBonus + Math.max(-1, (attackerLordTypeBonus + attackerLordOffensiveTypeBonus + attackerLordAttackBonus + attackerLordYardBonus + attackerSkillTypeBonus) / 100) + offTypeToolsBonus);
 }
 /**
- *
  * @param {number} defFactor
  * @param {number} defMoral
  * @param {number} defenderGemBonus
@@ -428,7 +369,6 @@ module.exports.getDefenseTotalTypeSpecificBonus = function (defFactor, defMoral,
     return defFactor * (defMoral + defenderGemBonus + defenderSkillBonus) * (1 + Math.max(-1, (defenderLordTypeBonus + defenderAllianceBuff + defenderLordDefenseBonus + defenderLordYardBonus + defenderSkillTypeBonus) / 100 + defTypeToolsBonus));
 }
 /**
- *
  * @param {number} attMelee
  * @param {number} attRange
  * @param {number} defMelee
@@ -436,7 +376,7 @@ module.exports.getDefenseTotalTypeSpecificBonus = function (defFactor, defMoral,
  * @returns {[number,number]}
  */
 module.exports.getDefenseValues = function (attMelee, attRange, defMelee, defRange) {
-    const attTotal = attMelee + attRange
+    const attTotal = attMelee + attRange;
     const meleePerc = attTotal !== 0 ? attMelee / attTotal : 0.5;
     const rangePerc = 1 - meleePerc;
     if (attMelee < defMelee * meleePerc && attRange > defRange * rangePerc) {
@@ -452,7 +392,6 @@ module.exports.getDefenseValues = function (attMelee, attRange, defMelee, defRan
     return [defMelee, defRange];
 }
 /**
- *
  * @param {number} defenderLevel
  * @returns {number}
  */
@@ -460,7 +399,6 @@ module.exports.getUnitSlotCountFlank = function (defenderLevel) {
     return getUnlockCountByLevel(unitSlotFlankUnlockLevels, defenderLevel);
 }
 /**
- *
  * @param {number} defenderLevel
  * @returns {number}
  */
@@ -468,7 +406,6 @@ module.exports.getToolSlotCountFlank = function (defenderLevel) {
     return getUnlockCountByLevel(toolSlotFlankUnlockLevels, defenderLevel);
 }
 /**
- *
  * @param {number} defenderLevel
  * @returns {number}
  */
@@ -476,7 +413,6 @@ module.exports.getUnitSlotCountFront = function (defenderLevel) {
     return getUnlockCountByLevel(unitSlotFrontUnlockLevels, defenderLevel);
 }
 /**
- *
  * @param {number} defenderLevel
  * @returns {number}
  */
@@ -484,12 +420,11 @@ module.exports.getToolSlotCountFront = function (defenderLevel) {
     return getUnlockCountByLevel(toolSlotFrontUnlockLevels, defenderLevel);
 }
 /**
- *
  * @param {number[]} array
  * @param {number} level
  * @returns {number}
  */
-getUnlockCountByLevel = function(array, level){
+getUnlockCountByLevel = function (array, level) {
     let unlockCount = 1;
     let index = array.length - 1;
     while (index >= 0) {

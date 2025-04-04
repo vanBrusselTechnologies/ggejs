@@ -3,7 +3,6 @@ const {sendAction} = require("./commands/handlers/xml");
 let roomList = [];
 
 /**
- *
  * @param {Object} u
  * @param {number} id
  * @param {number} roomId
@@ -19,7 +18,7 @@ module.exports.addUserToRoom = function (u, id, roomId) {
 }
 
 /**
- *@param {number} index
+ * @param {number} index
  * @param {Object} room
  */
 module.exports.setRoomListIndex = function (index, room) {
@@ -41,7 +40,6 @@ module.exports.autoJoinRoom = function (socket) {
 }
 
 /**
- *
  * @param {Array} data
  */
 module.exports.setRoomList = function (data) {
@@ -73,7 +71,6 @@ function getAllRooms() {
 }
 
 /**
- *
  * @param {number} index
  */
 module.exports.getRoom = function (index) {
@@ -82,7 +79,6 @@ module.exports.getRoom = function (index) {
 }
 
 /**
- *
  * @param {string} input
  */
 function decompressInt(input) {
@@ -116,5 +112,5 @@ module.exports.onJoinRoom = function (socket, event) {
     // const { execute: requestLoginData} = require('./commands/requestLoginData')
     // requestLoginData(socket)
 
-    socket.client._verifyLoginData()
+    socket.client._verifyLoginData();
 }

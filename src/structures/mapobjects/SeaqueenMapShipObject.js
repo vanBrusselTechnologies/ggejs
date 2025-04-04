@@ -5,7 +5,6 @@ class SeaqueenMapShipObject extends SeaqueenMapObject {
     #client;
 
     /**
-     *
      * @param {Client} client
      * @param {number} type
      * @param {number} x

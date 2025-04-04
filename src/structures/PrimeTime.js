@@ -13,7 +13,6 @@ class PrimeTime {
     isGlobal;
 
     /**
-     *
      * @param {Client} client
      * @param {{isTimeless:boolean,duration:number,bonusStandard:number,discount:number,typeId:number,type:number,bonusPremium:number,remainingTime:number}} data
      */

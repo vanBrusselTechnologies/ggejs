@@ -34,6 +34,7 @@ module.exports.GREEN_2 = 11056963;
 module.exports.MEDIUM_GREEN = 26112;
 module.exports.LIGHT_MAKO = 4935775;
 module.exports.DARK_MAKO = 3619655;
+module.exports.SUPER_DARK_MAKO = 2501174;
 module.exports.MIRAGE = 2501174;
 module.exports.DARKISH_MIRAGE = 4342338;
 module.exports.BLUEGREY = 4869463;

@@ -28,9 +28,7 @@ class PrimeDayEvent extends ActiveEvent {
      * @private
      */
     addRewardTier(value) {
-        if (this.hasReward(value)) {
-            return;
-        }
+        if (this.hasReward(value)) return;
         this.rewardTiers.push(value);
     }
 

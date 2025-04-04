@@ -12,20 +12,16 @@ class MovementManager extends BaseManager {
     #movements = [];
 
     /**
-     *
      * @param {BasicMapobject | CastlePosition} castle1
      * @param {BasicMapobject | CastlePosition} castle2
-     * @returns {number}
      */
     getDistance(castle1, castle2) {
-        return MovementManager.getDistance(castle1, castle2)
+        return MovementManager.getDistance(castle1, castle2);
     }
 
     /**
-     *
      * @param {BasicMapobject | CastlePosition} castle1
      * @param {BasicMapobject | CastlePosition} castle2
-     * @returns {number}
      */
     static getDistance(castle1, castle2) {
         return Math.sqrt(Math.pow(castle1.position.X - castle2.position.X, 2) + Math.pow(castle1.position.Y - castle2.position.Y, 2));
@@ -33,12 +29,11 @@ class MovementManager extends BaseManager {
 
     /** @returns {Movement[]} */
     get() {
-        _checkMovements(this.#movements);
+        this.#removeOldMovements(this.#movements);
         return [...this.#movements];
     }
 
     /**
-     *
      * @param {InteractiveMapobject} castleFrom
      * @param {Mapobject | CastlePosition} castleTo
      * @param {ArmyWave[]} army
@@ -50,7 +45,7 @@ class MovementManager extends BaseManager {
         /** @type {{L: {T: [number, number][], U: [number, number][]}, M: {T: [number, number][], U: [number, number][]}, R: {T: [number, number][], U: [number, number][]}}[]} */
         const armyWaves = [];
         for (let i in army) {
-            armyWaves.push({L: {U: [], T: []}, M: {U: [], T: []}, R: {U: [], T: []}})
+            armyWaves.push({L: {U: [], T: []}, M: {U: [], T: []}, R: {U: [], T: []}});
             const wave = army[i];
             for (let unit of wave.left.units) {
                 armyWaves[i].L.U.push([unit.item.wodId, unit.count]);
@@ -71,11 +66,10 @@ class MovementManager extends BaseManager {
                 armyWaves[i].R.T.push([tool.item.wodId, tool.count]);
             }
         }
-        sendArmyAttackMovement(this._socket, castleFrom, castleTo, armyWaves, lord, horse)
+        sendArmyAttackMovement(this._socket, castleFrom, castleTo, armyWaves, lord, horse);
     }
 
     /**
-     *
      * @param {InteractiveMapobject} castleFrom
      * @param {Mapobject | CastlePosition} castleTo
      * @param {number} spyCount
@@ -85,26 +79,22 @@ class MovementManager extends BaseManager {
      */
     startSpyMovement(castleFrom, castleTo, spyCount, spyType, spyEffect, horse = null) {
         spyEffect = spyType === SpyType.Sabotage ? Math.min(Math.max(spyEffect, 10), 50) : Math.min(Math.max(spyEffect, 50), 100);
-        sendSpyMovement(this._socket, castleFrom, castleTo, spyCount, spyType, spyEffect, horse)
+        sendSpyMovement(this._socket, castleFrom, castleTo, spyCount, spyType, spyEffect, horse);
     }
 
     /**
-     *
      * @param {InteractiveMapobject} castleFrom
      * @param {Mapobject | CastlePosition} castleTo
      * @param {["W" | "S" | "F" | "C" | "O" | "G" | "I" | "A" | "HONEY" | "MEAD", number][]} goods
      * @param {Horse} horse
      */
     startMarketMovement(castleFrom, castleTo, goods, horse = null) {
-        sendMarketMovement(this._socket, castleFrom, castleTo, goods, horse)
+        sendMarketMovement(this._socket, castleFrom, castleTo, goods, horse);
     }
 
-    /**
-     *
-     * @param {Movement[]} _movements
-     */
+    /** @param {Movement[]} _movements */
     _add_or_update(_movements) {
-        _checkMovements(_movements);
+        this.#removeOldMovements(_movements);
         for (let i in _movements) {
             let _newMovement = _movements[i];
             let found = false;
@@ -124,37 +114,23 @@ class MovementManager extends BaseManager {
         }
     }
 
-    /**
-     *
-     * @param {number} _movementId
-     */
+    /** @param {number} _movementId */
     _remove(_movementId) {
-        for (let i in this.#movements) {
-            if (this.#movements[i].movementId === _movementId) {
-                this.emit(Constants.Events.MOVEMENT_CANCEL, this.#movements[i]);
-                this.#movements.splice(parseInt(i), 1);
+        for (let i = this.#movements.length - 1; i >= 0; i--) {
+            const _movement = this.#movements[i];
+            if (_movement.movementId === _movementId) {
+                this.emit(Constants.Events.MOVEMENT_CANCEL, _movement);
+                this.#movements.splice(i, 1);
             }
         }
     }
-}
 
-/**
- *
- * @param {Movement[]} movements
- */
-function _checkMovements(movements) {
-    let movementCount = movements.length;
-    for (let i = movementCount - 1; i >= 0; i--) {
-        let _movement = movements[i];
-        try {
-            if (_movement.arrivalTime.getTime() < Date.now()) {
-                movements = movements.splice(i, 1);
-            }
-        } catch (e) {
-            movements = movements.splice(i, 1);
+    #removeOldMovements() {
+        for (let i = this.#movements.length - 1; i >= 0; i--) {
+            const _movement = this.#movements[i];
+            if (_movement.arrivalTime == null || _movement.arrivalTime.getTime() < Date.now()) this.#movements.splice(i, 1);
         }
     }
-    return movements;
 }
 
 module.exports = MovementManager

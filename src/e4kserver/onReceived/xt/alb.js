@@ -6,7 +6,7 @@ module.exports.name = "alb";
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params) return;
-    const cud = socket.client.clientUserData
+    const cud = socket.client.clientUserData;
     /*todo:
         cud.loginBonusData.setActiveDay(params.D);
         parseDays(cud, params.R);
@@ -20,7 +20,7 @@ module.exports.execute = function (socket, errorCode, params) {
 function parseDays(cud, days) {
     const daysCount = days.length;
     let i = daysCount - 1;
-    const loginBonusDayRewardsArray = [...Array(daysCount).keys()].map(day => null)
+    const loginBonusDayRewardsArray = [...Array(daysCount).keys()].map(day => null);
     const _loc2_ = cud.loginBonusData.activeDay / daysCount;
     cud.loginBonusData.setHasCollectedAllRewardsToday(false);
     while (i >= 0) {
@@ -53,7 +53,6 @@ function parseDays(cud, days) {
 }
 
 /**
- *
  * @param {ICastleRewardVO} wantedReward
  * @param {CastleRewardsCollection} rewardCollection
  * @return {number}
@@ -73,7 +72,6 @@ function getPickedRewardIndex(wantedReward, rewardCollection) {
 }
 
 /**
- *
  * @param {ICastleRewardVO} reward1
  * @param {ICastleRewardVO} reward2
  * @return {Boolean}
@@ -83,7 +81,6 @@ function compare(reward1, reward2) {
 }
 
 /**
- *
  * @param {Array} rewards
  * @param {Boolean} hasAdditionalArray
  * @return {CastleRewardsCollection | null}

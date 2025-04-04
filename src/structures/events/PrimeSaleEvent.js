@@ -21,7 +21,6 @@ class PrimeSaleEvent extends ActiveEvent {
 }
 
 /**
- *
  * @param {number} eventId
  * @return {string} todo: PrimeSaleTypeEnum
  */

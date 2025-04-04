@@ -628,20 +628,20 @@ class ClientUserDataManager {
 
     /** @param {number} val see Constants.TitleType for possibilities */
     set titlePrefix(val) {
-        this._titlesData.prefix = val
+        this._titlesData.prefix = val;
     }
 
     get titlePrefix() {
-        return this.currentTitle(this._titlesData.prefix)
+        return this.currentTitle(this._titlesData.prefix);
     }
 
     /** @param {number} val see Constants.TitleType for possibilities */
     set titleSuffix(val) {
-        this._titlesData.suffix = val
+        this._titlesData.suffix = val;
     }
 
     get titleSuffix() {
-        return this.currentTitle(this._titlesData.suffix)
+        return this.currentTitle(this._titlesData.suffix);
     }
 
     //
@@ -664,12 +664,11 @@ class ClientUserDataManager {
     }
 
     /**
-     *
      * @param {number} points
      * @param {number} titleType see Constants.TitleType for possibilities
      */
     setTitlePoints(points, titleType) {
-        this._titlesData.titlePoints[titleType] = points
+        this._titlesData.titlePoints[titleType] = points;
     }
 
     /**
@@ -677,19 +676,18 @@ class ClientUserDataManager {
      * @returns {number}
      */
     titlePoints(titleType) {
-        return this._titlesData.titlePoints[titleType]
+        return this._titlesData.titlePoints[titleType];
     }
 
     setCurrentTitle(titleType, title) {
-        this._titlesData.currentTitle[titleType] = title
+        this._titlesData.currentTitle[titleType] = title;
     }
 
     currentTitle(titleType) {
-        return this._titlesData.currentTitle[titleType]
+        return this._titlesData.currentTitle[titleType];
     }
 
     /**
-     *
      * @param {number} titleType see Constants.TitleType for possibilities
      */
     clearCurrentTitle(titleType) {
@@ -697,21 +695,19 @@ class ClientUserDataManager {
     }
 
     /**
-     *
      * @param {number} points
      * @param {number} titleType see Constants.TitleType for possibilities
      */
     setHighestTitlePoints(points, titleType) {
-        this._titlesData.highestPoints[titleType] = points
+        this._titlesData.highestPoints[titleType] = points;
     }
 
     /**
-     *
      * @param {number} titleType see Constants.TitleType for possibilities
      * @returns {number}
      */
     highestTitlePoints(titleType) {
-        return this._titlesData.highestPoints[titleType]
+        return this._titlesData.highestPoints[titleType];
     }
 
 
@@ -735,17 +731,17 @@ class ClientUserDataManager {
 
     /** @return {boolean} */
     get showVIPFlagOption() {
-        return this._vipData.showVIPFlagOption
+        return this._vipData.showVIPFlagOption;
     }
 
     /** @param {Boolean} val */
     set showVIPFlagOption(val) {
-        this._vipData.showVIPFlagOption = val
+        this._vipData.showVIPFlagOption = val;
     }
 
     /** @return {number} */
     get vipPoints() {
-        return this._vipData._currentVIPPoints
+        return this._vipData._currentVIPPoints;
     }
 
     /** @param {number} points */
@@ -756,7 +752,7 @@ class ClientUserDataManager {
 
     /** @return {number} */
     get maxVIPLevelReached() {
-        return this._vipData._maxVIPLevelReached
+        return this._vipData._maxVIPLevelReached;
     }
 
     /** @param {number} level */
@@ -766,22 +762,22 @@ class ClientUserDataManager {
 
     /** @return {number} */
     get usedPremiumGenerals() {
-        return this._vipData._usedPremiumGenerals
+        return this._vipData._usedPremiumGenerals;
     }
 
     /** @param {number} val */
     set usedPremiumGenerals(val) {
-        this._vipData._usedPremiumGenerals = val
+        this._vipData._usedPremiumGenerals = val;
     }
 
     /** @return {Date} */
     get vipTimeExpireDate() {
-        return new Date(this._vipData._vipTimeExpireTimestamp)
+        return new Date(this._vipData._vipTimeExpireTimestamp);
     }
 
     /** @param {number} val */
     set vipTimeExpireTimestamp(val) {
-        const active = val > 0
+        const active = val > 0;
         //todo: this._vipData._vipModeStatusVO.isActive = active;
         this._vipData._vipTimeExpireTimestamp = active ? Date.now() + val * 1000 : 0;
     }
@@ -796,12 +792,12 @@ class ClientUserDataManager {
 
     /** @return {MyAlliance} */
     get myAlliance() {
-        return this._allianceData._myAlliance
+        return this._allianceData._myAlliance;
     }
 
     /** @param {MyAlliance} val */
     set myAlliance(val) {
-        this._allianceData._myAlliance = val
+        this._allianceData._myAlliance = val;
     }
 }
 

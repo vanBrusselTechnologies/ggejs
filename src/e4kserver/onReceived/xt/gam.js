@@ -16,7 +16,7 @@ module.exports.name = "gam";
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params.M) return;
-    socket.client.worldmaps._ownerInfoData.parseOwnerInfoArray(params.O);
+    socket.client.worldMaps._ownerInfoData.parseOwnerInfoArray(params.O);
 
     /** @type {Movement[]} */
     const movements = [];
@@ -68,11 +68,14 @@ module.exports.execute = function (socket, errorCode, params) {
                 // TODO: TempServerRankSwapattackMapmovementVO // RankSwapattackMapmovementVO
                 _movement = new ArmyAttackMovement(socket.client, _movObj);
                 break;
+            case 28:
+                // TODO: DaimyoCastleAttackMapmovementVO
+                _movement = new ArmyAttackMovement(socket.client, _movObj);
+                break;
             case 29: //MOVEMENTTYPE_ALLIANCE_BATTLE_GROUND_COLLECTOR_ATTACK
                 _movement = new ArmyAttackMovement(socket.client, _movObj);
                 break;
             //TODO: case ??: DaimyoTownshipDefenseMapmovementVO
-            //TODO: case ??: DaimyoCastleAttackMapmovementVO
             //TODO: case ??: DaimyoTauntAttackMapmovementVO
                 //TODO:
             default: {

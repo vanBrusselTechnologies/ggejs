@@ -24,7 +24,6 @@ class CastleProductionData {
     maxAuxiliaryCap = 0
 
     /**
-     *
      * @param {Client} client
      * @param {{}} data
      */

@@ -1,5 +1,5 @@
 const Constants = require("../utils/Constants");
-const WorldmapOwnerInfo = require("../structures/WorldmapOwnerInfo");
+const WorldMapOwnerInfo = require("../structures/WorldMapOwnerInfo");
 
 class WorldMapOwnerInfoData {
     /** @type {Client} */
@@ -8,13 +8,13 @@ class WorldMapOwnerInfoData {
     isInitialized = false;
 
     /**
-     * @type {{[id: number]: WorldmapOwnerInfo}}
+     * @type {{[id: number]: WorldMapOwnerInfo}}
      * @private
      */
     _ownerInfo = {};
 
     /**
-     * @type {WorldmapOwnerInfo}
+     * @type {WorldMapOwnerInfo}
      * @private
      */
     _ownInfo;
@@ -22,7 +22,7 @@ class WorldMapOwnerInfoData {
     /** @param {Client} client */
     constructor(client) {
         this.#client = client;
-        this._ownInfo = new WorldmapOwnerInfo(client);
+        this._ownInfo = new WorldMapOwnerInfo(client);
     }
 
     /** @param {number} kID */
@@ -32,20 +32,20 @@ class WorldMapOwnerInfoData {
     getKingdomBossDungeonOwnerByKingdomId = (kID) => this.getOwnerInfo(-229 - kID);
 
     get ownInfo() {
-        const userData = this.#client.clientUserData._userData
-        const playerInfoModel = this.#client.clientUserData._playerInfo
-        const allianceData = this.#client.clientUserData._allianceData
-        const titlesData = this.#client.clientUserData._titlesData
-        const mightData = this.#client.clientUserData._mightData
-        const vipData = this.#client.clientUserData._vipData
+        const userData = this.#client.clientUserData._userData;
+        const playerInfoModel = this.#client.clientUserData._playerInfo;
+        const allianceData = this.#client.clientUserData._allianceData;
+        const titlesData = this.#client.clientUserData._titlesData;
+        const mightData = this.#client.clientUserData._mightData;
+        const vipData = this.#client.clientUserData._vipData;
 
         /** @type {number[][]} */
         const castles = [];
         /** @type {CastleMapobject} */
-        const homeCastle = this.#client.clientUserData._userData.castleList.castles["0"]?.find(c => c.areaType === Constants.WorldmapArea.MainCastle)
+        const homeCastle = this.#client.clientUserData._userData.castleList.castles["0"]?.find(c => c.areaType === Constants.WorldMapArea.MainCastle);
         if (homeCastle) {
             castles.push([homeCastle.kingdomId, homeCastle.objectId, homeCastle.position.X, homeCastle.position.Y, homeCastle.areaType]);
-            const castleKingdomList = this.#client.clientUserData.castles
+            const castleKingdomList = this.#client.clientUserData.castles;
             for (const kingdomId in castleKingdomList) {
                 for (/** @type {CastleMapobject | CapitalMapobject}*/const castle of castleKingdomList[kingdomId]) {
                     if (castle.objectId !== homeCastle.objectId) {
@@ -93,10 +93,8 @@ class WorldMapOwnerInfoData {
     getOwnerInfo = (ownerId) => this.getOwnerInfoInternal(ownerId, true);
 
     /**
-     *
      * @param {number} ownerId
      * @param {Boolean} warnIfNotExisted
-     * @returns {WorldmapOwnerInfo}
      * @private
      */
     getOwnerInfoInternal(ownerId, warnIfNotExisted = false) {
@@ -107,7 +105,7 @@ class WorldMapOwnerInfoData {
         return ownerInfo;
     }
 
-    /** @param {WorldmapOwnerInfo} ownerInfoVO */
+    /** @param {WorldMapOwnerInfo} ownerInfoVO */
     addOwnerInfo = (ownerInfoVO) => this._ownerInfo[ownerInfoVO.playerId] = ownerInfoVO;
 
     /** @param {Object} ownerInfo */
@@ -117,7 +115,7 @@ class WorldMapOwnerInfoData {
         let wmOwnerInfo = this.getOwnerInfoInternal(ownerId, false);
         if (ownerInfo.DUM) {
             if (!wmOwnerInfo) {
-                wmOwnerInfo = new WorldmapOwnerInfo(this.#client);
+                wmOwnerInfo = new WorldMapOwnerInfo(this.#client);
                 wmOwnerInfo.playerId = ownerId;
                 wmOwnerInfo.dummyFill();
                 this.addOwnerInfo(wmOwnerInfo);
@@ -127,7 +125,7 @@ class WorldMapOwnerInfoData {
         const isNPCPlayer = ownerId < 0// todo playerDataService.isNPCPlayer(ownerId);
         if (isNPCPlayer) return null;
         if (!wmOwnerInfo) {
-            wmOwnerInfo = new WorldmapOwnerInfo(this.#client);
+            wmOwnerInfo = new WorldMapOwnerInfo(this.#client);
             wmOwnerInfo.fillFromParamObject(ownerInfo);
             this.addOwnerInfo(wmOwnerInfo);
         } else {
@@ -147,8 +145,7 @@ class WorldMapOwnerInfoData {
     }
 
     /**
-     *
-     * @param {WorldmapOwnerInfo} ownerInfo
+     * @param {WorldMapOwnerInfo} ownerInfo
      * @param {number} titleId
      * @private
      */

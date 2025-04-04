@@ -10,7 +10,6 @@ class BasicBattleLogMessage extends BasicMessage {
     #client = null;
 
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */
@@ -28,27 +27,17 @@ class BasicBattleLogMessage extends BasicMessage {
         return this.hasAttackerWon !== this.isDefenseReport;
     }
 
-    init() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                this.battleLog = await getMessageBody(this.#client._socket, this.messageId, this);
-                delete this.#client._socket[`bls -> ${this.messageId}`];
-                delete this.#client._socket['bls -> errorCode'];
-                if (this.battleLog) {
-                    delete this.#client._socket[`blm -> ${this.battleLog.battleLogId}`];
-                    delete this.#client._socket[`bld -> ${this.battleLog.battleLogId}`];
-                }
-                resolve();
-            } catch (e) {
-                delete this.#client._socket[`bls -> ${this.messageId}`];
-                delete this.#client._socket['bls -> errorCode'];
-                if (this.battleLog) {
-                    delete this.#client._socket[`blm -> ${this.battleLog.battleLogId}`];
-                    delete this.#client._socket[`bld -> ${this.battleLog.battleLogId}`];
-                }
-                reject(e);
+    async init() {
+        try {
+            this.battleLog = await getMessageBody(this.#client._socket, this.messageId, this);
+        } finally {
+            delete this.#client._socket[`bls -> ${this.messageId}`];
+            delete this.#client._socket['bls -> errorCode'];
+            if (this.battleLog) {
+                delete this.#client._socket[`blm -> ${this.battleLog.battleLogId}`];
+                delete this.#client._socket[`bld -> ${this.battleLog.battleLogId}`];
             }
-        })
+        }
     }
 
     /** @param {Client} _
@@ -85,44 +74,41 @@ class BasicBattleLogMessage extends BasicMessage {
 }
 
 /**
- *
  * @param {Socket} socket
  * @param {number} messageId
  * @param {BasicBattleLogMessage} battleLogMessage
  * @returns {Promise<BattleLog>}
  */
-function getMessageBody(socket, messageId, battleLogMessage) {
-    return new Promise(async (resolve, reject) => {
-        /** @type {BattleLog} */
-        const body = {};
-        try {
-            socket[`${messageId} battleLogMessage`] = battleLogMessage;
-            getBattleLogShort(socket, messageId);
-            const battleLogShort = await WaitUntil(socket, `bls -> ${messageId}`, "bls -> errorCode", 30000);
-            for (const key in battleLogShort) {
-                if (battleLogShort[key] == null) continue;
-                body[key] = battleLogShort[key];
-            }
-            socket[`${body.battleLogId} battleLog`] = body;
-            getBattleLogMiddle(socket, body.battleLogId);
-            getBattleLogDetail(socket, body.battleLogId);
-            const battleLogMiddle = await WaitUntil(socket, `blm -> ${body.battleLogId}`, "", 30000);
-            const battleLogDetail = await WaitUntil(socket, `bld -> ${body.battleLogId}`, "", 30000);
-            for (const key in battleLogMiddle) {
-                if (battleLogMiddle[key] == null) continue;
-                body[key] = battleLogMiddle[key];
-            }
-            for (const key in battleLogDetail) {
-                if (battleLogDetail[key] == null) continue;
-                body[key] = battleLogDetail[key];
-            }
-            resolve(body);
-        } catch (e) {
-            delete socket[`${messageId} battleLogMessage`]
-            delete socket[`${body.battleLogId} battleLog`]
-            reject(e);
+async function getMessageBody(socket, messageId, battleLogMessage) {
+    /** @type {BattleLog} */
+    const body = {};
+    try {
+        socket[`${messageId} battleLogMessage`] = battleLogMessage;
+        getBattleLogShort(socket, messageId);
+        const battleLogShort = await WaitUntil(socket, `bls -> ${messageId}`, "bls -> errorCode", 30000);
+        for (const key in battleLogShort) {
+            if (battleLogShort[key] == null) continue;
+            body[key] = battleLogShort[key];
         }
-    })
+        socket[`${body.battleLogId} battleLog`] = body;
+        getBattleLogMiddle(socket, body.battleLogId);
+        getBattleLogDetail(socket, body.battleLogId);
+        const battleLogMiddle = await WaitUntil(socket, `blm -> ${body.battleLogId}`, "", 30000);
+        const battleLogDetail = await WaitUntil(socket, `bld -> ${body.battleLogId}`, "", 30000);
+        for (const key in battleLogMiddle) {
+            if (battleLogMiddle[key] == null) continue;
+            body[key] = battleLogMiddle[key];
+        }
+        for (const key in battleLogDetail) {
+            if (battleLogDetail[key] == null) continue;
+            body[key] = battleLogDetail[key];
+        }
+        return body;
+    } catch (e) {
+        delete socket[`${messageId} battleLogMessage`]
+        delete socket[`${body.battleLogId} battleLog`]
+        throw e;
+    }
 }
 
 /**

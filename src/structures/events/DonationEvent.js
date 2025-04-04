@@ -4,6 +4,8 @@ class DonationEvent extends ActiveEvent {
     eventBuildingWodId = 2899
     /** @type {number} */
     settingsId;
+    /** @type {number} */
+    leaderboardRewardSetId;
 
     get mailStarterDialogName() {
         return "DonationEventStartDialog";
@@ -23,11 +25,12 @@ class DonationEvent extends ActiveEvent {
 
     /**
      * @param {Client} client
-     * @param {{DSI: number}} data
+     * @param {{DSI: number, LRSI: number}} data
      */
     loadFromParamObject(client, data) {
         super.loadFromParamObject(client, data);
         this.settingsId = data.DSI;
+        this.leaderboardRewardSetId = data.LRSI;
     }
 }
 

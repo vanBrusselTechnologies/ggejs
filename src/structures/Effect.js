@@ -2,7 +2,6 @@ const {effects} = require('e4k-data').data;
 
 class Effect {
     /**
-     *
      * @param {Client} client
      * @param {Array | number} data
      */
@@ -29,7 +28,6 @@ class Effect {
 }
 
 /**
- *
  * @param {number} id
  * @returns {Object}
  */

@@ -2,7 +2,6 @@ class ConstructionSlot {
     /** @type {number} */
     objectId;
     /**
-     *
      * @param {Client} client
      * @param {Array<number> | number} data
      */

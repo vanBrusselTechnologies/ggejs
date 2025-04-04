@@ -19,11 +19,11 @@ module.exports.name = "bls";
 module.exports.execute = function (socket, errorCode, params) {
     //todo: BattleLog short
     if (!params || errorCode === 66 || errorCode === 225) {
-        socket['bls -> errorCode'] = errorCode
+        socket['bls -> errorCode'] = errorCode;
         return;
     }
     const _client = socket.client;
-    _client.worldmaps._ownerInfoData.parseOwnerInfoArray(params["PI"]);
+    _client.worldMaps._ownerInfoData.parseOwnerInfoArray(params["PI"]);
     const pbiInfo = parsePBIinfo(_client, params["PBI"], params);
     const isDefenseReport = socket[`${params.MID} battleLogMessage`]?.isDefenseReport;
     delete socket[`${params.MID} battleLogMessage`];
@@ -31,7 +31,7 @@ module.exports.execute = function (socket, errorCode, params) {
     const defenderLords = parseDefenderLords(socket.client, params, {defender: pbiInfo.defender});
     const autoSkips = parseAutoSkip(socket.client, params);
 
-    const mapObject = parseWorldmapArea(_client, params["AI"])
+    const mapObject = parseWorldMapArea(_client, params["AI"]);
     if (mapObject instanceof TreasureMapMapobject) {
         const mapSeed = String(params["MS"]).split("+").map(s => parseInt(s));
         /** @type {TreasureMapMapobject} */
@@ -71,11 +71,6 @@ module.exports.execute = function (socket, errorCode, params) {
         defenderAllianceSubscribers: params["DAS"],
         attackerHasIndividualSubscription: params["AHP"] === 1,
         defenderHasIndividualSubscription: params["DHP"] === 1,
-        isTempServerChargeAttack: params["CRO"] === 1,
-        winnerChargeRankOld: isDefenseReport ? params["DCRO"] : params["CRO"],
-        winnerChargeRankNew: isDefenseReport ? params["DCRN"] : params["CRN"],
-        winnerChargePointsOld: isDefenseReport ? params["DCPO"] : params["CPO"],
-        winnerChargePointsNew: isDefenseReport ? params["DCPN"] : params["CPN"],
         allianceName: params["N"],
         attackerCommandant: attackerLords?.commandant,
         attackerGeneral: attackerLords?.general,
@@ -91,17 +86,15 @@ module.exports.execute = function (socket, errorCode, params) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Object} data
  * @returns {Mapobject}
  */
-function parseWorldmapArea(client, data) {
+function parseWorldMapArea(client, data) {
     return parseMapObject(client, [data["AT"]]).parseAreaInfoBattleLog(data);
 }
 
 /**
- *
  * @param {Client} client
  * @param {Array} data
  * @param {Object} battleLogParams
@@ -111,7 +104,7 @@ function parsePBIinfo(client, data, battleLogParams) {
     /** @type {BattleParticipant[]} */
     const battleParticipants = [];
     for (let p of data) {
-        battleParticipants.push(new BattleParticipant(client, p))
+        battleParticipants.push(new BattleParticipant(client, p));
     }
     let winnerIndex = battleLogParams["DW"] && battleParticipants[0].front === 1 || !battleLogParams["DW"] && battleParticipants[0].front === 0 ? 0 : 1;
     let loserIndex = 1 - winnerIndex;
@@ -125,7 +118,6 @@ function parsePBIinfo(client, data, battleLogParams) {
 
 
 /**
- *
  * @param {Client} client
  * @param {Object} data
  * @param {BattleLog} battleLog
@@ -150,7 +142,6 @@ function parseAttackerLords(client, data, battleLog) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Object} data
  * @param {BattleLog} battleLog
@@ -175,7 +166,6 @@ function parseDefenderLords(client, data, battleLog) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Object} data
  * @return {{autoSkipCooldownType:number, autoSkipMinuteSkips: Good[], autoSkipC2: number, autoSkipSeconds: number}}
@@ -191,8 +181,8 @@ function parseAutoSkip(client, data) {
             autoSkipMinuteSkips: minuteSkips,
             autoSkipC2: data["ASC"],
             autoSkipSeconds: data["ASS"]
-        }
+        };
     } else return {
         autoSkipCooldownType: -1, autoSkipMinuteSkips: [], autoSkipC2: -1, autoSkipSeconds: -1
-    }
+    };
 }

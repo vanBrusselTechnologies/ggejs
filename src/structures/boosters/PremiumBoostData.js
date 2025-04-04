@@ -80,7 +80,6 @@ class PremiumBoostData {
     }
 
     /**
-     *
      * @param {number} id
      * @return {Booster}
      */

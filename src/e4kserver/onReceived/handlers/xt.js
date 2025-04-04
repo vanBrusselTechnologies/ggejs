@@ -1,6 +1,7 @@
 const path = require('node:path');
 const fs = require('fs');
 const {setRoomList, onJoinRoom, getRoom, autoJoinRoom} = require('../../room.js');
+const {getErrorText} = require("../../../utils/ErrorConst");
 
 let commands = [];
 const commandPath = path.join(__dirname, '../xt');
@@ -26,7 +27,7 @@ module.exports.onResponse = function (socket, event) {
             if (!socket["_hasAutoJoined"]) {
                 socket["_hasAutoJoined"] = true;
                 autoJoinRoom(socket);
-            } else socket.client._verifyLoginData()
+            } else socket.client._verifyLoginData();
             return;
         case "jro":
             //todo: JRO
@@ -42,18 +43,9 @@ module.exports.onResponse = function (socket, event) {
                 case 10005:
                     executeResponse(socket, responseVO);
                     break;
-                case 1:
-                    if (socket.debug) console.warn(`${responseVO.commandID} GENERAL_ERROR ${responseVO.paramArray}`);
-                    break;
-                case 2:
-                    if (socket.debug) console.warn(`${responseVO.commandID} INVALID_PARAMETER_VALUE ${responseVO.paramArray}`);
-                    break;
-                case 3:
-                    if (socket.debug) console.warn(`${responseVO.commandID} MISSING_PARAMETER ${responseVO.paramArray}`);
-                    break;
                 default:
-                    //todo: replace by processError, all ALL_OK responses are handled in errorcode 0 and 10005
-                    if (socket.debug) console.warn(`[RECEIVED ERROR]: ${responseVO.commandID}, ${responseVO.error}: ${responseVO.paramArray.toString().substring(0, 100)}`);
+                    if (socket.debug) console.warn(`[RECEIVED ERROR]: ${responseVO.commandID}, ${responseVO.error}: ${getErrorText(responseVO.error)}: ${responseVO.paramArray.toString().substring(0, 100)}`);
+                    //todo: replace by processError
                     executeResponse(socket, responseVO);
                     break;
             }
@@ -100,8 +92,6 @@ function executeResponse(socket, _jsonResponseVO) {
             if (socket.debug) console.warn(`[RECEIVED UNKNOWN COMMAND] ${_jsonResponseVO.commandID}: ${_params.trim()}`);
         }
     } catch (e) {
-        if (socket.debug) {
-            console.error("Error", _jsonResponseVO, e);
-        }
+        if (socket.debug) console.error("Error", _jsonResponseVO, e);
     }
 }

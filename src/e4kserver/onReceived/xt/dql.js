@@ -1,7 +1,7 @@
-const {buildings, dailyactivities: dailyActivities} = require('e4k-data').data;
+const {buildings, dailyactivities} = require('e4k-data').data;
 const Horse = require('../../../structures/Horse');
 const MovementManager = require('../../../managers/MovementManager');
-const {HorseType, WorldmapArea, SpyType} = require("../../../utils/Constants");
+const {HorseType, WorldMapArea, SpyType} = require("../../../utils/Constants");
 const CombatConst = require('../../../utils/CombatConst');
 
 module.exports.name = "dql";
@@ -19,10 +19,9 @@ module.exports.execute = async function (socket, errorCode, params) {
         const thisPlayer = await client.players.getThisPlayer();
         if (!thisPlayer) return await require('./dql').execute(socket, errorCode, params);
         /** @type {CastleMapobject} */
-        const myMainCastle = thisPlayer.castles.find(x => x.areaType === WorldmapArea.MainCastle);
-        for (let i in params.RDQ) {
-            const quest = params.RDQ[i];
-            for (let dailyActivity of dailyActivities) {
+        const myMainCastle = thisPlayer.castles.find(x => x.areaType === WorldMapArea.MainCastle);
+        for (const quest of params.RDQ) {
+            for (const dailyActivity of dailyactivities) {
                 if (dailyActivity.dailyQuestID === quest?.QID) {
                     switch (quest.QID) {
                         case 1:
@@ -32,7 +31,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                                 socket["dailyGoodsTravelTryCount"] = 0;
                                 await client.__x__x__relogin();
                             } catch (e) {
-                                if (socket.debug) console.error('[DQL]', e);
+                                if (socket.debug) console.error('[DQL]', quest.QID, e);
                             }
                             break; //login;
                         case 2:
@@ -40,10 +39,10 @@ module.exports.execute = async function (socket, errorCode, params) {
                                 /** @type {Castle} */
                                 const mainCastleInfo = await client.getCastleInfo(myMainCastle);
                                 const dungeon = await getClosestDungeon(client, myMainCastle, false);
-                                let horse = new Horse(client, mainCastleInfo, HorseType.Ruby_1);
+                                const horse = new Horse(client, mainCastleInfo, HorseType.Ruby_1);
                                 client.movements.startSpyMovement(myMainCastle, dungeon, 1, SpyType.Military, 50, horse);
                             } catch (e) {
-                                if (socket.debug) console.error('[DQL]', e);
+                                if (socket.debug) console.error('[DQL]', quest.QID, e);
                             }
                             break; //spendC2
                         case 3:
@@ -53,62 +52,36 @@ module.exports.execute = async function (socket, errorCode, params) {
                                 if (!socket["dailyGoodsTravelTryCount"]) socket["dailyGoodsTravelTryCount"] = 0;
                                 /** @type {[string, number][]} */
                                 const goods = [["W", 1], ["S", 1], ["F", 1]];
-                                /** @type {WorldmapSector} */
-                                let sector = await client.worldmaps.getSector(myMainCastle.kingdomId, myMainCastle.position.X, myMainCastle.position.Y);
-                                /** @type {WorldmapOwnerInfo[]} */
-                                let nonRuins = sector.mapobjects.map(o => o.ownerInfo).filter(x => x !== undefined && !x.isRuin && x.playerId !== thisPlayer.playerId && x.playerId >= 0);
-                                nonRuins.sort((a, b) => {
-                                    let distanceA = 10000;
-                                    for (let castlePosition of a.castlePosList) {
-                                        if (castlePosition.areaType !== 1 && castlePosition.areaType !== 4) continue;
-                                        let castleDistance = MovementManager.getDistance(myMainCastle, castlePosition);
-                                        distanceA = Math.min(distanceA, castleDistance)
-                                    }
-                                    let distanceB = 10000;
-                                    for (let castlePosition of b.castlePosList) {
-                                        if (castlePosition.areaType !== 1 && castlePosition.areaType !== 4) continue;
-                                        let castleDistance = MovementManager.getDistance(myMainCastle, castlePosition);
-                                        distanceB = Math.min(distanceB, castleDistance)
-                                    }
-                                    return distanceA - distanceB;
-                                })
-                                const _targetCastles = nonRuins[socket["dailyGoodsTravelTryCount"]]?.castlePosList;
-                                nonRuins = null;
-                                if (_targetCastles == null) break;
-                                let _targetArea = _targetCastles[0];
-                                let _targetAreaDistance = 1000000;
-                                for (let k in _targetCastles) {
-                                    let __castle = _targetCastles[k];
-                                    if (__castle.areaType !== 1 && __castle.areaType !== 4) continue;
-                                    let castleDistance = MovementManager.getDistance(myMainCastle, __castle);
-                                    if (castleDistance < _targetAreaDistance) {
-                                        _targetAreaDistance = castleDistance;
-                                        _targetArea = __castle;
-                                    }
-                                }
-                                client.movements.startMarketMovement(myMainCastle, _targetArea, goods);
+                                /** @type {WorldMapSector} */
+                                const sector = await client.worldMaps.getSector(myMainCastle.kingdomId, myMainCastle.position.X, myMainCastle.position.Y);
+                                const travelTargetCastles = sector.mapObjects.filter(o => o.ownerInfo !== undefined && o.ownerInfo.playerId !== thisPlayer.playerId && ((o.areaType === 1 && !o.ownerInfo.isRuin) || o.areaType === 4));
+                                if (travelTargetCastles.length === 0) break;
+                                const travelTargetCastle = travelTargetCastles.sort((a, b) => {
+                                    return MovementManager.getDistance(myMainCastle, a) - MovementManager.getDistance(myMainCastle, b)
+                                })[socket["dailyGoodsTravelTryCount"]];
+                                client.movements.startMarketMovement(myMainCastle, travelTargetCastle, goods);
                                 socket["dailyGoodsTravelTryCount"] += 1;
                             } catch (e) {
-                                if (socket.debug) console.error('[DQL]', e);
+                                if (socket.debug) console.error('[DQL]', quest.QID, e);
                             }
                             break; //resourceToPlayer
                         case 5:
                             try {
-                                if (socket["dailySpyAt"] !== quest.P || socket["dailySpyTime"] + 1800000 < Date.now()) {
-                                    const dungeon = await getClosestDungeon(client, myMainCastle, false);
-                                    client.movements.startSpyMovement(myMainCastle, dungeon, Math.round(client.clientUserData.maxSpies / 4), SpyType.Military, 50);
-                                    socket["dailySpyAt"] = quest.P;
-                                    socket["dailySpyTime"] = Date.now();
-                                }
+                                if (client.clientUserData.maxSpies <= 1) break;
+                                if (socket["dailySpyAt"] === quest.P && socket["dailySpyTime"] + 1800000 >= Date.now()) break;
+                                const dungeon = await getClosestDungeon(client, myMainCastle, false);
+                                client.movements.startSpyMovement(myMainCastle, dungeon, Math.round(client.clientUserData.maxSpies / 4), SpyType.Military, 50);
+                                socket["dailySpyAt"] = quest.P;
+                                socket["dailySpyTime"] = Date.now();
                             } catch (e) {
-                                if (socket.debug) console.error('[DQL]', e);
+                                if (socket.debug) console.error('[DQL]', quest.QID, e);
                             }
                             break; //spy
                         case 6:
                             try {
                                 if (socket["inDQL_q6"]) return;
                                 socket["inDQL_q6"] = true;
-                                const closestRuinsOutpost = await getClosestRuinsOutpost(client, await client.worldmaps.get(0), myMainCastle);
+                                const closestRuinsOutpost = getClosestRuinsOutpost(client, await client.worldMaps.get(0), myMainCastle);
                                 if (socket["dailySabotageAt"] !== quest.P || socket["dailySabotageTime"] + 1800000 < Date.now()) {
                                     client.movements.startSpyMovement(myMainCastle, closestRuinsOutpost, Math.round(client.clientUserData.maxSpies / 4), SpyType.Sabotage, 10);
                                     socket["dailySabotageAt"] = quest.P;
@@ -117,7 +90,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                                 delete socket["inDQL_q6"];
                             } catch (e) {
                                 delete socket["inDQL_q6"];
-                                if (socket.debug) console.error('[DQL]', e);
+                                if (socket.debug) console.error('[DQL]', quest.QID, e);
                             }
                             break; //sabotageDamage
                         case 7:
@@ -125,20 +98,20 @@ module.exports.execute = async function (socket, errorCode, params) {
                         case 9:
                         case 10:
                             try {
-                                const myCastle = dailyActivity.triggerKingdomID === 0 ? myMainCastle : thisPlayer.castles.find(x => x.kingdomId === dailyActivity.triggerKingdomID && x.areaType === WorldmapArea.KingdomCastle);
+                                const myCastle = dailyActivity.triggerKingdomID === 0 ? myMainCastle : thisPlayer.castles.find(x => x.kingdomId === dailyActivity.triggerKingdomID && x.areaType === WorldMapArea.KingdomCastle);
                                 if (myCastle == null) break;
-                                let lord = socket.client.equipments.getAvailableCommandants()[0];
+                                const lord = socket.client.equipments.getAvailableCommandants()[0];
                                 if (lord == null) break;
                                 await attackDungeon(client, thisPlayer, myCastle, lord);
                                 await new Promise(resolve => setTimeout(resolve, 5000)); //Wait for the attack to be registered to avoid duplicate commander requests.
                             } catch (e) {
-                                if (socket.debug && false) console.error('[DQL]', e);
+                                if (socket.debug && false) console.error('[DQL]', quest.QID, e);
                             }
                             break; //countDungeons
                         case 13:
                             break; //craftEquipment todo
                         case 14:
-                            client.sendChatMessage(" ");
+                            // TODO: client.sendChatMessage(" ");
                             break; //writeInAllianceChat
                         case 15:
                             break; //collectFromCitizen, handled by IRC
@@ -152,12 +125,12 @@ module.exports.execute = async function (socket, errorCode, params) {
                             break; //completeMercenaryMission, handled in 'connection'
                         case 24:
                             try {
-                                let lord = socket.client.equipments.getAvailableCommandants()[0];
+                                const lord = socket.client.equipments.getAvailableCommandants()[0];
                                 if (lord == null) break;
                                 await attackDungeon(client, thisPlayer, myMainCastle, lord);
                                 await new Promise(resolve => setTimeout(resolve, 5000)); //Wait for the attack to be registered to avoid duplicate commander requests.
                             } catch (e) {
-                                if (socket.debug && false) console.error('[DQL]', e);
+                                if (socket.debug && false) console.error('[DQL]', quest.QID, e);
                             }
                             break; //countDungeons tempServer
                         case 25:
@@ -178,78 +151,64 @@ module.exports.execute = async function (socket, errorCode, params) {
 
 
 /**
- *
  * @param {Client} client
- * @param {Worldmap} ClassicMap
+ * @param {WorldMap} ClassicMap
  * @param {CastleMapobject} myMainCastle
- * @returns {Promise<CastleMapobject>}
+ * @returns {CastleMapobject}
  */
 function getClosestRuinsOutpost(client, ClassicMap, myMainCastle) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            /** @type {CastleMapobject[]}*/
-            let ruinedPlayerOutposts = ClassicMap.mapobjects.filter(x => {
-                if (x.areaType !== WorldmapArea.Outpost) return false;
-                const owner = x.ownerInfo;
-                return owner.isRuin && !owner.isInAlliance;
-            })
-            ClassicMap = null;
-            ruinedPlayerOutposts.sort((a, b) => {
-                let distanceA = MovementManager.getDistance(myMainCastle, a);
-                let distanceB = MovementManager.getDistance(myMainCastle, b);
-                return distanceA - distanceB;
-            })
-            if (ruinedPlayerOutposts.length === 0) reject("No target found!");
-            resolve(ruinedPlayerOutposts[0]);
-        } catch (e) {
-            reject(e);
-        }
+    /** @type {CastleMapobject[]}*/
+    const ruinedPlayerOutposts = ClassicMap.mapObjects.filter(x => {
+        if (x.areaType !== WorldMapArea.Outpost) return false;
+        const owner = x.ownerInfo;
+        return owner.isRuin && !owner.isInAlliance;
     })
+    ClassicMap = null;
+    ruinedPlayerOutposts.sort((a, b) => {
+        const distanceA = MovementManager.getDistance(myMainCastle, a);
+        const distanceB = MovementManager.getDistance(myMainCastle, b);
+        return distanceA - distanceB;
+    })
+    if (ruinedPlayerOutposts.length === 0) throw "No target found!";
+    return ruinedPlayerOutposts[0];
 }
 
 /**
- *
  * @param {Client} client
  * @param {CastleMapobject} castle
  * @param {boolean} attackable
  * @returns {Promise<DungeonMapobject>}
  */
-function getClosestDungeon(client, castle, attackable = true) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            /** @type {DungeonMapobject[]} */
-            const dungeons = (await client.worldmaps.getSector(castle.kingdomId, castle.position.X, castle.position.Y)).mapobjects.filter(x => x.areaType === WorldmapArea.Dungeon && (!attackable || !x.attackCooldownEnd) && (x.attackCount >= 1 || MovementManager.getDistance(x, castle) <= 12.5));
-            if (dungeons.length === 0) return reject("No target found!");
-            dungeons.sort((a, b) => {
-                let distanceA = MovementManager.getDistance(castle, a);
-                let distanceB = MovementManager.getDistance(castle, b);
-                return distanceA - distanceB;
-            })
-            if (attackable) {
-                /** @type {Movement[]} */
-                const movements = client.movements.get();
-                while (true) {
-                    if (dungeons.length === 0) reject("No attackable dungeon found!");
-                    const __mov = movements.find(x => x.targetArea?.kingdomId === dungeons[0].kingdomId && x.targetArea.position.toString() === dungeons[0].position.toString());
-                    if (__mov == null) break; else dungeons.shift();
-                }
-            }
-            const targetDungeon = dungeons[0];
-            if (MovementManager.getDistance(castle, targetDungeon) > 50) reject("Target too far away");
-            resolve(targetDungeon);
-        } catch (e) {
-            reject(e);
-        }
+async function getClosestDungeon(client, castle, attackable = true) {
+    /** @type {DungeonMapobject[]} */
+    const dungeons = (await client.worldMaps.getSector(castle.kingdomId, castle.position.X, castle.position.Y)).mapObjects.filter(x => x.areaType === WorldMapArea.Dungeon && (!attackable || !x.attackCooldownEnd) && (x.attackCount >= 1 || MovementManager.getDistance(x, castle) <= 12.5));
+    if (dungeons.length === 0) throw "No target found!";
+    dungeons.sort((a, b) => {
+        const distanceA = MovementManager.getDistance(castle, a);
+        const distanceB = MovementManager.getDistance(castle, b);
+        return distanceA - distanceB;
     })
+    if (attackable) {
+        /** @type {Movement[]} */
+        const movements = client.movements.get();
+        while (true) {
+            if (dungeons.length === 0) throw "No attackable dungeon found!";
+            const __mov = movements.find(x => x.targetArea?.kingdomId === dungeons[0].kingdomId && x.targetArea.position.toString() === dungeons[0].position.toString());
+            if (__mov == null) break; else dungeons.shift();
+        }
+    }
+    const targetDungeon = dungeons[0];
+    if (MovementManager.getDistance(castle, targetDungeon) > 50) throw "Target too far away";
+    return targetDungeon;
 }
 
 /**
- *
  * @param {DungeonMapobject} dungeon
  * @returns {{middle: {moat: number, gate: number, wall: number}, left: {moat: number, wall: number}, right: {moat: number, wall: number}}}
  */
 function getDungeonProtection(dungeon) {
-    let protection = {
+    /** @type {{left: {wall: number, moat: number}, middle: {wall: number, gate: number, moat: number}, right: {wall: number, moat: number}}} */
+    const protection = {
         left: {
             wall: 0, moat: 0,
         }, middle: {
@@ -258,23 +217,12 @@ function getDungeonProtection(dungeon) {
             wall: 0, moat: 0,
         }
     }
-    let dungeonWallBaseProtection = 0;
-    let dungeonGateBaseProtection = 0;
-    for (let b of buildings) {
-        if (b.wodID === dungeon.wallWodId) {
-            dungeonWallBaseProtection = b.wallBonus;
-            if (dungeonGateBaseProtection !== 0) break;
-        }
-        if (b.wodID === dungeon.gateWodId) {
-            dungeonGateBaseProtection = b.gateBonus;
-            if (dungeonWallBaseProtection !== 0) break;
-        }
-    }
-    protection.middle.gate = dungeonGateBaseProtection;
-    for (let k in protection) {
+    protection.middle.gate = buildings.find(b => b.wodID === dungeon.gateWodId).wallBonus;
+    const dungeonWallBaseProtection = buildings.find(b => b.wodID === dungeon.wallWodId).wallBonus;
+    for (const k in protection) {
         protection[k].wall = dungeonWallBaseProtection;
     }
-    for (let __effect of dungeon.lord.effects) {
+    for (const __effect of dungeon.lord.effects) {
         if (__effect.name === "gateBonus") {
             protection.middle.gate += __effect.power;
         } else if (__effect.name === "wallBonus") {
@@ -283,8 +231,8 @@ function getDungeonProtection(dungeon) {
             protection.right.wall += __effect.power;
         }
     }
-    for (let k in dungeon.defence.tools) {
-        for (let /** @type {InventoryItem<Tool>}*/t of dungeon.defence.tools[k]) {
+    for (const k in dungeon.defence.tools) {
+        for (const /** @type {InventoryItem<Tool>}*/t of dungeon.defence.tools[k]) {
             const unitData = t.item.rawData;
             if (unitData.typ === "Defence") {
                 if (unitData.wallBonus) protection[k].wall += unitData.wallBonus; else if (unitData.gateBonus) protection[k].gate += unitData.gateBonus; else if (unitData.moatBonus) protection[k].moat += unitData.moatBonus;
@@ -295,7 +243,6 @@ function getDungeonProtection(dungeon) {
 }
 
 /**
- *
  * @param {DungeonMapobject} dungeon
  * @param {{left:{wall:number, moat:number}, middle:{wall:number, gate:number, moat:number}, right:{wall:number, moat:number}}} protection
  * @param {{left:{wall:number, moat:number}, middle:{wall:number, gate:number, moat:number}, right:{wall:number, moat:number}}} attackLowerProtection
@@ -303,7 +250,8 @@ function getDungeonProtection(dungeon) {
  * @returns {{middle: {range: number, melee: number}, left: {range: number, melee: number}, center: {range: number, melee: number}, right: {range: number, melee: number}}}
  */
 function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, usedTools) {
-    let meleeDefenceStrength = {
+    /** @type {{left: {melee: number, range: number}, middle: {melee: number, range: number}, right: {melee: number, range: number}, center: {melee: number, range: number}}} */
+    const meleeDefenceStrength = {
         left: {
             melee: 0, range: 0,
         }, middle: {
@@ -314,7 +262,8 @@ function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, u
             melee: 0, range: 0,
         }
     }
-    let rangeDefenceStrength = {
+    /** @type {{left: {melee: number, range: number}, middle: {melee: number, range: number}, right: {melee: number, range: number}, center: {melee: number, range: number}}} */
+    const rangeDefenceStrength = {
         left: {
             melee: 0, range: 0,
         }, middle: {
@@ -325,7 +274,7 @@ function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, u
             melee: 0, range: 0,
         }
     }
-    for (let k in dungeon.defence.troops) {
+    for (const k in dungeon.defence.troops) {
         for (const /** @type {InventoryItem<Unit>} */ u of dungeon.defence.troops[k]) {
             /** @type {Unit} */
             const unit = u.item;
@@ -340,7 +289,8 @@ function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, u
             meleeDefenceStrength[k].melee += unit.meleeDefence * count;
         }
     }
-    let defenceStrengthBonus = {
+    /** @type {{left: {melee: number, range: number}, middle: {melee: number, range: number}, right: {melee: number, range: number}, center: {melee: number, range: number}}} */
+    const defenceStrengthBonus = {
         left: {
             melee: 0, range: 0,
         }, middle: {
@@ -351,7 +301,7 @@ function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, u
             melee: 0, range: 0,
         }
     }
-    for (let __effect of dungeon.lord.effects) {
+    for (const __effect of dungeon.lord.effects) {
         if (__effect.name === "meleeBonus") {
             defenceStrengthBonus.left.melee += __effect.power;
             defenceStrengthBonus.middle.melee += __effect.power;
@@ -366,7 +316,7 @@ function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, u
             defenceStrengthBonus.center.range += __effect.power;
         }
     }
-    for (let k in dungeon.defence.tools) {
+    for (const k in dungeon.defence.tools) {
         for (/** @type {InventoryItem<Tool>}*/const t of dungeon.defence.tools[k]) {
             /** @type {Unit} */
             const unit = t.item;
@@ -375,7 +325,7 @@ function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, u
             }
         }
     }
-    for (let k in usedTools) {
+    for (const k in usedTools) {
         for (/** @type {InventoryItem<Tool>} */const toolAndCount of usedTools[k]) {
             /** @type {Unit} */
             const tool = toolAndCount.item;
@@ -384,17 +334,19 @@ function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, u
             }
         }
     }
-    for (let i in attackLowerProtection) {
-        for (let j in attackLowerProtection[i]) {
+    for (const i in attackLowerProtection) {
+        for (const j in attackLowerProtection[i]) {
             protection[i][j] -= attackLowerProtection[i][j];
         }
     }
-    let defenceBonusWGM = {
+    /** @type {{left: number, middle: number, right: number}} */
+    const defenceBonusWGM = {
         left: (1 + Math.max(0, protection.left.wall / 100)) * (1 + Math.max(0, protection.left.moat / 100)) - 1,
         middle: (1 + Math.max(0, protection.middle.wall / 100)) * (1 + Math.max(0, protection.middle.gate / 100)) * (1 + Math.max(0, protection.middle.moat / 100)) - 1,
         right: (1 + Math.max(0, protection.right.wall / 100)) * (1 + Math.max(0, protection.right.moat / 100)) - 1,
     }
-    let totalDefenceBonus = {
+    /** @type {{left: {melee: number, range: number}, middle: {melee: number, range: number}, right: {melee: number, range: number}, center: {melee: number, range: number}}} */
+    const totalDefenceBonus = {
         left: {
             melee: (1 + defenceBonusWGM.left) * (1 + defenceStrengthBonus.left.melee / 100),
             range: (1 + defenceBonusWGM.left) * (1 + defenceStrengthBonus.left.range / 100),
@@ -408,7 +360,8 @@ function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, u
             melee: 1 + defenceStrengthBonus.center.melee / 100, range: 1 + defenceStrengthBonus.center.range / 100,
         }
     }
-    let defenceStrengthTotal = {
+    /** @type {{left: {melee: number, range: number}, middle: {melee: number, range: number}, right: {melee: number, range: number}, center: {melee: number, range: number}}} */
+    const defenceStrengthTotal = {
         left: {
             melee: 0, range: 0,
         }, middle: {
@@ -419,8 +372,8 @@ function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, u
             melee: 0, range: 0,
         }
     }
-    for (let k in defenceStrengthTotal) {
-        for (let l in defenceStrengthTotal[k]) {
+    for (const k in defenceStrengthTotal) {
+        for (const l in defenceStrengthTotal[k]) {
             defenceStrengthTotal[k][l] = meleeDefenceStrength[k][l] * totalDefenceBonus[k].melee + rangeDefenceStrength[k][l] * totalDefenceBonus[k].range;
         }
     }
@@ -435,7 +388,8 @@ function getDungeonDefenceStrength(dungeon, protection, attackLowerProtection, u
  * @returns {{attackLowerProtection:{ left: { wall: number, moat: number }, middle: { wall: number, gate: number, moat: number }, right: { wall: number, moat: number } }, usedTools: { left: InventoryItem<Tool>[], middle: InventoryItem<Tool>[], right: InventoryItem<Tool>[] }}}
  */
 function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, availableTools) {
-    let attackLowerProtection = {
+    /** @type {{left: {wall: number, moat: number}, middle: {wall: number, gate: number, moat: number}, right: {wall: number, moat: number}}} */
+    const attackLowerProtection = {
         left: {
             wall: 0, moat: 0,
         }, middle: {
@@ -444,8 +398,7 @@ function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, av
             wall: 0, moat: 0,
         }
     }
-    for (let i in general.effects) {
-        let effect = general.effects[i];
+    for (const effect of general.effects) {
         if (effect.name === "wallReduction" || effect.name === "wallReductionPVE" || effect.name === "relicWallReduction" || effect.name === "relicWallReductionPVE") {
             attackLowerProtection.left.wall += effect.power;
             attackLowerProtection.middle.wall += effect.power;
@@ -460,7 +413,8 @@ function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, av
             attackLowerProtection.right.moat += effect.power;
         }
     }
-    let restProtection = {
+    /** @type {{left: {wall: number, moat: number}, middle: {wall: number, gate: number, moat: number}, right: {wall: number, moat: number}}} */
+    const restProtection = {
         left: {
             wall: 0, moat: 0,
         }, middle: {
@@ -469,78 +423,56 @@ function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, av
             wall: 0, moat: 0,
         }
     }
-    for (let i in restProtection) {
-        for (let j in restProtection[i]) {
+    for (const i in restProtection) {
+        for (const j in restProtection[i]) {
             restProtection[i][j] = dungeonProtection[i][j] - attackLowerProtection[i][j];
         }
     }
-    /**
-     *
-     * @type {{middle: InventoryItem<Tool>[], left: InventoryItem<Tool>[], right: InventoryItem<Tool>[]}}
-     */
-    let usedTools = {
-        left: [], middle: [], right: []
-    };
-    let availableToolBoxesFlank = CombatConst.getToolSlotCountFlank(dungeon.level);
-    let availableToolBoxesMiddle = CombatConst.getToolSlotCountFront(dungeon.level);
-    let maxToolAmountFlank = CombatConst.getTotalAmountToolsFlank(dungeon.level);
-    let maxToolAmountMiddle = CombatConst.getTotalAmountToolsMiddle(dungeon.level);
-    let lordRangeDefenceBonus = 0;
-    for (let k in dungeon.lord.effects) {
-        let __effect = dungeon.lord.effects[k];
-        if (__effect.name === "rangeBonus") {
-            lordRangeDefenceBonus += __effect.power;
-        }
-    }
-    for (let i in restProtection) {
-        let sideIsMiddle = i === "middle"
+    /** @type {{middle: InventoryItem<Tool>[], left: InventoryItem<Tool>[], right: InventoryItem<Tool>[]}} */
+    const usedTools = {left: [], middle: [], right: []};
+    const availableToolBoxesFlank = CombatConst.getToolSlotCountFlank(dungeon.level);
+    const availableToolBoxesMiddle = CombatConst.getToolSlotCountFront(dungeon.level);
+    const maxToolAmountFlank = CombatConst.getTotalAmountToolsFlank(dungeon.level);
+    const maxToolAmountMiddle = CombatConst.getTotalAmountToolsMiddle(dungeon.level);
+
+    const lordRangeDefenceBonus = dungeon.lord.effects.filter(e => e.name === "rangeBonus").map(e => e.power).reduce((sum, a) => sum + a, 0);
+    for (const side in restProtection) {
+        const sideIsMiddle = side === "middle"
         let toolsUsedOnSide = 0;
-        let maxToolCountOnSide = sideIsMiddle ? maxToolAmountMiddle : maxToolAmountFlank;
-        let availableToolBoxes = sideIsMiddle ? availableToolBoxesMiddle : availableToolBoxesFlank;
+        const maxToolCountOnSide = sideIsMiddle ? maxToolAmountMiddle : maxToolAmountFlank;
+        const availableToolBoxes = sideIsMiddle ? availableToolBoxesMiddle : availableToolBoxesFlank;
         if (availableToolBoxes >= 2) {
-            for (let j in restProtection[i]) {
-                if (restProtection[i][j] > 0) {
-                    for (let k in availableTools) {
-                        let _tool = availableTools[k].item;
+            for (const j in restProtection[side]) {
+                if (restProtection[side][j] > 0) {
+                    for (const availableTool of availableTools) {
+                        const _tool = availableTool.item;
                         const _toolData = _tool.rawData;
-                        if (_toolData[`${j}Bonus`]) {
-                            if (restProtection[i][j] / _toolData[`${j}Bonus`] < availableTools[k].count) {
-                                let __foundTool = false;
-                                let _toolUseCount = Math.min(Math.ceil(restProtection[i][j] / _toolData[`${j}Bonus`]), maxToolCountOnSide - toolsUsedOnSide);
-                                for (let l in usedTools[i]) {
-                                    if (usedTools[i][l].item.wodId === _tool.wodId) {
-                                        __foundTool = true;
-                                        toolsUsedOnSide += _toolUseCount;
-                                        usedTools[i][l].count += _toolUseCount;
-                                        availableTools[k].count -= _toolUseCount;
-                                        restProtection[i][j] -= _toolUseCount * _toolData[`${j}Bonus`];
-                                        attackLowerProtection[i][j] += _toolUseCount * _toolData[`${j}Bonus`];
-                                        break;
-                                    }
-                                }
-                                if (!__foundTool) {
-                                    usedTools[i].push({item: _tool, count: _toolUseCount});
-                                    toolsUsedOnSide += _toolUseCount;
-                                    availableTools[k].count -= _toolUseCount;
-                                    restProtection[i][j] -= _toolUseCount * _toolData[`${j}Bonus`];
-                                    attackLowerProtection[i][j] += _toolUseCount * _toolData[`${j}Bonus`];
-                                }
-                                break;
-                            }
+                        if (_toolData[`${j}Bonus`] == null || restProtection[side][j] / _toolData[`${j}Bonus`] > availableTool.count) continue;
+                        const _toolUseCount = Math.min(Math.ceil(restProtection[side][j] / _toolData[`${j}Bonus`]), maxToolCountOnSide - toolsUsedOnSide);
+                        const tool = usedTools[side].find(t => t.item.wodId === _tool.wodId);
+                        if (tool !== undefined) {
+                            tool.count += _toolUseCount;
+                            toolsUsedOnSide += _toolUseCount;
+                        } else {
+                            usedTools[side].push({item: _tool, count: _toolUseCount});
+                            toolsUsedOnSide += _toolUseCount;
                         }
+                        availableTool.count -= _toolUseCount;
+                        restProtection[side][j] -= _toolUseCount * _toolData[`${j}Bonus`];
+                        attackLowerProtection[side][j] += _toolUseCount * _toolData[`${j}Bonus`];
+                        break;
                     }
                 }
             }
-            if (availableToolBoxes > usedTools[i].length) {
-                let _rangeDefenders = dungeon.defence.troops[i].filter(x => x.item.rangeAttack > 0);
-                if (_rangeDefenders.length > 0) {
-                    let availableShields = availableTools.filter(x => x.item.rawData.defRangeBonus != null);
+            if (availableToolBoxes > usedTools[side].length) {
+                const _rangeDefender = dungeon.defence.troops[side].find(x => x.item.rangeAttack !== undefined && x.item.rangeAttack > 0);
+                if (_rangeDefender !== undefined) {
+                    const availableShields = availableTools.filter(x => x.item.rawData.defRangeBonus != null);
                     if (availableShields.length > 0) {
-                        let _tool = availableShields[0].item;
-                        let _toolUseCount = Math.ceil((100 + lordRangeDefenceBonus) / _tool.rawData.defRangeBonus);
-                        _toolUseCount = Math.min(availableShields[0].count, _toolUseCount, maxToolCountOnSide - toolsUsedOnSide);
+                        const _tool = availableShields[0].item;
+                        const _toolUseCount = Math.min(availableShields[0].count, Math.ceil((100 + lordRangeDefenceBonus) / _tool.rawData.defRangeBonus), maxToolCountOnSide - toolsUsedOnSide);
                         if (_toolUseCount > 0) {
-                            usedTools[i].push({item: _tool, count: _toolUseCount});
+                            usedTools[side].push({item: _tool, count: _toolUseCount});
                             availableShields[0].count -= _toolUseCount;
                         }
                     }
@@ -550,52 +482,41 @@ function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, av
         if (availableToolBoxes === 1) {
             let highestProtectionType = "";
             let highestProtectionValue = 0;
-            for (let k in restProtection[i]) {
-                if (restProtection[i][k] > highestProtectionValue) {
+            for (const k in restProtection[side]) {
+                if (restProtection[side][k] > highestProtectionValue) {
                     highestProtectionType = k;
+                    highestProtectionValue = restProtection[side][k];
                 }
             }
-            let j = highestProtectionType;
-            if (restProtection[i][j] > 0) {
-                for (let k in availableTools) {
-                    let _tool = availableTools[k].item;
+            const j = highestProtectionType;
+            if (restProtection[side][j] > 0) {
+                for (const availableTool of availableTools) {
+                    const _tool = availableTool.item;
                     const _toolData = _tool.rawData;
-                    if (_toolData[`${j}Bonus`]) {
-                        if (restProtection[i][j] / _toolData[`${j}Bonus`] < availableTools[k].count) {
-                            let __foundTool = false;
-                            let _toolUseCount = Math.min(Math.ceil(restProtection[i][j] / _toolData[`${j}Bonus`]), maxToolCountOnSide - toolsUsedOnSide);
-                            for (let l in usedTools[i]) {
-                                if (usedTools[i][l].item.wodId === _tool.wodId) {
-                                    __foundTool = true;
-                                    toolsUsedOnSide += _toolUseCount;
-                                    usedTools[i][l].count += _toolUseCount;
-                                    availableTools[k].count -= _toolUseCount;
-                                    restProtection[i][j] -= _toolUseCount * _toolData[`${j}Bonus`];
-                                    attackLowerProtection[i][j] += _toolUseCount * _toolData[`${j}Bonus`];
-                                    break;
-                                }
-                            }
-                            if (!__foundTool) {
-                                usedTools[i].push({item: _tool, count: _toolUseCount});
-                                toolsUsedOnSide += _toolUseCount;
-                                availableTools[k].count -= _toolUseCount;
-                                restProtection[i][j] -= _toolUseCount * _toolData[`${j}Bonus`];
-                                attackLowerProtection[i][j] += _toolUseCount * _toolData[`${j}Bonus`];
-                            }
-                            break;
-                        }
+                    if (_toolData[`${j}Bonus`] == null || restProtection[side][j] / _toolData[`${j}Bonus`] > availableTool.count) continue;
+                    const _toolUseCount = Math.min(Math.ceil(restProtection[side][j] / _toolData[`${j}Bonus`]), maxToolCountOnSide - toolsUsedOnSide);
+                    const tool = usedTools[side].find(t => t.item.wodId === _tool.wodId);
+                    if (tool !== undefined) {
+                        tool.count += _toolUseCount;
+                        toolsUsedOnSide += _toolUseCount;
+                    } else {
+                        usedTools[side].push({item: _tool, count: _toolUseCount});
+                        toolsUsedOnSide += _toolUseCount;
                     }
+                    availableTool.count -= _toolUseCount;
+                    restProtection[side][j] -= _toolUseCount * _toolData[`${j}Bonus`];
+                    attackLowerProtection[side][j] += _toolUseCount * _toolData[`${j}Bonus`];
+                    break;
                 }
             } else {
-                let _rangeDefenders = dungeon.defence.troops[i].filter(x => x.item.rangeAttack > 0);
-                if (_rangeDefenders.length > 0) {
-                    let availableShields = availableTools.filter(x => x.item.rawData.defRangeBonus != null);
+                const _rangeDefender = dungeon.defence.troops[side].find(x => x.item.rangeAttack !== undefined && x.item.rangeAttack > 0);
+                if (_rangeDefender !== undefined) {
+                    const availableShields = availableTools.filter(x => x.item.rawData.defRangeBonus != null);
                     if (availableShields.length > 0) {
-                        let _tool = availableShields[0].item;
-                        let _toolUseCount = Math.ceil((100 + lordRangeDefenceBonus) / _tool.rawData.defRangeBonus);
-                        _toolUseCount = Math.min(availableShields[0].count, _toolUseCount, maxToolCountOnSide - toolsUsedOnSide);
+                        const _tool = availableShields[0].item;
+                        const _toolUseCount = Math.min(availableShields[0].count, Math.ceil((100 + lordRangeDefenceBonus) / _tool.rawData.defRangeBonus), maxToolCountOnSide - toolsUsedOnSide);
                         if (_toolUseCount > 0) {
-                            usedTools[i].push({item: _tool, count: _toolUseCount});
+                            usedTools[side].push({item: _tool, count: _toolUseCount});
                             availableShields[0].count -= _toolUseCount;
                         }
                     }
@@ -607,7 +528,6 @@ function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, av
 }
 
 /**
- *
  * @param {Player} player
  * @param {DungeonMapobject} dungeon
  * @param {{ left: { melee: number, range: number }, middle: { melee: number, range: number }, right: { melee: number, range: number }, center: { melee: number, range: number } }} defenceStrength
@@ -618,25 +538,19 @@ function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, av
  * @returns {ArmyWave[]}
  */
 function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldiers, lord, usedTools, availableTools) {
-    let attackStrength = 0;
     let meleeStrength = 0;
     let rangeStrength = 0;
-    for (let soldier of availableSoldiers) {
-        let unit = soldier.item;
-        let count = soldier.count;
-        if (unit.rangeAttack) {
-            rangeStrength += unit.rangeAttack * count;
-            attackStrength += rangeStrength;
-        }
-        if (unit.meleeAttack) {
-            meleeStrength += unit.meleeAttack * count;
-            attackStrength += meleeStrength;
-        }
+    for (const soldier of availableSoldiers) {
+        const unit = soldier.item;
+        const count = soldier.count;
+        if (unit.rangeAttack) rangeStrength += unit.rangeAttack * count;
+        if (unit.meleeAttack) meleeStrength += unit.meleeAttack * count;
     }
+    const attackStrength = meleeStrength + rangeStrength;
     let _defenceStrengthTotal = 0;
-    for (let ___side in defenceStrength) {
-        for (let ___type in defenceStrength[___side]) {
-            _defenceStrengthTotal += defenceStrength[___side][___type];
+    for (const side in defenceStrength) {
+        for (const type in defenceStrength[side]) {
+            _defenceStrengthTotal += defenceStrength[side][type];
         }
     }
     if (_defenceStrengthTotal > attackStrength) return [];
@@ -647,47 +561,47 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
     let frontUnitAmountBonus = 0;
     let flankUnitAmountBonus = 0;
     let additionalWaves = 0;
-    for (let _effect of lord.effects) {
-        if (_effect.name === "meleeBonus" || _effect.name === "offensiveMeleeBonus" || _effect.name === "offensiveMeleeBonusPVE" || _effect.name === "relicOffensiveMeleeBonus" || _effect.name === "relicOffensiveMeleeBonusPVE" || _effect.name === "relicMeleeBonus" || _effect.name === "relicMeleeBonusPvE") {
-            lordMeleeBonus += _effect.power / 100;
-        } else if (_effect.name === "offensiveMeleeMalusPVE") {
-            lordMeleeBonus -= Math.abs(_effect.power) / 100;
-        } else if (_effect.name === "rangeBonus" || _effect.name === "offensiveRangeBonus" || _effect.name === "offensiveRangeBonusPVE" || _effect.name === "relicOffensiveRangeBonus" || _effect.name === "relicOffensiveRangeBonusPVE" || _effect.name === "relicRangeBonus" || _effect.name === "relicRangeBonusPvE") {
-            lordRangeBonus += _effect.power / 100;
-        } else if (_effect.name === "offensiveRangeMalusPVE") {
-            lordRangeBonus -= Math.abs(_effect.power) / 100;
-        } else if (_effect.name === "AttackBoostFront" || _effect.name === "AttackBoostFront2" || _effect.name === "relicAttackBoostFront") {
-            frontAttackBonus += _effect.power / 100;
-        } else if (_effect.name === "AttackBoostFlank" || _effect.name === "AttackBoostFlank2" || _effect.name === "relicAttackBoostFlank") {
-            flankAttackBonus += _effect.power / 100;
-        } else if (_effect.name === "AttackUnitAmountFront" || _effect.name === "attackUnitAmountFrontPVE" || _effect.name === "relicAttackUnitAmountFront" || _effect.name === "relicAttackUnitAmountFrontPVE") {
-            frontUnitAmountBonus += _effect.power;
-        } else if (_effect.name === "attackUnitAmountFrontMalusPVE") {
-            frontUnitAmountBonus -= Math.abs(_effect.power);
-        } else if (_effect.name === "attackUnitAmountFlank" || _effect.name === "attackUnitAmountFlankPVE" || _effect.name === "relicAttackUnitAmountFlank" || _effect.name === "relicAttackUnitAmountFlankPVE") {
-            flankUnitAmountBonus += _effect.power;
-        } else if (_effect.name === "attackUnitAmountFlankMalusPVE") {
-            flankUnitAmountBonus -= Math.abs(_effect.power);
-        } else if (_effect.name === "additionalWaves" || _effect.name === "relicAdditionalWaves") {
-            additionalWaves += _effect.power;
+    for (const effect of lord.effects) {
+        if (effect.name === "meleeBonus" || effect.name === "offensiveMeleeBonus" || effect.name === "offensiveMeleeBonusPVE" || effect.name === "relicOffensiveMeleeBonus" || effect.name === "relicOffensiveMeleeBonusPVE" || effect.name === "relicMeleeBonus" || effect.name === "relicMeleeBonusPvE") {
+            lordMeleeBonus += effect.power / 100;
+        } else if (effect.name === "offensiveMeleeMalusPVE") {
+            lordMeleeBonus -= Math.abs(effect.power) / 100;
+        } else if (effect.name === "rangeBonus" || effect.name === "offensiveRangeBonus" || effect.name === "offensiveRangeBonusPVE" || effect.name === "relicOffensiveRangeBonus" || effect.name === "relicOffensiveRangeBonusPVE" || effect.name === "relicRangeBonus" || effect.name === "relicRangeBonusPvE") {
+            lordRangeBonus += effect.power / 100;
+        } else if (effect.name === "offensiveRangeMalusPVE") {
+            lordRangeBonus -= Math.abs(effect.power) / 100;
+        } else if (effect.name === "AttackBoostFront" || effect.name === "AttackBoostFront2" || effect.name === "relicAttackBoostFront") {
+            frontAttackBonus += effect.power / 100;
+        } else if (effect.name === "AttackBoostFlank" || effect.name === "AttackBoostFlank2" || effect.name === "relicAttackBoostFlank") {
+            flankAttackBonus += effect.power / 100;
+        } else if (effect.name === "AttackUnitAmountFront" || effect.name === "attackUnitAmountFrontPVE" || effect.name === "relicAttackUnitAmountFront" || effect.name === "relicAttackUnitAmountFrontPVE") {
+            frontUnitAmountBonus += effect.power;
+        } else if (effect.name === "attackUnitAmountFrontMalusPVE") {
+            frontUnitAmountBonus -= Math.abs(effect.power);
+        } else if (effect.name === "attackUnitAmountFlank" || effect.name === "attackUnitAmountFlankPVE" || effect.name === "relicAttackUnitAmountFlank" || effect.name === "relicAttackUnitAmountFlankPVE") {
+            flankUnitAmountBonus += effect.power;
+        } else if (effect.name === "attackUnitAmountFlankMalusPVE") {
+            flankUnitAmountBonus -= Math.abs(effect.power);
+        } else if (effect.name === "additionalWaves" || effect.name === "relicAdditionalWaves") {
+            additionalWaves += effect.power;
         }
     }
-    let meleeSoldiersSorted = availableSoldiers.filter(x => x.item.meleeAttack !== undefined);
-    let rangeSoldiersSorted = availableSoldiers.filter(x => x.item.rangeAttack !== undefined);
+    const meleeSoldiersSorted = availableSoldiers.filter(x => x.item.meleeAttack !== undefined);
+    const rangeSoldiersSorted = availableSoldiers.filter(x => x.item.rangeAttack !== undefined);
     /** @type {ArmyWave[]} */
     const army = [];
-    let waveCount = CombatConst.getMaxWaveCountWithBonus(player.playerLevel, false, additionalWaves);
+    const waveCount = CombatConst.getMaxWaveCountWithBonus(player.playerLevel, false, additionalWaves);
     for (let w = 0; w < waveCount; w++) {
         /** @type {ArmyWave} */
-        let wave = {
+        const wave = {
             left: {units: [], tools: []}, middle: {units: [], tools: []}, right: {units: [], tools: []}
         }
         for (const side in defenceStrength) {
             if (wave[side] == null) continue;
             let fillRange = false;
             let fillMelee = false;
-            let maxSoldiersOnSide = CombatConst.getAmountSoldiers(side === "middle" ? 1 : 0, dungeon.level, flankUnitAmountBonus, frontUnitAmountBonus);
-            let maxSoldierBoxesOnSide = side === "middle" ? CombatConst.getUnitSlotCountFront(dungeon.level) : CombatConst.getUnitSlotCountFlank(dungeon.level);
+            const maxSoldiersOnSide = CombatConst.getAmountSoldiers(side === "middle" ? 1 : 0, dungeon.level, flankUnitAmountBonus, frontUnitAmountBonus);
+            const maxSoldierBoxesOnSide = side === "middle" ? CombatConst.getUnitSlotCountFront(dungeon.level) : CombatConst.getUnitSlotCountFlank(dungeon.level);
             meleeSoldiersSorted.sort((a, b) => -(a.item.meleeAttack * Math.min(a.count, maxSoldiersOnSide) - b.item.meleeAttack * Math.min(b.count, maxSoldiersOnSide)));
             rangeSoldiersSorted.sort((a, b) => -(a.item.rangeAttack * Math.min(a.count, maxSoldiersOnSide) - b.item.rangeAttack * Math.min(b.count, maxSoldiersOnSide)));
             if (defenceStrength[side].melee < defenceStrength[side].range) {
@@ -716,12 +630,12 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
                 fillMelee = true;
             }
 
-            let sideAttackBonus = side === "middle" ? frontAttackBonus : flankAttackBonus;
+            const sideAttackBonus = side === "middle" ? frontAttackBonus : flankAttackBonus;
             if (fillRange) {
-                let unitCount = Math.min(maxSoldiersOnSide, rangeSoldiersSorted[0].count);
-                let _unitCount = !rangeSoldiersSorted[1] ? 0 : Math.max(0, Math.min(maxSoldiersOnSide - unitCount, rangeSoldiersSorted[1].count));
-                let bonus = 1 + lordRangeBonus + sideAttackBonus;
-                let unitStrength = (unitCount * rangeSoldiersSorted[0].item.rangeAttack * bonus) + (!rangeSoldiersSorted[1] ? 0 : (_unitCount * rangeSoldiersSorted[1].item.rangeAttack * bonus));
+                const unitCount = Math.min(maxSoldiersOnSide, rangeSoldiersSorted[0].count);
+                const _unitCount = !rangeSoldiersSorted[1] ? 0 : Math.max(0, Math.min(maxSoldiersOnSide - unitCount, rangeSoldiersSorted[1].count));
+                const bonus = 1 + lordRangeBonus + sideAttackBonus;
+                const unitStrength = (unitCount * rangeSoldiersSorted[0].item.rangeAttack * bonus) + (!rangeSoldiersSorted[1] ? 0 : (_unitCount * rangeSoldiersSorted[1].item.rangeAttack * bonus));
                 if (unitStrength > defenceStrength[side].range) {
                     wave[side].units.push({item: rangeSoldiersSorted[0].item, count: unitCount});
                     rangeSoldiersSorted[0].count -= unitCount;
@@ -732,10 +646,10 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
                 }
             }
             if (fillMelee) {
-                let unitCount = Math.min(maxSoldiersOnSide, meleeSoldiersSorted[0].count);
-                let _unitCount = !meleeSoldiersSorted[1] ? 0 : Math.max(0, Math.min(maxSoldiersOnSide - unitCount, meleeSoldiersSorted[1].count));
-                let bonus = 1 + lordMeleeBonus + sideAttackBonus;
-                let unitStrength = (unitCount * meleeSoldiersSorted[0].item.meleeAttack * bonus) + (!meleeSoldiersSorted[1] ? 0 : (_unitCount * meleeSoldiersSorted[1].item.meleeAttack * bonus));
+                const unitCount = Math.min(maxSoldiersOnSide, meleeSoldiersSorted[0].count);
+                const _unitCount = !meleeSoldiersSorted[1] ? 0 : Math.max(0, Math.min(maxSoldiersOnSide - unitCount, meleeSoldiersSorted[1].count));
+                const bonus = 1 + lordMeleeBonus + sideAttackBonus;
+                const unitStrength = (unitCount * meleeSoldiersSorted[0].item.meleeAttack * bonus) + (!meleeSoldiersSorted[1] ? 0 : (_unitCount * meleeSoldiersSorted[1].item.meleeAttack * bonus));
                 if (unitStrength > defenceStrength[side].melee) {
                     wave[side].units.push({item: meleeSoldiersSorted[0].item, count: unitCount});
                     meleeSoldiersSorted[0].count -= unitCount;
@@ -747,18 +661,16 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
             }
         }
         if (w === 0) {
-            for (let i in wave) {
-                if (wave[i].units.length > 0) {
-                    for (let k in usedTools[i]) {
-                        /** @type {InventoryItem<Tool>} */
-                        let __tool = usedTools[i][k];
-                        wave[i].tools.push(__tool);
+            for (const side in wave) {
+                if (wave[side].units.length > 0) {
+                    for (const tool of usedTools[side]) {
+                        wave[side].tools.push(tool);
                     }
                 }
             }
         }
-        for (let i in wave) {
-            if (wave[i].units.length > 0) {
+        for (const side in wave) {
+            if (wave[side].units.length > 0) {
                 army.push(wave);
                 break;
             }
@@ -768,7 +680,6 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
 }
 
 /**
- *
  * @param {Client} client
  * @param {Player} thisPlayer
  * @param {CastleMapobject} castle
@@ -776,29 +687,22 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
  * @returns {Promise<void>}
  */
 async function attackDungeon(client, thisPlayer, castle, lord) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let dungeon = await getClosestDungeon(client, castle);
-            /** @type {Castle} */
-            let castleData = await client.getCastleInfo(castle);
-            let availableTroops = castleData.unitInventory?.units;
-            if (availableTroops == null) return reject("No troops!");
-            let availableSoldiers = availableTroops.filter(t => t.item.isSoldier && t.item.fightType === 0);
-            /** @type {InventoryItem<Tool>[]} */
-            let availableDungeonAttackTools = availableTroops.filter(t => !t.item.isSoldier && t.item.fightType === 0 && t.item.canBeUsedToAttackNPC && t.item.name !== "Eventtool" && t.item.amountPerWave == null && (t.item.costC2 === undefined || t.item.costC2 === 0));
-            if (availableSoldiers.length === 0) return reject('No attacking soldiers available');
-            let dungeonProtection = getDungeonProtection(dungeon);
-            let {
-                attackLowerProtection, usedTools
-            } = getAttackLowerProtectionDungeon(dungeon, lord, dungeonProtection, availableDungeonAttackTools);
-            let defenceStrengthTotal = getDungeonDefenceStrength(dungeon, dungeonProtection, attackLowerProtection, usedTools);
-            let army = getBestArmyForDungeon(thisPlayer, dungeon, defenceStrengthTotal, availableSoldiers, lord, usedTools, availableDungeonAttackTools);
-            if (army.length === 0) return reject('Not enough attacking soldiers available');
-            const horse = new Horse(client, castleData, HorseType.Coin);
-            client.movements.startAttackMovement(castle, dungeon, army, lord, horse);
-            resolve();
-        } catch (e) {
-            reject(e);
-        }
-    })
+    const dungeon = await getClosestDungeon(client, castle);
+    /** @type {Castle} */
+    const castleData = await client.getCastleInfo(castle);
+    const availableTroops = castleData.unitInventory?.units;
+    if (availableTroops == null) throw "No troops!";
+    const availableSoldiers = availableTroops.filter(t => t.item.isSoldier && t.item.fightType === 0);
+    /** @type {InventoryItem<Tool>[]} */
+    const availableDungeonAttackTools = availableTroops.filter(t => !t.item.isSoldier && t.item.fightType === 0 && t.item.canBeUsedToAttackNPC && t.item.name !== "Eventtool" && t.item.amountPerWave == null && (t.item.costC2 === undefined || t.item.costC2 === 0));
+    if (availableSoldiers.length === 0) throw 'No attacking soldiers available';
+    const dungeonProtection = getDungeonProtection(dungeon);
+    const {
+        attackLowerProtection, usedTools
+    } = getAttackLowerProtectionDungeon(dungeon, lord, dungeonProtection, availableDungeonAttackTools);
+    const defenceStrengthTotal = getDungeonDefenceStrength(dungeon, dungeonProtection, attackLowerProtection, usedTools);
+    const army = getBestArmyForDungeon(thisPlayer, dungeon, defenceStrengthTotal, availableSoldiers, lord, usedTools, availableDungeonAttackTools);
+    if (army.length === 0) throw 'Not enough attacking soldiers available';
+    const horse = new Horse(client, castleData, HorseType.Coin);
+    client.movements.startAttackMovement(castle, dungeon, army, lord, horse);
 }

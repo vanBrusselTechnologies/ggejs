@@ -2,7 +2,6 @@ const InteractiveMapobject = require("./InteractiveMapobject");
 
 class MonumentMapobject extends InteractiveMapobject {
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */
@@ -13,7 +12,7 @@ class MonumentMapobject extends InteractiveMapobject {
         this.objectId = data[3];
         /** @type {number} */
         this.occupierId = data[4];
-        if (this.occupierId >= 0) this.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(this.occupierId);
+        if (this.occupierId >= 0) this.ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(this.occupierId);
         /** @type {number} */
         this.monumentType = data[5];
         /** @type {number} */

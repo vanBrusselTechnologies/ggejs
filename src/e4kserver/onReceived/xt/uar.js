@@ -21,7 +21,6 @@ module.exports.execute = function (socket, errorCode, params) {
 }
 
 /* *
- *
  * @param {number} titleType
  * /
 function updateThresholdsFor(titleType) {

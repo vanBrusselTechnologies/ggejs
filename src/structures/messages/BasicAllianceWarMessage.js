@@ -4,7 +4,6 @@ const Localize = require("../../tools/Localize");
 class BasicAllianceWarMessage extends BasicMessage {
 
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */

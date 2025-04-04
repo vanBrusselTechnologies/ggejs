@@ -10,11 +10,7 @@ module.exports.execute = function (socket, message) {
     require('../data').sendCommandVO(socket, C2SAllianceChatVO);
 }
 
-/**
- *
- * @param {string} msg
- * @returns {string}
- */
+/** @param {string} msg */
 function validateMessage(msg) {
     msg = msg.replaceAll(/%/g, "&percnt;")
         .replaceAll(/'/g, "&#145;")

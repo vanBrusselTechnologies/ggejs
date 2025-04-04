@@ -27,7 +27,6 @@ const MAP_TYPE_TREASURE_HUNT = 1;
 const MAP_TYPE_CRUSADE_TIMED = 2;
 
 /**
- *
  * @param {number} dungeonLevel
  * @param {number} treasureMapId
  * @param {number} difficulty

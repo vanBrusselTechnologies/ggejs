@@ -16,11 +16,7 @@ module.exports.execute = function (socket, receiverName, subject, msg) {
     }
 }
 
-/**
- *
- * @param {string} value
- * @returns {string}
- */
+/** @param {string} value */
 function getValideSmartFoxJSONMailMessage(value) {
     for (let char in ["\\+", "#", "<", ">", "\"", "\\$"]) {
         let regExp = new RegExp(`\\${char}`, "gs");

@@ -14,7 +14,6 @@ class CastleBuildingStorage {
 
 
     /**
-     *
      * @param {Client} client
      * @param {{SID:number, RD:[number[]], CD:[number[]], UD:[number[]]}[]} data
      */

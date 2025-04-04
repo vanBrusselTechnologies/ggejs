@@ -2,7 +2,6 @@ const InteractiveMapobject = require("./InteractiveMapobject");
 
 class ShadowAreaMapobject extends InteractiveMapobject {
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */

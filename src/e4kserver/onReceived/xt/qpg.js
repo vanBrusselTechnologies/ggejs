@@ -1,6 +1,5 @@
 module.exports.name = "qpg";
 /**
- *
  * @param {Socket} _
  * @param {number} __
  * @param {Object} ___

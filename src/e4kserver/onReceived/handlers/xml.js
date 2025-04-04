@@ -35,10 +35,7 @@ function xtHandleMessage(socket, msgObj) {
     }
 }
 
-/**
- *
- * @param {string} xmlString
- */
+/** @param {string} xmlString */
 function stringToXml(xmlString) {
     let xml = {};
     if (!xmlString.startsWith('<')) {

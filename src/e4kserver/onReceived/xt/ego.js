@@ -1,6 +1,5 @@
 module.exports.name = "ego";
 /**
- *
  * @param {Socket} _
  * @param {number} __
  * @param {Object} ___

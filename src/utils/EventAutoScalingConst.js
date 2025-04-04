@@ -1,3 +1,3 @@
-module.exports.DIFFICULTY_NOT_SELECTED = -1
-module.exports.CLASSIC_EVENT_DIFFICULTY = 0
-module.exports.ANY_EVENT_DIFFICULTY = 1
+module.exports.DIFFICULTY_NOT_SELECTED = -1;
+module.exports.CLASSIC_EVENT_DIFFICULTY = 0;
+module.exports.ANY_EVENT_DIFFICULTY = 1;

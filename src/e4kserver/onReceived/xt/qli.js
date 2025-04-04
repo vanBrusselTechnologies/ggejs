@@ -1,6 +1,5 @@
 module.exports.name = "qli";
 /**
- *
  * @param {Socket} socket
  * @param {number} errorCode
  * @param {{QL:{QID:number, P:number[]}[]}} params

@@ -56,7 +56,7 @@ exports.MovementType = {
     GeneralsWolfkingTaunt: 34
 }
 
-exports.WorldmapArea = {
+exports.WorldMapArea = {
     Empty: 0,
     MainCastle: 1,
     Dungeon: 2,

@@ -37,27 +37,18 @@ const CREST_MAP = {
     0: NPC_CREST_BLUE, 1: NPC_CREST_RED,
 }
 
-/**
- *
- * @param {number} playerId
- * @return {boolean}
- */
+/** @param {number} playerId */
 function isFactionEventNPC(playerId) {
     return NPC_IDS.indexOf(playerId) >= 0;
 }
 
-/**
- *
- * @param {number} absX
- * @return {number}
- */
+/** @param {number} absX */
 function getFactionIdForAbsX(absX) {
     const upperLeftWorldX = FactionConst.upperLeftWorldXFromAbsoluteCampX(absX);
     return upperLeftWorldX < FactionConst.getMapWidth() / 2 ? 1 : 0;
 }
 
 /**
- *
  * @param {number} factionId
  * @return {Crest}
  */

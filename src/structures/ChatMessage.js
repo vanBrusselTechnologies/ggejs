@@ -2,7 +2,6 @@ const {parseChatJSONMessage} = require("../tools/TextValide");
 
 class ChatMessage {
     /**
-     *
      * @param {Client} client
      * @param {{MT: string, MA: number, PID: number, PN: string}} data
      */

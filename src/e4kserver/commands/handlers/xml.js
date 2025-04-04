@@ -10,10 +10,7 @@ module.exports.sendAction = function (socket, header, action, fromRoom, message)
     require('../../data.js').writeToSocket(socket, msg);
 }
 
-/**
- * @param {Object} headerObj
- * @returns {string}
- */
+/** @param {Object} headerObj */
 function makeXmlHeader(headerObj) {
     let header = "<msg";
     for (let attribute in headerObj) {

@@ -13,7 +13,6 @@ class CastleResourceStorage {
     mead = new Good(null, ["MEAD", 0]);
 
     /**
-     *
      * @param {Client} client
      * @param {{AID:number,W:number,S:number,F:number,C:number,O:number,G:number,A:number,I:number,HONEY:number,MEAD:number,KID:number}} data
      */

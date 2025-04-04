@@ -3,7 +3,6 @@ const {units} = require('e4k-data').data;
 
 class Unit {
     /**
-     *
      * @param {Client} client
      * @param {number} wodId
      */
@@ -67,7 +66,6 @@ class Unit {
 }
 
 /**
- *
  * @param {Unit} rawData
  * @returns {boolean}
  */
@@ -76,11 +74,7 @@ function isSoldier(rawData) {
 
 }
 
-/**
- *
- * @param {number} wodId
- * @returns {Unit}
- */
+/** @param {number} wodId */
 function getData(wodId) {
     for (const unit of units) {
         if (wodId === unit.wodID) return unit;

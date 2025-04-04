@@ -38,7 +38,6 @@ function parsePrimeSaleTypeAndRequiredEventIds(event) {
 }
 
 /**
- *
  * @param {PrimeSalePackagesEvent} event
  * @return {string} todo: PrimeSaleTypeEnum
  */
@@ -53,7 +52,6 @@ function getPrimeSaleType(event) {
 }
 
 /**
- *
  * @param {Package[]} eventPackages
  * @return {string} todo: PrimeSaleTypeEnum
  */
@@ -76,7 +74,6 @@ function getPrimeSaleTypeForVIPPrimeSale(eventPackages) {
 }
 
 /**
- *
  * @param {PrimeSalePackagesEvent} primeSalePackagesEvent
  * @return {number[]}
  */

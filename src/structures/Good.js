@@ -18,7 +18,6 @@ const goodNames = {
 
 class Good extends InventoryItem {
     /**
-     *
      * @param {Client} client
      * @param {[string, number]} data
      */

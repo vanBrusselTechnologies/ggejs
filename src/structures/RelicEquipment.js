@@ -3,10 +3,9 @@ const RelicGem = require("./RelicGem");
 
 class RelicEquipment {
     /**
-     * 
-     * @param {Client} client 
-     * @param {Array} data 
-     * @param {Lord} lord 
+     * @param {Client} client
+     * @param {Array} data
+     * @param {Lord} lord
      */
     constructor(client, data, lord = null) {
         /** @type {number} */
@@ -39,20 +38,17 @@ class RelicEquipment {
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} data 
- * @param {RelicEquipment} equipment 
- * @returns {RelicGem}
+ * @param {Client} client
+ * @param {Array} data
+ * @param {RelicEquipment} equipment
  */
 function parseGem(client, data, equipment) {
     return new RelicGem(client, data, equipment);
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} data 
+ * @param {Client} client
+ * @param {Array} data
  * @returns {RelicEffect[]}
  */
 function parseEffects(client, data) {

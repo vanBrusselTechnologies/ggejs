@@ -3,7 +3,6 @@ const {horses, buildings} = require('e4k-data').data;
 
 class Horse {
     /**
-     *
      * @param {Client} client
      * @param {Castle} castleData
      * @param {number} horseType
@@ -29,7 +28,6 @@ class Horse {
 }
 
 /**
- *
  * @param {BasicBuilding[]} castleBuildings
  * @param {number} type
  * @returns {number}

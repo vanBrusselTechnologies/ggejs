@@ -2,8 +2,7 @@ const InteractiveMapobject = require("./InteractiveMapobject");
 
 class CastleMapobject extends InteractiveMapobject {
     /**
-     * 
-     * @param {Client} client 
+     * @param {Client} client
      * @param {Array} data
      */
     constructor(client, data) {
@@ -12,8 +11,7 @@ class CastleMapobject extends InteractiveMapobject {
             if (data.length <= 3) return;
             /** @type {number} */
             this.occupierId = data[3];
-        }
-        else {
+        } else {
             super(client, data);
             this.externalServerInformation = data[18];
         }

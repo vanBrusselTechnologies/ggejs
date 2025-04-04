@@ -7,7 +7,6 @@ class FactionTowerMapobject extends FactionInteractiveMapobject {
     travelDistance = 5;
 
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */
@@ -16,7 +15,7 @@ class FactionTowerMapobject extends FactionInteractiveMapobject {
         this.#client = client;
         if (data.length <= 3) return;
         this.ownerId = data[3];
-        this.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(this.ownerId);
+        this.ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(this.ownerId);
         this.isDestroyed = data[4] === 1;
         this.aliveProtectorPositions = data[5].map(p => new Coordinate(client, p));
         if (data[6] > 0 && !this.isDestroyed) {
@@ -48,7 +47,7 @@ class FactionTowerMapobject extends FactionInteractiveMapobject {
     parseAreaInfoBattleLog(data) {
         super.parseAreaInfoBattleLog(data);
         this.ownerId = data["DP"];
-        this.ownerInfo = this.#client.worldmaps._ownerInfoData.getOwnerInfo(this.ownerId);
+        this.ownerInfo = this.#client.worldMaps._ownerInfoData.getOwnerInfo(this.ownerId);
         return this;
     }
 }

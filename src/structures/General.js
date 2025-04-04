@@ -2,7 +2,6 @@ const {generals} = require('e4k-data').data;
 
 class General {
     /**
-     *
      * @param {Client} client
      * @param {Object} data
      * @returns
@@ -17,8 +16,8 @@ class General {
         this.isNew = data["IN"];
         this.leveledUp = data["LU"];
         if (this.rawData && data["GASAIDS"]) {
-            this.attackAbilities = this.rawData.attackSlots ? parseAssignedAbilities(this.rawData.attackSlots.split(',').map(slot => parseInt(slot)), data["GASAIDS"]) : [];
-            this.defenseAbilities = this.rawData.defenseSlots ? parseAssignedAbilities(this.rawData.defenseSlots.split(',').map(slot => parseInt(slot)), data["GASAIDS"]) : [];
+            this.attackAbilities = this.rawData.attackSlots ? parseAssignedAbilities(this.rawData.attackSlots.toString().split(',').map(slot => parseInt(slot)), data["GASAIDS"]) : [];
+            this.defenseAbilities = this.rawData.defenseSlots ? parseAssignedAbilities(this.rawData.defenseSlots.toString().split(',').map(slot => parseInt(slot)), data["GASAIDS"]) : [];
         }
         this.activatedSkillIds = data["SIDS"];
         this.wins = data["W"];
@@ -27,7 +26,6 @@ class General {
 }
 
 /**
- *
  * @param {Array<number>} slotIds
  * @param {Array<number[]>} slotAbilitiesArray
  * @return {{slotId: number, abilityId: number}[]}

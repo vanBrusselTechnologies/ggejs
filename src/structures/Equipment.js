@@ -4,7 +4,6 @@ const {equipment_effects: equipmentEffects} = require('e4k-data').data;
 
 class Equipment {
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      * @param {Lord} lord
@@ -28,15 +27,16 @@ class Equipment {
         this.setId = data[7];
         /** @type {Effect[]} */
         this.effects = parseEffects(client, data[5]);
-        if (data[10] !== -1) /** @type {Gem} */
-        this.attachedGem = parseGem(client, data[10], this);
-        if (lord) /** @type {Lord} */
-        this.equippedLord = lord;
+        if (data[10] !== -1)
+            /** @type {Gem} */
+            this.attachedGem = parseGem(client, data[10], this);
+        if (lord)
+            /** @type {Lord} */
+            this.equippedLord = lord;
     }
 }
 
 /**
- *
  * @param {Client} client
  * @param {Array} data
  * @returns {Effect[]}
@@ -55,7 +55,6 @@ function parseEffects(client, data) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {number} data
  * @param {Equipment} equipment

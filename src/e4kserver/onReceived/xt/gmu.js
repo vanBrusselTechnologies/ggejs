@@ -6,6 +6,6 @@ module.exports.name = "gmu";
  */
 module.exports.execute = function (socket, errorCode, params) {
     socket.client.clientUserData.mightpoints = params.MP;
-    socket.client.clientUserData.highestAchievedMight = params.HMP
-    // TEMP_SERVER_BUILDING_MIGHT : params.TSBM
+    socket.client.clientUserData.highestAchievedMight = params.HMP;
+    // TEMP_SERVER_BUILDING_MIGHT : params.TSBM;
 }

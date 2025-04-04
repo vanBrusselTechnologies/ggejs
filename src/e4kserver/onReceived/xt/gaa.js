@@ -7,77 +7,80 @@ module.exports.name = "gaa";
  * @param {{KID:number, AI:[], OI:[]}} params
  */
 module.exports.execute = function (socket, errorCode, params) {
-    if (errorCode === 145 || errorCode === 337) return socket[`__worldmap__error`] = `errorCode_${errorCode}`;
+    if (errorCode === 145 || errorCode === 337) {
+        socket[`__worldMap__error`] = `errorCode_${errorCode}`;
+        return;
+    }
     if (params == null) return;
     let kId = params.KID;
     if (!params.AI || params.AI.length === 0) {
         if (kId == null) return;
-        socket[`__worldmap_${kId}_empty`] = {worldmapAreas: []};
+        socket[`__worldMap_${kId}_empty`] = {worldMapAreas: []};
         return;
     }
-    socket.client.worldmaps._ownerInfoData.parseOwnerInfoArray(params.OI);
+    socket.client.worldMaps._ownerInfoData.parseOwnerInfoArray(params.OI);
     if (kId == null) {
-        kId = parseWorldmapAreas(socket.client, params.AI.slice(0, 1))[0].kingdomId;
+        kId = parseMapObject(socket.client, params.AI.find(i => i.length > 4))?.kingdomId;
         if (kId == null) return;
     }
 
     /**  @type {{x: number, y: number}[]} */
-    const searchingSectors = socket[`__worldmap_${kId}_searching_sectors`];
+    const searchingSectors = socket[`__worldMap_${kId}_searching_sectors`];
     if (searchingSectors === undefined || searchingSectors.length === 0) return;
 
-    let _worldmapAreas = parseWorldmapAreas(socket.client, params.AI);
+    let _worldMapAreas = parseWorldMapAreas(socket.client, params.AI);
     /** @type {{x: number, y: number}} */
-    const areaCenter = getCenterOfWorldmapAreas(_worldmapAreas)
+    const areaCenter = getCenterOfWorldMapAreas(_worldMapAreas);
     let foundRequest = false;
     for (let i = searchingSectors.length - 1; i >= 0; i--) {
         const sectorCenter = searchingSectors[i];
         const distance = getDistance(areaCenter, sectorCenter);
         if (distance < 2.5 || (distance < 10 && (areaCenter.x > 1000 || areaCenter.y > 1000))) {
-            socket[`__worldmap_${kId}_searching_sectors`].splice(i, 1);
-            const str = `__worldmap_${kId}_specific_sector_${sectorCenter.x}_${sectorCenter.y}`
-            socket[`${str}_data`] = {worldmapAreas: _worldmapAreas};
+            socket[`__worldMap_${kId}_searching_sectors`].splice(i, 1);
+            const str = `__worldMap_${kId}_specific_sector_${sectorCenter.x}_${sectorCenter.y}`;
+            socket[`${str}_data`] = {worldMapAreas: _worldMapAreas};
             foundRequest = true;
         }
     }
     if (!foundRequest) {
         const sorted = searchingSectors.sort((a, b) => {
             return getDistance(a, areaCenter) - getDistance(b, areaCenter);
-        })
+        });
         const sectorCenter = sorted[0];
         if (getDistance(sectorCenter, areaCenter) < 50) {
-            const i = searchingSectors.indexOf(sectorCenter)
-            socket[`__worldmap_${kId}_searching_sectors`].splice(i, 1);
-            const str = `__worldmap_${kId}_specific_sector_${sectorCenter.x}_${sectorCenter.y}`
-            socket[`${str}_data`] = {worldmapAreas: _worldmapAreas};
+            const i = searchingSectors.indexOf(sectorCenter);
+            socket[`__worldMap_${kId}_searching_sectors`].splice(i, 1);
+            const str = `__worldMap_${kId}_specific_sector_${sectorCenter.x}_${sectorCenter.y}`;
+            socket[`${str}_data`] = {worldMapAreas: _worldMapAreas};
         }
     }
 
-    _worldmapAreas = null;
+    _worldMapAreas = null;
 }
 
 /**
  * @param {Client} client
  * @param {[]} _data
- * @returns {Mapobject[]}
  */
-function parseWorldmapAreas(client, _data) {
-    const worldmapAreas = [];
-    for (const data of (_data || [])) {
-        worldmapAreas.push(parseMapObject(client, data))
+function parseWorldMapAreas(client, _data) {
+    /** @type {Mapobject[]} */
+    const worldMapAreas = [];
+    for (const data of (_data ?? [])) {
+        worldMapAreas.push(parseMapObject(client, data));
     }
-    return worldmapAreas;
+    return worldMapAreas;
 }
 
 /**
- * @param {BasicMapobject[]} worldmapAreas
+ * @param {BasicMapobject[]} worldMapAreas
  * @returns {{x:number, y: number}}
  */
-function getCenterOfWorldmapAreas(worldmapAreas) {
+function getCenterOfWorldMapAreas(worldMapAreas) {
     let lowX = 10000;
     let highX = -10000;
     let lowY = 10000;
     let highY = -10000;
-    for (let wmA of worldmapAreas) {
+    for (const wmA of worldMapAreas) {
         lowX = Math.min(lowX, wmA.position.X);
         highX = Math.max(highX, wmA.position.X);
         lowY = Math.min(lowY, wmA.position.Y);
@@ -85,7 +88,7 @@ function getCenterOfWorldmapAreas(worldmapAreas) {
     }
     const centerX = (lowX + highX) / 2;
     const centerY = (lowY + highY) / 2;
-    return {x: centerX, y: centerY}
+    return {x: centerX, y: centerY};
 }
 
 /**

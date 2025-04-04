@@ -1,11 +1,14 @@
-const WorldmapOwnerInfo = require("./WorldmapOwnerInfo");
+const WorldMapOwnerInfo = require("./WorldMapOwnerInfo");
 
-class AllianceMember extends WorldmapOwnerInfo {
+class AllianceMember extends WorldMapOwnerInfo {
+    alliance;
+    donations;
+    activityStatus;
+
     /**
-     * 
-     * @param {Client} client 
-     * @param {*} data 
-     * @param {Alliance} alliance 
+     * @param {Client} client
+     * @param {*} data
+     * @param {Alliance} alliance
      */
     constructor(client, data, alliance) {
         super(client);

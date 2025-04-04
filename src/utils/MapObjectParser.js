@@ -28,7 +28,6 @@ const FactionVillageMapobject = require("../structures/mapobjects/FactionVillage
 const FactionCapitalMapobject = require("../structures/mapobjects/FactionCapitalMapobject");
 const WolfKingMapobject = require("../structures/mapobjects/WolfKingMapobject");
 const TreasureMapMapobject = require("../structures/mapobjects/TreasureMapMapobject");
-const InteractiveMapobject = require("../structures/mapobjects/InteractiveMapobject");
 const SeaqueenMapCastleObject = require("../structures/mapobjects/SeaqueenMapCastleObject");
 const SeaqueenMapBigCastleObject = require("../structures/mapobjects/SeaqueenMapBigCastleObject");
 const SeaqueenMapCampObject = require("../structures/mapobjects/SeaqueenMapCampObject");
@@ -36,12 +35,11 @@ const SeaqueenMapShipObject = require("../structures/mapobjects/SeaqueenMapShipO
 const SeaqueenMapKrakenObject = require("../structures/mapobjects/SeaqueenMapKrakenObject");
 
 /**
- *
  * @param {Client} client
  * @param {[]} data
  * @returns {Mapobject}
  */
-function parseMapobject(client, data) {
+module.exports.parseMapObject = (client, data) => {
     if (data == null || !Array.isArray(data)) return null;
     if (data.length === 0) return new BasicMapobject(client, []);
     const areaType = data[0];
@@ -114,22 +112,19 @@ function parseMapobject(client, data) {
         case 42:
             return new WolfKingMapobject(client, data);
         default:
-            console.warn(`Current mapobject (areatype ${areaType}) isn't fully supported!`);
-            console.log(data);
+            console.warn(`Current mapobject (areatype ${areaType}) isn't fully supported!`, data);
             return new BasicMapobject(client, data);
     }
 }
 
 
 /**
- *
  * @param {Client} client
  * @param {number} mapId
  * @param {number} type
  * @param {number} position
- * @returns {TreasureMapMapobject}
  */
-function parseTreasureMapObject(client, mapId, type, position = -1) {
+module.exports.parseTreasureMapObject = (client, mapId, type, position = -1) => {
     /** @type {TreasureMapMapobject} */
     let treasureMapObject;
     switch (type) {
@@ -143,8 +138,8 @@ function parseTreasureMapObject(client, mapId, type, position = -1) {
             treasureMapObject = new SeaqueenMapKrakenObject(client, type);
             break;
         case 2:
-            const treasureMap = tmaps.find(map => map.mapID === mapId)
-            const treasureMapNodeIds = treasureMap.tmapnodeIDs.split('+').map(id => parseInt(id))
+            const treasureMap = tmaps.find(map => map.mapID === mapId);
+            const treasureMapNodeIds = treasureMap.tmapnodeIDs.split('+').map(id => parseInt(id));
             const treasureMapNode = tmapnodes.find(node => node.pos === position && treasureMapNodeIds.includes(node.tmapnodeID));
             if (treasureMapNode && treasureMapNode.type === "BRIDGEDUNGEON") {
                 treasureMapObject = new SeaqueenMapBigCastleObject(client, type);
@@ -178,6 +173,3 @@ function parseTreasureMapObject(client, mapId, type, position = -1) {
     treasureMapObject.tMapPosition = position;
     return treasureMapObject;
 }
-
-module.exports.parseMapObject = parseMapobject;
-module.exports.parseTreasureMapObject = parseTreasureMapObject;

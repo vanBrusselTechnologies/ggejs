@@ -1,9 +1,6 @@
 const languages = require('e4k-data').languages;
 
-/**
- *
- * @type {{text(client:Client, textId:string, ...args:string): string}}
- */
+/** @type {{text(client:Client, textId:string, ...args:string): string}} */
 const Localize = {
     text(client, textId, ...args) {
         if (client == null) return textId;
@@ -22,7 +19,6 @@ const Localize = {
 }
 
 /**
- *
  * @param {Client} client
  * @param {string} textId
  * @return {string}

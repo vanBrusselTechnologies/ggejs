@@ -78,8 +78,8 @@ module.exports.execute = function (socket, errorCode, params) {
 //#endregion
                 try {
                     if (socket.ultraDebug) {
-                        const msg = JSON.stringify(params[x])
-                        console.log(`[RECEIVED-GBD] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`)
+                        const msg = JSON.stringify(params[x]);
+                        console.log(`[RECEIVED-GBD] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`);
                     }
                     require(`./${x.toLowerCase()}`).execute(socket, errorCode, params[x]);
                 } catch (e) {

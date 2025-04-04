@@ -3,7 +3,6 @@ const {villages, buildings} = require('e4k-data').data;
 
 class VillageMapobject extends InteractiveMapobject {
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */
@@ -14,13 +13,14 @@ class VillageMapobject extends InteractiveMapobject {
         this.objectId = data[3];
         /** @type {number} */
         this.occupierId = data[4];
-        if (this.occupierId >= 0) this.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(this.occupierId);
+        if (this.occupierId >= 0) this.ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(this.occupierId);
         /** @type {number} */
         this.villageType = data[5];
         /** @type {number} */
         this.kingdomId = data[6];
-        if (data[7] > 0) /** @type {Date} */
-        this.lastSpyDate = new Date(Date.now() - data[7] * 1000);
+        if (data[7] > 0)
+            /** @type {Date} */
+            this.lastSpyDate = new Date(Date.now() - data[7] * 1000);
         /** @type {string} */
         this.customName = data[8];
         const _data = parseVillageData(this.kingdomId, this.villageType);

@@ -2,15 +2,15 @@ const InteractiveMapobject = require("./InteractiveMapobject");
 
 class DungeonIsleMapobject extends InteractiveMapobject {
     occupierId = -223
+
     /**
-     * 
-     * @param {Client} client 
+     * @param {Client} client
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data.slice(0,3));
+        super(client, data.slice(0, 3));
         if (data.length <= 3) return;
-        this.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(this.occupierId);
+        this.ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(this.occupierId);
         /** @type {number} */
         this.kingdomId = data[3];
         if (data[4] > 0)

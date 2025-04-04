@@ -35,6 +35,7 @@ module.exports.execute = function (socket, source, target, army, lord, horse = n
             BKS: [],
             AST: [],
             RW: [],
+            ASCT: 0
         },
     }
     require('../data').sendCommandVO(socket, C2SCreateArmyAttackMovementVO);

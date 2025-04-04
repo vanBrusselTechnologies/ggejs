@@ -6,7 +6,6 @@ const {equipment_sets: equipmentSets, effectCaps, lords} = require('e4k-data').d
 
 class Lord {
     /**
-     *
      * @param {Client} client
      * @param {Object} data
      * @returns
@@ -57,7 +56,6 @@ class Lord {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Array} data
  * @param {Lord} lord
@@ -93,7 +91,6 @@ function parseGems(client, data, equipments) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {*} data
  * @param {Equipment[] | RelicEquipment[]} equipments
@@ -207,7 +204,6 @@ function parseEffects(client, data, equipments) {
 }
 
 /**
- *
  * @param {number} id
  * @returns {Object}
  */
@@ -218,7 +214,6 @@ function getDummyData(id) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {string} effectsData
  * @returns {Effect[]}

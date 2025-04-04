@@ -7,7 +7,6 @@ class SeaqueenMapCampObject extends SeaqueenMapObject {
     areaType = 8
 
     /**
-     *
      * @param {Client} client
      * @param {number} type
      * @param {number} x

@@ -6,7 +6,6 @@ class Crest {
     colorsTwo = [];
 
     /**
-     *
      * @param {Client} client
      * @param {number[] | {SC1: number, SC2: number, SPT: number, BGC2: number, BGC1: number, BGT: number, S1: number, S2: number}} data
      */

@@ -4,7 +4,6 @@ class WolfKingMapobject extends InteractiveMapobject {
     travelDistance = 2;
 
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */

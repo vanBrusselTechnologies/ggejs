@@ -1,4 +1,4 @@
-const WorldmapOwnerInfo = require("../../../structures/WorldmapOwnerInfo");
+const WorldMapOwnerInfo = require("../../../structures/WorldMapOwnerInfo");
 
 module.exports.name = "hgh";
 
@@ -9,12 +9,12 @@ module.exports.name = "hgh";
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params || !params.LID) return;
-    const listType = params.LT
+    const listType = params.LT;
     const leaderboard = params.L;
-    const highScoreItems = []
+    const highScoreItems = [];
     if (Array.isArray(leaderboard)) {
         for (const item of leaderboard) {
-            const highScoreItem = getHighScoreItem(socket.client, listType, item)
+            const highScoreItem = getHighScoreItem(socket.client, listType, item);
             if (highScoreItem) highScoreItems.push(highScoreItem);
         }
     }
@@ -25,7 +25,7 @@ module.exports.execute = function (socket, errorCode, params) {
         searchValue: params.SV,
         foundRank: params.FR,
         items: highScoreItems
-    }
+    };
     const SV = output.searchValue.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     socket[`hgh_${output.listType}_${SV}`] = output;
 }
@@ -38,7 +38,7 @@ module.exports.execute = function (socket, errorCode, params) {
 function getHighScoreItem(client, listType, itemData) {
     if (listType !== 53 && !itemData[2]) return null;
     /** @type {AllianceHighScoreItem | PlayerHighScoreItem} */
-    const highScoreItem = {}
+    const highScoreItem = {};
     switch (listType) {
         case 10:
         case 12:
@@ -53,6 +53,7 @@ function getHighScoreItem(client, listType, itemData) {
         case 70:
         case 74:
         case 77:
+        case 79:
             // TODO: AllianceHighscoreItemServerInfoVO
             highScoreItem["alliance"] = parseAlliance(itemData[2]);
             highScoreItem["rank"] = itemData[0];
@@ -74,13 +75,13 @@ function getHighScoreItem(client, listType, itemData) {
             break;
         case 53:
             // TODO: PlayerHighscoreItemServerInfoVO
-            highScoreItem["player"] = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[1]);
+            highScoreItem["player"] = new WorldMapOwnerInfo(client).fillFromParamObject(itemData[1]);
             highScoreItem["rank"] = itemData[0];
             break;
         case 63:
         case 64:
             // TODO: SeasonLeagueHighscoreItemServerInfoVO
-            highScoreItem["player"] = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[2]);
+            highScoreItem["player"] = new WorldMapOwnerInfo(client).fillFromParamObject(itemData[2]);
             highScoreItem["rank"] = itemData[0];
             highScoreItem["points"] = itemData[1];
             highScoreItem["playerName"] = itemData[3];
@@ -97,17 +98,9 @@ function getHighScoreItem(client, listType, itemData) {
             highScoreItem["seasonMedalsData"] = itemData[3]["KLMO"];
             highScoreItem["amountVisible"] = listType !== 67;
             break;
-        case 73:
-            // TODO: PlayerHighscoreItemServerInfoVO
-            highScoreItem["player"] = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[2]);
-            highScoreItem["rank"] = itemData[4];
-            highScoreItem["points"] = itemData[1];
-            highScoreItem["playerName"] = itemData[3] ?? highScoreItem["player"].playerName;
-            highScoreItem["rawValues"] = itemData;
-            break;
         default:
             // TODO: PlayerHighscoreItemServerInfoVO
-            highScoreItem["player"] = new WorldmapOwnerInfo(client).fillFromParamObject(itemData[2]);
+            highScoreItem["player"] = new WorldMapOwnerInfo(client).fillFromParamObject(itemData[2]);
             highScoreItem["rank"] = itemData[0];
             highScoreItem["points"] = itemData[1];
             highScoreItem["playerName"] = itemData[3] ?? highScoreItem["player"].playerName;

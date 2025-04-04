@@ -5,7 +5,6 @@ module.exports.name = "gaa";
  * @param {number} kingdomId
  * @param {Coordinate} bottomLeftCorner
  * @param {Coordinate} topRightCorner
- * @returns {void}
  */
 module.exports.execute = function (socket, kingdomId, bottomLeftCorner, topRightCorner) {
     const C2SGetAreaVO = {

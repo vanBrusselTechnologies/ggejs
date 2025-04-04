@@ -11,8 +11,15 @@ module.exports.name = "core_lga";
 module.exports.execute = function (socket, name, password) {
     const CoreC2SLoginWithAuthenticationVO = {
         getCmdId: "core_lga", params: {
-            NM: name, PW: password, L: socket.client._language, AID: accountId, DID: 5, PLFID: "3", //Android = 3, iOs = 2, (PC = 1(?))
-            ADID: "null", AFUID: "appsFlyerUID", IDFV: null,
+            NM: name,
+            PW: password,
+            L: socket.client._language,
+            AID: accountId,
+            DID: 5,
+            PLFID: "3", /*Android = 3, iOs = 2, (PC = 1(?))*/
+            ADID: "null",
+            AFUID: "appsFlyerUID",
+            IDFV: null,
         },
 
         /* Empire (?)

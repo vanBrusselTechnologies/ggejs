@@ -15,5 +15,4 @@ module.exports.execute = function (socket, errorCode, params) {
     }
     const castle = new Castle(socket.client, params);
     socket[`join_area_${castle.mapobject.objectId}_data`] = castle;
-    socket[`join_area_${castle.mapobject.objectId}_finished`] = true;
 }

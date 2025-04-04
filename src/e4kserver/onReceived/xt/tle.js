@@ -1,6 +1,5 @@
 module.exports.name = "tle";
 /**
- *
  * @param {Socket} socket
  * @param {number} errorCode
  * @param {[]} params

@@ -17,9 +17,9 @@ module.exports.execute = function (socket, errorCode, params) {
         return;
     }
     const client = socket.client;
-    const originOwner = client.worldmaps._ownerInfoData.parseOwnerInfo(params["SO"])
-    const targetOwner = client.worldmaps._ownerInfoData.parseOwnerInfo(params["OI"])
-    const mapObject = parseWorldmapArea(client, params["AI"]);
+    const originOwner = client.worldMaps._ownerInfoData.parseOwnerInfo(params["SO"]);
+    const targetOwner = client.worldMaps._ownerInfoData.parseOwnerInfo(params["OI"]);
+    const mapObject = parseWorldMapArea(client, params["AI"]);
     if (params["DAR"]) mapObject.rank = params["DAR"];
     if (params["RS"]) {
         mapObject.attackCooldownEnd = new Date(Date.now() + params["RS"] * 1000);
@@ -58,17 +58,15 @@ module.exports.execute = function (socket, errorCode, params) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Object} data
  * @returns {Mapobject}
  */
-function parseWorldmapArea(client, data) {
+function parseWorldMapArea(client, data) {
     return parseMapObject(client, [data["AT"]]).parseAreaInfoBattleLog(data);
 }
 
 /**
- *
  * @param {Client} client
  * @param {Object} data
  * @returns {{army: { left: InventoryItem<Unit>[], middle: InventoryItem<Unit>[], right: InventoryItem<Unit>[], keep: InventoryItem<Unit>[], unitsKeepInventory: InventoryItem<Unit>[], stronghold: InventoryItem<Unit>[]}, spyTime: Date, defenderBaron: Lord, defenderGeneral?: General, defenderLegendSkills: []}}
@@ -112,7 +110,6 @@ function parseSpyArmyInfo(client, data) {
 }
 
 /**
- *
  * @param {number} flankId
  * @param {Array} paramArray
  * @return {InventoryItem[]}

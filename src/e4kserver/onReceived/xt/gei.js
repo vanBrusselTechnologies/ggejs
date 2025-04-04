@@ -14,13 +14,13 @@ module.exports.execute = function (socket, errorCode, params) {
     const equipments = [];
     for (const d of params.I) {
         const eq = d[11] === 3 ? new RelicEquipment(client, d) : new Equipment(client, d);
-        equipments.push(eq)
+        equipments.push(eq);
     }
     socket.client.equipments._setEquipmentInventory(equipments);
     (async () => {
         try {
-            await socket.client.equipments.sellAllEquipmentsAtOrBelowRarity(-1)
+            await socket.client.equipments.sellAllEquipmentsAtOrBelowRarity(-1);
         } catch (e) {
         }
-    })()
+    })();
 }

@@ -11,22 +11,23 @@ class DungeonMapobject extends InteractiveMapobject {
     _rawData = null;
 
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */
     constructor(client, data) {
         super(client, data.slice(0, 3));
         this.#client = client;
-        if (data[3] > 0) /** @type {Date} */
-        this.lastSpyDate = new Date(Date.now() - data[3] * 1000);
+        if (data[3] > 0)
+            /** @type {Date} */
+            this.lastSpyDate = new Date(Date.now() - data[3] * 1000);
         /** @type {number} */
         this.attackCount = data[4];
-        if (data[5] > 0) /** @type {Date} */
-        this.attackCooldownEnd = new Date(Date.now() + data[5] * 1000);
+        if (data[5] > 0)
+            /** @type {Date} */
+            this.attackCooldownEnd = new Date(Date.now() + data[5] * 1000);
         /** @type {number} */
         this.kingdomId = data[6];
-        this.ownerInfo = parseOwnerInfo(client.worldmaps._ownerInfoData, this.kingdomId);
+        this.ownerInfo = parseOwnerInfo(client.worldMaps._ownerInfoData, this.kingdomId);
 
         /** @type {number} */
         this.level = DungeonConst.getLevel(this.attackCount, this.kingdomId)
@@ -100,7 +101,6 @@ class DungeonMapobject extends InteractiveMapobject {
 }
 
 /**
- *
  * @param {Client} client
  * @param {string} _data
  * @returns {InventoryItem<Unit>[]}
@@ -120,10 +120,9 @@ function parseUnits(client, _data) {
 }
 
 /**
- *
  * @param {WorldMapOwnerInfoData} ownerInfoData
  * @param {number} kingdomId
- * @return {WorldmapOwnerInfo}
+ * @return {WorldMapOwnerInfo}
  */
 function parseOwnerInfo(ownerInfoData, kingdomId){
     switch (kingdomId) {

@@ -1,6 +1,5 @@
 module.exports.name = "tcc";
 /**
- *
  * @param {Socket} socket
  * @param {number} errorCode
  * @param {Object} params

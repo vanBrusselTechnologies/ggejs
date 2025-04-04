@@ -54,14 +54,14 @@ class ActiveEvent {
         const event = events.find(e => e.eventID === this.eventId);
         if (event == null) return;
         this.rawData = event
-        this.mapIds = (event.mapID || "-1").split(",").map(v => parseInt(v));
+        this.mapIds = (event.mapID ?? "-1").split(",").map(v => parseInt(v));
         this.eventType = event.eventType;
-        this.minLevel = event.minLevel || 0;
-        this.maxLevel = event.maxLevel || 99;
-        this.openWithLogin = (event.openWithLogin || 0) === 1
-        this.kingdomIds = (event.kIDs || 0).toString().split(",").map(v => parseInt(v));
-        this.allowedAreaTypes = (event.areaTypes || 1).toString().split(",").map(v => parseInt(v));
-        this.merchantId = event.merchantID || 0;
+        this.minLevel = event.minLevel ?? 0;
+        this.maxLevel = event.maxLevel ?? 99;
+        this.openWithLogin = (event.openWithLogin ?? 0) === 1
+        this.kingdomIds = (event.kIDs ?? 0).toString().split(",").map(v => parseInt(v));
+        this.allowedAreaTypes = (event.areaTypes ?? 1).toString().split(",").map(v => parseInt(v));
+        this.merchantId = event.merchantID ?? 0;
         if (event.packageIDs) event.packageIDs.toString().split("+").forEach(v => this._addEventPackageById(parseInt(v)));
         this.hubType = event.hubType;//EventHubTypeEnum.getHubTypeEnumById(params.@hubType[0]);
         this.eventDurationType = event.eventDuration//EventDurationTypeEnum.getEventDurationTypeEnumById(params.@eventDuration[0]);

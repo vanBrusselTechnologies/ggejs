@@ -19,7 +19,6 @@ class CastleUnitInventory {
     shadowUnits = [];
 
     /**
-     *
      * @param {Client} client
      * @param {{I:[], HI:[],SHI:[],TU:[],gsi:{}}} data
      */
@@ -39,7 +38,6 @@ class CastleUnitInventory {
 }
 
 /**
- *
  * @param {Client} client
  * @param {[]} data
  * @return {InventoryItem<Unit>[]}

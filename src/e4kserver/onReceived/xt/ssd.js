@@ -1,6 +1,5 @@
 module.exports.name = "ssd";
 /**
- *
  * @param {Socket} socket
  * @param {number} _
  * @param {Object} __
@@ -11,7 +10,6 @@ module.exports.execute = function (socket, _, __) {
 }
 
 /**
- *
  * @param {Client} client
  * @returns {Promise<void>}
  */

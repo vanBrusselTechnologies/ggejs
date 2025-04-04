@@ -13,8 +13,8 @@ module.exports.execute = function (socket, errorCode, params) {
         return;
     }
     const client = socket.client;
-    client.worldmaps._ownerInfoData.parseOwnerInfoArray(params.O)
-    const areas = parseWorldmapAreas(client, params["gaa"]["AI"]);
+    client.worldMaps._ownerInfoData.parseOwnerInfoArray(params.O)
+    const areas = parseWorldMapAreas(client, params["gaa"]["AI"]);
     const goods = [];
     for (let good of params["R"]) {
         goods.push(new Good(client, good));
@@ -26,13 +26,8 @@ module.exports.execute = function (socket, errorCode, params) {
 
 /**
  * @param {Client} client
- * @param {[]} _data
- * @returns {Mapobject[]}
+ * @param {[]} data
  */
-function parseWorldmapAreas(client, _data) {
-    const worldmapAreas = [];
-    for (const data of _data) {
-        worldmapAreas.push(parseMapObject(client, data))
-    }
-    return worldmapAreas;
+function parseWorldMapAreas(client, data) {
+    return data.map(d => parseMapObject(client, d));
 }

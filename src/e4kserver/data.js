@@ -60,11 +60,7 @@ module.exports.sendCommandVO = function (socket, commandVO) {
     xt.sendMessage(socket, socket.client._serverInstance.zone, msgId, params, "str", socket["_activeRoomId"]);
 }
 
-/**
- *
- * @param {string} value
- * @returns {string}
- */
+/** @param {string} value */
 function getValideSmartFoxText(value) {
     value = value.replace(/%/g, "&percnt;");
     return value.replace(/'/g, "");

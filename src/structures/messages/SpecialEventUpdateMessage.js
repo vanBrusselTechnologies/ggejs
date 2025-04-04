@@ -7,7 +7,7 @@ class SpecialEventUpdateMessage extends BasicSpecialEventMessage {
         super.parseMetaData(client, metaArray);
         this.eventId = parseInt(metaArray[1]);
         this.metadata = metaArray;
-        this.subject = Localize.text(client, updateMail[this.eventId]) || "";
+        this.subject = Localize.text(client, updateMail[this.eventId]) ?? "";
     }
 }
 

@@ -10,8 +10,7 @@ module.exports.execute = function (socket, errorCode, params) {
     cud.playerId = params["PID"];
     cud.userName = params["PN"];
     let email = params["E"];
-    if (email !== cud.email)// && !CompilationFlags.CONFIG.isBrowserInvoked
-    {
+    if (email !== cud.email /* && !CompilationFlags.CONFIG.isBrowserInvoked */) {
         //_loc5_ = accountData.getAccountInfoForInstance(instanceData.selectedInstanceVO);
         //accountData.deleteAccount(_loc5_.instanceID);
         //accountData.addAccount(email,_loc5_.password,_loc5_.instanceID);

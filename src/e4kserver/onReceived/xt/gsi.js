@@ -12,11 +12,10 @@ module.exports.execute = function (socket, errorCode, params) {
         totalShadowUnits: params.T, /** @type number */
         travellingShadowUnits: params.TT, /** @type {InventoryItem<Unit>[]} */
         shadowUnits: parseUnits(socket.client, params.SI)
-    }
+    };
 }
 
 /**
- *
  * @param {Client} client
  * @param {[]} data
  * @return {InventoryItem<Unit>[]}

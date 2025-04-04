@@ -6,7 +6,7 @@ class SpecialEventStartMessage extends BasicSpecialEventMessage {
         metaArray = metaArray[0].split("#");
         super.parseMetaData(client, metaArray);
         this.eventId = parseInt(metaArray[1]);
-        this.subject = Localize.text(client, starterMail[this.eventId] || `event_title_${this.eventId}`);
+        this.subject = Localize.text(client, starterMail[this.eventId] ?? `event_title_${this.eventId}`);
     }
 }
 

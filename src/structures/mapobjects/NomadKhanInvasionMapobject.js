@@ -2,12 +2,11 @@ const InvasionMapobject = require("./InvasionMapobject");
 
 class NomadKhanInvasionMapobject extends InvasionMapobject {
     /**
-     * 
-     * @param {Client} client 
+     * @param {Client} client
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data.slice(0,3));
+        super(client, data.slice(0, 3));
         if (data.length <= 3) return;
         if (data[3] > 0)
             /** @type {Date} */
@@ -32,6 +31,7 @@ class NomadKhanInvasionMapobject extends InvasionMapobject {
         /** @type {number} */
         this.baseMoatBonus = data[12];
     }
+
     isVisibleOnMap = true;
     eventId = 72;
     travelDistance = 2;

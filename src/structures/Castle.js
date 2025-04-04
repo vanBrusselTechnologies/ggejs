@@ -32,7 +32,6 @@ class Castle {
     mapobject;
 
     /**
-     *
      * @param {Client} client
      * @param {Object} data
      */

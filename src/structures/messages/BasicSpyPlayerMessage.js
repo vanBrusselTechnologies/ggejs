@@ -22,20 +22,13 @@ class BasicSpyPlayerMessage extends BasicMessage {
         return this.successType === 0 || this.successType === 2;
     }
 
-    init() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                try {
-                    this.spyLog = await getMessageBody(this.#client._socket, this.messageId);
-                } catch (e) {
-                    delete this.#client._socket[`bsd -> errorCode`];
-                }
-                delete this.#client._socket[`bsd -> ${this.spyLog.messageId}`];
-                resolve();
-            } catch (e) {
-                reject(e);
-            }
-        })
+    async init() {
+        try {
+            this.spyLog = await getMessageBody(this.#client._socket, this.messageId);
+            delete this.#client._socket[`bsd -> ${this.spyLog.messageId}`];
+        } catch (e) {
+            delete this.#client._socket[`bsd -> errorCode`];
+        }
     }
 
     /**
@@ -73,22 +66,19 @@ class BasicSpyPlayerMessage extends BasicMessage {
 }
 
 /**
- *
  * @param {Socket} socket
  * @param {number} messageId
  * @returns {Promise<SpyLog>}
  */
-function getMessageBody(socket, messageId) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            socket['bsd -> errorCode'] = "";
-            getSpyLog(socket, messageId);
-            resolve(await WaitUntil(socket, `bsd -> ${messageId}`, `bsd -> errorCode`, 30000));
-        } catch (e) {
-            socket['bsd -> errorCode'] = "";
-            reject(e);
-        }
-    })
+async function getMessageBody(socket, messageId) {
+    try {
+        socket['bsd -> errorCode'] = "";
+        getSpyLog(socket, messageId);
+        return await WaitUntil(socket, `bsd -> ${messageId}`, `bsd -> errorCode`, 30000);
+    } catch (e) {
+        socket['bsd -> errorCode'] = "";
+        throw e;
+    }
 }
 
 module.exports = BasicSpyPlayerMessage;

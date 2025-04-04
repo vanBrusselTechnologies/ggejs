@@ -2,7 +2,6 @@ const {constructionItems} = require('e4k-data').data;
 
 class CastleConstructionItemBuilding {
     /**
-     *
      * @param {Client} client
      * @param {{CID:number, S:number, RS?:number}} data
      */

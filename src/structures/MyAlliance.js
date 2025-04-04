@@ -10,9 +10,8 @@ const {parseChatJSONMessage} = require("../tools/TextValide");
 
 class MyAlliance extends Alliance {
     /**
-     * 
-     * @param {Client} client 
-     * @param {Object} data 
+     * @param {Client} client
+     * @param {Object} data
      */
     constructor(client, data) {
         super(client, data);
@@ -63,93 +62,62 @@ class MyAlliance extends Alliance {
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} data 
- * @returns {AllianceStatusListItem[]}
+ * @param {Client} client
+ * @param {Array} data
  */
 function parseStatusList(client, data) {
-    let statusList = [];
+    /** @type {AllianceStatusListItem[]} */
+    const statusList = [];
     if (!data) return statusList;
-    for (let i in data) {
-        statusList.push(new AllianceStatusListItem(client, data[i]));
-    }
+    for (const d of data) statusList.push(new AllianceStatusListItem(client, d));
     return statusList;
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} data 
- * @param {AllianceMember[]} memberList 
- * @returns {AllianceMember[]}
+ * @param {Client} client
+ * @param {Array<Array>} data
+ * @param {AllianceMember[]} memberList
  */
 function parseAdditionalMemberInformation(client, data, memberList) {
-    for (let i in data) {
-        for (let j in memberList) {
-            if (memberList[j].playerId === data[i][0]) {
-                memberList[j]["donations"] = new AllianceDonations(client, data[i]);
-                memberList[j]["activityStatus"] = data[i][4];
-            }
-        }
+    for (const d of data) {
+        const member = memberList.find(m => m.playerId === d[0])
+        if (member === undefined) continue;
+        member.donations = new AllianceDonations(client, d);
+        member.activityStatus = d[4];
     }
     return memberList;
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} data 
- * @returns {CapitalMapobject[]}
+ * @param {Client} client
+ * @param {Array} data
  */
 function parseCapitals(client, data) {
-    let capitals = [];
-    for (let i in data) {
-        capitals.push(new CapitalMapobject(client, data[i]));
-    }
-    return capitals;
+    return data.map(d => new CapitalMapobject(client, d));
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} data 
- * @returns {MetropolMapobject[]}
+ * @param {Client} client
+ * @param {Array} data
  */
 function parseMetropols(client, data) {
-    let metropols = [];
-    for (let i in data) {
-        metropols.push(new MetropolMapobject(client, data[i]));
-    }
-    return metropols;
+    return data.map(d => new MetropolMapobject(client, d));
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} data 
- * @returns {KingstowerMapobject[]}
+ * @param {Client} client
+ * @param {Array} data
  */
 function parseKingstowers(client, data) {
-    let kingstowers = [];
-    for (let i in data) {
-        kingstowers.push(new KingstowerMapobject(client, data[i]));
-    }
-    return kingstowers;
+    return data.map(d => new KingstowerMapobject(client, d));
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} data 
- * @returns {MonumentMapobject[]}
+ * @param {Client} client
+ * @param {Array} data
  */
 function parseMonuments(client, data) {
-    let monuments = [];
-    for (let i in data) {
-        monuments.push(new MonumentMapobject(client, data[i]));
-    }
-    return monuments;
+    return data.map(d => new MonumentMapobject(client, d));
 }
 
 module.exports = MyAlliance;

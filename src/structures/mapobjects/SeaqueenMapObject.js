@@ -8,7 +8,6 @@ class SeaqueenMapObject extends TreasureMapMapobject {
     areaType = 7;
 
     /**
-     *
      * @param {Client} client
      * @param {number} type
      * @param {number} x

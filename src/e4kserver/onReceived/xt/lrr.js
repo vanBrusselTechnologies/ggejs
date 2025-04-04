@@ -1,6 +1,5 @@
 module.exports.name = "lrr";
 /**
- *
  * @param {Socket} _
  * @param {number} __
  * @param {Object} ___

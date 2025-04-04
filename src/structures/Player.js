@@ -5,11 +5,10 @@ const KingstowerMapobject = require("./mapobjects/KingstowerMapobject");
 const MonumentMapobject = require("./mapobjects/MonumentMapobject");
 const Coordinate = require("./Coordinate");
 const InventoryItem = require("./InventoryItem");
-const WorldmapOwnerInfo = require("./WorldmapOwnerInfo");
+const WorldMapOwnerInfo = require("./WorldMapOwnerInfo");
 
-class Player extends WorldmapOwnerInfo {
+class Player extends WorldMapOwnerInfo {
     /**
-     *
      * @param {Client} client
      * @param {Object} data
      */
@@ -30,10 +29,8 @@ class Player extends WorldmapOwnerInfo {
 }
 
 /**
- *
  * @param {Client} client
- * @param {Array} data
- * @returns {{areaType: number, position: Coordinate, objectId: number, kingdomId: number}[]}
+ * @param {number[][]} data
  */
 function parseSimpleCastleList(client, data) {
     if (!data) return [];
@@ -43,14 +40,13 @@ function parseSimpleCastleList(client, data) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Object} data
- * @returns {(CastleMapobject | CapitalMapobject)[]}
  */
 function parseCastleList(client, data) {
     if (!data) return [];
-    let output = [];
+    /** @type {(CastleMapobject | CapitalMapobject)[]} */
+    const output = [];
     for (let i in data.C) {
         for (let j in data.C[i].AI) {
             let obj = data.C[i].AI[j];
@@ -67,14 +63,14 @@ function parseCastleList(client, data) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Object} data
- * @returns {{ public: { village: VillageMapobject, units?: InventoryItem<Unit>[] }[], private: { privateVillageId: number, uniqueId: number }[]}}
  */
 function parseVillageList(client, data) {
-    let publicVillagesData = [];
-    let privateVillagesData = [];
+    /** @type {{public: {village: VillageMapobject, units?: InventoryItem<Unit>[]}[]}[]} */
+    const publicVillagesData = [];
+    /** @type {{privateVillageId: number, uniqueId: number}[]} */
+    const privateVillagesData = [];
     if (!data) return {public: publicVillagesData, private: privateVillagesData};
     for (let i in data.VI) {
         let publicVillage = {};
@@ -91,29 +87,25 @@ function parseVillageList(client, data) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Array<[number, number]>} data
  * @returns {InventoryItem<Unit>[]}
  */
 function parseUnits(client, data) {
     if (!data) return [];
-    return data.map(d => {
-        return new InventoryItem(new Unit(client, d[0]), d[1])
-    })
+    return data.map(d => {return new InventoryItem(new Unit(client, d[0]), d[1])})
 }
 
 /**
- *
  * @param {Client} client
  * @param {Object} data
- * @returns {{ kingstower: KingstowerMapobject, units?: InventoryItem<Unit>[] }[]}
  */
 function parseKingstowers(client, data) {
-    let kingstowers = [];
+    /** @type {{kingstower: KingstowerMapobject, units?: InventoryItem<Unit>[]}[]} */
+    const kingstowers = [];
     if (!data) return kingstowers;
-    for (let i in data.AI) {
-        let kingstower = new KingstowerMapobject(client, data.AI[i][0]);
+    for (const i in data.AI) {
+        const kingstower = new KingstowerMapobject(client, data.AI[i][0]);
         let units = [];
         if (data.AI[i].length >= 2 && data.AI[i][1] && data.AI[i][1].length > 0) units = parseUnits(client, data.AI[i][1]);
         kingstowers.push({kingstower: kingstower, units: units});
@@ -122,16 +114,15 @@ function parseKingstowers(client, data) {
 }
 
 /**
- *
  * @param {Client} client
  * @param {Object} data
- * @returns {{ monument: MonumentMapobject, units?: InventoryItem<Unit>[] }[]}
  */
 function parseMonuments(client, data) {
-    let monuments = [];
+    /** @type {{monument: MonumentMapobject, units?: InventoryItem<Unit>[]}[]} */
+    const monuments = [];
     if (!data) return monuments;
-    for (let i in data.AI) {
-        let monument = new MonumentMapobject(client, data.AI[i][0]);
+    for (const i in data.AI) {
+        const monument = new MonumentMapobject(client, data.AI[i][0]);
         let units = [];
         if (data.AI[i].length >= 2 && data.AI[i][1] && data.AI[i][1].length > 0) units = parseUnits(client, data.AI[i][1]);
         monuments.push({monument: monument, units: units});

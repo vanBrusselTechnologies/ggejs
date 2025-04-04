@@ -16,7 +16,7 @@ module.exports.execute = function (socket, errorCode, params) {
         })();
         return;
     }
-    socket.client.worldmaps._ownerInfoData.parseOwnerInfo(params["O"]);
+    socket.client.worldMaps._ownerInfoData.parseOwnerInfo(params["O"]);
     const player = new Player(socket.client, params);
     socket[`__get_player_${player.playerId}`] = player;
 }

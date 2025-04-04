@@ -1,6 +1,5 @@
 module.exports.name = "qst";
 /**
- *
  * @param {Socket} socket
  * @param {number} errorCode
  * @param {{QIDS:number[]}} params

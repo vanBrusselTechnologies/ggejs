@@ -9,13 +9,13 @@ module.exports.name = "boi";
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params) return;
-    const premiumBoostData = socket.client.clientUserData.boostData
+    const premiumBoostData = socket.client.clientUserData.boostData;
     removeBoosterExpiredMails(socket, premiumBoostData, params.BO);
     parseTempBoosterObjects(premiumBoostData, params.BO);
     parsePermBoosterObjects(premiumBoostData, params.PB);
-    if (params.SB) premiumBoostData.boughtBuildingSlots = params.SB.filter(s => s > 0).length
-    if (params.SU) premiumBoostData.boughtUnitSlots = params.SU.filter(s => s > 0).length
-    if (params.ST) premiumBoostData.boughtToolSlots = params.ST.filter(s => s > 0).length
+    if (params.SB) premiumBoostData.boughtBuildingSlots = params.SB.filter(s => s > 0).length;
+    if (params.SU) premiumBoostData.boughtUnitSlots = params.SU.filter(s => s > 0).length;
+    if (params.ST) premiumBoostData.boughtToolSlots = params.ST.filter(s => s > 0).length;
     bfs(socket, errorCode, params.bfs);
 }
 
@@ -27,7 +27,7 @@ module.exports.execute = function (socket, errorCode, params) {
 function removeBoosterExpiredMails(socket, premiumBoostData, tempBoosterObjects) {
     if (!tempBoosterObjects) return;
     /** @type {number[]} */
-    const messageIds = []
+    const messageIds = [];
     for (const tempBoosterObject of tempBoosterObjects) {
         let booster = premiumBoostData.getBoosterById(tempBoosterObject.ID);
         if (booster !== undefined && booster.remainingTimeInSeconds <= 86400 && tempBoosterObject.RT > 86400) {
@@ -38,7 +38,6 @@ function removeBoosterExpiredMails(socket, premiumBoostData, tempBoosterObjects)
 }
 
 /**
- *
  * @param {PremiumBoostData} premiumBoostData
  * @param {{ID: number, B: number, L:number}[]} permBoosterObjects
  */
@@ -51,7 +50,6 @@ function parsePermBoosterObjects(premiumBoostData, permBoosterObjects) {
 }
 
 /**
- *
  * @param {PremiumBoostData} premiumBoostData
  * @param {{PC:number, ID: number, RT: number}[]} tempBoosterObjects
  */

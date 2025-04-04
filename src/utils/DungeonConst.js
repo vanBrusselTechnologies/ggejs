@@ -21,7 +21,6 @@ module.exports.BASIC_RED_ALIEN_ID = -1002;
 module.exports.BASIC_ALLIANCE_NOMAD_CAMP_PLAYER_ID = -801;
 module.exports.BASIC_DAIMYO_CASTLE_PLAYER_ID = -811;
 module.exports.BASIC_DAIMYO_TOWNSHIP_PLAYER_ID = -815;
-module.exports.BASIC_TEMPSERVER_CHARGE_CAMP_PLAYER_ID = -821;
 module.exports.BASIC_COLLECTOR_PLAYER_ID = -1100;
 module.exports.BASIC_ALLIANCE_BATTLE_GROUND_RESOURCE_TOWER_PLAYER_ID = -1200;
 module.exports.BASIC_WOLF_KING_PLAYER_ID = -1201;
@@ -134,7 +133,6 @@ module.exports.getResources = function (dungeonLevel) {
 }
 
 /**
- *
  * @param {number} dungeonLevel
  * @return {number}
  */
@@ -144,7 +142,6 @@ module.exports.getC1 = function (dungeonLevel) {
 }
 
 /**
- *
  * @param {number} dungeonLevel
  * @return {number}
  */
@@ -153,7 +150,6 @@ module.exports.getC2 = function (dungeonLevel) {
 }
 
 /**
- *
  * @param {number} dungeonLevel
  * @return {number}
  */
@@ -163,7 +159,6 @@ module.exports.getC2Probability = function (dungeonLevel) {
 }
 
 /**
- *
  * @param {number} dungeonLevel
  * @return {number}
  */
@@ -174,7 +169,6 @@ module.exports.getWallUpgradeByLevel = function (dungeonLevel) {
 }
 
 /**
- *
  * @param  {number} dungeonLevel
  * @return {number}
  */
@@ -185,7 +179,6 @@ module.exports.getWallWOD = function (dungeonLevel) {
 }
 
 /**
- *
  * @param {number} dungeonLevel
  * @return {number}
  */
@@ -196,7 +189,6 @@ module.exports.getGateWOD = function (dungeonLevel) {
 }
 
 /**
- *
  * @param {number} victories
  * @param {number} kingdomId
  * @return {number}

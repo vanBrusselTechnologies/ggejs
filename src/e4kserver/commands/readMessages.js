@@ -1,6 +1,5 @@
 module.exports.name = "rms";
 /**
- *
  * @param {Socket} socket
  * @param {number} messageId
  */

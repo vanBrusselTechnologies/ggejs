@@ -1,7 +1,6 @@
 class Coordinate {
     /**
-     * 
-     * @param {Client} client 
+     * @param {Client} client
      * @param {Array<number>} data
      */
     constructor(client, data) {
@@ -9,7 +8,7 @@ class Coordinate {
         this.Y = data[1];
     }
 
-    toString(splitter = '/'){
+    toString(splitter = '/') {
         return `${this.X}${splitter}${this.Y}`;
     }
 }

@@ -17,14 +17,14 @@ module.exports.execute = function (socket, errorCode, params) {
         cud.myAlliance = alliance;
 
         /** @type {AllianceMember} */
-        const member = alliance.memberList.find(m => m.playerId === cud.playerId)
+        const member = alliance.memberList.find(m => m.playerId === cud.playerId);
         if (member) cud.allianceRank = member.allianceRank;
 
-        const allianceLeader = alliance.memberList.find(m => m.allianceRank === 0)
+        const allianceLeader = alliance.memberList.find(m => m.allianceRank === 0);
         if (alliance.languageId === "" && allianceLeader.playerId === cud.playerId /*todo: && featureRestrictionsModel.isFeatureEnabled("allianceEditLanguage")*/) {
             //todo: sendJsonSignal.dispatch(new SendJsonMessageVO(new C2SChangeAllianceLanguageVO(Localization.language)));
         }
-        abl(socket, errorCode, params.A)
+        abl(socket, errorCode, params.A);
     }
     socket[`_alliance_${alliance.allianceId}_data`] = alliance;
 }

@@ -7,13 +7,12 @@ module.exports.name = "gli";
  * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
-    const barons = parseLords(socket.client, params.B).sort((l1, l2) => l1.id - l2.id);
-    const commandants = parseLords(socket.client, params.C).sort((l1, l2) => l1.id - l2.id);
+    const barons = parseLords(socket.client, params.B).sort((l1, l2) => l1.pictureId - l2.pictureId);
+    const commandants = parseLords(socket.client, params.C).sort((l1, l2) => l1.pictureId - l2.pictureId);
     socket.client.equipments._setCommandantsAndBarons(barons, commandants);
 }
 
 /**
- *
  * @param client
  * @param data
  * @return {Lord[]}

@@ -27,5 +27,5 @@ module.exports.execute = function (socket, errorCode, params) {
     cud.userXpCurrentLevel = xpCurrentLevel;
     cud.userXPtoNextLevel = xpNextLevel;
     cud.displayXP = cud.isLegendLevel() ? xp - 147000 : xp;
-    cud.isXPDataInitialized = true
+    cud.isXPDataInitialized = true;
 }

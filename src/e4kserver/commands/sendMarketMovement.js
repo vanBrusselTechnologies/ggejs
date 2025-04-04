@@ -1,7 +1,7 @@
 module.exports.name = "crm";
 /**
  * @param {Socket} socket
- * @param {Mapobject} source
+ * @param {InteractiveMapobject} source
  * @param {Mapobject | CastlePosition} target
  * @param {["W" | "S" | "F" | "C" | "O" | "G" | "I" | "A" | "HONEY" | "MEAD", number][]} goods
  * @param {Horse} horse

@@ -2,15 +2,14 @@ const InteractiveMapobject = require("./InteractiveMapobject");
 
 class BossDungeonMapobject extends InteractiveMapobject {
     /**
-     * 
-     * @param {Client} client 
+     * @param {Client} client
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data.slice(0,3));
+        super(client, data.slice(0, 3));
         if (data.length <= 3) return;
         if (data[3] !== -1)
-        /** @type {Date} */
+            /** @type {Date} */
             this.lastSpyDate = new Date(Date.now() - data[3] * 1000);
         /** @type {number} */
         this.dungeonLevel = data[4];
@@ -22,7 +21,7 @@ class BossDungeonMapobject extends InteractiveMapobject {
         /** @type {number} */
         this.kingdomId = data[7];
 
-        this.ownerInfo = client.worldmaps._ownerInfoData.getKingdomBossDungeonOwnerByKingdomId(this.kingdomId);
+        this.ownerInfo = client.worldMaps._ownerInfoData.getKingdomBossDungeonOwnerByKingdomId(this.kingdomId);
     }
 }
 

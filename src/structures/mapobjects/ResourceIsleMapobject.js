@@ -2,7 +2,6 @@ const InteractiveMapobject = require("./InteractiveMapobject");
 
 class ResourceIsleMapobject extends InteractiveMapobject {
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */
@@ -13,7 +12,7 @@ class ResourceIsleMapobject extends InteractiveMapobject {
         this.objectId = data[3];
         /** @type {number} */
         this.occupierId = data[4];
-        if (this.occupierId >= 0) this.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(this.occupierId);
+        if (this.occupierId >= 0) this.ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(this.occupierId);
         /** @type {number} */
         this.kingdomId = data[5];
         /** @type {string} */

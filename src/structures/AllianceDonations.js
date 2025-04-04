@@ -1,8 +1,7 @@
 class AllianceDonations {
     /**
-     * 
-     * @param {Client} client 
-     * @param {Array} data 
+     * @param {Client} client
+     * @param {Array} data
      */
     constructor(client, data) {
         /** @type {number} */

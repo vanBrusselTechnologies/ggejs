@@ -5,119 +5,97 @@ const {execute: searchAllianceById} = require('../e4kserver/commands/searchAllia
 const {WaitUntil} = require('../tools/wait');
 const Localize = require("../tools/Localize");
 const {execute: getHighScore} = require("../e4kserver/commands/getHighScore");
-const HighscoreConst = require("../utils/HighscoreConst");
+const HighScoreConst = require("../utils/HighScoreConst");
 
 class AllianceManager extends BaseManager {
-    /**
-     * @param {number} id
-     * @returns {Promise<Alliance | MyAlliance>}
-     */
+    /** @param {number} id */
     async getById(id) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                if (id == null) {
-                    reject('Missing alliance id!');
-                    return;
-                }
-                const socket = this._socket;
-                searchAllianceById(socket, id);
-                const alliance = await WaitUntil(socket, `_alliance_${id}_data`, "", 1000);
-                delete socket[`_alliance_${id}_data`];
-                resolve(alliance);
-            } catch (e) {
-                reject(Localize.text(this._client, 'errorCode_114'));
-            }
-        });
+        if (id == null) throw 'Missing alliance id!';
+        try {
+            const socket = this._socket;
+            searchAllianceById(socket, id);
+            /** @type {Alliance | MyAlliance} */
+            const alliance = await WaitUntil(socket, `_alliance_${id}_data`, "", 1000);
+            delete socket[`_alliance_${id}_data`];
+            return alliance;
+        } catch (e) {
+            throw Localize.text(this._client, 'errorCode_114');
+        }
     }
 
-    /**
-     * @param {string} name
-     * @returns {Promise<Alliance | MyAlliance>}
-     */
+    /** @param {string} name */
     async find(name) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const hghData = await this.getRankings(name, 'might');
-                const allianceId = hghData.items.find(item => item.rank === hghData.foundRank).alliance.allianceId;
-                resolve(await this.getById(allianceId));
-            } catch (e) {
-                reject(Localize.text(this._client, 'errorCode_114'));
-            }
-        });
+        try {
+            const ranking = await this.getRankings(name, 'might');
+            const allianceId = ranking.items.find(item => item.rank === ranking.foundRank).alliance.allianceId;
+            return await this.getById(allianceId);
+        } catch (e) {
+            throw Localize.text(this._client, 'errorCode_114');
+        }
     }
 
     /** @returns {Promise<MyAlliance>} */
-    getMyAlliance() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const allianceId = this._client.clientUserData.allianceId;
-                if (allianceId === -1) reject("You are not in an alliance!");
-                let alliance = this.getById(allianceId);
-                resolve(alliance);
-            } catch (e) {
-                reject(Localize.text(this._client, 'errorCode_114'));
-            }
-        })
+    async getMyAlliance() {
+        const allianceId = this._client.clientUserData.allianceId;
+        if (allianceId === -1) throw "You are not in an alliance!";
+        return await this.getById(allianceId);
     }
 
     /**
      * @param {string | number} nameOrRanking
      * @param {AllianceHighScoreRankingTypes} rankingType
      * @param {number} leagueId
-     * @returns {Promise<HighScore<AllianceHighScoreItem>>}
      */
-    getRankings(nameOrRanking, rankingType = "might", leagueId = 1) {
-        return new Promise(async (resolve, reject) => {
+    async getRankings(nameOrRanking, rankingType = "might", leagueId = 1) {
             const searchValue = nameOrRanking.toString();
             const normalizedName = searchValue.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const listType = (() => {
                 switch (rankingType) {
                     case "honor":
-                        return HighscoreConst.ALLIANCE_HONOR;
+                        return HighScoreConst.ALLIANCE_HONOR;
                     case "might":
-                        return HighscoreConst.ALLIANCE_MIGHT_POINTS;
+                        return HighScoreConst.ALLIANCE_MIGHT_POINTS;
                     case "landMarks":
-                        return HighscoreConst.ALLIANCE_LANDMARKS;
+                        return HighScoreConst.ALLIANCE_LANDMARKS;
                     case "aqua":
-                        return HighscoreConst.ALLIANCE_AQUA_POINTS;
+                        return HighScoreConst.ALLIANCE_AQUA_POINTS;
                     case "tournamentFame":
-                        return HighscoreConst.ALLIANCE_TOURNAMENT_FAME;
+                        return HighScoreConst.ALLIANCE_TOURNAMENT_FAME;
                     case "alienInvasion":
-                        return HighscoreConst.ALLIANCE_ALIEN_INVASION_ALLIANCE;
+                        return HighScoreConst.ALLIANCE_ALIEN_INVASION_ALLIANCE;
                     case "nomadInvasion":
-                        return HighscoreConst.ALLIANCE_NOMADINVASION_ALLIANCE;
+                        return HighScoreConst.ALLIANCE_NOMADINVASION_ALLIANCE;
                     case "samuraiInvasion":
-                        return HighscoreConst.SAMURAI_ALLIANCE;
+                        return HighScoreConst.SAMURAI_ALLIANCE;
                     case "redAlienInvasion":
-                        return HighscoreConst.ALLIANCE_RED_ALIEN_INVASION_ALLIANCE;
+                        return HighScoreConst.ALLIANCE_RED_ALIEN_INVASION_ALLIANCE;
                     case "kingdomsLeagueSeason":
-                        return HighscoreConst.ALLIANCE_KINGDOMS_LEAGUE_SEASON;
+                        return HighScoreConst.ALLIANCE_KINGDOMS_LEAGUE_SEASON;
                     case "kingdomsLeagueSeasonEvent":
-                        return HighscoreConst.ALLIANCE_KINGDOMS_LEAGUE_SEASON_EVENT;
+                        return HighScoreConst.ALLIANCE_KINGDOMS_LEAGUE_SEASON_EVENT;
                     case "daimyo":
-                        return HighscoreConst.ALLIANCE_DAIMYO;
+                        return HighScoreConst.ALLIANCE_DAIMYO;
                     case "allianceBattleGroundCollector":
-                        return HighscoreConst.ALLIANCE_BATTLE_GROUND_ALLIANCE_COLLECTOR;
+                        return HighScoreConst.ALLIANCE_BATTLE_GROUND_ALLIANCE_COLLECTOR;
                     case "allianceBattleGroundTower":
-                        return HighscoreConst.ALLIANCE_BATTLE_GROUND_ALLIANCE_TOWER;
+                        return HighScoreConst.ALLIANCE_BATTLE_GROUND_ALLIANCE_TOWER;
                     case "allianceBattleGroundPreviousRun":
-                        return HighscoreConst.ALLIANCE_BATTLE_GROUND_PREVIOUS_RUN_ALLIANCE;
+                        return HighScoreConst.ALLIANCE_BATTLE_GROUND_PREVIOUS_RUN_ALLIANCE;
                     default:
-                        reject("Rankings' list type not supported");
-                        return -1
+                        return -1;
                 }
-            })()
-            if (listType === -1) return;
+            })();
+            if (listType === -1) throw "Rankings' list type not supported";
             try {
                 getHighScore(this._socket, searchValue, listType, leagueId);
+                /** @type {HighScore<AllianceHighScoreItem>} */
                 const hghData = await WaitUntil(this._socket, `hgh_${listType}_${normalizedName}`, "", 1000);
                 delete this._socket[`hgh_${listType}_${normalizedName}`];
-                return resolve(hghData)
+                return hghData;
             } catch (e) {
                 delete this._socket[`hgh_${listType}_${normalizedName}`];
-                reject(Localize.text(this._socket.client, e));
+                throw Localize.text(this._socket.client, e);
             }
-        });
     }
 }
 

@@ -2,7 +2,7 @@ const Crest = require("./Crest");
 const Coordinate = require("./Coordinate");
 const CastlePosition = require("./CastlePosition");
 
-class WorldmapOwnerInfo {
+class WorldMapOwnerInfo {
     /** @type {Client} */
     #client;
 
@@ -203,10 +203,7 @@ class WorldmapOwnerInfo {
         this.#client = client
     }
 
-    /**
-     * @param {{OID: number,DUM: boolean,N: string,E: number[],L: number,LL: number, RNP:number,H: number,AVP: number,CF: number,HF: number,PRE: number,SUF: number,TOPX: number,MP: number,R: number,AID: number,AR:number,AN:string,ACF:number,RPT: number,AP: number[][],VP: number[][],SA: number,VF: number,PF: number,RRD: number,TI: number,FN: {FID: number, MC: number, SPC:number, PMS:number, PMT:number, NS:number}}} params
-     * @returns {this}
-     */
+    /** @param {{OID: number,DUM: boolean,N: string,E: number[],L: number,LL: number, RNP:number,H: number,AVP: number,CF: number,HF: number,PRE: number,SUF: number,TOPX: number,MP: number,R: number,AID: number,AR:number,AN:string,ACF:number,RPT: number,AP: number[][],VP: number[][],SA: number,VF: number,PF: number,RRD: number,TI: number,FN: {FID: number, MC: number, SPC:number, PMS:number, PMT:number, NS:number}}} params */
     fillFromParamObject(params) {
         this.playerId = params.OID;
         this._isDummy = params.DUM;
@@ -333,7 +330,6 @@ class WorldmapOwnerInfo {
         this._isDummy = true;
     }
 
-    /** @returns {boolean} */
     get isFactionNoobProtected() {
         return this.factionNoobProtectionEndTime.getTime() > Date.now();
     }
@@ -343,11 +339,8 @@ class WorldmapOwnerInfo {
         return this.factionProtectionEndTime.getTime() > Date.now() && this.factionProtectionStatus === 1;
     }
 
-    /** @returns {Coordinate} */
     getFactionMainCampPosition() {
-        if (this.factionMainCampId < 0) {
-            return null;
-        }
+        if (this.factionMainCampId < 0) return null;
         let i = 0;
         while (i < this.castlePosList.length) {
             const castlePosition = this.castlePosList[i];
@@ -359,7 +352,6 @@ class WorldmapOwnerInfo {
         return null;
     }
 
-    /** @returns {number} */
     get might() {
         return this._might;
     }
@@ -374,22 +366,18 @@ class WorldmapOwnerInfo {
         return this.peaceEndTime.getTime() > Date.now() || this.#client.clientUserData.peaceModeStatus === 1 && this.isOwnOwnerInfo;
     }
 
-    /** @returns {number} */
     get allianceId() {
         return this._allianceId;
     }
 
-    /** @returns {number} */
     get allianceRank() {
         return this._allianceRank;
     }
 
-    /** @returns {boolean} */
     get isRuin() {
         return this._isRuin;
     }
 
-    /** @returns {number} */
     get honor() {
         return this._honor;
     }
@@ -399,7 +387,6 @@ class WorldmapOwnerInfo {
         return this.playerLevel + this.paragonLevel;
     }
 
-    /** @returns {boolean} */
     get isParagon() {
         return this.paragonLevel > 0;
     }
@@ -407,16 +394,15 @@ class WorldmapOwnerInfo {
     /**
      * @param {number} kingdomId
      * @param {boolean} isShadowMovement
-     * @returns {Crest}
      */
     getCrestByKingdomId(kingdomId, isShadowMovement = false) {
         if (kingdomId === 10 && this.factionId !== -1 && !isShadowMovement) {
+            // TODO: FactionConstClient
             return FactionConstClient.getCrestByFactionId(this.factionId);
         }
         return this.crest;
     }
 
-    /** @returns {string} */
     get playerName() {
         let playerName = this._playerName;
         if ((!playerName || playerName === "") && this._namesFactory) {
@@ -425,29 +411,23 @@ class WorldmapOwnerInfo {
         return playerName;
     }
 
-    /** @param {string} value */
     set playerName(value) {
         this._playerName = value;
     }
 
-    /** @returns {boolean} */
     get isInAlliance() {
         return this._allianceId >= 0;
     }
 
-    /** @returns {string} */
     get allianceName() {
         return !this._allianceName ? "" : this._allianceName
     }
 
-    /** @returns {CastlePosition[]} */
     get castlePosList() {
         return this._castlePosList;
     }
 
-    /**
-     * @param {number} kingdomId
-     * @returns {Coordinate} */
+    /** @param {number} kingdomId */
     getMainCastlePositionFromPosListByKingdomId(kingdomId) {
         let i = 0;
         while (i < this.castlePosList.length) {
@@ -460,10 +440,7 @@ class WorldmapOwnerInfo {
         return null;
     }
 
-    /**
-     * @param {Coordinate} pos
-     * @returns {CastlePosition}
-     */
+    /** @param {Coordinate} pos */
     getCastlePosListItemByPos(pos) {
         let castlePosListItem
         let i = 0;
@@ -619,4 +596,4 @@ class WorldmapOwnerInfo {
     }
 }
 
-module.exports = WorldmapOwnerInfo
+module.exports = WorldMapOwnerInfo

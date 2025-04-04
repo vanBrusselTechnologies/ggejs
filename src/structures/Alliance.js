@@ -34,14 +34,12 @@ class Alliance {
         this.might = parseInt(data.MP);
     }
 
-    /** @returns {Promise<(CapitalMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject)[]>} */
+    /** @returns {(CapitalMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject)[]} */
     get landmarks() {
-        return new Promise((resolve, reject) => {
-            if (this.#landmarks.length !== 0) resolve(this.#landmarks);
-            console.error("get landmarks() Not Implememented");
-            //Door de leden heen gaan en de landmarks zo verzamelen(?);
-            reject(this.#landmarks);
-        })
+        if (this.#landmarks.length !== 0) return this.#landmarks;
+        console.error("get landmarks() Not Implememented");
+        //Door de leden heen gaan en de landmarks zo verzamelen(?);
+        throw this.#landmarks;
     }
 
     /**
@@ -66,7 +64,7 @@ module.exports = Alliance;
  * @returns {AllianceMember[]}
  */
 function parseMembers(client, members, _alliance) {
-    client.worldmaps._ownerInfoData.parseOwnerInfoArray(members);
+    client.worldMaps._ownerInfoData.parseOwnerInfoArray(members);
     /**@type {AllianceMember[]} */
     let allianceMembers = [];
     for (let memberData of members) {

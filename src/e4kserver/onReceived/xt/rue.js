@@ -1,6 +1,5 @@
 module.exports.name = "rue";
 /**
- *
  * @param {Socket} _
  * @param {number} __
  * @param {Object} ___

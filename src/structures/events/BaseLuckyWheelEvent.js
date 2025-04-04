@@ -95,7 +95,6 @@ class BaseLuckyWheelEvent extends PointEvent {
 }
 
 /**
- *
  * @param {Array<any>} rewards
  * @return {Array}
  */

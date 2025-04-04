@@ -6,7 +6,6 @@ class BasicMessage {
     #client;
 
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */
@@ -27,15 +26,10 @@ class BasicMessage {
         this.parseMetaData(client, this.metadata.split('+'))
     }
 
-    /** @return {Promise<void>} */
-    init() {
-        return new Promise((resolve) => {
-            resolve();
-        })
+    async init() {
     }
 
     /**
-     *
      * @param {Client} _
      * @param {Array<string>} __
      */
@@ -53,10 +47,8 @@ class BasicMessage {
 }
 
 /**
- *
  * @param {number} areaType
  * @param {number} kingdomId
- * @returns {string}
  */
 function getNPCMapObjectName(areaType, kingdomId) {
     switch (areaType) {

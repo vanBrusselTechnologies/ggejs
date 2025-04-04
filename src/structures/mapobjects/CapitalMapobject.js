@@ -3,12 +3,11 @@ const {getCapitalDefaultOwnerFor} = require("../../utils/OutpostConst");
 
 class CapitalMapobject extends InteractiveMapobject {
     /**
-     * 
-     * @param {Client} client 
+     * @param {Client} client
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data.slice(0,3));
+        super(client, data.slice(0, 3));
         if (data.length <= 3) return;
         /** @type {number} */
         this.objectId = data[3];
@@ -46,7 +45,7 @@ class CapitalMapobject extends InteractiveMapobject {
             this.depletionTimeEnd = new Date(Date.now() + data[17] * 1000);
         /** @type {number} */
         this.influencePoints = data[18];
-        this.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(this.ownerId) ?? client.worldmaps._ownerInfoData.getOwnerInfo(getCapitalDefaultOwnerFor(this.kingdomId));
+        this.ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(this.ownerId) ?? client.worldMaps._ownerInfoData.getOwnerInfo(getCapitalDefaultOwnerFor(this.kingdomId));
     }
 }
 

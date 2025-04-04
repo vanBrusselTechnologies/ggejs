@@ -1,6 +1,5 @@
 class InventoryItem {
     /**
-     *
      * @param {any} item
      * @param {number} count
      */

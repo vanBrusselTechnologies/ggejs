@@ -5,7 +5,6 @@ class SeaqueenMapBigCastleObject extends SeaqueenMapCastleObject {
     #client;
 
     /**
-     *
      * @param {Client} client
      * @param {number} type
      * @param {number} x

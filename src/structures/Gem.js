@@ -3,15 +3,16 @@ const {gems} = require('e4k-data').data;
 
 class Gem {
     /**
-     * 
-     * @param {Client} client 
-     * @param {number} id 
-     * @param {Equipment} equipment 
-     * @returns 
+     * @param {Client} client
+     * @param {number} id
+     * @param {Equipment} equipment
      */
     constructor(client, id, equipment = null) {
         let _data = getDataFromJson(id);
-        if (!_data) { console.warn(`gem id ${id} without data`); return; }
+        if (!_data) {
+            console.warn(`gem id ${id} without data`);
+            return;
+        }
         this.rawData = _data;
         /** @type {number} */
         this.id = _data.gemID;
@@ -27,8 +28,7 @@ class Gem {
 }
 
 /**
- * 
- * @param {number} id 
+ * @param {number} id
  * @returns {Object}
  */
 function getDataFromJson(id) {
@@ -40,9 +40,8 @@ function getDataFromJson(id) {
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {string} _data 
+ * @param {Client} client
+ * @param {string} _data
  * @returns {Effect[]}
  */
 function parseEffects(client, _data) {

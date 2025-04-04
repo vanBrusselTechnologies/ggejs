@@ -72,7 +72,6 @@ module.exports.execute = async function (socket, errorCode, params) {
 }
 
 /**
- *
  * @param {Socket} socket
  * @param {Array<Array>} messages
  * @return {Promise<void>}
@@ -80,7 +79,8 @@ module.exports.execute = async function (socket, errorCode, params) {
 async function handleSNE(socket, messages) {
     const deleteMessageIds = []
     messages.reverse()
-    for (let msg of messages) {
+    for (const msg of messages) {
+        if (socket?._host == null || socket["__disconnecting"] || socket.closed) break;
         try {
             const m = await parseMessageInfo(socket, msg);
             if (socket['mailMessages'].findIndex(mm => mm.messageId === m.messageId) !== -1) continue;
@@ -100,7 +100,7 @@ async function handleSNE(socket, messages) {
                     } catch (e) {
                     }
                 }
-                if (m.battleLog.defender?.playerId < 0 && m.battleLog.mapobject?.areaType === Constants.WorldmapArea.Dungeon) {
+                if (m.battleLog.defender?.playerId < 0 && m.battleLog.mapobject?.areaType === Constants.WorldMapArea.Dungeon) {
                     deleteMessageIds.push(m.messageId); //auto delete attacks on dungeons.
                     continue;
                 }
@@ -126,6 +126,7 @@ async function handleSNE(socket, messages) {
                 socket['mailMessages'].unshift(m);
             }
         } catch (e) {
+            if (socket?._host == null || socket["__disconnecting"] || socket.closed) break;
             if (socket.debug) console.error(e);
         }
     }
@@ -133,7 +134,6 @@ async function handleSNE(socket, messages) {
 }
 
 /**
- *
  * @param {Socket} socket
  * @param {Array} messageInfo
  * @return {MailMessage}
@@ -412,9 +412,6 @@ async function parseMessageInfo(socket, messageInfo) {
             console.log(messageInfo);
             break;
     }
-    try {
-        await message.init();
-    } catch (e) {
-    }
+    await message.init();
     return message;
 }

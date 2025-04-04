@@ -2,7 +2,6 @@ const InteractiveMapobject = require("./InteractiveMapobject");
 
 class InvasionMapobject extends InteractiveMapobject {
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */

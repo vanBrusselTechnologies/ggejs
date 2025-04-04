@@ -5,7 +5,6 @@ const Coordinate = require("../Coordinate");
 
 class BasicMovement {
     /**
-     *
      * @param {Client} client
      * @param {Object} data
      */
@@ -23,10 +22,10 @@ class BasicMovement {
         this.direction = data.M.D;
         /** @type {Mapobject} */
         this.sourceArea = parseMapObject(client, data.M.SA);
-        if (this.sourceArea) this.sourceArea.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(data.M.SID)
+        if (this.sourceArea) this.sourceArea.ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(data.M.SID)
         /** @type {Mapobject} */
         this.targetArea = parseMapObject(client, data.M.TA);
-        if (this.targetArea) this.targetArea.ownerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(data.M.TID)
+        if (this.targetArea) this.targetArea.ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(data.M.TID)
         /** @type {Coordinate} */
         let targetPos = this.sourceArea ? this.sourceArea.position : new Coordinate(client, [-1, -1]);
         /** @type {Coordinate} */

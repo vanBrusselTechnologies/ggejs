@@ -9,7 +9,7 @@ module.exports.name = "gcl";
 module.exports.execute = function (socket, errorCode, params) {
     socket.client.clientUserData._userData.castleList.ownerId = 0;
     if (!params) return;
-    const ownerInfo = socket.client.worldmaps._ownerInfoData.getOwnerInfo(socket.client.clientUserData.playerId)
+    const ownerInfo = socket.client.worldMaps._ownerInfoData.getOwnerInfo(socket.client.clientUserData.playerId);
     const castleList = {};
     if (!params) return {};
     for (const castle of params["C"]) {

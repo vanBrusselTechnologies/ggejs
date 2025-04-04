@@ -13,10 +13,8 @@ class TreasureMapMovement extends ArmyAttackMovement {
         this.mapId = data.MID;
         this.nodeId = data.NID;
         this.treasureMap = tmaps.find(map => map.mapID === this.mapId);
-        if (this.treasureMap == null) {
-            return;
-        }
-        this._targetOwnerInfo = client.worldmaps._ownerInfoData.getOwnerInfo(-703);
+        if (this.treasureMap == null) return;
+        this._targetOwnerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(-703);
         this._tmapNode = tmapnodes.find(node => node.tmapnodeID === this.nodeId);
         /** @type {TreasureMapMapobject} */
         this._targetArea = parseTreasureMapObject(client, this.mapId, SeaqueenConstants.getMapObjectTypeByNode(this._tmapNode.type, SeasonEventsConstants.isSurroundingDungeon(this._tmapNode.ownerID), this.treasureMap.endNodeID === this._tmapNode.tmapnodeID));
@@ -24,7 +22,7 @@ class TreasureMapMovement extends ArmyAttackMovement {
         this._targetArea.ownerInfo = this._targetOwnerInfo;
         this._targetArea.type = this._tmapNode.type;
         this._targetArea.mapId = this.mapId;
-        this._sourceOwnerInfo = client.worldmaps._ownerInfoData.ownInfo;
+        this._sourceOwnerInfo = client.worldMaps._ownerInfoData.ownInfo;
         this._movementOwnerInfo = this._sourceOwnerInfo;
         this._sourceOwnerId = this._sourceOwnerInfo.playerId;
         this._targetOwnerId = this._targetOwnerInfo.playerId;
@@ -34,7 +32,7 @@ class TreasureMapMovement extends ArmyAttackMovement {
             this._sourceArea.mapId = this.mapId;
             this._sourceArea.ownerInfo = this._sourceOwnerInfo;
         } else {
-            this._sourceArea = client.clientUserData._userData.castleList.castles["0"].find(c=>c.areaType === Constants.WorldmapArea.MainCastle)
+            this._sourceArea = client.clientUserData._userData.castleList.castles["0"].find(c=>c.areaType === Constants.WorldMapArea.MainCastle)
         }
 
         this.distance = this._tmapNode.distance;

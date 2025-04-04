@@ -5,7 +5,6 @@ class AlienInvasionMapobject extends InteractiveMapobject {
     eventId = 71;
 
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */

@@ -3,7 +3,6 @@ const {buildings} = require('e4k-data').data;
 
 class BasicBuilding {
     /**
-     *
      * @param {Client} client
      * @param {Array} data
      */

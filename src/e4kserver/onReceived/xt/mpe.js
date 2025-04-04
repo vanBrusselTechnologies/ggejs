@@ -7,7 +7,7 @@ module.exports.name = "mpe";
  * @param {{NM:number, M:{D:number, RD:number, P:number, Q:number, S:number, R:[], ID: number}[]}} params
  */
 module.exports.execute = function (socket, errorCode, params) {
-    if (socket["inMpeTimeout"] || !params?.M) return;
+    if (!params?.M) return;
     if (params.M.length === 0) return refreshMissions(socket, params.NM);
 
     /** @type {{missionId: number, duration: number, remainingDuration: number, price: number, quality: number, state: number, rewards: [], rewardsChanged: boolean}[]} */
@@ -41,18 +41,23 @@ module.exports.execute = function (socket, errorCode, params) {
     const sortedMissions = mercenaryCampMissions.filter(m => m.state === 0).sort((a, b) => a.price - b.price);
     if (sortedMissions.length === 0) return refreshMissions(socket, params.NM);
     /** @type {{missionId: number, duration: number, remainingDuration: number, price: number, quality: number, state: number, rewards: [], rewardsChanged: boolean}} */
-    const cheapestMission = sortedMissions[0]
-    const currentCoins = socket.client.clientUserData.globalCurrencies.find(g => g.item === "currency1").count
-    if (cheapestMission.price <= currentCoins) return mercenaryPackage(socket, cheapestMission.missionId)
+    const cheapestMission = sortedMissions[0];
+    const currentCoins = socket.client.clientUserData.globalCurrencies.find(g => g.item === "currency1").count;
+    if (cheapestMission.price <= currentCoins) {
+        mercenaryPackage(socket, cheapestMission.missionId);
+        refreshMissions(socket, cheapestMission.duration);
+        return
+    }
     // Coin shortage => Retry after a minute
-    return refreshMissions(socket, 60 - 5)
+    return refreshMissions(socket, 60 - 5);
 }
 
 function refreshMissions(socket, seconds) {
-    socket["inMpeTimeout"] = true
+    if (socket["inMpeTimeout"]) return;
+    socket["inMpeTimeout"] = true;
     setTimeout(() => {
-        socket["inMpeTimeout"] = false
+        socket["inMpeTimeout"] = false;
         if (!socket["__connected"]) return;
         mercenaryPackage(socket, -1);
-    }, (seconds + 5) * 1000)
+    }, (seconds + 5) * 1000);
 }

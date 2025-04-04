@@ -77,7 +77,6 @@ module.exports.isNodeEntityType = (type) => {
 }
 
 /**
- *
  * @param {string} nodeType
  * @param {boolean} isSurroundingDungeon
  * @param {boolean} isEndNode
@@ -92,13 +91,12 @@ module.exports.getMapObjectTypeByNode = (nodeType, isSurroundingDungeon, isEndNo
         case "BRIDGEDUNGEON":
             return 3;
         default:
-            console.error(`received unknown node type:${nodeType}`)
+            console.error(`received unknown node type:${nodeType}`);
             return 0;
     }
 }
 
 /**
- *
  * @param {number} shipLevel
  * @return {number}
  */

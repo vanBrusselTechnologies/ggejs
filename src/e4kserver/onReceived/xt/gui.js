@@ -7,5 +7,5 @@ module.exports.name = "gui";
  * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
-    return new CastleUnitInventory(socket.client, params)
+    return new CastleUnitInventory(socket.client, params);
 }

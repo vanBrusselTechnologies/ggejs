@@ -34,11 +34,7 @@ const FACTION_ACTIVE_THRESHOLD = 250;
 const TITLE_RESET_INTERVAL_SECONDS = 14400;
 const FACTIONS = [BLUE_FACTION, RED_FACTION];
 
-/**
- *
- * @param {number} factionId
- * @return {number}
- */
+/** @param {number} factionId */
 function getOppositeFactionID(factionId) {
     return factionId === 0 ? 1 : 0;
 }

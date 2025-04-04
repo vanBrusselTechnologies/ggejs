@@ -22,7 +22,7 @@ module.exports.execute = function (socket, errorCode, params) {
         })();
         return;
     }
-    const ownerInfo = socket.client.worldmaps._ownerInfoData.parseOwnerInfo(params.gaa.OI[0])
+    const ownerInfo = socket.client.worldMaps._ownerInfoData.parseOwnerInfo(params.gaa.OI[0])
     parseMapObject(socket.client, params.gaa.AI[0])
     const name = ownerInfo.playerName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     socket[`__search_player_${name}`] = ownerInfo.playerId;

@@ -2,9 +2,8 @@ const BasicMovement = require("./BasicMovement");
 
 class SpyMovement extends BasicMovement {
     /**
-     * 
-     * @param {Client} client 
-     * @param {Object} data 
+     * @param {Client} client
+     * @param {Object} data
      */
     constructor(client, data) {
         super(client, data);

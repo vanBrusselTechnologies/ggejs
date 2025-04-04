@@ -2,10 +2,9 @@ const RelicEffect = require("./RelicEffect");
 
 class RelicGem {
     /**
-     * 
-     * @param {Client} client 
-     * @param {Array} data 
-     * @param {RelicEquipment} equipment 
+     * @param {Client} client
+     * @param {Array} data
+     * @param {RelicEquipment} equipment
      */
     constructor(client, data, equipment = null) {
         /** @type {number} */
@@ -29,9 +28,8 @@ class RelicGem {
 }
 
 /**
- * 
- * @param {Client} client 
- * @param {Array} data 
+ * @param {Client} client
+ * @param {Array} data
  * @returns {RelicEffect[]}
  */
 function parseEffects(client, data) {
