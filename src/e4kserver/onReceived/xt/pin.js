@@ -8,7 +8,7 @@ module.exports.name = "pin";
  */
 module.exports.execute = function (socket, errorCode, params) {
     let nextPingTimeout = 15000;
-    if (errorCode === 0 && params) {
+    if (errorCode === 0 && params && params.NP) {
         nextPingTimeout = params.NP * 1000;
     }
     if (socket["inPingTimeout"]) return;

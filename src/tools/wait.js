@@ -1,3 +1,4 @@
+const {ConnectionStatus} = require("../utils/Constants");
 const _maxMS = 3600000;
 const timeout = 1;
 
@@ -22,13 +23,14 @@ module.exports.WaitUntil = function (socket, field, errorField = "", maxMs = _ma
  * @private
  */
 async function _WaitUntil(socket, field, errorField = "", endDateTimestamp) {
+    const connStatus = socket.client.socketManager.connectionStatus;
     if (socket?._host == null) {
         throw `WaitUntil: Socket missing! field: ${field}, errorField: ${errorField}`;
     } else if (socket[field]) {
         return socket[field];
     } else if (errorField !== "" && socket[errorField] && socket[errorField] !== "") {
         throw socket[errorField];
-    } else if ((socket["__disconnecting"] && field !== "__disconnect") || socket.closed) {
+    } else if (connStatus === ConnectionStatus.Disconnecting || connStatus === ConnectionStatus.Disconnected || socket.closed) {
         throw "Socket disconnected!";
     } else if (endDateTimestamp < Date.now()) {
         throw "Exceeded max time!";

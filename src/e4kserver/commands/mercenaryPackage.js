@@ -5,6 +5,6 @@ module.exports.name = "mpe";
  */
 module.exports.execute = function (socket, missionId) {
     if (socket["inMpeTimeout"]) return;
-    const C2SMercenariesPackageVO = {getCmdId: "mpe", params: {MID: missionId}};
-    require('../data').sendCommandVO(socket, C2SMercenariesPackageVO);
+    const C2SMercenariesPackageVO = {MID: missionId};
+    socket.client.socketManager.sendCommand("mpe", C2SMercenariesPackageVO);
 }

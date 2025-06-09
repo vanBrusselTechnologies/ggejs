@@ -5,8 +5,6 @@ module.exports.name = "core_avl";
  * @param {string} password
  */
 module.exports.execute = function (socket, name, password) {
-    const CoreC2SVerifyLoginDataVO = {
-        getCmdId: "core_avl", params: {LN: name, P: password}
-    }
-    require('../data').sendCommandVO(socket, CoreC2SVerifyLoginDataVO);
+    const CoreC2SVerifyLoginDataVO = {LN: name, P: password};
+    socket.client.socketManager.sendCommand("core_avl", CoreC2SVerifyLoginDataVO);
 }

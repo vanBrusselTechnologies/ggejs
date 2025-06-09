@@ -58,6 +58,7 @@ module.exports.execute = function (socket, errorCode, params) {
             case "rww":
             case "dcl":
             case "ahl":
+            case "gai":
             case "mre":
             case "gml":
             case "sin":
@@ -122,14 +123,6 @@ async function handlePostGBDCommandInNextFrame(socket) {
     /* todo
      *  restoreTutorialIfRuined();
      *  enableIAPmanagerStartupIntervalSignal.dispatch(false);
-     *  if (hasValidInvitation.approve())
-     *  {
-     *     setFacebookConnectionSignal.dispatch();
-     *  }
-     *  else
-     *  {
-     *     facebookAutoLoginSignal.dispatch();
-     *  }
      *  configureNotificationsSignal.dispatch();
      *  worldmapCameraData.currentCenteredWorldMapObject = castleListService.getMainCastleByKingdomId(kingdomData.activeKingdomID);
      *  if (!_loc2_)
@@ -157,7 +150,7 @@ async function handlePostGBDCommandInNextFrame(socket) {
      */
     requestLoginBonusInfo(socket);
     requestMessagesData(socket);
-    await requestAllianceData(socket);
+    requestAllianceData(socket);
     requestBookmarkData(socket);
     requestConstructionItemInventory(socket);
     requestGeneralsInnData(socket);
@@ -176,7 +169,7 @@ async function handlePostGBDCommandInNextFrame(socket) {
 
     //todo????: Code below is added and not in source code
     require('../../commands/getEquipmentInventory').execute(socket);
-    socket['gdb finished'] = true;
+    socket['gbd finished'] = true;
 }
 
 /** @param {Socket} socket */
@@ -200,7 +193,7 @@ function requestMessagesData(socket) {
 }
 
 /** @param {Socket} socket */
-async function requestAllianceData(socket) {
+function requestAllianceData(socket) {
     const client = socket.client;
     if (client.clientUserData.allianceId >= 0) {
         require('../../commands/searchAllianceById').execute(socket, client.clientUserData.allianceId);

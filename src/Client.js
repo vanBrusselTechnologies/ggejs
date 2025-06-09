@@ -1,20 +1,20 @@
 'use strict'
 
-const connection = require('./e4kserver/connection');
-const {onData} = require('./e4kserver/data');
+const EventEmitter = require('node:events');
+const {NetworkInstance, languages} = require('e4k-data');
 const AllianceManager = require('./managers/AllianceManager');
 const EquipmentManager = require("./managers/EquipmentManager");
 const MovementManager = require('./managers/MovementManager');
 const PlayerManager = require('./managers/PlayerManager');
+const SocketManager = require("./managers/SocketManager");
 const WorldMapManager = require('./managers/WorldMapManager');
 const {WaitUntil} = require('./tools/wait');
-const EventEmitter = require('node:events');
-const {NetworkInstance, languages} = require('e4k-data');
 const ClientUserDataManager = require("./managers/ClientUserDataManager");
 const PremiumBoostData = require("./structures/boosters/PremiumBoostData");
 const QuestData = require("./structures/quests/QuestData");
 const {execute: verifyLoginData} = require('./e4kserver/commands/verifyLoginData');
 const {execute: registerOrLogin} = require('./e4kserver/commands/registerOrLogin');
+const {ConnectionStatus} = require("./utils/Constants");
 
 class Client extends EventEmitter {
     #name = "";
@@ -26,9 +26,11 @@ class Client extends EventEmitter {
     externalClient = null;
 
     _serverInstance = require('e4k-data').network.instances.instance[33];
-    /** @type {Socket} */
-    _socket = new (require("net").Socket)();
     _networkId = -1;
+
+    get _socket() {
+        return this.socketManager.socket;
+    }
 
     /**
      * @param {string} name
@@ -41,10 +43,7 @@ class Client extends EventEmitter {
         this._serverInstance = serverInstance;
         this.#name = name;
         this.#password = password;
-        this._socket = new (require("net").Socket)();
-        this._socket.client = this;
-        this._socket["__reconnTimeoutSec"] = 300;
-        this._socket.debug = debug;
+        this.socketManager = new SocketManager(this, serverInstance, debug);
         this.alliances = new AllianceManager(this);
         this.clientUserData = new ClientUserDataManager();
         this.clientUserData.boostData = new PremiumBoostData(this);
@@ -53,11 +52,9 @@ class Client extends EventEmitter {
         this.movements = new MovementManager(this);
         this.players = new PlayerManager(this);
         this.worldMaps = new WorldMapManager(this);
-        this.#addSocketListeners(this._socket);
     }
 
     static registerNewAccount() {
-        // see room
     }
 
     _language = 'en';
@@ -70,7 +67,7 @@ class Client extends EventEmitter {
 
     /** @param {number} val */
     set reconnectTimeout(val) {
-        this._socket["__reconnTimeoutSec"] = val;
+        this.socketManager.reconnectTimeout = val;
     }
 
     /** @return {MailMessage[]} */
@@ -79,12 +76,13 @@ class Client extends EventEmitter {
     }
 
     async connect() {
-        if (this._socket["__connected"]) return this;
-        await _connect(this._socket);
+        if (this.socketManager.connectionStatus === ConnectionStatus.Connected) return this;
+        await this.socketManager.connect();
         this.emit('connected');
         return this;
     }
 
+    // Used in 'rlu'
     _verifyLoginData() {
         if (this.#name === "" && this.#password !== "") return registerOrLogin(this._socket, this.#password);
         verifyLoginData(this._socket, this.#name, this.#password);
@@ -116,62 +114,6 @@ class Client extends EventEmitter {
         return data;
     }
 
-    async __x__x__relogin() {
-        await _disconnect(this._socket);
-        await WaitUntil(this._socket, "__connected", "__connection_error");
-    }
-
-    /** @param {Socket} socket */
-    #addSocketListeners(socket) {
-        socket["unfinishedDataString"] = "";
-        socket.addListener("error", (err) => {
-            if (socket.debug) console.error(`\x1b[31m[SOCKET ERROR] ${err}\x1b[0m`);
-            if (socket.debug) console.error(err);
-            socket.end();
-        });
-        socket.addListener('data', (data) => {
-            onData(socket, data);
-        });
-        socket.addListener('ready', () => {
-            connection.sendVersionCheck(socket);
-        });
-        socket.addListener('end', () => {
-            if (socket["isReconnecting"]) return;
-            if (socket.debug) console.warn("Socket Ended!");
-            socket["__disconnecting"] = false;
-            socket["__connected"] = false;
-            socket["__disconnect"] = true;
-        });
-        socket.addListener('timeout', () => {
-            if (socket.debug) console.warn("Socket Timeout!");
-            socket.end();
-        });
-        socket.addListener('close', hadError => {
-            if (socket["isReconnecting"]) return;
-            socket["isReconnecting"] = true;
-            this._socket = {};
-            if (socket.debug) console.warn(`Socket Closed${hadError ? ", caused by error" : ""}!`);
-            socket.removeAllListeners();
-            /** @type {Socket} */
-            const new_socket = createCleanSocket(socket);
-            socket = null;
-            this.#addSocketListeners(new_socket);
-            setTimeout(async () => {
-                new_socket.client = this;
-                this._socket = new_socket;
-                if (new_socket.debug) console.log("Reconnecting!");
-                while (true) {
-                    try {
-                        await this.connect();
-                        break;
-                    } catch (e) {
-                        await new Promise(res => setTimeout(res, 1000));
-                    }
-                }
-            }, new_socket["__reconnTimeoutSec"] * 1000);
-        });
-    }
-
     /** @param {{token:string, tokenExpirationDate: Date}} val */
     set _apiToken(val) {
         this.#apiToken = val;
@@ -199,47 +141,6 @@ class Client extends EventEmitter {
             }
         })();
     }
-}
-
-/** @param {Socket} socket */
-async function _connect(socket) {
-    connection.connect(socket);
-    await WaitUntil(socket, "__connected", "__connection_error");
-}
-
-/**
- * @param {Socket} socket
- * @param {string} name
- * @param {string} password
- */
-async function login(socket, name, password) {
-    if (name === "") throw "Missing name while logging in";
-    if (password === "") throw "Missing password while logging in";
-    connection.login(socket, name, password);
-    await WaitUntil(socket, "__connected", "__connection_error");
-}
-
-/** @param {Socket} socket */
-async function _disconnect(socket) {
-    socket["__disconnect"] = false;
-    socket["__disconnecting"] = true;
-    if (socket?._host == null) throw "Socket missing!";
-    socket.end();
-    await WaitUntil(socket, "__disconnect");
-}
-
-/**
- * Creates new socket and only copies important fields.
- * @param {Socket} old_socket
- */
-function createCleanSocket(old_socket) {
-    /** @type {Socket} */
-    const new_socket = new (require("net").Socket)();
-    new_socket["__reconnTimeoutSec"] = old_socket["__reconnTimeoutSec"];
-    new_socket.debug = old_socket.debug;
-    new_socket["ultraDebug"] = old_socket["ultraDebug"];
-    new_socket['mailMessages'] = old_socket['mailMessages'] ?? [];
-    return new_socket;
 }
 
 module.exports = Client;

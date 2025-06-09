@@ -1,5 +1,3 @@
-const {login} = require('../../connection')
-
 module.exports.name = "core_rld";
 /**
  * @param {Socket} socket
@@ -9,7 +7,7 @@ module.exports.name = "core_rld";
 module.exports.execute = function (socket, errorCode, params) {
     switch (errorCode - 10005) {
         case 0:
-            login(socket, params.M, params.P);
+            require('../../commands/login').execute(socket, params.M, params.P);
             break;
         case 1:
             console.error("CoreErrorIdConstants.UNEXPECTED_ERROR");

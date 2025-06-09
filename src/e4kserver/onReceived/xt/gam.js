@@ -68,24 +68,27 @@ module.exports.execute = function (socket, errorCode, params) {
                 // TODO: TempServerRankSwapattackMapmovementVO // RankSwapattackMapmovementVO
                 _movement = new ArmyAttackMovement(socket.client, _movObj);
                 break;
+            case 26: // TODO: DaimyoTownshipDefenseMapmovementVO
+                _movement = new SupportDefenceMovement(socket.client, _movObj);
+                break;
+            case 27: // TODO: DaimyoTauntAttackMapmovementVO
+                _movement = new ArmyAttackMovement(socket.client, _movObj);
+                break;
             case 28:
                 // TODO: DaimyoCastleAttackMapmovementVO
                 _movement = new ArmyAttackMovement(socket.client, _movObj);
+                console.log(_movement);
                 break;
             case 29: //MOVEMENTTYPE_ALLIANCE_BATTLE_GROUND_COLLECTOR_ATTACK
                 _movement = new ArmyAttackMovement(socket.client, _movObj);
                 break;
-            //TODO: case ??: DaimyoTownshipDefenseMapmovementVO
-            //TODO: case ??: DaimyoTauntAttackMapmovementVO
+
                 //TODO:
-            default: {
+            default:
                 console.warn(`Current movement (movementType ${_movObj.M.T}) isn't fully supported!`);
-                if (socket.debug) {
-                    console.log(_movObj);
-                    console.log(_movObj.A);
-                }
+                if (socket.debug) console.log(_movObj);
                 _movement = new BasicMovement(socket.client, _movObj);
-            }
+                break;
         }
         if (_movement.sourceArea !== null || _movement.movementType === 6) movements.push(_movement);
     }

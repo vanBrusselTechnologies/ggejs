@@ -17,14 +17,14 @@ class Player extends WorldMapOwnerInfo {
         super.fillFromParamObject(data.O);
 
         /** @type {(CastleMapobject | CapitalMapobject)[]} */
-        this.castles = parseCastleList(client, data.gcl);
+        this.castles = parseCastleList(client, data.gcl); // TODO move to GCL-parser
         /** @type {{public:{village:VillageMapobject,units?:InventoryItem<Unit>[]}[], private:{privateVillageId: number, uniqueId: number}[]}} */
-        this.villages = parseVillageList(client, data.kgv);
+        this.villages = parseVillageList(client, data.kgv); // TODO move to KGV-parser
         /** @type {{kingstower: KingstowerMapobject, units?: InventoryItem<Unit>[]}[]} */
-        this.kingstowers = parseKingstowers(client, data.gkl);
+        this.kingstowers = parseKingstowers(client, data.gkl); // TODO move to GKL-parser
         /** @type {{monument: MonumentMapobject, units?: InventoryItem<Unit>[]}[]} */
-        this.monuments = parseMonuments(client, data.gml);
-        //this.allianceTowers = ; //todo: horizon
+        this.monuments = parseMonuments(client, data.gml); // TODO move to GML-parser
+        //this.allianceTowers = ; // TODO: horizon
     }
 }
 

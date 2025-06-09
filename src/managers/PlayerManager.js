@@ -13,9 +13,7 @@ const {execute: listLeaderboardScoresWindow} = require('../e4kserver/commands/li
 
 class PlayerManager extends BaseManager {
     get _socket() {
-        if (super._socket[`__requesting_players`] === undefined) {
-            super._socket[`__requesting_players`] = [];
-        }
+        if (super._socket[`__requesting_players`] === undefined) super._socket[`__requesting_players`] = [];
         return super._socket;
     }
 
@@ -38,16 +36,19 @@ class PlayerManager extends BaseManager {
         }
     }
 
-    /** @param {string} name */
+    /**
+     * @param {string} name
+     * @returns {Promise<Player>}
+     */
     async find(name) {
-        const normalizedName = name.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const normalizedName = normalizeNameLowerCase(name);
         try {
             /** @type {number} */
             let playerId;
             try {
-                // Try to find user by rankings, on fail use world map find
+                // Try to find the user by rankings, on fail, use world map find
                 const hghData = await this.getRankings(name, 'might', 6);
-                playerId = hghData.items.find(item => item.rank === hghData.foundRank).player.playerId;
+                playerId = hghData.items.find(item => normalizeNameLowerCase(item.playerName) === normalizedName).playerId;
             } catch (e) {
                 searchPlayer(this._socket, name);
                 playerId = await WaitUntil(this._socket, `__search_player_${normalizedName}`, "__search_player_error", 1000);
@@ -141,7 +142,7 @@ class PlayerManager extends BaseManager {
         if (!isGlobalRanking) {
             try {
                 const searchValue = nameOrRanking.toString();
-                const normalizedName = searchValue.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const normalizedName = normalizeNameLowerCase(searchValue);
                 getHighScore(this._socket, searchValue, listType, leagueId);
                 /** @type {HighScore<PlayerHighScoreItem>} */
                 const hghData = await WaitUntil(this._socket, `hgh_${listType}_${normalizedName}`, "", 1000);
@@ -228,5 +229,8 @@ function convertListToLeaderboard(client, leaderBoardList) {
         })
     }
 }
+
+/** @param {string} name */
+const normalizeNameLowerCase = (name) => name.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 module.exports = PlayerManager

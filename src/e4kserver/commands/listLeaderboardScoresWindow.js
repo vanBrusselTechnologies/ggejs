@@ -7,8 +7,6 @@ module.exports.name = "llsw";
  * @param {number} leagueTypeId Bracket based on level, starting with 1
  */
 module.exports.execute = function (socket, listType, scoreId, maxResults, leagueTypeId) {
-    const C2SListLeaderboardScoresWindowVO = {
-        getCmdId: "llsw", params: {LT: listType, SI: scoreId, M: maxResults, LID: leagueTypeId}
-    };
-    require('../data').sendCommandVO(socket, C2SListLeaderboardScoresWindowVO);
+    const C2SListLeaderboardScoresWindowVO = {LT: listType, SI: scoreId, M: maxResults, LID: leagueTypeId};
+    socket.client.socketManager.sendCommand("llsw", C2SListLeaderboardScoresWindowVO);
 }

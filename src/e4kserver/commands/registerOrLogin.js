@@ -5,9 +5,7 @@ module.exports.name = "tle";
  */
 module.exports.execute = function (socket, loginToken) {
     const C2SRegisterOrLoginVO = {
-        getCmdId: "tle", params: {
-            GST: socket["currentServerType"], TLT: loginToken, ADID: "null", AFUID: "appsFlyerUID", IDFV: null,
-        }
-    }
-    require('../data').sendCommandVO(socket, C2SRegisterOrLoginVO);
+        GST: socket.client.socketManager.serverType, TLT: loginToken, ADID: "null", AFUID: "appsFlyerUID", IDFV: null,
+    };
+    socket.client.socketManager.sendCommand("tle", C2SRegisterOrLoginVO);
 }

@@ -4,8 +4,6 @@ module.exports.name = "gdi";
  * @param {number} playerId
  */
 module.exports.execute = function (socket, playerId) {
-    const C2SGetDetailPlayerInfo = {
-        getCmdId: "gdi", params: {PID: playerId}
-    }
-    require('../data').sendCommandVO(socket, C2SGetDetailPlayerInfo);
+    const C2SGetDetailPlayerInfo = {PID: playerId};
+    socket.client.socketManager.sendCommand("gdi", C2SGetDetailPlayerInfo);
 }

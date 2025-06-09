@@ -4,8 +4,6 @@ module.exports.name = "wsp";
  * @param {string} playerName
  */
 module.exports.execute = function (socket, playerName) {
-    const C2SSearchPlayerVO = {
-        getCmdId: "wsp", params: {PN: playerName}
-    }
-    require('../data').sendCommandVO(socket, C2SSearchPlayerVO);
+    const C2SSearchPlayerVO = {PN: playerName};
+    socket.client.socketManager.sendCommand("wsp", C2SSearchPlayerVO);
 }

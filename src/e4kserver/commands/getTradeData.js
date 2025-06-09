@@ -4,6 +4,6 @@ module.exports.name = "mmn";
  * @param {number} messageId
  */
 module.exports.execute = function (socket, messageId) {
-    const C2SMarketCarriageNotifyVO = {getCmdId: "mmn", params: {MID: messageId},}
-    require('../data').sendCommandVO(socket, C2SMarketCarriageNotifyVO);
+    const C2SMarketCarriageNotifyVO = {MID: messageId};
+    socket.client.socketManager.sendCommand("mmn", C2SMarketCarriageNotifyVO);
 }

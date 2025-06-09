@@ -34,7 +34,7 @@ async function getMessageBody(socket, messageId) {
     readMessage(socket, messageId);
     const data = await WaitUntil(socket, `rms -> ${messageId}`);
     delete socket[`rms -> ${messageId}`];
-    return data
+    return data;
 }
 
 module.exports = UserMessage;

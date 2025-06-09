@@ -8,16 +8,9 @@ module.exports.name = "dms";
  */
 module.exports.execute = function (socket, errorCode, params) {
     if (!params) return;
-    if (params.MIDS) {
-        for (let mid of params.MIDS) {
-            removeAndEmit(socket, mid);
-        }
-    }
-    if (params.MID) {
-        for (let mid of params.MID) {
-            removeAndEmit(socket, mid);
-        }
-    }
+    if (params.MIDS) for (let mid of params.MIDS) removeAndEmit(socket, mid);
+    if (params.MID) for (let mid of params.MID) removeAndEmit(socket, mid);
+
 }
 
 /**

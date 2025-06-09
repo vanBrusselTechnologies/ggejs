@@ -1,6 +1,6 @@
 module.exports.name = "sli";
 /** @param {Socket} socket */
 module.exports.execute = function (socket) {
-    const C2SStartupLoginBonusVO = {getCmdId: "sli", params: {},}
-    require('../data').sendCommandVO(socket, C2SStartupLoginBonusVO);
+    const C2SStartupLoginBonusVO = {};
+    socket.client.socketManager.sendCommand("sli", C2SStartupLoginBonusVO);
 }

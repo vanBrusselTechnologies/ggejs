@@ -6,6 +6,6 @@ module.exports.name = "ado";
  * @param {{[key: string]: number}} goodsObject
  */
 module.exports.execute = function (socket, areaId, kingdomId, goodsObject) {
-    const C2SAllianceDonateVO = {getCmdId: "ado", params: {AID: areaId, KID: kingdomId, RV: goodsObject}};
-    require('../data').sendCommandVO(socket, C2SAllianceDonateVO);
+    const C2SAllianceDonateVO = {AID: areaId, KID: kingdomId, RV: goodsObject};
+    socket.client.socketManager.sendCommand("ado", C2SAllianceDonateVO);
 }

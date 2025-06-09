@@ -28,7 +28,7 @@ module.exports.execute = function (socket, errorCode, params) {
     for (let i in _allianceHelpRequestList) {
         let helpRequest = _allianceHelpRequestList[i];
         if (helpRequest.AC === 0 && helpRequest.PID !== socket.client.clientUserData.playerId) {
-            allianceHelpAll(socket);
+            // TODO: re-enable allianceHelpAll(socket);
             return;
         }
     }

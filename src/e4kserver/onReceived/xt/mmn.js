@@ -15,10 +15,7 @@ module.exports.execute = function (socket, errorCode, params) {
     const client = socket.client;
     client.worldMaps._ownerInfoData.parseOwnerInfoArray(params.O)
     const areas = parseWorldMapAreas(client, params["gaa"]["AI"]);
-    const goods = [];
-    for (let good of params["R"]) {
-        goods.push(new Good(client, good));
-    }
+    const goods = params.R.map(g => new Good(client, g));
     socket[`mmn -> ${params.MID}`] = {
         messageId: params.MID, sourceArea: areas[0], targetArea: areas[1], goods: goods,
     };

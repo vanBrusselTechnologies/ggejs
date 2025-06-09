@@ -1,5 +1,7 @@
 const BasicMessage = require("./BasicMessage");
 const Localize = require("../../tools/Localize");
+const {execute: getSpyLog} = require("../../e4kserver/commands/getSpyLog");
+const {WaitUntil} = require("../../tools/wait");
 
 class SpyNPCMessage extends BasicMessage {
     /** @type{Client}*/
@@ -47,6 +49,31 @@ class SpyNPCMessage extends BasicMessage {
             val = Localize.text(client, "dialog_spyLog_keptAway");
         }
         this.subject = Localize.text(client, "value_assign_colon", spyTypeName, val);
+    }
+
+    async init() {
+        try {
+            this.spyLog = await getMessageBody(this.#client._socket, this.messageId);
+            delete this.#client._socket[`bsd -> ${this.spyLog.messageId}`];
+        } catch (e) {
+            delete this.#client._socket[`bsd -> errorCode`];
+        }
+    }
+}
+
+/**
+ * @param {Socket} socket
+ * @param {number} messageId
+ * @returns {Promise<SpyLog>}
+ */
+async function getMessageBody(socket, messageId) {
+    try {
+        socket['bsd -> errorCode'] = "";
+        getSpyLog(socket, messageId);
+        return await WaitUntil(socket, `bsd -> ${messageId}`, `bsd -> errorCode`, 30000);
+    } catch (e) {
+        socket['bsd -> errorCode'] = "";
+        throw e;
     }
 }
 

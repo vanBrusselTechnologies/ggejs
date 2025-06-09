@@ -1,38 +1,46 @@
+const Localize = require("../../../tools/Localize");
 module.exports.name = "core_lga";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {Object} params
+ * @param {{D:{GDPR?: 0|1, RS?: number}}} params
  */
 module.exports.execute = async function (socket, errorCode, params) {
     //todo: Core_LGA has massive source code update
     switch (errorCode - 10005) {
         case 0:
-            await require('../../connection.js').onLogin(socket);
+            await socket.client.socketManager.onLogin();
             break;
         case 1:
-            await require('../../connection.js').onLogin(socket);
+            await socket.client.socketManager.onLogin();
             break;
         case 2:
-            await require('../../connection.js').onLogin(socket, "AuthenticationProblem: Missing LoginData!");
+            await socket.client.socketManager.onLogin("[AuthenticationError] Missing LoginData!");
             break;
         case 5:
-            await require('../../connection.js').onLogin(socket, "AuthenticationProblem: User Not Found!");
+            await socket.client.socketManager.onLogin("[AuthenticationError] User Not Found!");
             break;
         case 6:
-            await require('../../connection.js').onLogin(socket, "AuthenticationProblem: Invalid Password!");
+            await socket.client.socketManager.onLogin(`[AuthenticationError] ${Localize.text(socket.client, 'generic_login_wronglogin')}`);
             break;
         case 7:
-            await require('../../connection.js').onLogin(socket, "AuthenticationProblem: User Banned or Account Deleted!");
+            if(params.D.GDPR === 1) {
+                await socket.client.socketManager.onLogin(`[AuthenticationError] ${Localize.text(socket.client, 'generic_login_deleted')}`);
+            }
+            else {
+                const banTimeInSeconds = params.D.RS;
+                const banUntil = new Date(Date.now() + banTimeInSeconds * 1000);
+                await socket.client.socketManager.onLogin(`[AuthenticationError] ${Localize.text(socket.client, 'generic_login_banned', banUntil.toString())}`);
+            }
             break;
         case 11:
-            await require('../../connection.js').onLogin(socket, "AuthenticationProblem: Invalid Language!");
+            await socket.client.socketManager.onLogin("[AuthenticationError] Invalid Language!");
             break;
         case 15:
-            await require('../../connection.js').onLogin(socket, "AuthenticationProblem: User Kicked!");
+            await socket.client.socketManager.onLogin(`[AuthenticationError] ${Localize.text(socket.client, 'generic_alert_serverIsUpdating_title')}`);
             break;
         default:
-            await require('../../connection.js').onLogin(socket, `ERROR ${errorCode}: ${JSON.stringify(params)}`);
+            await socket.client.socketManager.onLogin(`[AuthenticationError] ${errorCode}: ${JSON.stringify(params)}`);
             break;
     }
 }

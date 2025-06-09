@@ -5,8 +5,6 @@ module.exports.name = "txs";
  * @param {number} taxes
  */
 module.exports.execute = function (socket, taxType, taxes = 3) {
-    const C2SStartCollectTaxVO = {
-        getCmdId: "txs", params: {TT: taxType, TX: taxes}
-    }
-    require('../data').sendCommandVO(socket, C2SStartCollectTaxVO);
+    const C2SStartCollectTaxVO = {TT: taxType, TX: taxes};
+    socket.client.socketManager.sendCommand("txs", C2SStartCollectTaxVO);
 }

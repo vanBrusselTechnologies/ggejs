@@ -1,5 +1,9 @@
 const MessageConst = require('./MessageConst');
 
+exports.ConnectionStatus = {
+    Disconnected: 0, Connecting: 1, Connected: 2, Disconnecting: 3,
+}
+
 exports.Events = {
     MOVEMENT_NEW: "movementAdd",
     MOVEMENT_ADD: "movementAdd",
@@ -128,6 +132,10 @@ exports.AllianceRank = {
 
 exports.HorseType = {
     Coin: 0, Ruby_1: 1, Ruby_2: 2, Feather: 3,
+}
+
+exports.AttackAdvisorType = {
+    Nomad: {id: 1, name: 'nomad'}
 }
 
 exports.AttackType = {

@@ -1,21 +1,23 @@
-const languages = require('e4k-data').languages;
+const {languages} = require('e4k-data');
 
-/** @type {{text(client:Client, textId:string, ...args:string): string}} */
-const Localize = {
-    text(client, textId, ...args) {
-        if (client == null) return textId;
-        if (typeof client === 'string') {
-            console.error('expected client, received: ' + client);
-            return client;
-        }
-        let val = _getValue(client, textId);
-        let i = 0;
-        for (let a of args) {
-            val = val.replaceAll(`{${i}}`, a);
-            i++;
-        }
-        return val;
+/**
+ * @param {Client} client
+ * @param {string} textId
+ * @param {string} args
+ */
+module.exports.text = (client, textId, ...args) => {
+    if (client == null) return textId;
+    if (typeof client === 'string') {
+        console.error('expected client, received: ' + client);
+        return /**@type {string}*/client;
     }
+    let val = _getValue(client, textId);
+    let i = 0;
+    for (let a of args) {
+        val = val.replaceAll(`{${i}}`, a);
+        i++;
+    }
+    return val;
 }
 
 /**
@@ -40,5 +42,3 @@ function _getValue(client, textId) {
     }
     return textId;
 }
-
-module.exports = Localize;

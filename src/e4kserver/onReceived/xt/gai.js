@@ -1,9 +1,9 @@
-module.exports.name = "tse";
+module.exports.name = "gai";
 /**
  * @param {Socket} socket
  * @param {number} errorCode
- * @param {Object} params
+ * @param {{AC:number, ACTH: number, ACGR:number}} params
  */
 module.exports.execute = function (socket, errorCode, params) {
-    socket.client.socketManager.serverType = params.GST;
+    //todo: gai
 }

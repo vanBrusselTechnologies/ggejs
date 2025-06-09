@@ -1,5 +1,5 @@
 const {TitleType} = require("../../../utils/Constants");
-const titleData = require('e4k-data').data.titles
+const {titles} = require('e4k-data').data;
 
 module.exports.name = "uar";
 /**
@@ -47,7 +47,7 @@ function updateThresholdsFor(titleType) {
  */
 function saveIsleTitle(cud, titleId) {
     if (titleId >= 0) {
-        const title = titleData.find(t => t.titleID === titleId)
+        const title = titles.find(t => t.titleID === titleId)
         cud.setCurrentTitle(TitleType.ISLE, title)
     } else {
         cud.clearCurrentTitle(TitleType.ISLE)

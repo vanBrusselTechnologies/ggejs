@@ -1217,7 +1217,10 @@ type MailMessage =
     | PopupFacebookConnectionMessage
     | PopupLoginBonusMessage
     | PopupRegistrationGiftMessage
-    | AllianceRequestMessage;
+    | AllianceRequestMessage
+    | AttackAdvisorFailedMessage
+    | AttackAdvisorSummaryMessage
+    | AttackCountThresholdMessage;
 
 declare class BasicMessage {
     public messageId: number;
@@ -1501,6 +1504,9 @@ declare class AllianceRequestMessage extends BasicMessage {
     allianceName: string;
 }
 
+declare class AttackCountThresholdMessage extends BasicMessage {
+}
+
 //#region AttackCancelledMessage
 declare class BasicAttackCancelledMessage extends BasicMessage {
     kingdomId: number;
@@ -1660,6 +1666,30 @@ declare class PopupLoginBonusMessage extends BasicPopupMessage {
 declare class PopupRegistrationGiftMessage extends BasicPopupMessage {
     isCollectable: boolean
     nextCollectableDayReward: number
+}
+
+//#endregion
+//#region AttackAdvisorMessage
+declare class BasicAttackAdvisorMessage extends BasicMessage {
+    advisorType: { id: number, name: string };
+}
+
+declare class AttackAdvisorFailedMessage extends BasicAttackAdvisorMessage {
+    lordId: number;
+    reasonId: number;
+}
+
+declare class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
+    advisorOverviewInfo: {
+        commandersAmount: number,
+        lootGoods: Good[],
+        costsGoods: Good[],
+        lostUnitsAmount: number,
+        lostToolsAmount: number,
+        attacksAmountWin: number,
+        attacksAmountDefeat: number,
+        attacksAmountPending: number,
+    }
 }
 
 //#endregion
@@ -2168,6 +2198,7 @@ declare public interface PlayerLeaderboardItem {
     seasonRankId?: number;
     seasonMedalsData?: [number, number][];
 }
+
 //#endregion
 
 //#region Quests

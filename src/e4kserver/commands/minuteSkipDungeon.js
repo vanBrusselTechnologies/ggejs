@@ -10,8 +10,7 @@ module.exports.name = "msd";
  */
 module.exports.execute = function (socket, minuteSkipType, kingdomId, xPos, yPos, mapId = -1, nodeId = -1) {
     const C2SMinuteSkipDungeonVO = {
-        getCmdId: "msd",
-        params: {MST: minuteSkipType, KID: kingdomId.toString(), MID: mapId, NID: nodeId, X: xPos, Y: yPos}
+        MST: minuteSkipType, KID: kingdomId.toString(), MID: mapId, NID: nodeId, X: xPos, Y: yPos
     };
-    require('../data').sendCommandVO(socket, C2SMinuteSkipDungeonVO);
+    socket.client.socketManager.sendCommand("msd", C2SMinuteSkipDungeonVO);
 }

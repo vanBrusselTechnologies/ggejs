@@ -22,6 +22,7 @@ const ConstantsThornKing = require("../utils/ConstantsThornKing");
 const ConstantsUnderworld = require("../utils/ConstantsUnderworld");
 const FactionConstClient = require("../utils/FactionConstClient");
 const ConstantsGeneral = require("../utils/ConstantsGeneral");
+const {ConnectionStatus} = require("../utils/Constants");
 
 const kingdomIds = [0, 1, 2, 3, 4, 10]
 
@@ -79,7 +80,7 @@ async function _getWorldMapById(thisManager, _worldMap, kingdomId) {
     _worldMap._clear();
     const worldMapSize = 15;
     for (let i = 0; i < worldMapSize * worldMapSize; i++) {
-        if (!thisManager._socket["__connected"]) break;
+        if (thisManager._socket.client.socketManager.connectionStatus !== ConnectionStatus.Connected) break;
         const col = Math.floor(i / worldMapSize) * 100 + 50;
         const row = i % worldMapSize * 100 + 50;
         _worldMap._addAreaMapObjects((await _getWorldMapSector(thisManager, kingdomId, col, row)).mapObjects);
@@ -96,7 +97,7 @@ async function _getWorldMapById(thisManager, _worldMap, kingdomId) {
  */
 async function _getWorldMapSector(thisManager, kingdomId, x, y) {
     const socket = thisManager._socket;
-    if (!socket["__connected"]) throw 'Client disconnected';
+    if (socket.client.socketManager.connectionStatus !== ConnectionStatus.Connected) throw 'Client disconnected';
     try {
         const data = await _getWorldMapSectorData(thisManager, kingdomId, x, y, 0);
         delete socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_searching`];
@@ -123,7 +124,7 @@ async function _getWorldMapSector(thisManager, kingdomId, x, y) {
  */
 async function _getWorldMapSectorData(thisManager, kingdomId, x, y, tries = 0) {
     const socket = thisManager._socket;
-    if (!socket["__connected"]) throw 'Client disconnected';
+    if (socket.client.socketManager.connectionStatus !== ConnectionStatus.Connected) throw 'Client disconnected';
     try {
         socket[`__worldMap_${kingdomId}_searching_sectors`].push({x, y});
         if (!socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_searching`]) {

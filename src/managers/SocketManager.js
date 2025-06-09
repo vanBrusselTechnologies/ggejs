@@ -1,0 +1,254 @@
+const {NetworkInstance} = require('e4k-data');
+const {WaitUntil} = require("../tools/wait");
+const {execute: collectTax} = require('../e4kserver/commands/collectTax');
+const {execute: pingPong} = require('../e4kserver/commands/pingpong');
+const {execute: generateLoginToken} = require('../e4kserver/commands/generateLoginToken');
+const {execute: mercenaryPackage} = require('../e4kserver/commands/mercenaryPackage');
+const {execute: dql} = require('../e4kserver/onReceived/xt/dql');
+const {onResponse: onXtResponse} = require('../e4kserver/onReceived/xt');
+const {ConnectionStatus, ServerType} = require("../utils/Constants");
+const EventConst = require("../utils/EventConst");
+
+const versionDateGame = 1747237561048;
+
+class SocketManager {
+    #connectionStatus = ConnectionStatus.Disconnected;
+
+    connectionError = "";
+    reconnectTimeout = 300;
+    serverType = 1;
+
+    /**
+     * @param {Client} client
+     * @param {NetworkInstance} serverInstance
+     * @param {boolean} debug
+     */
+    constructor(client, serverInstance, debug) {
+        this.client = client;
+        this.serverInstance = serverInstance;
+        /** @type {Socket} */
+        this.socket = new (require("node:net").Socket)();
+        // this.socket = new (require('ws').WebSocket)(`wss://${serverInstance.server}:${serverInstance.port}`); //empire? WebSocket ipv net.Socket
+        this.socket.client = client;
+        this.socket.debug = debug;
+        this.#addSocketListeners(this.socket);
+    }
+
+    /**
+     * @param connectionStatus
+     * @private
+     */
+    set connectionStatus(connectionStatus) {
+        if (this.socket.debug) console.log("[ConnStatus]", connectionStatus);
+        this.#connectionStatus = connectionStatus;
+    }
+
+    get connectionStatus() {
+        return this.#connectionStatus;
+    }
+
+    async connect() {
+        this.connectionStatus = ConnectionStatus.Connecting;
+        this.socket.connect(this.serverInstance.port, this.serverInstance.server);
+        await waitForConnectionStatus(this, ConnectionStatus.Connected);
+    }
+
+    async reconnect() {
+        if (this.connectionStatus === ConnectionStatus.Connected) {
+            await this.disconnect();
+            await new Promise(resolve => setTimeout(resolve, this.reconnectTimeout * 1000));
+        }
+        await waitForConnectionStatus(this, ConnectionStatus.Connected);
+    }
+
+    async disconnect() {
+        if (this.connectionStatus === ConnectionStatus.Disconnected) return;
+        this.connectionStatus = ConnectionStatus.Disconnecting;
+        this.socket.end();
+        await waitForConnectionStatus(this, ConnectionStatus.Disconnected);
+    }
+
+    async onLogin(error = "") {
+        try {
+            this.connectionError = error;
+            if (error !== "") return;
+
+            //Added, not in source code
+            if (this.socket['mailMessages'] === undefined) this.socket['mailMessages'] = [];
+            await WaitUntil(this.socket, 'gbd finished');
+
+            this.connectionStatus = ConnectionStatus.Connected;
+            pingPong(this.socket);
+
+            if (this.client.externalClient == null && this.serverType === ServerType.NormalServer) {
+                const activeEvents = this.socket["activeSpecialEvents"] ?? []
+                if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_TEMPSERVER)) generateLoginToken(this.socket, ServerType.TempServer)
+                if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_ALLIANCE_BATTLEGROUND)) generateLoginToken(this.socket, ServerType.AllianceBattleGround)
+            }
+            //todo: Below isn't in source code
+            collectTax(this.socket);
+            mercenaryPackage(this.socket, -1)
+            if (!this.socket["isIntervalSetup"]) {
+                this.socket["isIntervalSetup"] = true;
+                if (this.serverType !== ServerType.AllianceBattleGround) {
+                    dql(this.socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]}).then()
+                    setInterval(() => {
+                        if (this.connectionStatus !== ConnectionStatus.Connected) return;
+                        dql(this.socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]}).then()
+                    }, 5 * 60 * 1010); // 5 minutes
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    /**
+     * @param {string} commandId
+     * @param {Object} paramObject
+     */
+    sendCommand(commandId, paramObject) {
+        const params = [JSON.stringify(paramObject)];
+        let i = 0;
+        while (i < params.length) {
+            params[i] ? "string" == typeof params[i] && (params[i] = getValidSmartFoxText(params[i])) : params[i] = "<RoundHouseKick>";
+            i++;
+        }
+        const message = ["", "xt", this.serverInstance.zone, commandId, 1].concat(params, [""]).join("%");
+        this.writeToSocket(message);
+    }
+
+    /** @param {string} msg */
+    writeToSocket(msg) {
+        if (this.connectionStatus === ConnectionStatus.Disconnecting || this.connectionStatus === ConnectionStatus.Disconnected) return;
+        if (this.socket["ultraDebug"]) console.log(`[WRITE]: ${msg.substring(0, Math.min(150, msg.length))}`);
+        let _buff0 = Buffer.from(msg);
+        let _buff1 = Buffer.alloc(1);
+        _buff1.writeInt8(0);
+        let bytes = Buffer.concat([_buff0, _buff1]);
+        this.socket.write(bytes, "utf-8", (err) => {
+            if (err) console.error(`\x1b[31m[SOCKET WRITE ERROR] ${err}\x1b[0m`);
+        });
+    }
+
+    /** @param {Socket} socket */
+    #addSocketListeners(socket) {
+        socket.addListener('ready', () => onSocketReady(this));
+        socket.addListener('data', (data) => onSocketData(socket, data));
+        socket.addListener('error', (err) => {
+            if (socket.debug) console.error(`\x1b[31m[SOCKET ERROR] ${err}\x1b[0m`);
+            if (socket.debug) console.error(err);
+            socket.end();
+        });
+        socket.addListener('timeout', () => {
+            if (socket.debug) console.warn("Socket Timeout!");
+            socket.end();
+        });
+        socket.addListener('end', () => {
+            if (this.connectionStatus === ConnectionStatus.Disconnected) return;
+            if (socket.debug) console.warn("Socket Ended!");
+        });
+        socket.addListener('close', hadError => {
+            if (this.connectionStatus === ConnectionStatus.Disconnected) return;
+            this.connectionStatus = ConnectionStatus.Disconnected;
+            if (socket.debug) console.warn(`Socket Closed${hadError ? ", caused by error" : ""}!`);
+            socket.removeAllListeners();
+            this.currentData = "";
+
+            setTimeout(async () => {
+                /** @type {Socket} */
+                const new_socket = createCleanSocket(socket);
+                this.#addSocketListeners(new_socket);
+                new_socket.client = this.client;
+                this.socket = new_socket;
+                socket = null;
+                if (new_socket.debug) console.log("Reconnecting!");
+                while (true) {
+                    try {
+                        await this.client.connect();
+                        break;
+                    } catch (e) {
+                        await new Promise(res => setTimeout(res, 1000));
+                    }
+                }
+            }, this.reconnectTimeout * 1000);
+        });
+    }
+}
+
+module.exports = SocketManager;
+
+/**
+ * Creates new socket and only copies important fields.
+ * @param {Socket} old_socket
+ */
+function createCleanSocket(old_socket) {
+    /** @type {Socket} */
+    const new_socket = new (require("node:net").Socket)();
+    new_socket.debug = old_socket.debug;
+    new_socket["ultraDebug"] = old_socket["ultraDebug"];
+    new_socket['mailMessages'] = old_socket['mailMessages'] ?? [];
+    return new_socket;
+}
+
+/** @param {SocketManager} socketManager */
+function onSocketReady(socketManager) {
+    const languageCode = socketManager.client._language;
+    const distributorId = 0;
+    const zone = socketManager.serverInstance.zone;
+    const pass = `${versionDateGame}%${languageCode}%${distributorId}`;
+    const msg = `<login z=\'${zone}\'><nick><![CDATA[]]></nick><pword><![CDATA[${pass}]]></pword></login>`;
+    const message = `<msg t=\'sys\'><body action=\'login\' r=\'0\'>${msg}</body></msg>`;
+    socketManager.writeToSocket(message);
+}
+
+/**
+ * @param {Socket} socket
+ * @param {Buffer} data
+ */
+function onSocketData(socket, data) {
+    if (socket["currentData"] === undefined) socket["currentData"] = "";
+    const newData = data.toString('utf-8');
+    const totalData = socket["currentData"] + newData;
+    const commands = totalData.split(String.fromCharCode(0)).filter(c => c !== "");
+    socket["currentData"] = totalData.charCodeAt(totalData.length - 1) !== 0 ? commands.pop() : "";
+
+    commands.forEach(command => {
+        if (socket["ultraDebug"]) console.log("[RECEIVED]", command.substring(0, Math.min(150, command.length)));
+        const params = command.substring(1, command.length - 1).split("%");
+        if (params[0] === "xt") return onXtResponse(socket, params.splice(1, params.length - 1));
+        console.warn("[DATA] Cannot handle command:", command);
+    })
+}
+
+/**
+ * @param {SocketManager} socketManager
+ * @param {number} connectionStatus
+ * @param {number} maxMs
+ */
+async function waitForConnectionStatus(socketManager, connectionStatus, maxMs = 10000) {
+    return waitForConnectionStatusTS(socketManager, connectionStatus, new Date(Date.now() + maxMs).getTime());
+}
+
+/**
+ * @param {SocketManager} socketManager
+ * @param {number} connectionStatus
+ * @param {number} endDateTimestamp
+ */
+async function waitForConnectionStatusTS(socketManager, connectionStatus, endDateTimestamp) {
+    if (socketManager.connectionStatus === connectionStatus) return;
+    if (socketManager.connectionError !== "") {
+        const e = socketManager.connectionError;
+        socketManager.connectionError = "";
+        throw `[Connection Error] ${e}`;
+    }
+    if (endDateTimestamp < Date.now()) throw "[Connection Error] Exceeded max time!";
+    await new Promise(resolve => setTimeout(resolve, 1));
+    return await waitForConnectionStatusTS(socketManager, connectionStatus, endDateTimestamp);
+}
+
+/** @param {string} value */
+function getValidSmartFoxText(value) {
+    value = value.replace(/%/g, "&percnt;");
+    return value.replace(/'/g, "");
+}

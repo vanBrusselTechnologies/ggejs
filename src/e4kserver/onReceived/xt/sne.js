@@ -1,3 +1,4 @@
+const {execute: deleteMessages} = require("../../commands/deleteMessages");
 const Constants = require('../../../utils/Constants');
 const MessageConst = require('../../../utils/MessageConst');
 const BasicMessage = require("../../../structures/messages/BasicMessage");
@@ -45,7 +46,6 @@ const ConquerableNewSiegeMessage = require("../../../structures/messages/Conquer
 const ConquerableAreaConqueredMessage = require("../../../structures/messages/ConquerableAreaConqueredMessage");
 const ConquerableAreaLostMessage = require("../../../structures/messages/ConquerableAreaLostMessage");
 const RebuyMessage = require("../../../structures/messages/RebuyMessage");
-const {execute: deleteMessages} = require("../../commands/deleteMessages");
 const SpecialEventEndMessage = require("../../../structures/messages/SpecialEventEndMessage");
 const RuinInfoMessage = require("../../../structures/messages/RuinInfoMessage");
 const PopupRegistrationGiftMessage = require("../../../structures/messages/PopupRegistrationGiftMessage");
@@ -54,6 +54,9 @@ const PopupLoginBonusMessage = require("../../../structures/messages/PopupLoginB
 const SpecialEventHospitalCapacityExceededMessage = require("../../../structures/messages/SpecialEventHospitalCapacityExceededMessage");
 const AllianceRequestMessage = require("../../../structures/messages/AllianceRequestMessage");
 const DoubleRubiesMessage = require("../../../structures/messages/DoubleRubiesMessage");
+const AttackAdvisorFailedMessage = require("../../../structures/messages/AttackAdvisorFailedMessage");
+const AttackAdvisorSummaryMessage = require("../../../structures/messages/AttackAdvisorSummaryMessage");
+const AttackCountThresholdMessage = require("../../../structures/messages/AttackCountThresholdMessage");
 
 module.exports.name = "sne";
 /**
@@ -62,10 +65,9 @@ module.exports.name = "sne";
  * @param {{MSG:Array}} params
  */
 module.exports.execute = async function (socket, errorCode, params) {
-    //todo: not same as Source code;
+    // TODO: not same as Source code;
     try {
         if (params?.MSG) await handleSNE(socket, params.MSG);
-        socket['isWaitingForSNE'] = false;
     } catch (e) {
         if (socket.debug) console.error(e)
     }
@@ -80,7 +82,6 @@ async function handleSNE(socket, messages) {
     const deleteMessageIds = []
     messages.reverse()
     for (const msg of messages) {
-        if (socket?._host == null || socket["__disconnecting"] || socket.closed) break;
         try {
             const m = await parseMessageInfo(socket, msg);
             if (socket['mailMessages'].findIndex(mm => mm.messageId === m.messageId) !== -1) continue;
@@ -106,14 +107,17 @@ async function handleSNE(socket, messages) {
                 }
             } else if (m.messageType === MessageConst.MESSAGE_TYPE_SPY_NPC || m.messageType === MessageConst.MESSAGE_TYPE_SPY_PLAYER) {
                 if (m.subType === MessageConst.SUBTYPE_SPY_SABOTAGE && m.spyLog?.targetOwner?.playerId === socket.client.clientUserData.playerId) {
-                    //When receiving sabotage, do not delete;
+                    // When receiving sabotage, do not delete it
                 } else if (!m.isSuccessful) {
                     deleteMessageIds.push(m.messageId); //auto delete failed spies
                     continue;
                 } else if (m.spyLog == null) {
-                    deleteMessageIds.push(m.messageId); //auto delete spies without spylog: outdated or NPC spy
+                    deleteMessageIds.push(m.messageId); //auto delete spies without spyLog: outdated
                     continue;
-                } else if (m.subType === MessageConst.SUBTYPE_SPY_SABOTAGE && m.spyLog?.targetOwner?.isRuin) {
+                } else if (m.spyLog.targetOwner?.playerId < 0 && m.spyLog.targetMapObject?.areaType === Constants.WorldMapArea.Dungeon) {
+                    deleteMessageIds.push(m.messageId); //auto delete spies on dungeons
+                    continue;
+                } else if (m.subType === MessageConst.SUBTYPE_SPY_SABOTAGE && m.spyLog.targetOwner?.isRuin) {
                     deleteMessageIds.push(m.messageId); //auto delete sabotage on ruin player: daily quest
                     continue;
                 }
@@ -126,11 +130,10 @@ async function handleSNE(socket, messages) {
                 socket['mailMessages'].unshift(m);
             }
         } catch (e) {
-            if (socket?._host == null || socket["__disconnecting"] || socket.closed) break;
-            if (socket.debug) console.error(e);
+            if (socket.debug) console.error('[SNE]', e, msg);
         }
     }
-    if (deleteMessageIds.length > 0) deleteMessages(socket, deleteMessageIds)
+    if (deleteMessageIds.length > 0) deleteMessages(socket, deleteMessageIds);
 }
 
 /**
@@ -406,12 +409,26 @@ async function parseMessageInfo(socket, messageInfo) {
         case MessageConst.MESSAGE_TYPE_PAYMENT_DOPPLER:
             message = new DoubleRubiesMessage(socket.client, messageInfo);
             break;
+        case MessageConst.MESSAGE_TYPE_ATTACK_ADVISOR_FAILURE:
+            message = new AttackAdvisorFailedMessage(socket.client, messageInfo);
+            break;
+        case MessageConst.MESSAGE_TYPE_ATTACK_ADVISOR_SUMMARY:
+            message = new AttackAdvisorSummaryMessage(socket.client, messageInfo);
+            break;
+        case MessageConst.MESSAGE_TYPE_ATTACK_COUNT_THRESHOLD:
+            message = new AttackCountThresholdMessage(socket.client, messageInfo);
+            break;
         default:
             if (socket["mailMessages"].find(m => m.messageId === message.messageId) != null) break;
             console.warn(`Current MailMessage (messageType ${type}) isn't fully supported!`);
             console.log(messageInfo);
             break;
     }
-    await message.init();
+    try {
+        await message.init();
+    } catch (e) {
+        if (e === 225) deleteMessages(socket, [message.messageId])
+        throw e;
+    }
     return message;
 }

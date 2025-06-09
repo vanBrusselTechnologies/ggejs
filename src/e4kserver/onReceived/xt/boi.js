@@ -27,14 +27,15 @@ module.exports.execute = function (socket, errorCode, params) {
 function removeBoosterExpiredMails(socket, premiumBoostData, tempBoosterObjects) {
     if (!tempBoosterObjects) return;
     /** @type {number[]} */
-    const messageIds = [];
+    const boosterIds = [];
     for (const tempBoosterObject of tempBoosterObjects) {
         let booster = premiumBoostData.getBoosterById(tempBoosterObject.ID);
-        if (booster !== undefined && booster.remainingTimeInSeconds <= 86400 && tempBoosterObject.RT > 86400) {
-            messageIds.push(booster.id);
-        }
+        if (booster !== undefined && booster.remainingTimeInSeconds <= 86400 && tempBoosterObject.RT > 86400) boosterIds.push(booster.id);
     }
-    if (messageIds.length > 0) deleteMessages(socket, messageIds);
+    if (boosterIds.length > 0) {
+        const messagesIds = (socket["mailMessages"] ?? []).filter(m => boosterIds.includes(m.boosterId)).map(m => m.messageId);
+        if (messagesIds.length > 0) deleteMessages(socket, messagesIds);
+    }
 }
 
 /**

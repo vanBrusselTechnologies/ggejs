@@ -4,8 +4,6 @@ module.exports.name = "blm";
  * @param {number} battleLogId
  */
 module.exports.execute = function (socket, battleLogId) {
-    const C2SBattleLogMiddleVO = {
-        getCmdId: "blm", params: {LID: battleLogId},
-    }
-    require('../data').sendCommandVO(socket, C2SBattleLogMiddleVO);
+    const C2SBattleLogMiddleVO = {LID: battleLogId};
+    socket.client.socketManager.sendCommand("blm", C2SBattleLogMiddleVO);
 }

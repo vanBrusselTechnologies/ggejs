@@ -8,16 +8,14 @@ module.exports.name = "crm";
  */
 module.exports.execute = function (socket, source, target, goods, horse) {
     const C2SCreateMarketMovementVO = {
-        getCmdId: "crm", params: {
-            SID: source.objectId,
-            TX: target.position.X,
-            TY: target.position.Y,
-            G: goods,
-            HBW: horse?.wodId ?? -1,
-            KID: source.kingdomId,
-            PTT: horse?.isPegasusHorse ? 1 : 0,
-            SD: 0,
-        },
-    }
-    require('../data').sendCommandVO(socket, C2SCreateMarketMovementVO);
+        SID: source.objectId,
+        TX: target.position.X,
+        TY: target.position.Y,
+        G: goods,
+        HBW: horse?.wodId ?? -1,
+        KID: source.kingdomId,
+        PTT: horse?.isPegasusHorse ? 1 : 0,
+        SD: 0,
+    };
+    socket.client.socketManager.sendCommand("crm", C2SCreateMarketMovementVO);
 }

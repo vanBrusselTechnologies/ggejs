@@ -22,7 +22,7 @@ module.exports.execute = function (socket, errorCode, params) {
      */
 
     //todo: REMOVE below because not part of source code
-    if (params["AC"] === 0) allianceHelpAll(socket);
+    // TODO: re-enable if (params["AC"] === 0) allianceHelpAll(socket);
 }
 
 //todo: Move to seperate parser file

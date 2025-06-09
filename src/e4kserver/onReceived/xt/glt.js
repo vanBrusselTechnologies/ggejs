@@ -17,7 +17,16 @@ module.exports.execute = async function (socket, errorCode, params) {
         instanceId: params["IID"],
         isCrossPlay: params["ICS"]
     }
-    const externalClient = new (require('../../../Client'))("", LoginTokenServerInfoVO.token, LoginTokenServerInfoVO, socket.debug);
+
+    /** @type {NetworkInstance} */
+    const serverInstance = {
+        server: LoginTokenServerInfoVO.ip,
+        port: LoginTokenServerInfoVO.port,
+        zone: LoginTokenServerInfoVO.zone,
+        zoneId: LoginTokenServerInfoVO.zoneId,
+        value: LoginTokenServerInfoVO.instanceId,
+    }
+    const externalClient = new (require('../../../Client'))("", LoginTokenServerInfoVO.token, serverInstance, socket.debug);
     externalClient._socket.ultraDebug = socket.ultraDebug;
     externalClient.language = socket.client._language;
     await externalClient.connect()

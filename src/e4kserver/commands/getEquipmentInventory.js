@@ -1,6 +1,6 @@
 module.exports.name = "gei";
 /** @param {Socket} socket */
 module.exports.execute = function (socket) {
-    const C2SGetEquipmentInventoryVO = {getCmdId: "gei", params: {},}
-    require('../data').sendCommandVO(socket, C2SGetEquipmentInventoryVO);
+    const C2SGetEquipmentInventoryVO = {};
+    socket.client.socketManager.sendCommand("gei", C2SGetEquipmentInventoryVO);
 }

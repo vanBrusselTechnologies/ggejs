@@ -42,6 +42,7 @@ const DonationEvent = require("../../../structures/events/DonationEvent");
 const TempServerMultiplierEvent = require("../../../structures/events/TempServerMultiplierEvent");
 const ColossusVanillaEvent = require("../../../structures/events/ColossusVanillaEvent");
 const ColossusRiderEvent = require("../../../structures/events/ColossusRiderEvent");
+const EasterGachaEvent = require("../../../structures/events/EasterGachaEvent");
 
 module.exports.name = "sei";
 /**
@@ -50,7 +51,7 @@ module.exports.name = "sei";
  * @param {Object} params
  */
 module.exports.execute = function (socket, errorCode, params) {
-    //TODO: move activeSpecialEvents initiator to the EventsManager class
+    // TODO: move activeSpecialEvents initiator to the EventsManager class
     if (socket["activeSpecialEvents"] == null) socket["activeSpecialEvents"] = []
     if (!params.E || params.E.length === 0) return;
     for (const eventData of params.E) {
@@ -132,6 +133,8 @@ function getEventById(socket, eventId) {
             return new DistrictGachaEvent();
         case EventConst.EVENTTYPE_CHRISTMAS_GACHA:
             return new ChristmasGachaEvent();
+        case EventConst.EVENTTYPE_EASTER_GACHA:
+            return new EasterGachaEvent();
         case EventConst.EVENTTYPE_RATINGEVENT:
             return new RatingEvent();
         case EventConst.EVENTTYPE_LUCKYWHEEL:

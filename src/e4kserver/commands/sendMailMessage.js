@@ -9,17 +9,15 @@ module.exports.execute = function (socket, receiverName, subject, msg) {
     const _subject = getValideSmartFoxJSONMailMessage(subject);
     const _msg = getValideSmartFoxJSONMailMessage(msg);
     if (_msg && _msg !== "") {
-        const C2SSendMessageVO = {
-            getCmdId: "sms", params: {RN: receiverName, MH: _subject, TXT: _msg,},
-        }
-        require('../data').sendCommandVO(socket, C2SSendMessageVO);
+        const C2SSendMessageVO = {RN: receiverName, MH: _subject, TXT: _msg};
+        socket.client.socketManager.sendCommand("sms", C2SSendMessageVO);
     }
 }
 
 /** @param {string} value */
 function getValideSmartFoxJSONMailMessage(value) {
-    for (let char in ["\\+", "#", "<", ">", "\"", "\\$"]) {
-        let regExp = new RegExp(`\\${char}`, "gs");
+    for (const char in ["\\+", "#", "<", ">", "\"", "\\$"]) {
+        const regExp = new RegExp(`\\${char}`, "gs");
         value = value.replaceAll(regExp, "");
     }
     value = value.replaceAll(/%/g, "&percnt;");

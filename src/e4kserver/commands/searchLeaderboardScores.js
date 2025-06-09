@@ -5,6 +5,6 @@ module.exports.name = "slse";
  * @param {string} searchValue
  */
 module.exports.execute = function (socket, listType, searchValue) {
-    const C2SSearchLeaderboardScoresVO = {getCmdId: "slse", params: {SV: searchValue, LT: 53}};
-    require('../data').sendCommandVO(socket, C2SSearchLeaderboardScoresVO);
+    const C2SSearchLeaderboardScoresVO = {SV: searchValue, LT: 53};
+    socket.client.socketManager.sendCommand("slse", C2SSearchLeaderboardScoresVO);
 }

@@ -8,13 +8,7 @@ module.exports.name = "gaa";
  */
 module.exports.execute = function (socket, kingdomId, bottomLeftCorner, topRightCorner) {
     const C2SGetAreaVO = {
-        getCmdId: "gaa", params: {
-            KID: kingdomId,
-            AX1: bottomLeftCorner.X,
-            AY1: bottomLeftCorner.Y,
-            AX2: topRightCorner.X,
-            AY2: topRightCorner.Y,
-        },
-    }
-    require('../data').sendCommandVO(socket, C2SGetAreaVO);
+        KID: kingdomId, AX1: bottomLeftCorner.X, AY1: bottomLeftCorner.Y, AX2: topRightCorner.X, AY2: topRightCorner.Y,
+    };
+    socket.client.socketManager.sendCommand("gaa", C2SGetAreaVO);
 }

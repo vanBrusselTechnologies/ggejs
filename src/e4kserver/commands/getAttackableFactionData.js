@@ -1,6 +1,6 @@
 module.exports.name = "afd";
 /** @param {Socket} socket */
 module.exports.execute = function (socket) {
-    const C2SGetAttackableFactionDataVO = {getCmdId: "afd", params: {}};
-    require('../data').sendCommandVO(socket, C2SGetAttackableFactionDataVO);
+    const C2SGetAttackableFactionDataVO = {};
+    socket.client.socketManager.sendCommand("afd", C2SGetAttackableFactionDataVO);
 }
