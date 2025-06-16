@@ -1,6 +1,6 @@
 const BasicMessage = require("./BasicMessage");
 const Localize = require("../../tools/Localize");
-const {execute: getSpyLog} = require("../../e4kserver/commands/getSpyLog");
+const {execute: getSpyLog} = require("../../commands/commands/getSpyLog");
 const {WaitUntil} = require("../../tools/wait");
 
 class SpyNPCMessage extends BasicMessage {
@@ -70,7 +70,7 @@ async function getMessageBody(client, messageId) {
     try {
         client._socket['bsd -> errorCode'] = "";
         getSpyLog(client, messageId);
-        return await WaitUntil(client._socket, `bsd -> ${messageId}`, `bsd -> errorCode`, 30000);
+        return await WaitUntil(client, `bsd -> ${messageId}`, `bsd -> errorCode`, 30000);
     } catch (e) {
         client._socket['bsd -> errorCode'] = "";
         throw e;

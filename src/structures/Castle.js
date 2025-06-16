@@ -1,11 +1,11 @@
-const {execute: csl} = require("../e4kserver/onReceived/xt/csl");
-const {execute: gca} = require("../e4kserver/onReceived/xt/gca");
-const {execute: gui} = require("../e4kserver/onReceived/xt/gui");
-const {execute: grc} = require("../e4kserver/onReceived/xt/grc");
-const {execute: gpa} = require("../e4kserver/onReceived/xt/gpa");
-const {execute: sin} = require("../e4kserver/onReceived/xt/sin");
-const {execute: gab} = require("../e4kserver/onReceived/xt/gab");
-const {execute: hin} = require("../e4kserver/onReceived/xt/hin");
+const {execute: csl} = require("../commands/onReceived/csl");
+const {execute: gca} = require("../commands/onReceived/gca");
+const {execute: gui} = require("../commands/onReceived/gui");
+const {execute: grc} = require("../commands/onReceived/grc");
+const {execute: gpa} = require("../commands/onReceived/gpa");
+const {execute: sin} = require("../commands/onReceived/sin");
+const {execute: gab} = require("../commands/onReceived/gab");
+const {execute: hin} = require("../commands/onReceived/hin");
 
 class Castle {
     /** @type {number} */

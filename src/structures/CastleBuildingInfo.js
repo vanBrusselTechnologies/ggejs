@@ -1,6 +1,6 @@
 const BasicBuilding = require("./BasicBuilding");
 const {parseMapObject} = require("../utils/MapObjectParser");
-const {execute: scl} = require("../e4kserver/onReceived/xt/scl");
+const {execute: scl} = require("../commands/onReceived/scl");
 const BuildingGround = require("./BuildingGround");
 const CastleConstructionItemBuilding = require("./CastleConstructionItemBuilding");
 

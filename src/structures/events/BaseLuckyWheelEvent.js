@@ -1,5 +1,5 @@
 const PointEvent = require("./PointEvent");
-const {execute: lws} = require("../../e4kserver/onReceived/xt/lws.js");
+const {execute: lws} = require("../../commands/onReceived/lws.js");
 
 class BaseLuckyWheelEvent extends PointEvent {
     eventBuildingWodId = 48

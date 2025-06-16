@@ -1,8 +1,8 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const {execute: sellEquipment} = require('../e4kserver/commands/sellEquipment');
-const {execute: sellGem} = require('../e4kserver/commands/sellGem');
+const {execute: sellEquipment} = require('../commands/commands/sellEquipment');
+const {execute: sellGem} = require('../commands/commands/sellGem');
 const Constants = require("../utils/Constants");
 const {WaitUntil} = require("../tools/wait");
 
@@ -130,7 +130,7 @@ class EquipmentManager extends BaseManager {
     /** @param {Equipment | RelicEquipment} equipment */
     async sellEquipment(equipment) {
         sellEquipment(this._client, equipment.id, equipment.equippedLord?.id ?? -1);
-        await WaitUntil(this._client._socket, "seq -> sold", 'seq -> errorCode', 10000);
+        await WaitUntil(this._client, "seq -> sold", 'seq -> errorCode', 10000);
         let i = 0;
         for (const eq of this.#equipmentInventory) {
             if (eq.id === equipment.id) this.#equipmentInventory.splice(i, 1);
@@ -175,7 +175,7 @@ class EquipmentManager extends BaseManager {
     async sellGem(gem) {
         const isRelic = gem.relicTypeId != null;
         sellGem(this._client, gem.id, isRelic);
-        await WaitUntil(this._client._socket, "sge -> sold", 'sge -> errorCode', 10000);
+        await WaitUntil(this._client, "sge -> sold", 'sge -> errorCode', 10000);
         let i = 0;
         if (isRelic) {
             for (const relicGem of this.#relicGemInventory) {

@@ -1,7 +1,7 @@
 const BasicAttackAdvisorMessage = require("./BasicAttackAdvisorMessage");
 const Localize = require("../../tools/Localize");
 const {WaitUntil} = require("../../tools/wait");
-const {execute: readMessage} = require("../../e4kserver/commands/readMessages");
+const {execute: readMessage} = require("../../commands/commands/readMessages");
 const Good = require("../Good");
 
 class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
@@ -36,7 +36,7 @@ class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
  */
 async function parseAdvisorOverview(client, messageId) {
     readMessage(client, messageId);
-    const stringData = await WaitUntil(client._socket, `rms -> ${messageId}`);
+    const stringData = await WaitUntil(client, `rms -> ${messageId}`);
     delete client._socket[`rms -> ${messageId}`];
     const data = JSON.parse(stringData);
     // TODO: rewrite into separate class

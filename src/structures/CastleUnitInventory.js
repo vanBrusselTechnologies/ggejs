@@ -1,5 +1,5 @@
 const Unit = require("./Unit");
-const {execute: gsi} = require("../e4kserver/onReceived/xt/gsi");
+const {execute: gsi} = require("../commands/onReceived/gsi");
 
 class CastleUnitInventory {
 

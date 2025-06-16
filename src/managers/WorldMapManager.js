@@ -2,7 +2,7 @@
 
 const {collectorEventOptions, kingdoms, landmarks} = require('e4k-data').data;
 const BaseManager = require('./BaseManager');
-const {execute: getWorldMap} = require('../e4kserver/commands/getWorldmap');
+const {execute: getWorldMap} = require('../commands/commands/getWorldmap');
 const {WaitUntil} = require('../tools/wait');
 const WorldMap = require('../structures/WorldMap');
 const WorldMapSector = require('../structures/WorldMapSector');
@@ -127,7 +127,7 @@ async function _getWorldMapSectorData(client, kingdomId, x, y, tries = 0) {
             const topRight = new Coordinate(client, [x + 49, y + 49]);
             getWorldMap(client, kingdomId, bottomLeft, topRight);
         }
-        return await Promise.any([WaitUntil(socket, `__worldMap_${kingdomId}_specific_sector_${x}_${y}_data`, `__worldMap__error`, 2500), WaitUntil(socket, `__worldMap_${kingdomId}_empty`, `__worldMap__error`, 2500)]);
+        return await Promise.any([WaitUntil(client, `__worldMap_${kingdomId}_specific_sector_${x}_${y}_data`, `__worldMap__error`, 2500), WaitUntil(client, `__worldMap_${kingdomId}_empty`, `__worldMap__error`, 2500)]);
     } catch (e) {
         if (e.errors[0] === "Exceeded max time!" && tries < 3) return await _getWorldMapSectorData(client, kingdomId, x, y, tries + 1);
         throw e;

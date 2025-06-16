@@ -1,7 +1,7 @@
 const BasicMessage = require("./BasicMessage");
 const Localize = require("../../tools/Localize");
 const {WaitUntil} = require("../../tools/wait");
-const {execute: getTradeData} = require("../../e4kserver/commands/getTradeData");
+const {execute: getTradeData} = require("../../commands/commands/getTradeData");
 
 class MarketCarriageArrivedMessage extends BasicMessage {
     /** @type{Client}*/
@@ -26,7 +26,7 @@ class MarketCarriageArrivedMessage extends BasicMessage {
 
     async init() {
         try {
-            this.tradeData = await getMessageBody(this.#client._socket, this.messageId);
+            this.tradeData = await getMessageBody(this.#client, this.messageId);
             delete this.#client._socket[`mmn -> ${this.tradeData.messageId}`];
         } catch (e) {
             delete this.#client._socket[`mmn -> errorCode`];
@@ -43,7 +43,7 @@ async function getMessageBody(client, messageId) {
     try {
         client._socket['mmn -> errorCode'] = "";
         getTradeData(client, messageId);
-        return await WaitUntil(client._socket, `mmn -> ${messageId}`, `mmn -> errorCode`, 30000);
+        return await WaitUntil(client, `mmn -> ${messageId}`, `mmn -> errorCode`, 30000);
     } catch (e) {
         client._socket['mmn -> errorCode'] = "";
         throw e;

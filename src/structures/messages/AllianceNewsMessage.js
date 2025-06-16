@@ -1,6 +1,6 @@
 const BasicMessage = require("./BasicMessage");
 const {WaitUntil} = require("../../tools/wait");
-const {execute: readMessage} = require("../../e4kserver/commands/readMessages");
+const {execute: readMessage} = require("../../commands/commands/readMessages");
 
 class AllianceNewsMessage extends BasicMessage {
     /** @type {Client} */
@@ -32,7 +32,7 @@ class AllianceNewsMessage extends BasicMessage {
 async function getMessageBody(client, messageId) {
     readMessage(client, messageId);
     /** @type {string} */
-    const data = await WaitUntil(client._socket, `rms -> ${messageId}`);
+    const data = await WaitUntil(client, `rms -> ${messageId}`);
     delete client._socket[`rms -> ${messageId}`];
     return data;
 }

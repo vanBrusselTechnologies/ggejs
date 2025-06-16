@@ -1,8 +1,8 @@
 const BasicMessage = require("./BasicMessage");
 const {WaitUntil} = require("../../tools/wait");
-const {execute: getBattleLogDetail} = require("../../e4kserver/commands/getBattleLogDetail");
-const {execute: getBattleLogMiddle} = require("../../e4kserver/commands/getBattleLogMiddle");
-const {execute: getBattleLogShort} = require("../../e4kserver/commands/getBattleLogShort");
+const {execute: getBattleLogDetail} = require("../../commands/commands/getBattleLogDetail");
+const {execute: getBattleLogMiddle} = require("../../commands/commands/getBattleLogMiddle");
+const {execute: getBattleLogShort} = require("../../commands/commands/getBattleLogShort");
 const Localize = require("../../tools/Localize");
 
 class BasicBattleLogMessage extends BasicMessage {
@@ -85,7 +85,7 @@ async function getMessageBody(client, messageId, battleLogMessage) {
     try {
         client._socket[`${messageId} battleLogMessage`] = battleLogMessage;
         getBattleLogShort(client, messageId);
-        const battleLogShort = await WaitUntil(client._socket, `bls -> ${messageId}`, "bls -> errorCode", 30000);
+        const battleLogShort = await WaitUntil(client, `bls -> ${messageId}`, "bls -> errorCode", 30000);
         for (const key in battleLogShort) {
             if (battleLogShort[key] == null) continue;
             body[key] = battleLogShort[key];
@@ -93,8 +93,8 @@ async function getMessageBody(client, messageId, battleLogMessage) {
         client._socket[`${body.battleLogId} battleLog`] = body;
         getBattleLogMiddle(client, body.battleLogId);
         getBattleLogDetail(client, body.battleLogId);
-        const battleLogMiddle = await WaitUntil(client._socket, `blm -> ${body.battleLogId}`, "", 30000);
-        const battleLogDetail = await WaitUntil(client._socket, `bld -> ${body.battleLogId}`, "", 30000);
+        const battleLogMiddle = await WaitUntil(client, `blm -> ${body.battleLogId}`, "", 30000);
+        const battleLogDetail = await WaitUntil(client, `bld -> ${body.battleLogId}`, "", 30000);
         for (const key in battleLogMiddle) {
             if (battleLogMiddle[key] == null) continue;
             body[key] = battleLogMiddle[key];

@@ -1,15 +1,15 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const {execute: getDetailedPlayerInfo} = require('../e4kserver/commands/getDetailedPlayerInfo');
-const {execute: searchPlayer} = require('../e4kserver/commands/searchPlayer');
+const {execute: getDetailedPlayerInfo} = require('../commands/commands/getDetailedPlayerInfo');
+const {execute: searchPlayer} = require('../commands/commands/searchPlayer');
 const {WaitUntil} = require('../tools/wait');
 const Localize = require("../tools/Localize");
-const {execute: getHighScore} = require("../e4kserver/commands/getHighScore");
+const {execute: getHighScore} = require("../commands/commands/getHighScore");
 const HighScoreConst = require("../utils/HighScoreConst");
-const {execute: listLeaderboardScoresPage} = require('../e4kserver/commands/listLeaderboardScoresPage');
-const {execute: searchLeaderboardScores} = require('../e4kserver/commands/searchLeaderboardScores');
-const {execute: listLeaderboardScoresWindow} = require('../e4kserver/commands/listLeaderboardScoresWindow');
+const {execute: listLeaderboardScoresPage} = require('../commands/commands/listLeaderboardScoresPage');
+const {execute: searchLeaderboardScores} = require('../commands/commands/searchLeaderboardScores');
+const {execute: listLeaderboardScoresWindow} = require('../commands/commands/listLeaderboardScoresWindow');
 
 class PlayerManager extends BaseManager {
     /** @param {number} id */
@@ -21,7 +21,7 @@ class PlayerManager extends BaseManager {
             if (!reqPlayers.includes(id)) getDetailedPlayerInfo(this._client, id);
             reqPlayers.push(id);
             /** @type {Player} */
-            const player = await WaitUntil(this._client._socket, `__get_player_${id}`, "__get_player_error");
+            const player = await WaitUntil(this._client, `__get_player_${id}`, "__get_player_error");
             reqPlayers.splice(reqPlayers.indexOf(id), 1);
             if (!reqPlayers.includes(id)) delete this._client._socket[`__get_player_${id}`];
             return player;
@@ -47,7 +47,7 @@ class PlayerManager extends BaseManager {
                 playerId = hghData.items.find(item => normalizeNameLowerCase(item.playerName) === normalizedName).playerId;
             } catch (e) {
                 searchPlayer(this._client, name);
-                playerId = await WaitUntil(this._client._socket, `__search_player_${normalizedName}`, "__search_player_error", 1000);
+                playerId = await WaitUntil(this._client, `__search_player_${normalizedName}`, "__search_player_error", 1000);
                 delete this._client._socket[`__search_player_${normalizedName}`];
             }
             return await this.getById(playerId);
@@ -145,7 +145,7 @@ class PlayerManager extends BaseManager {
                 const normalizedName = normalizeNameLowerCase(searchValue);
                 getHighScore(this._client, searchValue, listType, leagueId);
                 /** @type {HighScore<PlayerHighScoreItem>} */
-                const hghData = await WaitUntil(this._client._socket, `hgh_${listType}_${normalizedName}`, "", 1000);
+                const hghData = await WaitUntil(this._client, `hgh_${listType}_${normalizedName}`, "", 1000);
                 delete this._client._socket[`hgh_${listType}_${normalizedName}`];
                 return convertHghLeaderboard(this._client, hghData);
             } catch (e) {
@@ -159,18 +159,18 @@ class PlayerManager extends BaseManager {
                     const searchRank = Math.round(Math.max(1, nameOrRanking - maxResults / 2));
                     listLeaderboardScoresPage(this._client, listType, searchRank, maxResults, leagueId);
                     /** @type {LeaderboardList} */
-                    const leaderboardRankData = await WaitUntil(this._client._socket, `llsp_${listType}_${leagueId}_${searchRank}`, "", 5000);
+                    const leaderboardRankData = await WaitUntil(this._client, `llsp_${listType}_${leagueId}_${searchRank}`, "", 5000);
                     delete this._client._socket[`llsp_${listType}_${leagueId}_${searchRank}`];
                     return convertListToLeaderboard(this._client, leaderboardRankData);
                 case "string":
                     searchLeaderboardScores(this._client, listType, nameOrRanking);
                     /** @type {LeaderboardSearchList} */
-                    const leaderboardSearchData = await WaitUntil(this._client._socket, `slse_${listType}`, "", 1000);
+                    const leaderboardSearchData = await WaitUntil(this._client, `slse_${listType}`, "", 1000);
                     delete this._client._socket[`slse_${listType}`];
                     const {scoreId, leagueType} = leaderboardSearchData.items[0];
                     listLeaderboardScoresWindow(this._client, listType, scoreId, maxResults, leagueType);
                     /** @type {LeaderboardList} */
-                    const leaderboardWindowData = await WaitUntil(this._client._socket, `llsw_${listType}_${leagueType}_${scoreId}`, "", 5000);
+                    const leaderboardWindowData = await WaitUntil(this._client, `llsw_${listType}_${leagueType}_${scoreId}`, "", 5000);
                     delete this._client._socket[`llsw_${listType}_${leagueType}_${scoreId}`];
                     return convertListToLeaderboard(this._client, leaderboardWindowData);
             }
@@ -194,7 +194,7 @@ function convertHghLeaderboard(client, hghData) {
             return {
                 playerName: i.playerName ?? i.player.playerName,
                 allianceName: undefined,
-                instanceId: client._serverInstance.value,
+                instanceId: client.socketManager.serverInstance.value,
                 points: i.points,
                 rank: i.rank,
                 playerId: i.playerId ?? i.player.playerId,

@@ -1,15 +1,16 @@
+const {Socket} = require('node:net');
 const {NetworkInstance} = require('e4k-data');
 const {WaitUntil} = require("../tools/wait");
-const {execute: collectTax} = require('../e4kserver/commands/collectTax');
-const {execute: pingPong} = require('../e4kserver/commands/pingpong');
-const {execute: generateLoginToken} = require('../e4kserver/commands/generateLoginToken');
-const {execute: mercenaryPackage} = require('../e4kserver/commands/mercenaryPackage');
-const {execute: dql} = require('../e4kserver/onReceived/xt/dql');
-const {onResponse: onXtResponse} = require('../e4kserver/onReceived/xt');
+const {execute: collectTax} = require('../commands/commands/collectTax');
+const {execute: pingPong} = require('../commands/commands/pingpong');
+const {execute: generateLoginToken} = require('../commands/commands/generateLoginToken');
+const {execute: mercenaryPackage} = require('../commands/commands/mercenaryPackage');
+const {execute: dql} = require('../commands/onReceived/dql');
+const {onResponse} = require('../commands');
 const {ConnectionStatus, ServerType} = require("../utils/Constants");
 const EventConst = require("../utils/EventConst");
 
-const versionDateGame = 1747237561048;
+const versionDateGame = 1749809954089;
 
 class SocketManager {
     #connectionStatus = ConnectionStatus.Disconnected;
@@ -25,17 +26,12 @@ class SocketManager {
     constructor(client, serverInstance) {
         this.client = client;
         this.serverInstance = serverInstance;
-        /** @type {Socket} */
-        this.socket = new (require("node:net").Socket)();
+        this.socket = new Socket();
         // this.socket = new (require('ws').WebSocket)(`wss://${serverInstance.server}:${serverInstance.port}`); //empire? WebSocket ipv net.Socket
-        this.socket.client = client;
         this.#addSocketListeners(this.socket);
     }
 
-    /**
-     * @param {number} connectionStatus
-     * @private
-     */
+    /** @param {number} connectionStatus */
     set connectionStatus(connectionStatus) {
         this.client.logger.i("[SocketManager] Connection status:", Object.keys(ConnectionStatus).find(k => ConnectionStatus[k] === connectionStatus));
         this.#connectionStatus = connectionStatus;
@@ -71,16 +67,13 @@ class SocketManager {
             this.connectionError = error;
             if (error !== "") return;
 
-            //Added, not in source code
-            if (this.socket['mailMessages'] === undefined) this.socket['mailMessages'] = [];
-            await WaitUntil(this.socket, 'gbd finished');
-
+            await WaitUntil(this.client, 'gbd finished');
             this.connectionStatus = ConnectionStatus.Connected;
             pingPong(this.client);
 
             //todo: Below isn't in source code
             if (this.client.externalClient == null && this.serverType === ServerType.NormalServer) {
-                const activeEvents = this.socket["activeSpecialEvents"] ?? []
+                const activeEvents = this.client._activeSpecialEvents;
                 if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_TEMPSERVER)) generateLoginToken(this.client, ServerType.TempServer)
                 if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_ALLIANCE_BATTLEGROUND)) generateLoginToken(this.client, ServerType.AllianceBattleGround)
             }
@@ -118,7 +111,7 @@ class SocketManager {
         });
     }
 
-    /** @param {Socket} socket */
+    /** @param {net.Socket} socket */
     #addSocketListeners(socket) {
         socket.addListener('ready', () => onSocketReady(this));
         socket.addListener('data', (data) => onSocketData(socket, this.client, data));
@@ -143,10 +136,8 @@ class SocketManager {
             this.currentData = "";
 
             setTimeout(async () => {
-                /** @type {Socket} */
-                const new_socket = createCleanSocket(socket);
+                const new_socket = new Socket();
                 this.#addSocketListeners(new_socket);
-                new_socket.client = this.client;
                 this.socket = new_socket;
                 socket = null;
                 this.client.logger.i("[SocketManager] Reconnecting!");
@@ -183,17 +174,6 @@ class SocketManager {
 
 module.exports = SocketManager;
 
-/**
- * Creates new socket and only copies important fields.
- * @param {Socket} old_socket
- */
-function createCleanSocket(old_socket) {
-    /** @type {Socket} */
-    const new_socket = new (require("node:net").Socket)();
-    new_socket['mailMessages'] = old_socket['mailMessages'] ?? [];
-    return new_socket;
-}
-
 /** @param {SocketManager} socketManager */
 function onSocketReady(socketManager) {
     const languageCode = socketManager.client._language;
@@ -206,7 +186,7 @@ function onSocketReady(socketManager) {
 }
 
 /**
- * @param {Socket} socket
+ * @param {net.Socket} socket
  * @param {Client} client
  * @param {Buffer} data
  */
@@ -220,7 +200,7 @@ function onSocketData(socket, client, data) {
     commands.forEach(command => {
         client.logger.t("[RECEIVED]", command.substring(0, Math.min(150, command.length)));
         const params = command.substring(1, command.length - 1).split("%");
-        if (params[0] === "xt") return onXtResponse(client, params.splice(1, params.length - 1));
+        if (params[0] === "xt") return onResponse(client, params.splice(1, params.length - 1));
         client.logger.w("[DATA] Cannot handle command:", command);
     })
 }

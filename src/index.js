@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('node:fs');
 
 // TODO: https://github.com/danadum/empire-api
 exports.Client = require('./Client');

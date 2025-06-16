@@ -1,10 +1,10 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const {execute: searchAllianceById} = require('../e4kserver/commands/searchAllianceById');
+const {execute: searchAllianceById} = require('../commands/commands/searchAllianceById');
 const {WaitUntil} = require('../tools/wait');
 const Localize = require("../tools/Localize");
-const {execute: getHighScore} = require("../e4kserver/commands/getHighScore");
+const {execute: getHighScore} = require("../commands/commands/getHighScore");
 const HighScoreConst = require("../utils/HighScoreConst");
 
 class AllianceManager extends BaseManager {
@@ -14,7 +14,7 @@ class AllianceManager extends BaseManager {
         try {
             searchAllianceById(this._client, id);
             /** @type {Alliance | MyAlliance} */
-            const alliance = await WaitUntil(this._client._socket, `_alliance_${id}_data`, "", 1000);
+            const alliance = await WaitUntil(this._client, `_alliance_${id}_data`, "", 1000);
             delete this._client._socket[`_alliance_${id}_data`];
             return alliance;
         } catch (e) {
@@ -88,7 +88,7 @@ class AllianceManager extends BaseManager {
             try {
                 getHighScore(this._client, searchValue, listType, leagueId);
                 /** @type {HighScore<AllianceHighScoreItem>} */
-                const hghData = await WaitUntil(this._client._socket, `hgh_${listType}_${normalizedName}`, "", 1000);
+                const hghData = await WaitUntil(this._client, `hgh_${listType}_${normalizedName}`, "", 1000);
                 delete this._client._socket[`hgh_${listType}_${normalizedName}`];
                 return hghData;
             } catch (e) {

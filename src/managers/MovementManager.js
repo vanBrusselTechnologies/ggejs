@@ -1,9 +1,9 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const {execute: sendArmyAttackMovement} = require("../e4kserver/commands/sendArmyAttackMovement");
-const {execute: sendMarketMovement} = require("../e4kserver/commands/sendMarketMovement");
-const {execute: sendSpyMovement} = require("../e4kserver/commands/sendSpyMovement");
+const {execute: sendArmyAttackMovement} = require("../commands/commands/sendArmyAttackMovement");
+const {execute: sendMarketMovement} = require("../commands/commands/sendMarketMovement");
+const {execute: sendSpyMovement} = require("../commands/commands/sendSpyMovement");
 const {SpyType} = require("../utils/Constants");
 const Constants = require("../utils/Constants");
 

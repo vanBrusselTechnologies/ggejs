@@ -1,5 +1,5 @@
 const PointEvent = require("./PointEvent");
-const {execute: afd} = require("../../e4kserver/onReceived/xt/afd")
+const {execute: afd} = require("../../commands/onReceived/afd")
 
 class FactionEvent extends PointEvent {
     eventBuildingWodId = 267

@@ -12,8 +12,8 @@ const {WaitUntil} = require('./tools/wait');
 const ClientUserDataManager = require("./managers/ClientUserDataManager");
 const PremiumBoostData = require("./structures/boosters/PremiumBoostData");
 const QuestData = require("./structures/quests/QuestData");
-const {execute: verifyLoginData} = require('./e4kserver/commands/verifyLoginData');
-const {execute: registerOrLogin} = require('./e4kserver/commands/registerOrLogin');
+const {execute: verifyLoginData} = require('./commands/commands/verifyLoginData');
+const {execute: registerOrLogin} = require('./commands/commands/registerOrLogin');
 const {ConnectionStatus} = require("./utils/Constants");
 const Logger = require("./tools/Logger");
 
@@ -26,10 +26,16 @@ class Client extends EventEmitter {
     /** @type {Client | null} */
     externalClient = null;
 
-    _serverInstance = require('e4k-data').network.instances.instance[33];
     _networkId = -1;
 
     logger = new Logger();
+
+//#region TODO: MOVE TO CORRECT MANAGER
+    /** @type {MailMessage[]} */
+    _mailMessages = [];
+    /** @type {ActiveEvent[]} */
+    _activeSpecialEvents = [];
+//#endregion
 
     get _socket() {
         return this.socketManager.socket;
@@ -42,7 +48,6 @@ class Client extends EventEmitter {
      */
     constructor(name, password, serverInstance) {
         super();
-        this._serverInstance = serverInstance;
         this.#name = name;
         this.#password = password;
         this.socketManager = new SocketManager(this, serverInstance);
@@ -75,7 +80,7 @@ class Client extends EventEmitter {
 
     /** @return {MailMessage[]} */
     get mailMessages() {
-        return this._socket['mailMessages'];
+        return this._mailMessages;
     }
 
     async connect() {
@@ -96,7 +101,7 @@ class Client extends EventEmitter {
     /** @param {string} message */
     sendChatMessage(message) {
         //TODO(?): Move into MyAlliance
-        require('./e4kserver/commands/sendAllianceChatMessage').execute(this, message);
+        require('./commands/commands/sendAllianceChatMessage').execute(this, message);
     }
 
     /**
@@ -105,7 +110,7 @@ class Client extends EventEmitter {
      * @param {string} message
      */
     sendMailMessage(playerName, subject, message) {
-        require('./e4kserver/commands/sendMailMessage').execute(this, playerName, subject, message);
+        require('./commands/commands/sendMailMessage').execute(this, playerName, subject, message);
     }
 
     /**
@@ -114,8 +119,8 @@ class Client extends EventEmitter {
      */
     async getCastleInfo(mapObject) {
         if (!mapObject || !mapObject.objectId) throw "WorldMapArea is not valid";
-        require('./e4kserver/commands/joinArea').execute(this, mapObject);
-        const data = await WaitUntil(this._socket, `join_area_${mapObject.objectId}_data`, "join_area_error");
+        require('./commands/commands/joinArea').execute(this, mapObject);
+        const data = await WaitUntil(this, `join_area_${mapObject.objectId}_data`, "join_area_error");
         delete this._socket[`join_area_${mapObject.objectId}_data`];
         return data;
     }
@@ -126,18 +131,18 @@ class Client extends EventEmitter {
         (async () => {
             try {
                 const gameId = 16;
-                const f = await fetch(`https://accounts.public.ggs-ep.com/players/${gameId}-${this._networkId}-${this._serverInstance.value}-${this.clientUserData.playerId}/gnip-phrase`, {
+                const f = await fetch(`https://accounts.public.ggs-ep.com/players/${gameId}-${this._networkId}-${this.socketManager.serverInstance.value}-${this.clientUserData.playerId}/gnip-phrase`, {
                     headers: {Authorization: `Bearer ${val.token}`}
                 });
                 this.uniqueAccountId = JSON.parse(Buffer.from(await f.arrayBuffer()).toString())["gnipPhrase"] ?? "";
                 /*
-                    const f2 = await fetch(`https://accounts.public.ggs-ep.com/players/${gameId}-${this._networkId}-${this._serverInstance.value}-${this.clientUserData.playerId}/onetime-links/mbs`, {
+                    const f2 = await fetch(`https://accounts.public.ggs-ep.com/players/${gameId}-${this._networkId}-${this.socketManager.serverInstance.value}-${this.clientUserData.playerId}/onetime-links/mbs`, {
                         headers: {Authorization: `Bearer ${val.token}`}
                     })
                     this.webshopOneTimeLink = JSON.parse(Buffer.from(await f2.arrayBuffer()).toString())["link"];
 
                     const storeId = "googleplay" // "googleplay" || "local"
-                    const f3 = await fetch(`https://mobile-payments.public.ggs-e4k.com/api/players/${gameId}-${this._networkId}-${this._serverInstance.value}-${this.clientUserData.playerId}/catalog/${storeId}`, {
+                    const f3 = await fetch(`https://mobile-payments.public.ggs-e4k.com/api/players/${gameId}-${this._networkId}-${this.socketManager.serverInstance.value}-${this.clientUserData.playerId}/catalog/${storeId}`, {
                         headers: {Authorization: `Bearer ${val.token}`}
                     })
                     this.logger.d( JSON.parse(Buffer.from(await f3.arrayBuffer()).toString()) );

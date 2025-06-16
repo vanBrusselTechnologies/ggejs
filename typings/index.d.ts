@@ -1,5 +1,5 @@
 import {EventEmitter} from "node:events";
-import {Socket as netSocket} from 'node:net';
+import {Socket} from 'node:net';
 import {
     ConstructionItem,
     Dungeon as RawDungeon,
@@ -26,21 +26,20 @@ declare class Client extends EventEmitter {
     public worldMaps: WorldMapManager;
     public externalClient: Client | null;
 
-    private _serverInstance: NetworkInstance;
-    private _socket: Socket;
+    private get _socket(): Socket;
     private _language: string;
 
     /**
      * @param name Your player account name
      * @param password Your player account password
      * @param serverInstance Your player account serverInstance
-     * @param debug
      * @example ```js
      * const e4kNetworkInstances = require('e4k-data').network.instances.instance;
      * const worldNetworkInstance = e4kNetworkInstances.find(i => i.instanceLocaId === "generic_country_world");
-     * const client = new Client(playername, password, worldNetworkInstance)
+     * const client = new Client(playername, password, worldNetworkInstance);
+     * ```
      */
-    public constructor(name: string, password: string, serverInstance: NetworkInstance, debug: boolean = false);
+    public constructor(name: string, password: string, serverInstance: NetworkInstance);
 
     public set language(val: string);
 
@@ -66,13 +65,6 @@ declare class Client extends EventEmitter {
     public emit<K extends keyof ClientEvents>(eventName: K, ...args: ClientEvents[K]): boolean;
 
     private __x__x__relogin(): Promise<void>;
-}
-
-declare class Socket extends netSocket {
-    public client: Client;
-    public debug: boolean;
-    public ultraDebug: boolean;
-    public _host: string;
 }
 
 //#region ClientEvents
@@ -115,7 +107,6 @@ interface ConstantsEvents {
 //#region Managers
 declare class BaseManager extends EventEmitter {
     protected _client: Client;
-    protected _socket: Socket;
 
     protected constructor(client: Client);
 }
