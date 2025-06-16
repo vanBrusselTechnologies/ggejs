@@ -75,6 +75,43 @@ declare class Socket extends netSocket {
     public _host: string;
 }
 
+//#region ClientEvents
+/** */
+interface ClientEvents {
+    serverShutdown: [];
+    serverShutdownEnd: [];
+    connected: [];
+    chatMessage: [message: ChatMessage];
+    mailMessageAdd: [message: MailMessage];
+    mailMessageRemove: [message: MailMessage];
+    primeTime: [primeTime: PrimeTime];
+    externalClientReady: [externalClient: Client];
+}
+
+interface MovementEvents {
+    movementAdd: [movement: Movement];
+    movementUpdate: [oldMovement: Movement, newMovement: Movement];
+    movementCancelled: [movement: Movement];
+}
+
+interface ConstantsEvents {
+    /** Equivalent of MOVEMENT_ADD */
+    MOVEMENT_NEW: "movementAdd";
+    MOVEMENT_ADD: "movementAdd";
+    MOVEMENT_UPDATE: "movementUpdate";
+    MOVEMENT_CANCEL: "movementCancelled";
+    SERVER_SHUTDOWN: "serverShutdown";
+    SERVER_SHUTDOWN_END: "serverShutdownEnd";
+    CONNECTED: "connected";
+    CHAT_MESSAGE: "chatMessage";
+    MAIL_MESSAGE_NEW: "mailMessageAdd";
+    MAIL_MESSAGE_ADD: "mailMessageAdd";
+    MAIL_MESSAGE_REMOVE: "mailMessageRemove";
+    PRIME_TIME: "primeTime";
+    EXTERNAL_CLIENT_READY: "externalClientReady";
+}
+//#endregion
+
 //#region Managers
 declare class BaseManager extends EventEmitter {
     protected _client: Client;
@@ -1695,40 +1732,7 @@ declare class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
 //#endregion
 //#endregion
 //#region Events
-/** */
-interface ClientEvents {
-    serverShutdown: [];
-    serverShutdownEnd: [];
-    connected: [];
-    chatMessage: [message: ChatMessage];
-    mailMessageAdd: [message: MailMessage];
-    mailMessageRemove: [message: MailMessage];
-    primeTime: [primeTime: PrimeTime];
-    externalClientReady: [externalClient: Client];
-}
-
-interface MovementEvents {
-    movementAdd: [movement: Movement];
-    movementUpdate: [oldMovement: Movement, newMovement: Movement];
-    movementCancelled: [movement: Movement];
-}
-
-interface ConstantsEvents {
-    /** Equivalent of MOVEMENT_ADD */
-    MOVEMENT_NEW: "movementAdd";
-    MOVEMENT_ADD: "movementAdd";
-    MOVEMENT_UPDATE: "movementUpdate";
-    MOVEMENT_CANCEL: "movementCancelled";
-    SERVER_SHUTDOWN: "serverShutdown";
-    SERVER_SHUTDOWN_END: "serverShutdownEnd";
-    CONNECTED: "connected";
-    CHAT_MESSAGE: "chatMessage";
-    MAIL_MESSAGE_NEW: "mailMessageAdd";
-    MAIL_MESSAGE_ADD: "mailMessageAdd";
-    MAIL_MESSAGE_REMOVE: "mailMessageRemove";
-    PRIME_TIME: "primeTime";
-    EXTERNAL_CLIENT_READY: "externalClientReady";
-}
+// TODO: Add all ActiveEvents
 
 //#endregion
 //#region Castle
@@ -2143,7 +2147,9 @@ declare type PlayerHighScoreRankingTypes =
     | "allianceBattleGroundPreviousRun"
     | "donationEvent"
     | "decoGachaEvent"
-    | "christmasGachaEvent";
+    | "christmasGachaEvent"
+    | "easterGachaEvent"
+    | "summerGachaEvent";
 
 declare interface LeaderboardList {
     listType: number,

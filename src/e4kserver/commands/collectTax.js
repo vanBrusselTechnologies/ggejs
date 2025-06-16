@@ -1,9 +1,9 @@
 module.exports.name = "txc";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} taxRemaining
  */
-module.exports.execute = function (socket, taxRemaining = 29) {
+module.exports.execute = function (client, taxRemaining = 29) {
     const C2SCollectTaxVO = {TR: taxRemaining};
-    socket.client.socketManager.sendCommand("txc", C2SCollectTaxVO);
+    client.socketManager.sendCommand("txc", C2SCollectTaxVO);
 }

@@ -1,6 +1,6 @@
 module.exports.name = "slc";
-/** @param {Socket} socket */
-module.exports.execute = function (socket) {
+/** @param {Client} client */
+module.exports.execute = function (client) {
     const C2SStartupLoginBonusCollectVO = {};
-    socket.client.socketManager.sendCommand("slc", C2SStartupLoginBonusCollectVO);
+    client.socketManager.sendCommand("slc", C2SStartupLoginBonusCollectVO);
 }

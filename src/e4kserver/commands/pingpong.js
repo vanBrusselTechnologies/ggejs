@@ -1,6 +1,6 @@
 module.exports.name = "pin";
-/** @param {Socket} socket */
-module.exports.execute = function (socket) {
+/** @param {Client} client */
+module.exports.execute = function (client) {
     const PingPongVO = {}
-    socket.client.socketManager.sendCommand("pinpon", PingPongVO);
+    client.socketManager.sendCommand("pinpon", PingPongVO);
 }

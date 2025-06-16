@@ -24,7 +24,7 @@ class BasicSpyPlayerMessage extends BasicMessage {
 
     async init() {
         try {
-            this.spyLog = await getMessageBody(this.#client._socket, this.messageId);
+            this.spyLog = await getMessageBody(this.#client, this.messageId);
             delete this.#client._socket[`bsd -> ${this.spyLog.messageId}`];
         } catch (e) {
             delete this.#client._socket[`bsd -> errorCode`];
@@ -66,17 +66,17 @@ class BasicSpyPlayerMessage extends BasicMessage {
 }
 
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} messageId
  * @returns {Promise<SpyLog>}
  */
-async function getMessageBody(socket, messageId) {
+async function getMessageBody(client, messageId) {
     try {
-        socket['bsd -> errorCode'] = "";
-        getSpyLog(socket, messageId);
-        return await WaitUntil(socket, `bsd -> ${messageId}`, `bsd -> errorCode`, 30000);
+        client._socket['bsd -> errorCode'] = "";
+        getSpyLog(client, messageId);
+        return await WaitUntil(client._socket, `bsd -> ${messageId}`, `bsd -> errorCode`, 30000);
     } catch (e) {
-        socket['bsd -> errorCode'] = "";
+        client._socket['bsd -> errorCode'] = "";
         throw e;
     }
 }

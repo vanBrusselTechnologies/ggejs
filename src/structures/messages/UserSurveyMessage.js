@@ -7,7 +7,7 @@ class UserSurveyMessage extends BasicMessage {
         this.subject = Localize.text(client, "dialog_messageHeader_survey");
         if (metaArray.length > 0) {
             this.surveyId = parseInt(metaArray[0]);
-        } else console.error(`Missing metaArray for UserSurveyMessage: ${metaArray}!`);
+        } else client.logger.w(`Missing metaArray for UserSurveyMessage: ${metaArray}!`);
     }
 }
 

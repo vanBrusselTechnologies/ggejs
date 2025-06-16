@@ -2,13 +2,13 @@ const Good = require("../../../structures/Good");
 
 module.exports.name = "sce";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Array<[string, number]>} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
     for (const g of params) {
-        socket.client.clientUserData.setGlobalCurrency(new Good(socket.client, g));
+        client.clientUserData.setGlobalCurrency(new Good(client, g));
     }
 }

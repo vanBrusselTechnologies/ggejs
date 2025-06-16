@@ -35,17 +35,17 @@ class MarketCarriageArrivedMessage extends BasicMessage {
 }
 
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} messageId
  * @returns {Promise<TradeData>}
  */
-async function getMessageBody(socket, messageId) {
+async function getMessageBody(client, messageId) {
     try {
-        socket['mmn -> errorCode'] = "";
-        getTradeData(socket, messageId);
-        return await WaitUntil(socket, `mmn -> ${messageId}`, `mmn -> errorCode`, 30000);
+        client._socket['mmn -> errorCode'] = "";
+        getTradeData(client, messageId);
+        return await WaitUntil(client._socket, `mmn -> ${messageId}`, `mmn -> errorCode`, 30000);
     } catch (e) {
-        socket['mmn -> errorCode'] = "";
+        client._socket['mmn -> errorCode'] = "";
         throw e;
     }
 }

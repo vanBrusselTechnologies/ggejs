@@ -2,15 +2,15 @@ const {execute: collectTax} = require('../../commands/collectTax');
 
 module.exports.name = "txs";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
-    if (socket["inTaxTimeout"]) return;
-    socket["inTaxTimeout"] = true;
+module.exports.execute = function (client, errorCode, params) {
+    if (client._socket["inTaxTimeout"]) return;
+    client._socket["inTaxTimeout"] = true;
     setTimeout(function () {
-        socket["inTaxTimeout"] = false;
-        collectTax(socket);
-    }, (params.txi.TX.RT + Math.random() * 10) * 1000, socket);
+        client._socket["inTaxTimeout"] = false;
+        collectTax(client);
+    }, (params.txi.TX.RT + Math.random() * 10) * 1000);
 }

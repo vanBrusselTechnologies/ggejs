@@ -60,44 +60,44 @@ const AttackCountThresholdMessage = require("../../../structures/messages/Attack
 
 module.exports.name = "sne";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{MSG:Array}} params
  */
-module.exports.execute = async function (socket, errorCode, params) {
+module.exports.execute = async function (client, errorCode, params) {
     // TODO: not same as Source code;
     try {
-        if (params?.MSG) await handleSNE(socket, params.MSG);
+        if (params?.MSG) await handleSNE(client, params.MSG);
     } catch (e) {
-        if (socket.debug) console.error(e)
+        client.logger.d(e)
     }
 }
 
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {Array<Array>} messages
  * @return {Promise<void>}
  */
-async function handleSNE(socket, messages) {
+async function handleSNE(client, messages) {
     const deleteMessageIds = []
     messages.reverse()
     for (const msg of messages) {
         try {
-            const m = await parseMessageInfo(socket, msg);
-            if (socket['mailMessages'].findIndex(mm => mm.messageId === m.messageId) !== -1) continue;
+            const m = await parseMessageInfo(client, msg);
+            if (client._socket['mailMessages'].findIndex(mm => mm.messageId === m.messageId) !== -1) continue;
             if (m.messageType === MessageConst.MESSAGE_TYPE_BATTLE_LOG) {
                 if (m.battleLog == null) continue;
                 const eq = m.battleLog.rewardEquipment;
                 if (eq) {
                     try {
-                        await socket.client.equipments._autoSellEquipment(eq);
+                        await client.equipments._autoSellEquipment(eq);
                     } catch (e) {
                     }
                 }
                 const gem = m.battleLog.rewardGem
                 if (gem) {
                     try {
-                        await socket.client.equipments._autoSellGem(gem);
+                        await client.equipments._autoSellGem(gem);
                     } catch (e) {
                     }
                 }
@@ -106,7 +106,7 @@ async function handleSNE(socket, messages) {
                     continue;
                 }
             } else if (m.messageType === MessageConst.MESSAGE_TYPE_SPY_NPC || m.messageType === MessageConst.MESSAGE_TYPE_SPY_PLAYER) {
-                if (m.subType === MessageConst.SUBTYPE_SPY_SABOTAGE && m.spyLog?.targetOwner?.playerId === socket.client.clientUserData.playerId) {
+                if (m.subType === MessageConst.SUBTYPE_SPY_SABOTAGE && m.spyLog?.targetOwner?.playerId === client.clientUserData.playerId) {
                     // When receiving sabotage, do not delete it
                 } else if (!m.isSuccessful) {
                     deleteMessageIds.push(m.messageId); //auto delete failed spies
@@ -125,36 +125,36 @@ async function handleSNE(socket, messages) {
                 deleteMessageIds.push(m.messageId); //auto delete Cancelled/No-Fight Messages
                 continue;
             }
-            if (socket['mailMessages'].findIndex(mm => mm.messageId === m.messageId) === -1) {
-                socket.client.emit('mailMessageAdd', m);
-                socket['mailMessages'].unshift(m);
+            if (client._socket['mailMessages'].findIndex(mm => mm.messageId === m.messageId) === -1) {
+                client.emit('mailMessageAdd', m);
+                client._socket['mailMessages'].unshift(m);
             }
         } catch (e) {
-            if (socket.debug) console.error('[SNE]', e, msg);
+            client.logger.d('[SNE]', e, msg);
         }
     }
-    if (deleteMessageIds.length > 0) deleteMessages(socket, deleteMessageIds);
+    if (deleteMessageIds.length > 0) deleteMessages(client, deleteMessageIds);
 }
 
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {Array} messageInfo
  * @return {MailMessage}
  */
-async function parseMessageInfo(socket, messageInfo) {
+async function parseMessageInfo(client, messageInfo) {
     //scripts/EmpireFourKingdoms/com/goodgamestudios/castle/gameplay/messages/controllers/InitMessageFactoryCommand.as
 
     /** @type {number} */
     const type = messageInfo[1];
     let subType = 0;
     /** @type {MailMessage} */
-    let message = new BasicMessage(socket.client, messageInfo);
-    let savedMessage = socket['mailMessages'].find(mm => mm.messageId === message.messageId);
+    let message = new BasicMessage(client, messageInfo);
+    let savedMessage = client._socket['mailMessages'].find(mm => mm.messageId === message.messageId);
     if (savedMessage != null) return savedMessage;
     switch (type) {
         case MessageConst.MESSAGE_TYPE_USER_IN:
         case MessageConst.MESSAGE_TYPE_USER_OUT:
-            message = new UserMessage(socket.client, messageInfo);
+            message = new UserMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_SPY_PLAYER:
             subType = message.metadata.split('+')[0];
@@ -162,80 +162,80 @@ async function parseMessageInfo(socket, messageInfo) {
                 case MessageConst.SUBTYPE_SPY_SABOTAGE:
                     const successType = parseInt(message.metadata.split("+")[1]);
                     const isSuccessful = successType === 0 || successType === 3;
-                    message = isSuccessful ? new SpyPlayerSabotageSuccessfulMessage(socket.client, messageInfo) : new SpyPlayerSabotageFailedMessage(socket.client, messageInfo);
+                    message = isSuccessful ? new SpyPlayerSabotageSuccessfulMessage(client, messageInfo) : new SpyPlayerSabotageFailedMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_SPY_DEFENCE:
-                    message = new SpyPlayerDefenceMessage(socket.client, messageInfo);
+                    message = new SpyPlayerDefenceMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_SPY_ECO:
-                    message = new SpyPlayerEconomicMessage(socket.client, messageInfo);
+                    message = new SpyPlayerEconomicMessage(client, messageInfo);
                     break;
                 default:
-                    console.warn(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
-                    console.log(messageInfo);
+                    client.logger.w(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
+                    client.logger.d(messageInfo);
                     break;
             }
             break;
         case MessageConst.MESSAGE_TYPE_SPY_NPC:
-            message = new SpyNPCMessage(socket.client, messageInfo);
+            message = new SpyNPCMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_BATTLE_LOG:
             subType = message.metadata.split('#')[0].split('+')[1];
             switch (parseInt(subType)) {
                 case MessageConst.SUBTYPE_ATTACK_NORMAL:
-                    message = new BattleLogNormalAttackMessage(socket.client, messageInfo);
+                    message = new BattleLogNormalAttackMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_ATTACK_CONQUER:
-                    message = new BattleLogConquerMessage(socket.client, messageInfo);
+                    message = new BattleLogConquerMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_ATTACK_NPC:
-                    message = new BattleLogNPCAttackMessage(socket.client, messageInfo);
+                    message = new BattleLogNPCAttackMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_ATTACK_OCCUPY:
-                    message = new BattleLogOccupyMessage(socket.client, messageInfo);
+                    message = new BattleLogOccupyMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_ATTACK_SHADOW:
-                    message = new ShadowAttackMessage(socket.client, messageInfo);
+                    message = new ShadowAttackMessage(client, messageInfo);
                     break;
                 default:
-                    console.warn(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
-                    console.log(messageInfo);
+                    client.logger.w(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
+                    client.logger.d(messageInfo);
                     break;
             }
             break;
         case MessageConst.MESSAGE_TYPE_MARKET_CARRIAGE_ARRIVED:
-            message = new MarketCarriageArrivedMessage(socket.client, messageInfo);
+            message = new MarketCarriageArrivedMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_ALLIANCE_NEWSLETTER:
-            message = new AllianceNewsMessage(socket.client, messageInfo);
+            message = new AllianceNewsMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_STARVE_INFO:
-            message = new StarveInfoMessage(socket.client, messageInfo);
+            message = new StarveInfoMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_BUILDING_DISABLED:
-            message = new BreweryMissingResourcesMessage(socket.client, messageInfo);
+            message = new BreweryMissingResourcesMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_PRIVATE_OFFER:
             subType = message.metadata.split('+')[0];
             switch (parseInt(subType)) {
                 case MessageConst.PRIVATE_OFFER_TIPPMAIL:
-                    message = new PrivateOfferTippMessage(socket.client, messageInfo);
+                    message = new PrivateOfferTippMessage(client, messageInfo);
                     break;
                 case MessageConst.PRIVATE_OFFER_DUNGEON_TREASURE_CHEST:
-                    message = new PrivateOfferDungeonChestMessage(socket.client, messageInfo);
+                    message = new PrivateOfferDungeonChestMessage(client, messageInfo);
                     break;
                 case MessageConst.PRIVATE_OFFER_WHALE_CHEST:
-                    message = new PrivateOfferWhaleChestMessage(socket.client, messageInfo);
+                    message = new PrivateOfferWhaleChestMessage(client, messageInfo);
                     break;
                 case MessageConst.PRIVATE_OFFER_TIME_CHALLENGE:
-                    message = new PrivateOfferTimeChallengeMessage(socket.client, messageInfo);
+                    message = new PrivateOfferTimeChallengeMessage(client, messageInfo);
                     break;
                 case MessageConst.PRIVATE_OFFER_BESTSELLER_SHOP:
-                    message = new PrivateOfferBestsellerShopMessage(socket.client, messageInfo);
+                    message = new PrivateOfferBestsellerShopMessage(client, messageInfo);
                     break;
                 default:
-                    console.warn(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
-                    console.log(messageInfo);
+                    client.logger.w(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
+                    client.logger.d(messageInfo);
                     break;
             }
             break;
@@ -243,17 +243,17 @@ async function parseMessageInfo(socket, messageInfo) {
             subType = message.metadata.split('+')[0];
             switch (parseInt(subType)) {
                 case MessageConst.SUBTYPE_ATTACK_ABORTED:
-                    message = new AttackCancelledAbortedMessage(socket.client, messageInfo);
+                    message = new AttackCancelledAbortedMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_ATTACK_AUTO_RETREAT:
-                    message = new AttackCancelledAutoRetreatMessage(socket.client, messageInfo);
+                    message = new AttackCancelledAutoRetreatMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_ATTACK_AUTO_RETREAT_ENEMY:
-                    message = new AttackCancelledAutoRetreatEnemyMessage(socket.client, messageInfo);
+                    message = new AttackCancelledAutoRetreatEnemyMessage(client, messageInfo);
                     break;
                 default:
-                    console.warn(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
-                    console.log(messageInfo);
+                    client.logger.w(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
+                    client.logger.d(messageInfo);
                     break;
             }
             break;
@@ -261,11 +261,11 @@ async function parseMessageInfo(socket, messageInfo) {
             subType = message.metadata.split('+')[0];
             switch (parseInt(subType)) {
                 case MessageConst.SUBTYPE_SPY_ABORTED:
-                    message = new SpyCancelledAbortedMessage(socket.client, messageInfo);
+                    message = new SpyCancelledAbortedMessage(client, messageInfo);
                     break;
                 default:
-                    console.warn(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
-                    console.log(messageInfo);
+                    client.logger.w(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
+                    client.logger.d(messageInfo);
                     break;
             }
             break;
@@ -273,22 +273,22 @@ async function parseMessageInfo(socket, messageInfo) {
             subType = message.metadata.split('+')[0];
             switch (parseInt(subType)) {
                 case MessageConst.SPECIAL_ID_SPECIAL_EVENT_START:
-                    message = new SpecialEventStartMessage(socket.client, messageInfo);
+                    message = new SpecialEventStartMessage(client, messageInfo);
                     break;
                 case MessageConst.SPECIAL_ID_SPECIAL_EVENT_UPDATE:
-                    message = new SpecialEventUpdateMessage(socket.client, messageInfo);
+                    message = new SpecialEventUpdateMessage(client, messageInfo);
                     break;
                 case MessageConst.SPECIAL_ID_SPECIAL_EVENT_END:
-                    message = new SpecialEventEndMessage(socket.client, messageInfo);
+                    message = new SpecialEventEndMessage(client, messageInfo);
                     break;
                 case MessageConst.SPECIAL_ID_VIP_INFORMATION:
-                    message = new SpecialEventVIPInfoMessage(socket.client, messageInfo);
+                    message = new SpecialEventVIPInfoMessage(client, messageInfo);
                     break;
                 case MessageConst.SPECIAL_ID_HOSPITAL_CAPACITY_EXCEEDED:
-                    message = new SpecialEventHospitalCapacityExceededMessage(socket.client, messageInfo)
+                    message = new SpecialEventHospitalCapacityExceededMessage(client, messageInfo)
                     break;
                 case MessageConst.SPECIAL_ID_MONUMENT:
-                    message = new SpecialEventMonumentResetMessage(socket.client, messageInfo);
+                    message = new SpecialEventMonumentResetMessage(client, messageInfo);
                     break;
                 case MessageConst.SPECIAL_ID_WORLD_CUP:
                 case MessageConst.SPECIAL_ID_UNDERWORLD:
@@ -311,8 +311,8 @@ async function parseMessageInfo(socket, messageInfo) {
                     // Not implemented in source code.
                     break;
                 default:
-                    console.warn(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
-                    console.log(messageInfo);
+                    client.logger.w(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
+                    client.logger.d(messageInfo);
                     break;
             }
             break;
@@ -320,29 +320,29 @@ async function parseMessageInfo(socket, messageInfo) {
             subType = message.metadata.split('*')[0];
             switch (parseInt(subType)) {
                 case MessageConst.SUBTYPE_ALLIANCE_ENEMY_ATTACK_WAR:
-                    message = new AllianceWarEnemyAttackMessage(socket.client, messageInfo);
+                    message = new AllianceWarEnemyAttackMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_ALLIANCE_ENEMY_DECLARED_WAR:
-                    message = new AllianceWarEnemyDeclarationMessage(socket.client, messageInfo);
+                    message = new AllianceWarEnemyDeclarationMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_ALLIANCE_OUR_DECLARED_WAR:
-                    message = new AllianceWarOwnDeclarationMessage(socket.client, messageInfo);
+                    message = new AllianceWarOwnDeclarationMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_ALLIANCE_OUR_ATTACK_WAR:
-                    message = new AllianceWarOwnAttackMessage(socket.client, messageInfo);
+                    message = new AllianceWarOwnAttackMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_ALLIANCE_OUR_SABOTAGE_WAR:
-                    message = new AllianceWarOwnSabotageMessage(socket.client, messageInfo);
+                    message = new AllianceWarOwnSabotageMessage(client, messageInfo);
                     break;
                 case  MessageConst.SUBTYPE_ALLIANCE_ENEMY_END_WAR:
-                    message = new AllianceWarEnemyEndMessage(socket.client, messageInfo);
+                    message = new AllianceWarEnemyEndMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_ALLIANCE_ENEMY_SABOTAGE_WAR:
-                    message = new AllianceWarEnemySabotageMessage(socket.client, messageInfo);
+                    message = new AllianceWarEnemySabotageMessage(client, messageInfo);
                     break;
                 default:
-                    console.warn(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
-                    console.log(messageInfo);
+                    client.logger.w(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
+                    client.logger.d(messageInfo);
                     break;
             }
             break;
@@ -350,84 +350,84 @@ async function parseMessageInfo(socket, messageInfo) {
             subType = message.metadata.split('+')[1];
             switch (parseInt(subType)) {
                 case MessageConst.SUBTYPE_SIEGE_CANCELED:
-                    message = new ConquerableSiegeCancelledMessage(socket.client, messageInfo);
+                    message = new ConquerableSiegeCancelledMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_NEW_SIEGE:
-                    message = new ConquerableNewSiegeMessage(socket.client, messageInfo);
+                    message = new ConquerableNewSiegeMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_CONQUERABLE_AREA_CONQUERED:
-                    message = new ConquerableAreaConqueredMessage(socket.client, messageInfo);
+                    message = new ConquerableAreaConqueredMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_CONQUERABLE_AREA_LOST:
-                    message = new ConquerableAreaLostMessage(socket.client, messageInfo);
+                    message = new ConquerableAreaLostMessage(client, messageInfo);
                     break;
                 default:
-                    console.warn(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
-                    console.log(messageInfo);
+                    client.logger.w(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
+                    client.logger.d(messageInfo);
                     break;
             }
             break;
         case MessageConst.MESSAGE_TYPE_HIGHSCORE_BONUS:
-            message = new HighScoreBonusMessage(socket.client, messageInfo);
+            message = new HighScoreBonusMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_DOWNTIME_STATUS:
-            message = new ProductionDowntimeMessage(socket.client, messageInfo);
+            message = new ProductionDowntimeMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_PLAYER_GIFT:
-            message = new PlayerGiftMessage(socket.client, messageInfo);
+            message = new PlayerGiftMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_USER_SURVEY:
-            message = new UserSurveyMessage(socket.client, messageInfo);
+            message = new UserSurveyMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_REBUY:
-            message = new RebuyMessage(socket.client, messageInfo);
+            message = new RebuyMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_RUIN_INFO:
-            message = new RuinInfoMessage(socket.client, messageInfo);
+            message = new RuinInfoMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_POPUP:
             subType = message.metadata.split('+')[0];
             switch (parseInt(subType)) {
                 case MessageConst.SUBTYPE_POPUP_REGISTRATION_GIFT:
-                    message = new PopupRegistrationGiftMessage(socket.client, messageInfo);
+                    message = new PopupRegistrationGiftMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_POPUP_FACEBOOK_CONNECTION:
-                    message = new PopupFacebookConnectionMessage(socket.client, messageInfo);
+                    message = new PopupFacebookConnectionMessage(client, messageInfo);
                     break;
                 case MessageConst.SUBTYPE_POPUP_LOGIN_BONUS:
-                    message = new PopupLoginBonusMessage(socket.client, messageInfo);
+                    message = new PopupLoginBonusMessage(client, messageInfo);
                     break;
                 default:
-                    console.warn(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
-                    console.log(messageInfo);
+                    client.logger.w(`Current MailMessage (messageType ${type}, subType ${subType}) isn't fully supported!`);
+                    client.logger.d(messageInfo);
                     break;
             }
             break;
         case MessageConst.MESSAGE_TYPE_ALLIANCE_REQUEST:
-            message = new AllianceRequestMessage(socket.client, messageInfo);
+            message = new AllianceRequestMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_PAYMENT_DOPPLER:
-            message = new DoubleRubiesMessage(socket.client, messageInfo);
+            message = new DoubleRubiesMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_ATTACK_ADVISOR_FAILURE:
-            message = new AttackAdvisorFailedMessage(socket.client, messageInfo);
+            message = new AttackAdvisorFailedMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_ATTACK_ADVISOR_SUMMARY:
-            message = new AttackAdvisorSummaryMessage(socket.client, messageInfo);
+            message = new AttackAdvisorSummaryMessage(client, messageInfo);
             break;
         case MessageConst.MESSAGE_TYPE_ATTACK_COUNT_THRESHOLD:
-            message = new AttackCountThresholdMessage(socket.client, messageInfo);
+            message = new AttackCountThresholdMessage(client, messageInfo);
             break;
         default:
-            if (socket["mailMessages"].find(m => m.messageId === message.messageId) != null) break;
-            console.warn(`Current MailMessage (messageType ${type}) isn't fully supported!`);
-            console.log(messageInfo);
+            if (client._socket["mailMessages"].find(m => m.messageId === message.messageId) != null) break;
+            client.logger.w(`Current MailMessage (messageType ${type}) isn't fully supported!`);
+            client.logger.d(messageInfo);
             break;
     }
     try {
         await message.init();
     } catch (e) {
-        if (e === 225) deleteMessages(socket, [message.messageId])
+        if (e === 225) deleteMessages(client, [message.messageId])
         throw e;
     }
     return message;

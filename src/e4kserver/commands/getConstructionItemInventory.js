@@ -1,6 +1,6 @@
 module.exports.name = "gii";
-/** @param {Socket} socket */
-module.exports.execute = function (socket) {
+/** @param {Client} client */
+module.exports.execute = function (client) {
     const C2SGetConstructionItemInventoryVO = {};
-    socket.client.socketManager.sendCommand("gii", C2SGetConstructionItemInventoryVO);
+    client.socketManager.sendCommand("gii", C2SGetConstructionItemInventoryVO);
 }

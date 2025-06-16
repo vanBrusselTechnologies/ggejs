@@ -1,10 +1,10 @@
 module.exports.name = "ain";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} allianceId
  */
-module.exports.execute = function (socket, allianceId) {
+module.exports.execute = function (client, allianceId) {
     if (allianceId == null) return;
     const C2SGetAllianceInfoVO = {AID: allianceId};
-    socket.client.socketManager.sendCommand("ain", C2SGetAllianceInfoVO);
+    client.socketManager.sendCommand("ain", C2SGetAllianceInfoVO);
 }

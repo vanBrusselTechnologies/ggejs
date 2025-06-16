@@ -2,11 +2,11 @@ const {execute: pep} = require('./pep');
 
 module.exports.name = "lws";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{LWET: number, OP: number[], OR:number[], R: [], CWC: number, WCP: number, HFS: number, HVPM: number, JSID: number, JHID: number, PMA: number}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
     const serverTypeId = params.LWET;
     /* TODO: S2C_LUCKY_WHEEL_SPIN
@@ -15,7 +15,7 @@ module.exports.execute = function (socket, errorCode, params) {
         var luckyWheelEvent:ILuckyWheelEventVO = wheelOfFortuneData.eventVO;
      */
     /** @type {BaseLuckyWheelEvent} */
-    const luckyWheelEvent = socket["activeSpecialEvents"].find(e => e.eventId === (serverTypeId === 0 ? 15 : 89));
+    const luckyWheelEvent = client._socket["activeSpecialEvents"].find(e => e.eventId === (serverTypeId === 0 ? 15 : 89));
     luckyWheelEvent.hasFreeSpin = params.HFS === 1;
     luckyWheelEvent.hasLevelUp = !isNaN(luckyWheelEvent.currentWinClass) && luckyWheelEvent.currentWinClass !== params.CWC;
     luckyWheelEvent.currentWinClass = params.CWC;
@@ -41,7 +41,7 @@ module.exports.execute = function (socket, errorCode, params) {
         */
     }
     if (params.OP && params.OR) {
-        pep(socket, 0, {
+        pep(client, 0, {
             "OP": params.OP, "OR": params.OR, "EID": serverTypeId === 0 ? 15 : 89//TODO: properties.eventId});
         })
     }

@@ -112,7 +112,7 @@ module.exports.parseMapObject = (client, data) => {
         case 42:
             return new WolfKingMapobject(client, data);
         default:
-            console.warn(`Current mapobject (areatype ${areaType}) isn't fully supported!`, data);
+            client.logger.w(`Current mapobject (areatype ${areaType}) isn't fully supported!`, data);
             return new BasicMapobject(client, data);
     }
 }

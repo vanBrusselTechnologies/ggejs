@@ -2,33 +2,33 @@ const {parseMapObject} = require("../../../utils/MapObjectParser");
 
 module.exports.name = "gaa";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{KID:number, AI:[], OI:[]}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (errorCode === 145 || errorCode === 337) {
-        socket[`__worldMap__error`] = `errorCode_${errorCode}`;
+        client._socket[`__worldMap__error`] = `errorCode_${errorCode}`;
         return;
     }
     if (params == null) return;
     let kId = params.KID;
     if (!params.AI || params.AI.length === 0) {
         if (kId == null) return;
-        socket[`__worldMap_${kId}_empty`] = {worldMapAreas: []};
+        client._socket[`__worldMap_${kId}_empty`] = {worldMapAreas: []};
         return;
     }
-    socket.client.worldMaps._ownerInfoData.parseOwnerInfoArray(params.OI);
+    client.worldMaps._ownerInfoData.parseOwnerInfoArray(params.OI);
     if (kId == null) {
-        kId = parseMapObject(socket.client, params.AI.find(i => i.length > 4))?.kingdomId;
+        kId = parseMapObject(client, params.AI.find(i => i.length > 4))?.kingdomId;
         if (kId == null) return;
     }
 
     /**  @type {{x: number, y: number}[]} */
-    const searchingSectors = socket[`__worldMap_${kId}_searching_sectors`];
+    const searchingSectors = client._socket[`__worldMap_${kId}_searching_sectors`];
     if (searchingSectors === undefined || searchingSectors.length === 0) return;
 
-    let _worldMapAreas = parseWorldMapAreas(socket.client, params.AI);
+    let _worldMapAreas = parseWorldMapAreas(client, params.AI);
     /** @type {{x: number, y: number}} */
     const areaCenter = getCenterOfWorldMapAreas(_worldMapAreas);
     let foundRequest = false;
@@ -36,9 +36,9 @@ module.exports.execute = function (socket, errorCode, params) {
         const sectorCenter = searchingSectors[i];
         const distance = getDistance(areaCenter, sectorCenter);
         if (distance < 2.5 || (distance < 10 && (areaCenter.x > 1000 || areaCenter.y > 1000))) {
-            socket[`__worldMap_${kId}_searching_sectors`].splice(i, 1);
+            client._socket[`__worldMap_${kId}_searching_sectors`].splice(i, 1);
             const str = `__worldMap_${kId}_specific_sector_${sectorCenter.x}_${sectorCenter.y}`;
-            socket[`${str}_data`] = {worldMapAreas: _worldMapAreas};
+            client._socket[`${str}_data`] = {worldMapAreas: _worldMapAreas};
             foundRequest = true;
         }
     }
@@ -49,9 +49,9 @@ module.exports.execute = function (socket, errorCode, params) {
         const sectorCenter = sorted[0];
         if (getDistance(sectorCenter, areaCenter) < 50) {
             const i = searchingSectors.indexOf(sectorCenter);
-            socket[`__worldMap_${kId}_searching_sectors`].splice(i, 1);
+            client._socket[`__worldMap_${kId}_searching_sectors`].splice(i, 1);
             const str = `__worldMap_${kId}_specific_sector_${sectorCenter.x}_${sectorCenter.y}`;
-            socket[`${str}_data`] = {worldMapAreas: _worldMapAreas};
+            client._socket[`${str}_data`] = {worldMapAreas: _worldMapAreas};
         }
     }
 

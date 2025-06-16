@@ -1,17 +1,18 @@
 const VillageMapobject = require("../../../structures/mapobjects/VillageMapobject");
 const InventoryItem = require("../../../structures/InventoryItem");
 const Unit = require("../../../structures/Unit");
+
 module.exports.name = "kgv";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    const villageList = parseVillageList(socket.client, params);
-    socket.client.clientUserData._userData.castleList.publicVillages = villageList.public;
-    socket.client.clientUserData._userData.castleList.privateVillages = villageList.private;
+    const villageList = parseVillageList(client, params);
+    client.clientUserData._userData.castleList.publicVillages = villageList.public;
+    client.clientUserData._userData.castleList.privateVillages = villageList.private;
 }
 
 /**

@@ -4,6 +4,17 @@ exports.ConnectionStatus = {
     Disconnected: 0, Connecting: 1, Connected: 2, Disconnecting: 3,
 }
 
+exports.LogVerbosity = {
+    Error: 0,
+    Warning: 1,
+    Info: 2,
+    Debug: 3,
+    Trace: 4
+}
+exports.LogPublicity = {
+    Public: 0, Connecting: 1, Connected: 2, Disconnecting: 3,
+}
+
 exports.Events = {
     MOVEMENT_NEW: "movementAdd",
     MOVEMENT_ADD: "movementAdd",

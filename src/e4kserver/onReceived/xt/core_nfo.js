@@ -1,6 +1,6 @@
 module.exports.name = "core_nfo";
 /**
- * @param {Socket} _
+ * @param {Client} _
  * @param {number} __
  * @param {Object} ___
  */

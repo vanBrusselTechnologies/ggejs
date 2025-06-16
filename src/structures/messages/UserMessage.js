@@ -16,7 +16,7 @@ class UserMessage extends BasicMessage {
     }
 
     async init() {
-        this.body = await getMessageBody(this.#client._socket, this.messageId);
+        this.body = await getMessageBody(this.#client, this.messageId);
         this.#client._socket[`rms -> ${this.messageId}`] = null;
     }
 
@@ -26,14 +26,14 @@ class UserMessage extends BasicMessage {
 }
 
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} messageId
  * @returns {Promise<string>}
  */
-async function getMessageBody(socket, messageId) {
-    readMessage(socket, messageId);
-    const data = await WaitUntil(socket, `rms -> ${messageId}`);
-    delete socket[`rms -> ${messageId}`];
+async function getMessageBody(client, messageId) {
+    readMessage(client, messageId);
+    const data = await WaitUntil(client._socket, `rms -> ${messageId}`);
+    delete client._socket[`rms -> ${messageId}`];
     return data;
 }
 

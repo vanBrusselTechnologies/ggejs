@@ -2,10 +2,10 @@ const ConstructionSlot = require("../../../structures/ConstructionSlot");
 
 module.exports.name = "scl";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{OIDL: []}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
-    return params.OIDL.map(cs => new ConstructionSlot(socket.client, cs))
+module.exports.execute = function (client, errorCode, params) {
+    return params.OIDL.map(cs => new ConstructionSlot(client, cs))
 }

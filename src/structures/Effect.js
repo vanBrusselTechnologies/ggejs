@@ -14,7 +14,7 @@ class Effect {
             /** @type {number} */
             this.power = parseFloat(data[1]);
         }
-        let _data = getDataFromJson(this.effectId);
+        let _data = getDataFromJson(client, this.effectId);
         if (_data === null || _data === undefined) return;
         /** @type {Object} */
         this.rawData = _data;
@@ -28,16 +28,17 @@ class Effect {
 }
 
 /**
+ * @param {Client} client
  * @param {number} id
  * @returns {Object}
  */
-function getDataFromJson(id) {
+function getDataFromJson(client, id) {
     for (let effect of effects) {
         if (effect.effectID === id) {
             return effect;
         }
     }
-    console.warn(`Unknown effect id: ${id}`);
+    client.logger.w(`Unknown effect id: ${id}`);
     return null;
 }
 

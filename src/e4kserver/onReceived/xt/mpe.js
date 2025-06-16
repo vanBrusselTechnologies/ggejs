@@ -3,13 +3,13 @@ const {ConnectionStatus} = require("../../../utils/Constants");
 
 module.exports.name = "mpe";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{NM:number, M:{D:number, RD:number, P:number, Q:number, S:number, R:[], ID: number}[]}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params?.M) return;
-    if (params.M.length === 0) return refreshMissions(socket, params.NM + 5);
+    if (params.M.length === 0) return refreshMissions(client, params.NM + 5);
 
     /** @type {{missionId: number, duration: number, remainingDuration: number, price: number, quality: number, state: number, rewards: [], rewardsChanged: boolean}[]} */
     const mercenaryCampMissions = params.M.map(m => {
@@ -30,9 +30,9 @@ module.exports.execute = function (socket, errorCode, params) {
     if (currentMission) {
         switch (currentMission.state) {
             case 1:
-                return refreshMissions(socket, currentMission.remainingDuration + 5);
+                return refreshMissions(client, currentMission.remainingDuration + 5);
             case 2:
-                return mercenaryPackage(socket, currentMission.missionId);
+                return mercenaryPackage(client, currentMission.missionId);
             default:
                 break;
         }
@@ -40,25 +40,29 @@ module.exports.execute = function (socket, errorCode, params) {
 
     /** @type {{missionId: number, duration: number, remainingDuration: number, price: number, quality: number, state: number, rewards: [], rewardsChanged: boolean}[]} */
     const sortedMissions = mercenaryCampMissions.filter(m => m.state === 0).sort((a, b) => a.price - b.price);
-    if (sortedMissions.length === 0) return refreshMissions(socket, params.NM + 5);
+    if (sortedMissions.length === 0) return refreshMissions(client, params.NM + 5);
     /** @type {{missionId: number, duration: number, remainingDuration: number, price: number, quality: number, state: number, rewards: [], rewardsChanged: boolean}} */
     const cheapestMission = sortedMissions[0];
-    const currentCoins = socket.client.clientUserData.globalCurrencies.find(g => g.item === "currency1")?.count ?? 0;
+    const currentCoins = client.clientUserData.globalCurrencies.find(g => g.item === "currency1")?.count ?? 0;
     if (cheapestMission.price <= currentCoins) {
-        mercenaryPackage(socket, cheapestMission.missionId);
-        refreshMissions(socket, cheapestMission.duration + 5);
+        mercenaryPackage(client, cheapestMission.missionId);
+        refreshMissions(client, cheapestMission.duration + 5);
         return;
     }
     // Coin shortage => Retry after a minute
-    return refreshMissions(socket, 60);
+    return refreshMissions(client, 60);
 }
 
-function refreshMissions(socket, seconds) {
-    if (socket["inMpeTimeout"]) return;
-    socket["inMpeTimeout"] = true;
+/**
+ * @param {Client} client
+ * @param {number} seconds
+ */
+function refreshMissions(client, seconds) {
+    if (client._socket["inMpeTimeout"]) return;
+    client._socket["inMpeTimeout"] = true;
     setTimeout(() => {
-        socket["inMpeTimeout"] = false;
-        if (socket.client.socketManager.connectionStatus !== ConnectionStatus.Connected) return;
-        mercenaryPackage(socket, -1);
+        client._socket["inMpeTimeout"] = false;
+        if (client.socketManager.connectionStatus !== ConnectionStatus.Connected) return;
+        mercenaryPackage(client, -1);
     }, seconds * 1000);
 }

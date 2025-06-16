@@ -1,10 +1,10 @@
 module.exports.name = "afd";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{AC:number[]}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     /* TODO: C2S_GET_ATTACKABLE_FACTION_DATA
         var _loc2_:FactionTowerInfoVO = null;
         var _loc4_:FactionTowerLaneVO = null;

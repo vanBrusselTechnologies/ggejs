@@ -1,6 +1,6 @@
 module.exports.name = "csm";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {InteractiveMapobject} source
  * @param {Mapobject | CastlePosition} target
  * @param {number} spyCount
@@ -8,7 +8,7 @@ module.exports.name = "csm";
  * @param {number} spyEffect
  * @param {Horse} horse
  */
-module.exports.execute = function (socket, source, target, spyCount, spyTypeId, spyEffect, horse = null) {
+module.exports.execute = function (client, source, target, spyCount, spyTypeId, spyEffect, horse = null) {
     const C2SCreateSpyMovementVO = {
         SID: source.objectId,
         TX: target.position.X,
@@ -21,5 +21,5 @@ module.exports.execute = function (socket, source, target, spyCount, spyTypeId, 
         PTT: horse?.isPegasusHorse ? 1 : 0,
         SD: 0,
     };
-    socket.client.socketManager.sendCommand("csm", C2SCreateSpyMovementVO);
+    client.socketManager.sendCommand("csm", C2SCreateSpyMovementVO);
 }

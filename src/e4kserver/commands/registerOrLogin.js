@@ -1,11 +1,11 @@
 module.exports.name = "tle";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {string} loginToken
  */
-module.exports.execute = function (socket, loginToken) {
+module.exports.execute = function (client, loginToken) {
     const C2SRegisterOrLoginVO = {
-        GST: socket.client.socketManager.serverType, TLT: loginToken, ADID: "null", AFUID: "appsFlyerUID", IDFV: null,
+        GST: client.socketManager.serverType, TLT: loginToken, ADID: "null", AFUID: "appsFlyerUID", IDFV: null,
     };
-    socket.client.socketManager.sendCommand("tle", C2SRegisterOrLoginVO);
+    client.socketManager.sendCommand("tle", C2SRegisterOrLoginVO);
 }

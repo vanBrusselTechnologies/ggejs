@@ -1,9 +1,9 @@
 module.exports.name = "aha";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} kingdomId
  */
-module.exports.execute = function (socket, kingdomId = 15) {
+module.exports.execute = function (client, kingdomId = 15) {
     const C2SAllianceHelpAllVO = {KID: kingdomId};
-    socket.client.socketManager.sendCommand("aha", C2SAllianceHelpAllVO);
+    client.socketManager.sendCommand("aha", C2SAllianceHelpAllVO);
 }

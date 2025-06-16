@@ -2,27 +2,27 @@ const {execute: allianceHelpAll} = require("../../commands/allianceHelpAll");
 
 module.exports.name = "ahh";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{LID:number, AC:number, PN:string, P:number, PID: number, TID: number, OP: Object, RT: number, TSL: number}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
 
     /* todo:
         const listId = params.LID;
         let allianceHelpRequest = allianceHelpData.getRequestVOByListID(listId);
         if (allianceHelpRequest) {
-            parseAllianceHelpRequest(socket.client, allianceHelpRequest, params);
+            parseAllianceHelpRequest(client, allianceHelpRequest, params);
         } else {
             allianceHelpRequest = new AllianceHelpRequest();
-            parseAllianceHelpRequest(socket.client, allianceHelpRequest, params);
+            parseAllianceHelpRequest(client, allianceHelpRequest, params);
             allianceHelpData.allianceHelpRequests.push(allianceHelpRequest);
         }
      */
 
     //todo: REMOVE below because not part of source code
-    // TODO: re-enable if (params["AC"] === 0) allianceHelpAll(socket);
+    // TODO: re-enable if (params["AC"] === 0) allianceHelpAll(client);
 }
 
 //todo: Move to seperate parser file

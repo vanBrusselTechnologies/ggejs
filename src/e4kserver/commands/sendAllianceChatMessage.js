@@ -1,11 +1,11 @@
 module.exports.name = "acm";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {string} message
  */
-module.exports.execute = function (socket, message) {
+module.exports.execute = function (client, message) {
     const C2SAllianceChatVO = {M: validateMessage(message)};
-    socket.client.socketManager.sendCommand("acm", C2SAllianceChatVO);
+    client.socketManager.sendCommand("acm", C2SAllianceChatVO);
 }
 
 /** @param {string} msg */

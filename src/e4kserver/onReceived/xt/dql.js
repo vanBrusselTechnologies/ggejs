@@ -6,19 +6,17 @@ const CombatConst = require('../../../utils/CombatConst');
 
 module.exports.name = "dql";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{PQL: number, RDQ:{QID:number, P:[number]}[], FDQ: number[], RS: [string,number|number[]][][]}} params
  */
-module.exports.execute = async function (socket, errorCode, params) {
-    if (!socket['gbd finished']) return;
+module.exports.execute = async function (client, errorCode, params) {
+    if (!client._socket['gbd finished']) return;
     if (!params) return;
-    /** @type {Client} */
-    const client = socket.client;
     try {
         /** @type {Player} */
         const thisPlayer = await client.players.getThisPlayer();
-        if (!thisPlayer) return await require('./dql').execute(socket, errorCode, params);
+        if (!thisPlayer) return await require('./dql').execute(client, errorCode, params);
         /** @type {CastleMapobject} */
         const myMainCastle = thisPlayer.castles.find(x => x.areaType === WorldMapArea.MainCastle);
         for (const quest of params.RDQ) {
@@ -27,9 +25,9 @@ module.exports.execute = async function (socket, errorCode, params) {
             try {
                 switch (quest.QID) {
                     case 1:
-                        socket["dailySpyAt"] = -1;
-                        socket["dailySabotageAt"] = -1;
-                        socket["dailyGoodsTravelTryCount"] = 0;
+                        client._socket["dailySpyAt"] = -1;
+                        client._socket["dailySabotageAt"] = -1;
+                        client._socket["dailyGoodsTravelTryCount"] = 0;
                         await client.socketManager.reconnect();
                         break; //login;
                     case 2:
@@ -42,7 +40,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                     case 3:
                         break; //collectTax
                     case 4:
-                        if (!socket["dailyGoodsTravelTryCount"]) socket["dailyGoodsTravelTryCount"] = 0;
+                        if (!client._socket["dailyGoodsTravelTryCount"]) client._socket["dailyGoodsTravelTryCount"] = 0;
                         /** @type {[string, number][]} */
                         const goods = [["W", 1], ["S", 1], ["F", 1]];
                         /** @type {WorldMapSector} */
@@ -51,31 +49,31 @@ module.exports.execute = async function (socket, errorCode, params) {
                         if (travelTargetCastles.length === 0) break;
                         const travelTargetCastle = travelTargetCastles.sort((a, b) => {
                             return MovementManager.getDistance(myMainCastle, a) - MovementManager.getDistance(myMainCastle, b)
-                        })[socket["dailyGoodsTravelTryCount"]];
+                        })[client._socket["dailyGoodsTravelTryCount"]];
                         client.movements.startMarketMovement(myMainCastle, travelTargetCastle, goods);
-                        socket["dailyGoodsTravelTryCount"] += 1;
+                        client._socket["dailyGoodsTravelTryCount"] += 1;
                         break; //resourceToPlayer
                     case 5:
                         if (client.clientUserData.maxSpies <= 1) break;
-                        if (socket["dailySpyAt"] === quest.P && socket["dailySpyTime"] + 1800000 >= Date.now()) break;
+                        if (client._socket["dailySpyAt"] === quest.P && client._socket["dailySpyTime"] + 1800000 >= Date.now()) break;
                         const d = await getClosestDungeon(client, myMainCastle, false);
                         client.movements.startSpyMovement(myMainCastle, d, Math.round(client.clientUserData.maxSpies / 4), SpyType.Military, 50);
-                        socket["dailySpyAt"] = quest.P;
-                        socket["dailySpyTime"] = Date.now();
+                        client._socket["dailySpyAt"] = quest.P;
+                        client._socket["dailySpyTime"] = Date.now();
                         break; //spy
                     case 6:
                         try {
-                            if (socket["inDQL_q6"]) return;
-                            socket["inDQL_q6"] = true;
+                            if (client._socket["inDQL_q6"]) return;
+                            client._socket["inDQL_q6"] = true;
                             const closestRuinsOutpost = getClosestRuinsOutpost(client, await client.worldMaps.get(0), myMainCastle);
-                            if (socket["dailySabotageAt"] !== quest.P || socket["dailySabotageTime"] + 1800000 < Date.now()) {
+                            if (client._socket["dailySabotageAt"] !== quest.P || client._socket["dailySabotageTime"] + 1800000 < Date.now()) {
                                 client.movements.startSpyMovement(myMainCastle, closestRuinsOutpost, Math.round(client.clientUserData.maxSpies / 4), SpyType.Sabotage, 10);
-                                socket["dailySabotageAt"] = quest.P;
-                                socket["dailySabotageTime"] = Date.now();
+                                client._socket["dailySabotageAt"] = quest.P;
+                                client._socket["dailySabotageTime"] = Date.now();
                             }
-                            delete socket["inDQL_q6"];
+                            delete client._socket["inDQL_q6"];
                         } catch (e) {
-                            delete socket["inDQL_q6"];
+                            delete client._socket["inDQL_q6"];
                         }
                         break; //sabotageDamage
                     case 7:
@@ -85,7 +83,7 @@ module.exports.execute = async function (socket, errorCode, params) {
                     case 24:
                         const myCastle = dailyActivity.triggerKingdomID === 0 || quest.QID === 24 ? myMainCastle : thisPlayer.castles.find(x => x.kingdomId === dailyActivity.triggerKingdomID && x.areaType === WorldMapArea.KingdomCastle);
                         if (myCastle == null) break;
-                        const lord = socket.client.equipments.getAvailableCommandants()[0];
+                        const lord = client.equipments.getAvailableCommandants()[0];
                         if (lord == null) break;
                         await attackDungeon(client, thisPlayer, myCastle, lord);
                         await new Promise(resolve => setTimeout(resolve, 5000)); //Wait for the attack to be registered to avoid duplicate commander requests.
@@ -110,14 +108,14 @@ module.exports.execute = async function (socket, errorCode, params) {
                     case 26:
                         break; //countBattles 15 tempServer todo
                     default:
-                        console.warn('[DQL]', "Unknown Daily Activity Quest!", quest);
+                        client.logger.d('[DQL]', "Unknown Daily Activity Quest!", quest);
                 }
             } catch (e) {
-                if (socket.debug) console.error('[DQL]', quest.QID, e);
+                client.logger.d('[DQL]', quest.QID, e);
             }
         }
     } catch (e) {
-        if (socket.debug) console.error('[DQL]', e);
+        client.logger.d('[DQL]', e);
     }
 }
 

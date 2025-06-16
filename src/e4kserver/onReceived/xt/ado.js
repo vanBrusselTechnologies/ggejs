@@ -4,13 +4,13 @@ const {execute: grc} = require('./grc');
 
 module.exports.name = "ado";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{gcu:{C1: number, C2: number}, grc: Object, ain: Object}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    ain(socket, errorCode, params.ain);
-    gcu(socket, errorCode, params.gcu);
-    grc(socket, errorCode, params.grc);
+    ain(client, errorCode, params.ain);
+    gcu(client, errorCode, params.gcu);
+    grc(client, errorCode, params.grc);
 }

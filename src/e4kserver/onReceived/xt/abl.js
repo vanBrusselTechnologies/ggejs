@@ -1,10 +1,10 @@
 module.exports.name = "abl";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{A:Object}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     /* todo: Alliance Buff List
         var _loc7_:Number = NaN;
         var _loc4_:TimeSpan = null;

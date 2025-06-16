@@ -1,15 +1,15 @@
 module.exports.name = "alb";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{D:number, R:Object[]}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    const cud = socket.client.clientUserData;
     /*todo:
-        cud.loginBonusData.setActiveDay(params.D);
-        parseDays(cud, params.R);
+       const cud = client.clientUserData;
+       cud.loginBonusData.setActiveDay(params.D);
+       parseDays(cud, params.R);
      */
 }
 

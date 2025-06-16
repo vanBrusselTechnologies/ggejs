@@ -30,7 +30,7 @@ class ColossusEvent extends ActiveEvent {
      */
     updateRank(rankIndex, playerRank, playerName, allianceName, playerPoints, playerId) {
         if (rankIndex > 9) {
-            console.error("[ColossusEvent]: tried to set unavailable rank info. Have a nice day debugging.");
+            //client.logger.d("[ColossusEvent]: tried to set unavailable rank info. Have a nice day debugging.");
             return;
         }
         if (rankIndex === 1) {

@@ -16,7 +16,7 @@ class AllianceNewsMessage extends BasicMessage {
     }
 
     async init() {
-        this.body = await getMessageBody(this.#client._socket, this.messageId);
+        this.body = await getMessageBody(this.#client, this.messageId);
         this.#client._socket[`rms -> ${this.messageId}`] = null;
     }
 
@@ -26,14 +26,14 @@ class AllianceNewsMessage extends BasicMessage {
 }
 
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} messageId
  */
-async function getMessageBody(socket, messageId) {
-    readMessage(socket, messageId);
+async function getMessageBody(client, messageId) {
+    readMessage(client, messageId);
     /** @type {string} */
-    const data = await WaitUntil(socket, `rms -> ${messageId}`);
-    delete socket[`rms -> ${messageId}`];
+    const data = await WaitUntil(client._socket, `rms -> ${messageId}`);
+    delete client._socket[`rms -> ${messageId}`];
     return data;
 }
 

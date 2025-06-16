@@ -2,11 +2,11 @@ const {execute: collectStartupLoginBonus} = require('../../commands/collectStart
 
 module.exports.name = "sli";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{NRR: number, CC: number}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    if (params.CC === 1) collectStartupLoginBonus(socket)
+    if (params.CC === 1) collectStartupLoginBonus(client)
 }

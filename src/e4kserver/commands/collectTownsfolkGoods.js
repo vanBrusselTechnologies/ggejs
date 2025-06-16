@@ -1,6 +1,6 @@
 module.exports.name = "irc";
-/** @param {Socket} socket */
-module.exports.execute = function (socket) {
+/** @param {Client} client */
+module.exports.execute = function (client) {
     const C2SResourceCitizenVO = {};
-    socket.client.socketManager.sendCommand("irc", C2SResourceCitizenVO);
+    client.socketManager.sendCommand("irc", C2SResourceCitizenVO);
 }

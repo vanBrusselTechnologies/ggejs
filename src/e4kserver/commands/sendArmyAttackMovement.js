@@ -1,13 +1,13 @@
 module.exports.name = "cra";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {InteractiveMapobject} source
  * @param {Mapobject | CastlePosition} target
  * @param {{L: {T: [number, number][], U: [number, number][]}, M: {T: [number, number][], U: [number, number][]}, R: {T: [number, number][], U: [number, number][]}}[]} army
  * @param {Lord} lord
  * @param {Horse} horse
  */
-module.exports.execute = function (socket, source, target, army, lord, horse = null) {
+module.exports.execute = function (client, source, target, army, lord, horse = null) {
     const C2SCreateArmyAttackMovementVO = {
         SX: source.position.X,
         SY: source.position.Y,
@@ -36,5 +36,5 @@ module.exports.execute = function (socket, source, target, army, lord, horse = n
         RW: [],
         ASCT: 0
     };
-    socket.client.socketManager.sendCommand("cra", C2SCreateArmyAttackMovementVO);
+    client.socketManager.sendCommand("cra", C2SCreateArmyAttackMovementVO);
 }

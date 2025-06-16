@@ -1,6 +1,6 @@
 module.exports.name = "gcs";
-/** @param {Socket} socket */
-module.exports.execute = function (socket) {
+/** @param {Client} client */
+module.exports.execute = function (client) {
     const C2SGetCharactersStatusVO = {};
-    socket.client.socketManager.sendCommand("gcs", C2SGetCharactersStatusVO);
+    client.socketManager.sendCommand("gcs", C2SGetCharactersStatusVO);
 }

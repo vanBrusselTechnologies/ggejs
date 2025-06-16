@@ -12,11 +12,10 @@ class AllianceManager extends BaseManager {
     async getById(id) {
         if (id == null) throw 'Missing alliance id!';
         try {
-            const socket = this._socket;
-            searchAllianceById(socket, id);
+            searchAllianceById(this._client, id);
             /** @type {Alliance | MyAlliance} */
-            const alliance = await WaitUntil(socket, `_alliance_${id}_data`, "", 1000);
-            delete socket[`_alliance_${id}_data`];
+            const alliance = await WaitUntil(this._client._socket, `_alliance_${id}_data`, "", 1000);
+            delete this._client._socket[`_alliance_${id}_data`];
             return alliance;
         } catch (e) {
             throw Localize.text(this._client, 'errorCode_114');
@@ -87,14 +86,14 @@ class AllianceManager extends BaseManager {
             })();
             if (listType === -1) throw "Rankings' list type not supported";
             try {
-                getHighScore(this._socket, searchValue, listType, leagueId);
+                getHighScore(this._client, searchValue, listType, leagueId);
                 /** @type {HighScore<AllianceHighScoreItem>} */
-                const hghData = await WaitUntil(this._socket, `hgh_${listType}_${normalizedName}`, "", 1000);
-                delete this._socket[`hgh_${listType}_${normalizedName}`];
+                const hghData = await WaitUntil(this._client._socket, `hgh_${listType}_${normalizedName}`, "", 1000);
+                delete this._client._socket[`hgh_${listType}_${normalizedName}`];
                 return hghData;
             } catch (e) {
-                delete this._socket[`hgh_${listType}_${normalizedName}`];
-                throw Localize.text(this._socket.client, e);
+                delete this._client._socket[`hgh_${listType}_${normalizedName}`];
+                throw Localize.text(this._client, e);
             }
     }
 }

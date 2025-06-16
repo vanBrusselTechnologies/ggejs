@@ -1,12 +1,12 @@
 module.exports.name = "pep";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{EID: number, OP: number[], OR:number[]}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     /** @type {SkinnableAlienAllianceEvent} */
-    const pointEvent = socket["activeSpecialEvents"].find(e => e.eventId === params.EID)
+    const pointEvent = client._socket["activeSpecialEvents"]?.find(e => e.eventId === params.EID)
     if (pointEvent) {
         if ("OP" in params) {
             pointEvent.currentPoints = params["OP"];

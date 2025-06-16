@@ -1,11 +1,11 @@
 module.exports.name = "sge";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {[]} params
  */
-module.exports.execute = function (socket, errorCode, params) {
-    if (errorCode !== 0) socket["sge -> errorCode"] = errorCode;
+module.exports.execute = function (client, errorCode, params) {
+    if (errorCode !== 0) client._socket["sge -> errorCode"] = errorCode;
     if (!params) return;
-    socket["sge -> sold"] = true;
+    client._socket["sge -> sold"] = true;
 }

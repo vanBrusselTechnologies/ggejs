@@ -2,10 +2,10 @@ const {execute: startTax} = require('../../commands/startTax');
 
 module.exports.name = "txc";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} _
  * @param {Object} __
  */
-module.exports.execute = function (socket, _, __) {
-    startTax(socket, 0);
+module.exports.execute = function (client, _, __) {
+    startTax(client, 0);
 }

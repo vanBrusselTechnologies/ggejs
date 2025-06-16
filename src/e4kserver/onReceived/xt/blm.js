@@ -3,18 +3,18 @@ const General = require("../../../structures/General");
 
 module.exports.name = "blm";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     //todo: BattleLog Medium
     /** @type {BattleLog} */
-    const battleLog = socket[`${params.LID} battleLog`];
-    delete socket[`${params.LID} battleLog`];
-    const attackerLords = parseAttackerLords(socket.client, params, battleLog);
-    const defenderLords = parseDefenderLords(socket.client, params, battleLog);
-    socket[`blm -> ${params.LID}`] = {
+    const battleLog = client._socket[`${params.LID} battleLog`];
+    delete client._socket[`${params.LID} battleLog`];
+    const attackerLords = parseAttackerLords(client, params, battleLog);
+    const defenderLords = parseDefenderLords(client, params, battleLog);
+    client._socket[`blm -> ${params.LID}`] = {
         battleLogId: params["LID"],
         messageId: params["MID"],
         attackerCommandant: attackerLords?.commandant,

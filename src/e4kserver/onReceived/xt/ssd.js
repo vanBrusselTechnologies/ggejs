@@ -1,12 +1,12 @@
 module.exports.name = "ssd";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} _
  * @param {Object} __
  */
-module.exports.execute = function (socket, _, __) {
-    socket.client.emit('serverShutdown');
-    setTimeout(checkMaintenanceOver, 10000, socket.client);
+module.exports.execute = function (client, _, __) {
+    client.emit('serverShutdown');
+    setTimeout(checkMaintenanceOver, 10000, client);
 }
 
 /**

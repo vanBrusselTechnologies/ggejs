@@ -1,6 +1,6 @@
 module.exports.name = "ahf";
 /**
- * @param {Socket} _
+ * @param {Client} _
  * @param {number} __
  * @param {{PN:string}} ___
  */

@@ -2,11 +2,11 @@ const {execute: gam} = require('./gam');
 
 module.exports.name = "cra";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{AAM:Object}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (errorCode === 90) return; // Can't start armies
     /*todo
      * registerErrorHandler(194,null,"generic_alert_warning","alreadyConquerCapitalMovement");
@@ -18,5 +18,5 @@ module.exports.execute = function (socket, errorCode, params) {
      * registerCustomHandler(234,handleAttackInProgress);
      */
     if (!params) return;
-    gam(socket, 0, {M: [params.AAM]});
+    gam(client, 0, {M: [params.AAM]});
 }

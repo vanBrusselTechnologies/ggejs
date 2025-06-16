@@ -1,10 +1,10 @@
 module.exports.name = "tle";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {[]} params
  */
-module.exports.execute = async function (socket, errorCode, params) {
-    if (errorCode === 10005) return await socket.client.socketManager.onLogin();
-    console.log('tle', errorCode, params);
+module.exports.execute = async function (client, errorCode, params) {
+    if (errorCode === 10005) return await client.socketManager.onLogin();
+    client.logger.d('tle', errorCode, params);
 }

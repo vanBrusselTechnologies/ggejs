@@ -1,9 +1,9 @@
 module.exports.name = "mrm";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
-    socket.client.movements._remove(params.MID);
+module.exports.execute = function (client, errorCode, params) {
+    client.movements._remove(params.MID);
 }

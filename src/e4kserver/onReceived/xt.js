@@ -12,38 +12,38 @@ for (const file of commandFiles) {
 }
 
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {string[]} params
  */
-module.exports.onResponse = function (socket, params) {
+module.exports.onResponse = function (client, params) {
     const commandId = params.shift();
     params.shift();
     const errorCode = parseInt(params.shift());
     switch (errorCode) {
         case 0:
         case 10005:
-            executeResponse(socket, commandId, errorCode, params);
+            executeResponse(client, commandId, errorCode, params);
             break;
         default:
-            if (errorCode === 1 && commandId === "rlu") return executeResponse(socket, commandId, 0, params);
-            if (socket.debug) console.warn(`[RECEIVED ERROR] ${commandId}, ${errorCode}: ${getErrorText(errorCode)}: ${params.toString().substring(0, 100)}`);
+            if (errorCode === 1 && commandId === "rlu") return executeResponse(client, commandId, 0, params);
+            client.logger.d(`[RECEIVED ERROR] ${commandId}, ${errorCode}: ${getErrorText(errorCode)}: ${params.toString().substring(0, 100)}`);
             //todo: replace by processError
-            executeResponse(socket, commandId, errorCode, params);
+            executeResponse(client, commandId, errorCode, params);
             break;
     }
 }
 
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {string} commandId
  * @param {number} errorCode
  * @param {string[]} params
  */
-function executeResponse(socket, commandId, errorCode, params) {
+function executeResponse(client, commandId, errorCode, params) {
     const handler = commands[commandId.toLowerCase()];
     if (handler == null) {
         const _params = params.length === 0 ? "" : params[0].substring(0, 124 - commandId.length);
-        if (socket.debug) console.warn(`[RECEIVED UNKNOWN COMMAND] ${commandId}: ${_params.trim()}`);
+        client.logger.d(`[RECEIVED UNKNOWN COMMAND] ${commandId}: ${_params.trim()}`);
         return;
     }
     let _params = params;
@@ -54,5 +54,5 @@ function executeResponse(socket, commandId, errorCode, params) {
             _params = params[0];
         }
     }
-    handler.apply(this, [socket, errorCode, _params]);
+    handler.apply(this, [client, errorCode, _params]);
 }

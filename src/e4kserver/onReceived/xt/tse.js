@@ -1,9 +1,9 @@
 module.exports.name = "tse";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
-    socket.client.socketManager.serverType = params.GST;
+module.exports.execute = function (client, errorCode, params) {
+    client.socketManager.serverType = params.GST;
 }

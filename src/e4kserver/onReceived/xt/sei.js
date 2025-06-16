@@ -43,40 +43,42 @@ const TempServerMultiplierEvent = require("../../../structures/events/TempServer
 const ColossusVanillaEvent = require("../../../structures/events/ColossusVanillaEvent");
 const ColossusRiderEvent = require("../../../structures/events/ColossusRiderEvent");
 const EasterGachaEvent = require("../../../structures/events/EasterGachaEvent");
+const SummerGachaEvent = require("../../../structures/events/SummerGachaEvent");
+const AllianceMobilizationEvent = require("../../../structures/events/AllianceMobilizationEvent");
 
 module.exports.name = "sei";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     // TODO: move activeSpecialEvents initiator to the EventsManager class
-    if (socket["activeSpecialEvents"] == null) socket["activeSpecialEvents"] = []
+    if (client._socket["activeSpecialEvents"] == null) client._socket["activeSpecialEvents"] = []
     if (!params.E || params.E.length === 0) return;
     for (const eventData of params.E) {
         const eventId = eventData.EID;
-        const index = socket["activeSpecialEvents"].map(e => e.eventId).indexOf(eventId)
+        const index = client._socket["activeSpecialEvents"].map(e => e.eventId).indexOf(eventId)
         if (index === -1) {
-            let event = getEventById(socket, eventId);
-            socket["activeSpecialEvents"].push(event);
-            event.loadFromParamObject(socket.client, eventData);
+            let event = getEventById(client, eventId);
+            client._socket["activeSpecialEvents"].push(event);
+            event.loadFromParamObject(client, eventData);
             if (event.eventId === EventConst.EVENTTYPE_GGS_GIFT) {
                 // TODO:
                 //  event.hasBeenCollected = true;
-                //  require('../../commands/requestGGSGift').execute(socket, 1);
+                //  require('../../commands/requestGGSGift').execute(client, 1);
             }
-        } else socket["activeSpecialEvents"][index].loadFromParamObject(socket.client, eventData)
+        } else client._socket["activeSpecialEvents"][index].loadFromParamObject(client, eventData)
     }
     //TODO: client.events._add_or_update(_events);
 }
 
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} eventId
  * @return {ActiveEvent}
  */
-function getEventById(socket, eventId) {
+function getEventById(client, eventId) {
     switch (eventId) {
         case EventConst.EVENTTYPE_ALIEN_INVASION_ALLIANCE:
             return new AlienAllianceInvasionEvent();
@@ -135,6 +137,8 @@ function getEventById(socket, eventId) {
             return new ChristmasGachaEvent();
         case EventConst.EVENTTYPE_EASTER_GACHA:
             return new EasterGachaEvent();
+        case EventConst.EVENTTYPE_SUMMER_GACHA:
+            return new SummerGachaEvent();
         case EventConst.EVENTTYPE_RATINGEVENT:
             return new RatingEvent();
         case EventConst.EVENTTYPE_LUCKYWHEEL:
@@ -172,13 +176,15 @@ function getEventById(socket, eventId) {
             return new MobileBrowserShopSpecialEvent();
         case EventConst.EVENTTYPE_GGS_GIFT:
             return new GGSGiftEvent();
+        case 129: //TODO move to EventConst
+            return new AllianceMobilizationEvent()
         case EventConst.EVENTTYPE_COIN_COLOSSUS:
         case EventConst.EVENTTYPE_PRIVATE_PRIME_TIME_EVENT:
         case EventConst.EVENTTYPE_UNIT_PRIME_SALE:
         case EventConst.EVENTTYPE_SPECIAL_DAILY_BUNDLE:
             return new ActiveEvent(); // Those are not in source code
         default:
-            if (socket.debug && !socket["activeSpecialEvents"].map(e => e.eventId).includes(eventId)) console.warn(`[SEI] Current event (eventId ${eventId}) isn't fully supported!`);
+            if (!client._socket["activeSpecialEvents"].map(e => e.eventId).includes(eventId)) client.logger.d(`[SEI] Current event (eventId ${eventId}) isn't fully supported!`);
             return new ActiveEvent();
     }
 }

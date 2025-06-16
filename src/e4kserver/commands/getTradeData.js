@@ -1,9 +1,9 @@
 module.exports.name = "mmn";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} messageId
  */
-module.exports.execute = function (socket, messageId) {
+module.exports.execute = function (client, messageId) {
     const C2SMarketCarriageNotifyVO = {MID: messageId};
-    socket.client.socketManager.sendCommand("mmn", C2SMarketCarriageNotifyVO);
+    client.socketManager.sendCommand("mmn", C2SMarketCarriageNotifyVO);
 }

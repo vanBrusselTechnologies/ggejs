@@ -2,13 +2,13 @@ const {Coordinate} = require("../../../structures/Coordinate");
 
 module.exports.name = "gri";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    const cud = socket.client.clientUserData;
+    const cud = client.clientUserData;
     cud.relocationCount = params["RLC"];
     cud.relocationDurationEndTime = new Date(Date.now() + Math.max(0, params["RD"]) * 1000);
     cud.relocationCooldownEndTime = new Date(Date.now() + Math.max(0, params["RMC"]) * 1000);
@@ -16,6 +16,6 @@ module.exports.execute = function (socket, errorCode, params) {
         cud.relocationDurationEndTime = new Date();
     }
     if (params["DX"] && params["DY"]) {
-        cud.relocationDestination = new Coordinate(socket.client, [params["DX"], params["DY"]]);
+        cud.relocationDestination = new Coordinate(client, [params["DX"], params["DY"]]);
     }
 }

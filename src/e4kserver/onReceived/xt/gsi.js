@@ -2,30 +2,27 @@ const Unit = require("../../../structures/Unit");
 
 module.exports.name = "gsi";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
- * @param {Object} params
+ * @param {{T:number, TT: number, SI: [number, number][]}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     return {
-        /** @type number */
-        totalShadowUnits: params.T, /** @type number */
-        travellingShadowUnits: params.TT, /** @type {InventoryItem<Unit>[]} */
-        shadowUnits: parseUnits(socket.client, params.SI)
+        totalShadowUnits: params.T,
+        travellingShadowUnits: params.TT,
+        shadowUnits: parseUnits(client, params.SI)
     };
 }
 
 /**
  * @param {Client} client
- * @param {[]} data
+ * @param {[number, number][]} data
  * @return {InventoryItem<Unit>[]}
  */
 function parseUnits(client, data) {
     const units = [];
     for (let u of data) {
-        units.push({
-            item: new Unit(client, u[0]), count: u[1]
-        })
+        units.push({item: new Unit(client, u[0]), count: u[1]})
     }
     return units;
 }

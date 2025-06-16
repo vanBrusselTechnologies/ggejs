@@ -1,9 +1,9 @@
 module.exports.name = "gms";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{MS: number}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
-    socket.client.clientUserData.maxSpies = params.MS;
+module.exports.execute = function (client, errorCode, params) {
+    client.clientUserData.maxSpies = params.MS;
 }

@@ -19,7 +19,7 @@ class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
     }
 
     async init() {
-        this.advisorOverviewInfo = await parseAdvisorOverview(this.#client._socket, this.messageId);
+        this.advisorOverviewInfo = await parseAdvisorOverview(this.#client, this.messageId);
         this.#client._socket[`rms -> ${this.messageId}`] = null;
     }
 
@@ -30,20 +30,20 @@ class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
 }
 
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} messageId
  * @returns {Promise<{}>}
  */
-async function parseAdvisorOverview(socket, messageId) {
-    readMessage(socket, messageId);
-    const stringData = await WaitUntil(socket, `rms -> ${messageId}`);
-    delete socket[`rms -> ${messageId}`];
+async function parseAdvisorOverview(client, messageId) {
+    readMessage(client, messageId);
+    const stringData = await WaitUntil(client._socket, `rms -> ${messageId}`);
+    delete client._socket[`rms -> ${messageId}`];
     const data = JSON.parse(stringData);
     // TODO: rewrite into separate class
     return {
         commandersAmount: data["C"],
-        lootGoods: data.G.map(g => new Good(socket.client, g)),
-        costsGoods: data.L.map(g => new Good(socket.client, g)),
+        lootGoods: data.G.map(g => new Good(client, g)),
+        costsGoods: data.L.map(g => new Good(client, g)),
         lostUnitsAmount: data["LU"],
         lostToolsAmount: data["LT"],
         attacksAmountWin: data["W"],

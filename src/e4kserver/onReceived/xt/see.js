@@ -1,9 +1,9 @@
 module.exports.name = "see";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{EID: number}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     //TODO: client.events._remove(params.EID);
 }

@@ -1,6 +1,6 @@
 module.exports.name = "sne";
-/** @param {Socket} socket */
-module.exports.execute = function (socket) {
+/** @param {Client} client */
+module.exports.execute = function (client) {
     const C2SShowMessagesVO = {}
-    socket.client.socketManager.sendCommand("sne", C2SShowMessagesVO);
+    client.socketManager.sendCommand("sne", C2SShowMessagesVO);
 }

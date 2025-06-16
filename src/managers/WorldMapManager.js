@@ -1,6 +1,6 @@
 'use strict'
 
-const e4kData = require('e4k-data').data;
+const {collectorEventOptions, kingdoms, landmarks} = require('e4k-data').data;
 const BaseManager = require('./BaseManager');
 const {execute: getWorldMap} = require('../e4kserver/commands/getWorldmap');
 const {WaitUntil} = require('../tools/wait');
@@ -36,20 +36,13 @@ class WorldMapManager extends BaseManager {
         this._ownerInfoData.isInitialized = true;
     }
 
-    get _socket() {
-        if (super._socket[`__worldMap_0_searching_sectors`] == null) {
-            for (const id of kingdomIds) super._socket[`__worldMap_${id}_searching_sectors`] = [];
-        }
-        return super._socket;
-    }
-
     /**
      * Returns the complete worldMap, use {@link getSector} if only part of it is needed
      * @param {number} kingdomId Only kingdoms you have a castle in are valid
      */
     async get(kingdomId) {
         try {
-            return await _getWorldMapById(this, new WorldMap(this._client, kingdomId), kingdomId);
+            return await _getWorldMapById(this._client, new WorldMap(this._client, kingdomId), kingdomId);
         } catch (e) {
             throw e.toString().startsWith('errorCode_') ? Localize.text(this._client, e.toString()) : e;
         }
@@ -63,7 +56,7 @@ class WorldMapManager extends BaseManager {
      */
     async getSector(kingdomId, centerX, centerY) {
         try {
-            return await _getWorldMapSector(this, kingdomId, centerX, centerY);
+            return await _getWorldMapSector(this._client, kingdomId, centerX, centerY);
         } catch (e) {
             throw e.toString().startsWith('errorCode_') ? Localize.text(this._client, e.toString()) : e;
         }
@@ -71,39 +64,39 @@ class WorldMapManager extends BaseManager {
 }
 
 /**
- * @param {WorldMapManager} thisManager
+ * @param {Client} client
  * @param {WorldMap} _worldMap
  * @param {number} kingdomId
  */
-async function _getWorldMapById(thisManager, _worldMap, kingdomId) {
+async function _getWorldMapById(client, _worldMap, kingdomId) {
     if (!_worldMap) throw "missing worldMap";
     _worldMap._clear();
     const worldMapSize = 15;
     for (let i = 0; i < worldMapSize * worldMapSize; i++) {
-        if (thisManager._socket.client.socketManager.connectionStatus !== ConnectionStatus.Connected) break;
+        if (client.socketManager.connectionStatus !== ConnectionStatus.Connected) break;
         const col = Math.floor(i / worldMapSize) * 100 + 50;
         const row = i % worldMapSize * 100 + 50;
-        _worldMap._addAreaMapObjects((await _getWorldMapSector(thisManager, kingdomId, col, row)).mapObjects);
+        _worldMap._addAreaMapObjects((await _getWorldMapSector(client, kingdomId, col, row)).mapObjects);
     }
     return _worldMap;
 }
 
 /**
  * Returns a 100x100 worldMapSector
- * @param {WorldMapManager} thisManager
+ * @param {Client} client
  * @param {number} kingdomId
  * @param {number} x
  * @param {number} y
  */
-async function _getWorldMapSector(thisManager, kingdomId, x, y) {
-    const socket = thisManager._socket;
-    if (socket.client.socketManager.connectionStatus !== ConnectionStatus.Connected) throw 'Client disconnected';
+async function _getWorldMapSector(client, kingdomId, x, y) {
+    const socket = client._socket;
+    if (client.socketManager.connectionStatus !== ConnectionStatus.Connected) throw 'Client disconnected';
     try {
-        const data = await _getWorldMapSectorData(thisManager, kingdomId, x, y, 0);
+        const data = await _getWorldMapSectorData(client, kingdomId, x, y, 0);
         delete socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_searching`];
         delete socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_data`];
         delete socket[`__worldMap_${kingdomId}_empty`];
-        return new WorldMapSector(socket.client, kingdomId, data);
+        return new WorldMapSector(client, kingdomId, data);
     } catch (e) {
         delete socket[`__worldMap__error`];
         delete socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_searching`];
@@ -115,27 +108,28 @@ async function _getWorldMapSector(thisManager, kingdomId, x, y) {
 
 /**
  * Returns a 100x100 worldMapSector
- * @param {WorldMapManager} thisManager
+ * @param {Client} client
  * @param {number} kingdomId
  * @param {number} x
  * @param {number} y
  * @param {number} tries
  * @returns {Promise<{worldMapAreas: Mapobject[]}>}
  */
-async function _getWorldMapSectorData(thisManager, kingdomId, x, y, tries = 0) {
-    const socket = thisManager._socket;
-    if (socket.client.socketManager.connectionStatus !== ConnectionStatus.Connected) throw 'Client disconnected';
+async function _getWorldMapSectorData(client, kingdomId, x, y, tries = 0) {
+    const socket = client._socket;
+    if (client.socketManager.connectionStatus !== ConnectionStatus.Connected) throw 'Client disconnected';
     try {
+        if (socket[`__worldMap_${kingdomId}_searching_sectors`] === undefined) socket[`__worldMap_${kingdomId}_searching_sectors`] = [];
         socket[`__worldMap_${kingdomId}_searching_sectors`].push({x, y});
         if (!socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_searching`]) {
             socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_searching`] = true;
-            const bottomLeft = new Coordinate(socket.client, [x - 50, y - 50]);
-            const topRight = new Coordinate(socket.client, [x + 49, y + 49]);
-            getWorldMap(socket, kingdomId, bottomLeft, topRight);
+            const bottomLeft = new Coordinate(client, [x - 50, y - 50]);
+            const topRight = new Coordinate(client, [x + 49, y + 49]);
+            getWorldMap(client, kingdomId, bottomLeft, topRight);
         }
         return await Promise.any([WaitUntil(socket, `__worldMap_${kingdomId}_specific_sector_${x}_${y}_data`, `__worldMap__error`, 2500), WaitUntil(socket, `__worldMap_${kingdomId}_empty`, `__worldMap__error`, 2500)]);
     } catch (e) {
-        if (e.errors[0] === "Exceeded max time!" && tries < 3) return await _getWorldMapSectorData(thisManager, kingdomId, x, y, tries + 1);
+        if (e.errors[0] === "Exceeded max time!" && tries < 3) return await _getWorldMapSectorData(client, kingdomId, x, y, tries + 1);
         throw e;
     }
 }
@@ -150,7 +144,7 @@ function loadNPCOwnerInfo(client, ownerInfoData) {
         ownerInfoData.addOwnerInfo(createWorldMapOwnerInfo(client, DungeonConst.getDungeonOwnerId(0, i), null, "dungeon_playerName", ConstantsCrest.ROBBER_BARON_CREST, true));
     }
 
-    const defaultLandmarkLevel = e4kData.landmarks.find(l => l.isDefault === 1).defaultLevel
+    const defaultLandmarkLevel = landmarks.find(l => l.isDefault === 1).defaultLevel
 
     let kingdomId = 0;
     const npcCapitalOwnerInfo = createWorldMapOwnerInfo(client, OutpostConst.getCapitalDefaultOwnerFor(kingdomId), defaultLandmarkLevel, "capital", ConstantsCrest.getKingdomCrest(kingdomId), true);
@@ -159,7 +153,7 @@ function loadNPCOwnerInfo(client, ownerInfoData) {
     ownerInfoData.addOwnerInfo(npcCapitalOwnerInfo);
     kingdomId = 1;
     while (kingdomId < 4) {
-        const kingdomMinLevel = e4kData.kingdoms.find(k => k.kID === kingdomId).minLevel;
+        const kingdomMinLevel = kingdoms.find(k => k.kID === kingdomId).minLevel;
         const dungeonOwnerId = DungeonConst.getDungeonOwnerId(kingdomId, 0);
         const villageOwnerInfo = createWorldMapOwnerInfo(client, VillageConst.getVillageDefaultOwnerId(kingdomId), kingdomMinLevel, `kingdom_dungeon_playerName_${dungeonOwnerId}`, ConstantsCrest.getKingdomCrest(kingdomId), true);
         //villageOwnerInfo.setNamesFactory(kingdomSkinNamesFactory, `kingdom_dungeon_playerName_${dungeonOwnerId}`);
@@ -240,7 +234,6 @@ function loadNPCOwnerInfo(client, ownerInfoData) {
 
     ownerInfoData.addOwnerInfo(createWorldMapOwnerInfo(client, -1201, -1, `wolfgard_playerName`, ConstantsGeneral.NPC_CREST_WOLFKING, true));
 
-    const collectorEventOptions = e4kData.collectorEventOptions;
     for (const collectorEventOption of collectorEventOptions) {
         const collectorEventSkinName = collectorEventOption.collectorEventSkinName;
         const colors = collectorEventOption.crestColors.split(',').map(c => parseInt(c, 16));

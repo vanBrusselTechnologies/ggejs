@@ -66,7 +66,7 @@ class MovementManager extends BaseManager {
                 armyWaves[i].R.T.push([tool.item.wodId, tool.count]);
             }
         }
-        sendArmyAttackMovement(this._socket, castleFrom, castleTo, armyWaves, lord, horse);
+        sendArmyAttackMovement(this._client, castleFrom, castleTo, armyWaves, lord, horse);
     }
 
     /**
@@ -79,7 +79,7 @@ class MovementManager extends BaseManager {
      */
     startSpyMovement(castleFrom, castleTo, spyCount, spyType, spyEffect, horse = null) {
         spyEffect = spyType === SpyType.Sabotage ? Math.min(Math.max(spyEffect, 10), 50) : Math.min(Math.max(spyEffect, 50), 100);
-        sendSpyMovement(this._socket, castleFrom, castleTo, spyCount, spyType, spyEffect, horse);
+        sendSpyMovement(this._client, castleFrom, castleTo, spyCount, spyType, spyEffect, horse);
     }
 
     /**
@@ -89,7 +89,7 @@ class MovementManager extends BaseManager {
      * @param {Horse} horse
      */
     startMarketMovement(castleFrom, castleTo, goods, horse = null) {
-        sendMarketMovement(this._socket, castleFrom, castleTo, goods, horse);
+        sendMarketMovement(this._client, castleFrom, castleTo, goods, horse);
     }
 
     /** @param {Movement[]} _movements */

@@ -38,7 +38,7 @@ class CastlePremiumMarketShop {
     }
 
     renewText() {
-        console.error(`missing renew text id for: ${this.titleStringId} shop type: ${this.shopTypes.toString()}`);
+        this.#client.logger.w(`missing renew text id for: ${this.titleStringId} shop type: ${this.shopTypes.toString()}`);
         return "";
     }
 

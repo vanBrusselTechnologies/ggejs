@@ -1,6 +1,6 @@
 module.exports.name = "afa";
-/** @param {Socket} socket */
-module.exports.execute = function (socket) {
+/** @param {Client} client */
+module.exports.execute = function (client) {
     const C2SAllianceGetFameVO = {};
-    socket.client.socketManager.sendCommand("afa", C2SAllianceGetFameVO);
+    client.socketManager.sendCommand("afa", C2SAllianceGetFameVO);
 }

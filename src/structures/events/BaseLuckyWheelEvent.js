@@ -42,7 +42,7 @@ class BaseLuckyWheelEvent extends PointEvent {
         }
         //TODO: const _loc6_:IWheelOfFortuneProperties = propertiesFactory.getPropertiesByEventId(this.eventId);
         data["LWET"] = this.eventId === 15 ? 0 : 1//_loc6_.serverTypeId;
-        lws(client._socket, 0, data)
+        lws(client, 0, data)
     }
 
     get eventTitleTextId() {

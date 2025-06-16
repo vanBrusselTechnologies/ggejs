@@ -15,6 +15,7 @@ const QuestData = require("./structures/quests/QuestData");
 const {execute: verifyLoginData} = require('./e4kserver/commands/verifyLoginData');
 const {execute: registerOrLogin} = require('./e4kserver/commands/registerOrLogin');
 const {ConnectionStatus} = require("./utils/Constants");
+const Logger = require("./tools/Logger");
 
 class Client extends EventEmitter {
     #name = "";
@@ -28,6 +29,8 @@ class Client extends EventEmitter {
     _serverInstance = require('e4k-data').network.instances.instance[33];
     _networkId = -1;
 
+    logger = new Logger();
+
     get _socket() {
         return this.socketManager.socket;
     }
@@ -35,15 +38,15 @@ class Client extends EventEmitter {
     /**
      * @param {string} name
      * @param {string} password
-     * @param {boolean} debug
      * @param {NetworkInstance} serverInstance
      */
-    constructor(name, password, serverInstance, debug = false) {
+    constructor(name, password, serverInstance) {
         super();
         this._serverInstance = serverInstance;
         this.#name = name;
         this.#password = password;
-        this.socketManager = new SocketManager(this, serverInstance, debug);
+        this.socketManager = new SocketManager(this, serverInstance);
+
         this.alliances = new AllianceManager(this);
         this.clientUserData = new ClientUserDataManager();
         this.clientUserData.boostData = new PremiumBoostData(this);
@@ -82,15 +85,18 @@ class Client extends EventEmitter {
         return this;
     }
 
-    // Used in 'rlu'
     _verifyLoginData() {
-        if (this.#name === "" && this.#password !== "") return registerOrLogin(this._socket, this.#password);
-        verifyLoginData(this._socket, this.#name, this.#password);
+        if (this.#name === "" && this.#password !== "") {
+            registerOrLogin(this, this.#password);
+            return;
+        }
+        verifyLoginData(this, this.#name, this.#password);
     }
 
     /** @param {string} message */
     sendChatMessage(message) {
-        require('./e4kserver/commands/sendAllianceChatMessage').execute(this._socket, message);
+        //TODO(?): Move into MyAlliance
+        require('./e4kserver/commands/sendAllianceChatMessage').execute(this, message);
     }
 
     /**
@@ -99,7 +105,7 @@ class Client extends EventEmitter {
      * @param {string} message
      */
     sendMailMessage(playerName, subject, message) {
-        require('./e4kserver/commands/sendMailMessage').execute(this._socket, playerName, subject, message);
+        require('./e4kserver/commands/sendMailMessage').execute(this, playerName, subject, message);
     }
 
     /**
@@ -108,7 +114,7 @@ class Client extends EventEmitter {
      */
     async getCastleInfo(mapObject) {
         if (!mapObject || !mapObject.objectId) throw "WorldMapArea is not valid";
-        require('./e4kserver/commands/joinArea').execute(this._socket, mapObject);
+        require('./e4kserver/commands/joinArea').execute(this, mapObject);
         const data = await WaitUntil(this._socket, `join_area_${mapObject.objectId}_data`, "join_area_error");
         delete this._socket[`join_area_${mapObject.objectId}_data`];
         return data;
@@ -134,10 +140,10 @@ class Client extends EventEmitter {
                     const f3 = await fetch(`https://mobile-payments.public.ggs-e4k.com/api/players/${gameId}-${this._networkId}-${this._serverInstance.value}-${this.clientUserData.playerId}/catalog/${storeId}`, {
                         headers: {Authorization: `Bearer ${val.token}`}
                     })
-                    console.log( JSON.parse(Buffer.from(await f3.arrayBuffer()).toString()) );
+                    this.logger.d( JSON.parse(Buffer.from(await f3.arrayBuffer()).toString()) );
                  */
             } catch (e) {
-                if (this._socket.debug) console.error(e);
+                this.logger.d(e);
             }
         })();
     }

@@ -1,9 +1,9 @@
 module.exports.name = "bld";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} battleLogId
  */
-module.exports.execute = function (socket, battleLogId) {
+module.exports.execute = function (client, battleLogId) {
     const C2SBattleLogDetailVO = {LID: battleLogId};
-    socket.client.socketManager.sendCommand("bld", C2SBattleLogDetailVO);
+    client.socketManager.sendCommand("bld", C2SBattleLogDetailVO);
 }

@@ -1,10 +1,10 @@
 module.exports.name = "acv";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{H:number}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    //todo: socket.client.clientUserData/*.allianceData*/.miniChatHidden = params.H === 1;
+    //todo: client.clientUserData/*.allianceData*/.miniChatHidden = params.H === 1;
 }

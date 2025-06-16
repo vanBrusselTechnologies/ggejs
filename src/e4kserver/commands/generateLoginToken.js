@@ -1,9 +1,9 @@
 module.exports.name = "glt";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} serverType
  */
-module.exports.execute = function (socket, serverType) {
+module.exports.execute = function (client, serverType) {
     const C2SGenerateLoginTokenVO = {GST: serverType};
-    socket.client.socketManager.sendCommand("glt", C2SGenerateLoginTokenVO);
+    client.socketManager.sendCommand("glt", C2SGenerateLoginTokenVO);
 }

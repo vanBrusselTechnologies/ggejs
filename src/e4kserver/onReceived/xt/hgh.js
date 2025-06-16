@@ -1,20 +1,19 @@
 const WorldMapOwnerInfo = require("../../../structures/WorldMapOwnerInfo");
 
 module.exports.name = "hgh";
-
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{LT:number, LID: number, L: Array<Array>, LR:number, SV:string, FR: number, IGH: number}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params || !params.LID) return;
     const listType = params.LT;
     const leaderboard = params.L;
     const highScoreItems = [];
     if (Array.isArray(leaderboard)) {
         for (const item of leaderboard) {
-            const highScoreItem = getHighScoreItem(socket.client, listType, item);
+            const highScoreItem = getHighScoreItem(client, listType, item);
             if (highScoreItem) highScoreItems.push(highScoreItem);
         }
     }
@@ -27,7 +26,7 @@ module.exports.execute = function (socket, errorCode, params) {
         items: highScoreItems
     };
     const SV = output.searchValue.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    socket[`hgh_${output.listType}_${SV}`] = output;
+    client._socket[`hgh_${output.listType}_${SV}`] = output;
 }
 
 /**

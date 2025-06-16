@@ -3,28 +3,28 @@ const {execute: deleteMessages} = require("../../commands/deleteMessages");
 
 module.exports.name = "boi";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{BO:[], PB:[], SB:[], SU: Object, ST: Object, bfs: {T:number, RT:number}}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    const premiumBoostData = socket.client.clientUserData.boostData;
-    removeBoosterExpiredMails(socket, premiumBoostData, params.BO);
+    const premiumBoostData = client.clientUserData.boostData;
+    removeBoosterExpiredMails(client, premiumBoostData, params.BO);
     parseTempBoosterObjects(premiumBoostData, params.BO);
     parsePermBoosterObjects(premiumBoostData, params.PB);
     if (params.SB) premiumBoostData.boughtBuildingSlots = params.SB.filter(s => s > 0).length;
     if (params.SU) premiumBoostData.boughtUnitSlots = params.SU.filter(s => s > 0).length;
     if (params.ST) premiumBoostData.boughtToolSlots = params.ST.filter(s => s > 0).length;
-    bfs(socket, errorCode, params.bfs);
+    bfs(client, errorCode, params.bfs);
 }
 
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {PremiumBoostData} premiumBoostData
  * @param {{PC:number, ID: number, RT: number}[]} tempBoosterObjects
  */
-function removeBoosterExpiredMails(socket, premiumBoostData, tempBoosterObjects) {
+function removeBoosterExpiredMails(client, premiumBoostData, tempBoosterObjects) {
     if (!tempBoosterObjects) return;
     /** @type {number[]} */
     const boosterIds = [];
@@ -33,8 +33,8 @@ function removeBoosterExpiredMails(socket, premiumBoostData, tempBoosterObjects)
         if (booster !== undefined && booster.remainingTimeInSeconds <= 86400 && tempBoosterObject.RT > 86400) boosterIds.push(booster.id);
     }
     if (boosterIds.length > 0) {
-        const messagesIds = (socket["mailMessages"] ?? []).filter(m => boosterIds.includes(m.boosterId)).map(m => m.messageId);
-        if (messagesIds.length > 0) deleteMessages(socket, messagesIds);
+        const messagesIds = (client._socket["mailMessages"] ?? []).filter(m => boosterIds.includes(m.boosterId)).map(m => m.messageId);
+        if (messagesIds.length > 0) deleteMessages(client, messagesIds);
     }
 }
 

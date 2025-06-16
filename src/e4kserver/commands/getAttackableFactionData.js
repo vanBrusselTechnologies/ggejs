@@ -1,6 +1,6 @@
 module.exports.name = "afd";
-/** @param {Socket} socket */
-module.exports.execute = function (socket) {
+/** @param {Client} client */
+module.exports.execute = function (client) {
     const C2SGetAttackableFactionDataVO = {};
-    socket.client.socketManager.sendCommand("afd", C2SGetAttackableFactionDataVO);
+    client.socketManager.sendCommand("afd", C2SGetAttackableFactionDataVO);
 }

@@ -1,13 +1,13 @@
 module.exports.name = "gal";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{AID: number, R:number, ACF: number, SA: number}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    socket.client.clientUserData.allianceId = params.AID;
-    socket.client.clientUserData.allianceRank = params.R;
-    socket.client.clientUserData.allianceCurrentFame = params.ACF;
-    socket.client.clientUserData.isSearchingAlliance = params.SA === 1;
+    client.clientUserData.allianceId = params.AID;
+    client.clientUserData.allianceRank = params.R;
+    client.clientUserData.allianceCurrentFame = params.ACF;
+    client.clientUserData.isSearchingAlliance = params.SA === 1;
 }

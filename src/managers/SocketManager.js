@@ -21,25 +21,23 @@ class SocketManager {
     /**
      * @param {Client} client
      * @param {NetworkInstance} serverInstance
-     * @param {boolean} debug
      */
-    constructor(client, serverInstance, debug) {
+    constructor(client, serverInstance) {
         this.client = client;
         this.serverInstance = serverInstance;
         /** @type {Socket} */
         this.socket = new (require("node:net").Socket)();
         // this.socket = new (require('ws').WebSocket)(`wss://${serverInstance.server}:${serverInstance.port}`); //empire? WebSocket ipv net.Socket
         this.socket.client = client;
-        this.socket.debug = debug;
         this.#addSocketListeners(this.socket);
     }
 
     /**
-     * @param connectionStatus
+     * @param {number} connectionStatus
      * @private
      */
     set connectionStatus(connectionStatus) {
-        if (this.socket.debug) console.log("[ConnStatus]", connectionStatus);
+        this.client.logger.i("[SocketManager] Connection status:", Object.keys(ConnectionStatus).find(k => ConnectionStatus[k] === connectionStatus));
         this.#connectionStatus = connectionStatus;
     }
 
@@ -78,28 +76,17 @@ class SocketManager {
             await WaitUntil(this.socket, 'gbd finished');
 
             this.connectionStatus = ConnectionStatus.Connected;
-            pingPong(this.socket);
+            pingPong(this.client);
 
+            //todo: Below isn't in source code
             if (this.client.externalClient == null && this.serverType === ServerType.NormalServer) {
                 const activeEvents = this.socket["activeSpecialEvents"] ?? []
-                if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_TEMPSERVER)) generateLoginToken(this.socket, ServerType.TempServer)
-                if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_ALLIANCE_BATTLEGROUND)) generateLoginToken(this.socket, ServerType.AllianceBattleGround)
+                if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_TEMPSERVER)) generateLoginToken(this.client, ServerType.TempServer)
+                if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_ALLIANCE_BATTLEGROUND)) generateLoginToken(this.client, ServerType.AllianceBattleGround)
             }
-            //todo: Below isn't in source code
-            collectTax(this.socket);
-            mercenaryPackage(this.socket, -1)
-            if (!this.socket["isIntervalSetup"]) {
-                this.socket["isIntervalSetup"] = true;
-                if (this.serverType !== ServerType.AllianceBattleGround) {
-                    dql(this.socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]}).then()
-                    setInterval(() => {
-                        if (this.connectionStatus !== ConnectionStatus.Connected) return;
-                        dql(this.socket, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]}).then()
-                    }, 5 * 60 * 1010); // 5 minutes
-                }
-            }
+            this.#botting();
         } catch (e) {
-            console.error(e);
+            this.client.logger.w(e);
         }
     }
 
@@ -121,37 +108,37 @@ class SocketManager {
     /** @param {string} msg */
     writeToSocket(msg) {
         if (this.connectionStatus === ConnectionStatus.Disconnecting || this.connectionStatus === ConnectionStatus.Disconnected) return;
-        if (this.socket["ultraDebug"]) console.log(`[WRITE]: ${msg.substring(0, Math.min(150, msg.length))}`);
+        this.client.logger.t(`[WRITE]: ${msg.substring(0, Math.min(150, msg.length))}`);
         let _buff0 = Buffer.from(msg);
         let _buff1 = Buffer.alloc(1);
         _buff1.writeInt8(0);
         let bytes = Buffer.concat([_buff0, _buff1]);
         this.socket.write(bytes, "utf-8", (err) => {
-            if (err) console.error(`\x1b[31m[SOCKET WRITE ERROR] ${err}\x1b[0m`);
+            if (err) this.client.logger.w(`\x1b[31m[SOCKET WRITE ERROR] ${err}\x1b[0m`);
         });
     }
 
     /** @param {Socket} socket */
     #addSocketListeners(socket) {
         socket.addListener('ready', () => onSocketReady(this));
-        socket.addListener('data', (data) => onSocketData(socket, data));
+        socket.addListener('data', (data) => onSocketData(socket, this.client, data));
         socket.addListener('error', (err) => {
-            if (socket.debug) console.error(`\x1b[31m[SOCKET ERROR] ${err}\x1b[0m`);
-            if (socket.debug) console.error(err);
+            this.client.logger.w(`\x1b[31m[SOCKET ERROR] ${err}\x1b[0m`);
+            this.client.logger.d(err);
             socket.end();
         });
         socket.addListener('timeout', () => {
-            if (socket.debug) console.warn("Socket Timeout!");
+            this.client.logger.d("[SocketManager] Socket Timeout!");
             socket.end();
         });
         socket.addListener('end', () => {
             if (this.connectionStatus === ConnectionStatus.Disconnected) return;
-            if (socket.debug) console.warn("Socket Ended!");
+            this.client.logger.d("[SocketManager] Socket Ended!");
         });
-        socket.addListener('close', hadError => {
+        socket.addListener('close', _ => {
             if (this.connectionStatus === ConnectionStatus.Disconnected) return;
             this.connectionStatus = ConnectionStatus.Disconnected;
-            if (socket.debug) console.warn(`Socket Closed${hadError ? ", caused by error" : ""}!`);
+            this.client.logger.d(`[SocketManager] Socket Closed!`);
             socket.removeAllListeners();
             this.currentData = "";
 
@@ -162,17 +149,35 @@ class SocketManager {
                 new_socket.client = this.client;
                 this.socket = new_socket;
                 socket = null;
-                if (new_socket.debug) console.log("Reconnecting!");
+                this.client.logger.i("[SocketManager] Reconnecting!");
                 while (true) {
                     try {
                         await this.client.connect();
                         break;
                     } catch (e) {
-                        await new Promise(res => setTimeout(res, 1000));
+                        await new Promise(res => setTimeout(res, 10000));
                     }
                 }
             }, this.reconnectTimeout * 1000);
         });
+    }
+
+    // TODO: REMOVE
+    isIntervalSetup = false;
+
+    #botting() {
+        collectTax(this.client);
+        mercenaryPackage(this.client, -1);
+        if (!this.isIntervalSetup) {
+            this.isIntervalSetup = true;
+            if (this.serverType !== ServerType.AllianceBattleGround) {
+                dql(this.client, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]}).then();
+                setInterval(() => {
+                    if (this.connectionStatus !== ConnectionStatus.Connected) return;
+                    dql(this.client, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]}).then();
+                }, 5 * 60 * 1010); // 5 minutes
+            }
+        }
     }
 }
 
@@ -185,8 +190,6 @@ module.exports = SocketManager;
 function createCleanSocket(old_socket) {
     /** @type {Socket} */
     const new_socket = new (require("node:net").Socket)();
-    new_socket.debug = old_socket.debug;
-    new_socket["ultraDebug"] = old_socket["ultraDebug"];
     new_socket['mailMessages'] = old_socket['mailMessages'] ?? [];
     return new_socket;
 }
@@ -204,9 +207,10 @@ function onSocketReady(socketManager) {
 
 /**
  * @param {Socket} socket
+ * @param {Client} client
  * @param {Buffer} data
  */
-function onSocketData(socket, data) {
+function onSocketData(socket, client, data) {
     if (socket["currentData"] === undefined) socket["currentData"] = "";
     const newData = data.toString('utf-8');
     const totalData = socket["currentData"] + newData;
@@ -214,10 +218,10 @@ function onSocketData(socket, data) {
     socket["currentData"] = totalData.charCodeAt(totalData.length - 1) !== 0 ? commands.pop() : "";
 
     commands.forEach(command => {
-        if (socket["ultraDebug"]) console.log("[RECEIVED]", command.substring(0, Math.min(150, command.length)));
+        client.logger.t("[RECEIVED]", command.substring(0, Math.min(150, command.length)));
         const params = command.substring(1, command.length - 1).split("%");
-        if (params[0] === "xt") return onXtResponse(socket, params.splice(1, params.length - 1));
-        console.warn("[DATA] Cannot handle command:", command);
+        if (params[0] === "xt") return onXtResponse(client, params.splice(1, params.length - 1));
+        client.logger.w("[DATA] Cannot handle command:", command);
     })
 }
 

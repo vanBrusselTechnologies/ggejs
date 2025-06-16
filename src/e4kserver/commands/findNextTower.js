@@ -1,6 +1,6 @@
 module.exports.name = "fnt";
-/** @param {Socket} socket */
-module.exports.execute = function (socket) {
+/** @param {Client} client */
+module.exports.execute = function (client) {
     const C2SFindNextTowerVO = {};
-    socket.client.socketManager.sendCommand("fnt", C2SFindNextTowerVO);
+    client.socketManager.sendCommand("fnt", C2SFindNextTowerVO);
 }

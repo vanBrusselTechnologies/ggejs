@@ -29,7 +29,9 @@
   "license": "ISC",
   "exports": "./src/index.js",
   "dependencies": {
-    "e4k-data": "*"
+    "discord.js": "^14.19.3",
+    "e4k-data": "*",
+    "undici": "^6.21.3"
   },
   "devDependencies": {
     "@types/node": "^22.15.30"

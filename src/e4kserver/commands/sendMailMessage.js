@@ -1,16 +1,16 @@
 module.exports.name = "sms";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {string} receiverName
  * @param {string} subject
  * @param {string} msg
  */
-module.exports.execute = function (socket, receiverName, subject, msg) {
+module.exports.execute = function (client, receiverName, subject, msg) {
     const _subject = getValideSmartFoxJSONMailMessage(subject);
     const _msg = getValideSmartFoxJSONMailMessage(msg);
     if (_msg && _msg !== "") {
         const C2SSendMessageVO = {RN: receiverName, MH: _subject, TXT: _msg};
-        socket.client.socketManager.sendCommand("sms", C2SSendMessageVO);
+        client.socketManager.sendCommand("sms", C2SSendMessageVO);
     }
 }
 

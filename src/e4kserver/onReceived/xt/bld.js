@@ -3,17 +3,16 @@ const Unit = require("../../../structures/Unit");
 
 module.exports.name = "bld";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     //todo: BattleLog Detailed
-    const client = socket.client;
     const supportTools = parseSupportToolsDetails(client, params.S);
     const yard = parseYardDetailed(client, params.Y);
     const waves = parseWavesDetails(client, params.W);
-    socket[`bld -> ${params.LID}`] = {
+    client._socket[`bld -> ${params.LID}`] = {
         courtyardAttacker: yard.attacker,
         courtyardDefender: yard.defender,
         wavesAttacker: waves.attacker,

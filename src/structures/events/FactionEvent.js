@@ -39,7 +39,7 @@ class FactionEvent extends PointEvent {
                 //spectatorModeActivatedSignal.dispatch();
             }
         }
-        if (data.AC) afd(client._socket, 0, data)
+        if (data.AC) afd(client, 0, data)
         //todo: this.subType = factionData.ownFactionID;
         //todo: factionData.activeEvent = _loc2_;
     }

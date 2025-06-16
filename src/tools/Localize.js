@@ -8,7 +8,7 @@ const {languages} = require('e4k-data');
 module.exports.text = (client, textId, ...args) => {
     if (client == null) return textId;
     if (typeof client === 'string') {
-        console.error('expected client, received: ' + client);
+        client.logger.w('expected client, received: ' + client);
         return /**@type {string}*/client;
     }
     let val = _getValue(client, textId);

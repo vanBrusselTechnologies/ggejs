@@ -4,14 +4,14 @@ const {execute: abl} = require('./abl');
 
 module.exports.name = "ain";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{A:Object}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (errorCode === 114 || !params || !params.A) return;
-    const cud = socket.client.clientUserData;
-    let alliance = (params.A.AID === cud.allianceId) ? new MyAlliance(socket.client, params.A) : new Alliance(socket.client, params.A);
+    const cud = client.clientUserData;
+    let alliance = (params.A.AID === cud.allianceId) ? new MyAlliance(client, params.A) : new Alliance(client, params.A);
     if (alliance.allianceId === cud.allianceId) {
         // TODO: only reset the values, not overwriting whole myAlliance object
         cud.myAlliance = alliance;
@@ -24,7 +24,7 @@ module.exports.execute = function (socket, errorCode, params) {
         if (alliance.languageId === "" && allianceLeader.playerId === cud.playerId /*todo: && featureRestrictionsModel.isFeatureEnabled("allianceEditLanguage")*/) {
             //todo: sendJsonSignal.dispatch(new SendJsonMessageVO(new C2SChangeAllianceLanguageVO(Localization.language)));
         }
-        abl(socket, errorCode, params.A);
+        abl(client, errorCode, params.A);
     }
-    socket[`_alliance_${alliance.allianceId}_data`] = alliance;
+    client._socket[`_alliance_${alliance.allianceId}_data`] = alliance;
 }

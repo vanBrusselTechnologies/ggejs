@@ -3,14 +3,14 @@ const {titles} = require('e4k-data').data;
 
 module.exports.name = "uar";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     //todo: uar, gml, gcl, kgv, gkl, opt, and vip not fully correctly working
 
-    const cud = socket.client.clientUserData;
+    const cud = client.clientUserData;
     //cud.setTitleRatingStatus(createTitleRatingStatus(params.FTM), TitleType.FAME)
     //cud.setTitleRatingStatus(createTitleRatingStatus(params.BTM), TitleType.FACTION)
     cud.titlePrefix = TitleType[params["PFX"]] ?? TitleType.UNKNOWN;

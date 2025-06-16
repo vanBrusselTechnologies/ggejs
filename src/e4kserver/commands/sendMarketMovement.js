@@ -1,12 +1,12 @@
 module.exports.name = "crm";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {InteractiveMapobject} source
  * @param {Mapobject | CastlePosition} target
  * @param {["W" | "S" | "F" | "C" | "O" | "G" | "I" | "A" | "HONEY" | "MEAD", number][]} goods
  * @param {Horse} horse
  */
-module.exports.execute = function (socket, source, target, goods, horse) {
+module.exports.execute = function (client, source, target, goods, horse) {
     const C2SCreateMarketMovementVO = {
         SID: source.objectId,
         TX: target.position.X,
@@ -17,5 +17,5 @@ module.exports.execute = function (socket, source, target, goods, horse) {
         PTT: horse?.isPegasusHorse ? 1 : 0,
         SD: 0,
     };
-    socket.client.socketManager.sendCommand("crm", C2SCreateMarketMovementVO);
+    client.socketManager.sendCommand("crm", C2SCreateMarketMovementVO);
 }

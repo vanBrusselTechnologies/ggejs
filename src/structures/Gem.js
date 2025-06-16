@@ -10,7 +10,7 @@ class Gem {
     constructor(client, id, equipment = null) {
         let _data = getDataFromJson(id);
         if (!_data) {
-            console.warn(`gem id ${id} without data`);
+            client.logger.w(`gem id ${id} without data`);
             return;
         }
         this.rawData = _data;

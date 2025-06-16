@@ -1,14 +1,15 @@
 const General = require("../../../structures/General");
+
 module.exports.name = "gie";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     const generals = [];
     for (let g of params["G"]) {
-        generals.push(new General(socket.client, g));
+        generals.push(new General(client, g));
     }
-    socket.client.equipments._setGenerals(generals);
+    client.equipments._setGenerals(generals);
 }

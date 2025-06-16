@@ -3,12 +3,12 @@ const {execute: sce} = require('./sce');
 
 module.exports.name = "msd";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{sce: [string, number][], AI:[]}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    sce(socket, errorCode, params.sce)
-    parseMapObject(socket.client, params.AI);
+    sce(client, errorCode, params.sce);
+    parseMapObject(client, params.AI);
 }

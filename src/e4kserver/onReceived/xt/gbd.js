@@ -1,21 +1,21 @@
 module.exports.name = "gbd";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     //todo?: setUpActiveActionsServiceSignal.dispatch();
     for (let x in params) {
         switch (x.toLowerCase()) {
             case "WR".toLowerCase():
-                socket.client.clientUserData.wasResetted = params[x];
+                client.clientUserData.wasResetted = params[x];
                 break;
             case "LA".toLowerCase():
-                socket.client.clientUserData.lastUserActivity = params[x];
+                client.clientUserData.lastUserActivity = params[x];
                 break;
             case "ch":
-                socket.client.clientUserData.selectedHeroId = params[x]["HID"];
+                client.clientUserData.selectedHeroId = params[x]["HID"];
                 break;
             case "gal":
             case "gcu":
@@ -78,13 +78,11 @@ module.exports.execute = function (socket, errorCode, params) {
             case "gabgap":
 //#endregion
                 try {
-                    if (socket.ultraDebug) {
-                        const msg = JSON.stringify(params[x]);
-                        console.log(`[RECEIVED-GBD] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`);
-                    }
-                    require(`./${x.toLowerCase()}`).execute(socket, errorCode, params[x]);
+                    const msg = JSON.stringify(params[x]);
+                    client.logger.t(`[RECEIVED-GBD] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`);
+                    require(`./${x.toLowerCase()}`).execute(client, errorCode, params[x]);
                 } catch (e) {
-                    if (socket.debug) console.warn("[GBD]", e);
+                    client.logger.d("[GBD]", e);
                 }
                 break;
 //#region not handled in gbd source code
@@ -94,10 +92,8 @@ module.exports.execute = function (socket, errorCode, params) {
             case "gll":
             case "scd":
                 //Not implemented in game
-                if (socket.ultraDebug) {
-                    const msg = JSON.stringify(params[x])
-                    console.log(`[RECEIVED-GBD-not_implemented] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`)
-                }
+                const msg = JSON.stringify(params[x]);
+                client.logger.t(`[RECEIVED-GBD-not_implemented] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`);
                 break;
             case "fii":
             //Not implemented in game: Friend invite info
@@ -105,21 +101,20 @@ module.exports.execute = function (socket, errorCode, params) {
             //Not implemented in game: Treasure hunt info
             case "wbie":
                 //Not implemented in game: Welcome back message info event
-                if (socket.ultraDebug) {
-                    const msg = JSON.stringify(params[x])
-                    console.log(`[RECEIVED-GBD-not_implemented] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`)
-                }
+                const msg2 = JSON.stringify(params[x]);
+                client.logger.t(`[RECEIVED-GBD-not_implemented] ${x} % ${msg2.substring(0, Math.min(140, msg2.length))}`);
                 break;
             default:
-                if (socket.debug) console.warn(`Unknown part in gbd command: ${x}: ${JSON.stringify(params[x])}`);
+                client.logger.d(`Unknown part in gbd command: ${x}: ${JSON.stringify(params[x])}`);
                 break;
 //#endregion
         }
     }
-    setTimeout(async () => await handlePostGBDCommandInNextFrame(socket), 10);
+    setTimeout(async () => await handlePostGBDCommandInNextFrame(client), 10);
 }
 
-async function handlePostGBDCommandInNextFrame(socket) {
+/** @param {Client} client */
+async function handlePostGBDCommandInNextFrame(client) {
     /* todo
      *  restoreTutorialIfRuined();
      *  enableIAPmanagerStartupIntervalSignal.dispatch(false);
@@ -138,7 +133,7 @@ async function handlePostGBDCommandInNextFrame(socket) {
      *  trackDevice();
      *  trackDisconnection();
      */
-    requestSubscriptionsData(socket);
+    requestSubscriptionsData(client);
     /*todo
      * directCommandMap.map(InitPaymentShopCommand).execute();
      * if (!featureRestrictionsModel.isFeatureRestrictedWithType("accountCode",FeatureRestrictionType.HIDDEN))
@@ -148,12 +143,12 @@ async function handlePostGBDCommandInNextFrame(socket) {
      * sendInstallerPackageSignal.dispatch();
      * requestTimeForRuinPushNotification();
      */
-    requestLoginBonusInfo(socket);
-    requestMessagesData(socket);
-    requestAllianceData(socket);
-    requestBookmarkData(socket);
-    requestConstructionItemInventory(socket);
-    requestGeneralsInnData(socket);
+    requestLoginBonusInfo(client);
+    requestMessagesData(client);
+    requestAllianceData(client);
+    requestBookmarkData(client);
+    requestConstructionItemInventory(client);
+    requestGeneralsInnData(client);
     /* todo
          showAccountForcedDialog();
          directCommandMap.map(SendDeviceMetaDataCommand).execute();
@@ -168,47 +163,46 @@ async function handlePostGBDCommandInNextFrame(socket) {
      */
 
     //todo????: Code below is added and not in source code
-    require('../../commands/getEquipmentInventory').execute(socket);
-    socket['gbd finished'] = true;
+    require('../../commands/getEquipmentInventory').execute(client);
+    client._socket['gbd finished'] = true;
 }
 
-/** @param {Socket} socket */
-function requestGeneralsInnData(socket) {
-    require('../../commands/getGeneralCharacter').execute(socket);
+/** @param {Client} client */
+function requestGeneralsInnData(client) {
+    require('../../commands/getGeneralCharacter').execute(client);
 }
 
-/** @param {Socket} socket */
-function requestBookmarkData(socket) {
-    require('../../commands/getBookmarksList').execute(socket);
+/** @param {Client} client */
+function requestBookmarkData(client) {
+    require('../../commands/getBookmarksList').execute(client);
 }
 
-/** @param {Socket} socket */
-function requestConstructionItemInventory(socket) {
-    require('../../commands/getConstructionItemInventory').execute(socket);
+/** @param {Client} client */
+function requestConstructionItemInventory(client) {
+    require('../../commands/getConstructionItemInventory').execute(client);
 }
 
-/** @param {Socket} socket */
-function requestMessagesData(socket) {
-    require('../../commands/showMessages').execute(socket);
+/** @param {Client} client */
+function requestMessagesData(client) {
+    require('../../commands/showMessages').execute(client);
 }
 
-/** @param {Socket} socket */
-function requestAllianceData(socket) {
-    const client = socket.client;
+/** @param {Client} client */
+function requestAllianceData(client) {
     if (client.clientUserData.allianceId >= 0) {
-        require('../../commands/searchAllianceById').execute(socket, client.clientUserData.allianceId);
-        require('../../commands/getAllianceFame').execute(socket);
-        require('../../commands/getAllianceChatHistory').execute(socket);
+        require('../../commands/searchAllianceById').execute(client, client.clientUserData.allianceId);
+        require('../../commands/getAllianceFame').execute(client);
+        require('../../commands/getAllianceChatHistory').execute(client);
     }
 }
 
-/** @param {Socket} socket */
-function requestSubscriptionsData(socket) {
-    require('../../commands/getSubscriptionInformation').execute(socket);
+/** @param {Client} client */
+function requestSubscriptionsData(client) {
+    require('../../commands/getSubscriptionInformation').execute(client);
 }
 
-/** @param {Socket} socket */
-function requestLoginBonusInfo(socket) {
-    require('../../commands/getLoginBonus').execute(socket);
-    require('../../commands/getStartupLoginBonus').execute(socket);
+/** @param {Client} client */
+function requestLoginBonusInfo(client) {
+    require('../../commands/getLoginBonus').execute(client);
+    require('../../commands/getStartupLoginBonus').execute(client);
 }

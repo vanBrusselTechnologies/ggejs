@@ -20,7 +20,7 @@ class CastleUnitInventory {
 
     /**
      * @param {Client} client
-     * @param {{I:[], HI:[],SHI:[],TU:[],gsi:{}}} data
+     * @param {{I:[], HI:[],SHI:[],TU:[],gsi:Object}} data
      */
     constructor(client, data) {
         if (!data) return;
@@ -29,10 +29,10 @@ class CastleUnitInventory {
         this.unitsInStronghold = parseUnits(client, data.SHI);
         this.unitsTraveling = parseUnits(client, data.TU);
         if (data.gsi) {
-            const shadowUnitsInfo = gsi(client._socket, 0, data.gsi);
-            this.totalShadowUnits = shadowUnitsInfo.totalShadowUnits
-            this.travellingShadowUnits = shadowUnitsInfo.travellingShadowUnits
-            this.shadowUnits = shadowUnitsInfo.shadowUnits
+            const shadowUnitsInfo = gsi(client, 0, data.gsi);
+            this.totalShadowUnits = shadowUnitsInfo.totalShadowUnits;
+            this.travellingShadowUnits = shadowUnitsInfo.travellingShadowUnits;
+            this.shadowUnits = shadowUnitsInfo.shadowUnits;
         }
     }
 }

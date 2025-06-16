@@ -1,6 +1,6 @@
 module.exports.name = "alb";
-/** @param {Socket} socket */
-module.exports.execute = function (socket) {
+/** @param {Client} client */
+module.exports.execute = function (client) {
     const C2SGetLoginBonusVO = {};
-    socket.client.socketManager.sendCommand("alb", C2SGetLoginBonusVO);
+    client.socketManager.sendCommand("alb", C2SGetLoginBonusVO);
 }

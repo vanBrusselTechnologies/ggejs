@@ -1,12 +1,13 @@
+const Client = require('../../../Client');
 const Constants = require('../../../utils/Constants');
 
 module.exports.name = "glt";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = async function (socket, errorCode, params) {
+module.exports.execute = async function (client, errorCode, params) {
     if (errorCode !== 0 || params == null) return;
     const LoginTokenServerInfoVO = {
         token: params["TLT"],
@@ -26,10 +27,10 @@ module.exports.execute = async function (socket, errorCode, params) {
         zoneId: LoginTokenServerInfoVO.zoneId,
         value: LoginTokenServerInfoVO.instanceId,
     }
-    const externalClient = new (require('../../../Client'))("", LoginTokenServerInfoVO.token, serverInstance, socket.debug);
-    externalClient._socket.ultraDebug = socket.ultraDebug;
-    externalClient.language = socket.client._language;
+    const externalClient = new Client("", LoginTokenServerInfoVO.token, serverInstance);
+    externalClient.logger.verbosity = client.logger.verbosity;
+    externalClient.language = client._language;
     await externalClient.connect()
-    socket.client.externalClient = externalClient
-    socket.client.emit(Constants.Events.EXTERNAL_CLIENT_READY, externalClient)
+    client.externalClient = externalClient
+    client.emit(Constants.Events.EXTERNAL_CLIENT_READY, externalClient)
 }

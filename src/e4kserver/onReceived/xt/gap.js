@@ -1,9 +1,9 @@
 module.exports.name = "gap";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{A:number, P: number, O:number, DP:number}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     //todo: gap
 }

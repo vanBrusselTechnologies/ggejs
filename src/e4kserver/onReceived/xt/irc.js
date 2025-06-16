@@ -2,13 +2,13 @@ const {execute: collectTownsfolkGoods} = require('../../commands/collectTownsfol
 
 module.exports.name = "irc";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (errorCode !== 0 || !params || params.G?.length <= 0) return;
     setTimeout(function () {
-        collectTownsfolkGoods(socket);
+        collectTownsfolkGoods(client);
     }, Math.random() * 1000);
 }

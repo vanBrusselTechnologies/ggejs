@@ -2,13 +2,13 @@ const Player = require('../../../structures/Player');
 
 module.exports.name = "gdi";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (errorCode !== 0) {
-        socket[`__get_player_error`] = (() => {
+        client._socket[`__get_player_error`] = (() => {
             switch (errorCode) {
                 case 21:
                     return "player_not_found";
@@ -16,7 +16,7 @@ module.exports.execute = function (socket, errorCode, params) {
         })();
         return;
     }
-    socket.client.worldMaps._ownerInfoData.parseOwnerInfo(params["O"]);
-    const player = new Player(socket.client, params);
-    socket[`__get_player_${player.playerId}`] = player;
+    client.worldMaps._ownerInfoData.parseOwnerInfo(params["O"]);
+    const player = new Player(client, params);
+    client._socket[`__get_player_${player.playerId}`] = player;
 }

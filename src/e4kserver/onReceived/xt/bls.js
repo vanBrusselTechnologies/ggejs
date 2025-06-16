@@ -12,26 +12,25 @@ const {currencyMinutesSkipValues: minutesSkips, tmaps, tmapnodes} = require('e4k
 
 module.exports.name = "bls";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     //todo: BattleLog short
     if (!params || errorCode === 66 || errorCode === 225) {
-        socket['bls -> errorCode'] = errorCode;
+        client._socket['bls -> errorCode'] = errorCode;
         return;
     }
-    const _client = socket.client;
-    _client.worldMaps._ownerInfoData.parseOwnerInfoArray(params["PI"]);
-    const pbiInfo = parsePBIinfo(_client, params["PBI"], params);
-    const isDefenseReport = socket[`${params.MID} battleLogMessage`]?.isDefenseReport;
-    delete socket[`${params.MID} battleLogMessage`];
-    const attackerLords = parseAttackerLords(socket.client, params, {attacker: pbiInfo.attacker});
-    const defenderLords = parseDefenderLords(socket.client, params, {defender: pbiInfo.defender});
-    const autoSkips = parseAutoSkip(socket.client, params);
+    client.worldMaps._ownerInfoData.parseOwnerInfoArray(params["PI"]);
+    const pbiInfo = parsePBIinfo(client, params["PBI"], params);
+    const isDefenseReport = client._socket[`${params.MID} battleLogMessage`]?.isDefenseReport;
+    delete client._socket[`${params.MID} battleLogMessage`];
+    const attackerLords = parseAttackerLords(client, params, {attacker: pbiInfo.attacker});
+    const defenderLords = parseDefenderLords(client, params, {defender: pbiInfo.defender});
+    const autoSkips = parseAutoSkip(client, params);
 
-    const mapObject = parseWorldMapArea(_client, params["AI"]);
+    const mapObject = parseWorldMapArea(client, params["AI"]);
     if (mapObject instanceof TreasureMapMapobject) {
         const mapSeed = String(params["MS"]).split("+").map(s => parseInt(s));
         /** @type {TreasureMapMapobject} */
@@ -43,7 +42,7 @@ module.exports.execute = function (socket, errorCode, params) {
         treasureMapMapObject.isEndNode = tMap.endNodeID === tMapNode.tmapnodeID;
     }
 
-    socket[`bls -> ${params.MID}`] = {
+    client._socket[`bls -> ${params.MID}`] = {
         battleLogId: params["LID"],
         messageId: params["MID"],
         messageType: params["MT"],
@@ -58,8 +57,8 @@ module.exports.execute = function (socket, errorCode, params) {
         ragePoints: params["RP"],
         shapeshifterPoints: params["SSP"],
         shapeshifterId: params["SSID"],
-        rewardEquipment: params["EQF"] == null ? null : params["EQF"][11] === 3 ? new RelicEquipment(_client, params["EQF"]) : new Equipment(_client, params["EQF"]),
-        rewardGem: params["GF"] == null ? null : new Gem(_client, params["GF"]),
+        rewardEquipment: params["EQF"] == null ? null : params["EQF"][11] === 3 ? new RelicEquipment(client, params["EQF"]) : new Equipment(client, params["EQF"]),
+        rewardGem: params["GF"] == null ? null : new Gem(client, params["GF"]),
         rewardMinuteSkips: params["MSF"] == null ? null : minutesSkips.find(ms => ms.MinuteSkipIndex === params["MSF"] - 1),
         attackerHomeCastleId: params["AHC"],
         attackerHadHospital: params["AHH"] === 1,

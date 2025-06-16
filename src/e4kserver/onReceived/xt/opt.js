@@ -1,12 +1,12 @@
 module.exports.name = "opt";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{SVF: number, OFF:number, CC2T:number}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    socket.client.clientUserData.showVIPFlagOption = params.SVF === 1
+    client.clientUserData.showVIPFlagOption = params.SVF === 1
     /*
      vipFlagChangedSignal.dispatch();
      rubyPayConfirmData.rubyLimit = paramObj["CC2T"];

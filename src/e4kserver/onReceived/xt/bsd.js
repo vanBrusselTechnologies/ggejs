@@ -7,16 +7,15 @@ const {parseMapObject} = require("../../../utils/MapObjectParser");
 
 module.exports.name = "bsd";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (params == null || errorCode === 66 || errorCode === 130) {
-        socket[`bsd -> errorCode`] = errorCode;
+        client._socket[`bsd -> errorCode`] = errorCode;
         return;
     }
-    const client = socket.client;
     const originOwner = client.worldMaps._ownerInfoData.parseOwnerInfo(params["SO"]);
     const targetOwner = client.worldMaps._ownerInfoData.parseOwnerInfo(params["OI"]);
     const mapObject = parseWorldMapArea(client, params["AI"]);
@@ -40,7 +39,7 @@ module.exports.execute = function (socket, errorCode, params) {
             armyInfo.defenderBaron.shapeshifterId = shapeshifterId;
         }
     }
-    socket[`bsd -> ${params.MID}`] = {
+    client._socket[`bsd -> ${params.MID}`] = {
         messageId: params.MID,
         castleId: params["CID"],
         castleAppearance: params["CI"],

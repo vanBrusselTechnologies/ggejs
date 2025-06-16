@@ -129,22 +129,23 @@ class EquipmentManager extends BaseManager {
 
     /** @param {Equipment | RelicEquipment} equipment */
     async sellEquipment(equipment) {
-        sellEquipment(this._socket, equipment.id, equipment.equippedLord?.id ?? -1);
-        await WaitUntil(this._socket, "seq -> sold", 'seq -> errorCode', 10000);
+        sellEquipment(this._client, equipment.id, equipment.equippedLord?.id ?? -1);
+        await WaitUntil(this._client._socket, "seq -> sold", 'seq -> errorCode', 10000);
         let i = 0;
         for (const eq of this.#equipmentInventory) {
             if (eq.id === equipment.id) this.#equipmentInventory.splice(i, 1);
             i++;
         }
-        this._socket["seq -> sold"] = false;
+        this._client._socket["seq -> sold"] = false;
     }
 
     /** @param {number} rarity */
     async sellAllEquipmentsAtOrBelowRarity(rarity) {
         if (rarity === -1) rarity = this.#atOrBelowDeleteRarity;
         rarity %= 10; //hero starts with 10 instead of 0
-        for (let i = this.#equipmentInventory.length - 1; i >= 0; i--) {
-            await this._autoSellEquipment(this.#equipmentInventory[i], rarity);
+        const inventory = this.getEquipmentInventory();
+        for (let i = inventory.length - 1; i >= 0; i--) {
+            await this._autoSellEquipment(inventory[i], rarity);
         }
     }
 
@@ -157,12 +158,11 @@ class EquipmentManager extends BaseManager {
     async _autoSellEquipment(e, rarity = this.#atOrBelowDeleteRarity) {
         if (e.slotId === require('e4k-data').data.equipment_slots.find(s => s.name === "skin").slotID) return;
         if (rarity > Constants.EquipmentRarity.Relic) return;
-        if (this.#equipmentInventory.findIndex(eq => e.id === eq.id) === -1) return;
-
         if (rarity === Constants.EquipmentRarity.Unique && (e.rarityId % 10 > Constants.EquipmentRarity.Legendary)) return;
         if (rarity !== Constants.EquipmentRarity.Unique && rarity < e.rarityId % 10) return;
         if (rarity <= Constants.EquipmentRarity.Legendary && rarity === Constants.EquipmentRarity.Unique) return;
 
+        if (this.#equipmentInventory.findIndex(eq => e.id === eq.id) === -1) return;
         await this.sellEquipment(e);
     }
 
@@ -174,8 +174,8 @@ class EquipmentManager extends BaseManager {
     /** @param {Gem | RelicGem} gem */
     async sellGem(gem) {
         const isRelic = gem.relicTypeId != null;
-        sellGem(this._socket, gem.id, isRelic);
-        await WaitUntil(this._socket, "sge -> sold", 'sge -> errorCode', 10000);
+        sellGem(this._client, gem.id, isRelic);
+        await WaitUntil(this._client._socket, "sge -> sold", 'sge -> errorCode', 10000);
         let i = 0;
         if (isRelic) {
             for (const relicGem of this.#relicGemInventory) {
@@ -190,15 +190,16 @@ class EquipmentManager extends BaseManager {
                 i++;
             }
         }
-        this._socket["sge -> sold"] = false;
+        this._client._socket["sge -> sold"] = false;
     }
 
     /** @param {number} level */
     async sellAllGemsAtOrBelowLevel(level) {
         if (level === -1) level = this.#atOrBelowDeleteGemLevel;
-        for (let i = this.#regularGemInventory.length - 1; i >= 0; i--) {
-            for (let j = 0; j < this.#regularGemInventory[i].amount; j++) {
-                await this._autoSellGem(this.#regularGemInventory[i].gem, level);
+        const inventory = this.getRegularGemInventory();
+        for (let i = inventory.length - 1; i >= 0; i--) {
+            for (let j = 0; j < inventory[i].amount; j++) {
+                await this._autoSellGem(inventory[i].gem, level);
             }
         }
     }

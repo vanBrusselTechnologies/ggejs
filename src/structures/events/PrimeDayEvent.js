@@ -95,7 +95,7 @@ class PrimeDayEvent extends ActiveEvent {
         const rewardTiers = data.RW.map(_ => [])//TODO: rewardJSONParser.parseRewardTiers(data.RW,true);
         const paymentRewardIds = primeDay.paymentRewardIDs.toString().split(',');
         if (rewardTiers.length !== paymentRewardIds.length) {
-            console.error("Reward tier count mismatch between server and items XML for prime day: " + data.SEID + "(xml says it\'s " + paymentRewardIds.length + ", server says it\'s " + rewardTiers.length + ")");
+            client.logger.w("Reward tier count mismatch between server and items XML for prime day: " + data.SEID + "(xml says it\'s " + paymentRewardIds.length + ", server says it\'s " + rewardTiers.length + ")");
         }
         this.primeDay = primeDay;
         this.resetTiers();

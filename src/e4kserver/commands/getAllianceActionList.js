@@ -1,6 +1,6 @@
 module.exports.name = "all";
-/** @param {Socket} socket */
-module.exports.execute = function (socket) {
+/** @param {Client} client */
+module.exports.execute = function (client) {
     const C2SAllianceActionListVO = {};
-    socket.client.socketManager.sendCommand("all", C2SAllianceActionListVO);
+    client.socketManager.sendCommand("all", C2SAllianceActionListVO);
 }

@@ -39,14 +39,14 @@ class Castle {
         if (!data) return;
         this.kingdomId = data["KID"];
         this.areaType = data["T"];
-        this.slumLevel = csl(client._socket, 0, data["csl"]);
-        this.buildingInfo = gca(client._socket, 0, data["gca"]);
-        this.unitInventory = gui(client._socket, 0, data["gui"]);
-        this.resourceStorage = grc(client._socket, 0, data["grc"]);
-        this.productionData = gpa(client._socket, 0, data["gpa"]);
-        this.buildingStorage = sin(client._socket, 0, data["sin"]);
-        this.builderDiscount = gab(client._socket, 0, data["gab"]);
-        this.hunterInfo = hin(client._socket, 0, data["hin"]);
+        this.slumLevel = csl(client, 0, data["csl"]);
+        this.buildingInfo = gca(client, 0, data["gca"]);
+        this.unitInventory = gui(client, 0, data["gui"]);
+        this.resourceStorage = grc(client, 0, data["grc"]);
+        this.productionData = gpa(client, 0, data["gpa"]);
+        this.buildingStorage = sin(client, 0, data["sin"]);
+        this.builderDiscount = gab(client, 0, data["gab"]);
+        this.hunterInfo = hin(client, 0, data["hin"]);
         this.mapobject = this.buildingInfo.mapobject;
 
         /* todo

@@ -1,6 +1,6 @@
 module.exports.name = "dcl";
 /**
- * @param {Socket} _
+ * @param {Client} _
  * @param {number} __
  * @param {Object} ___
  */

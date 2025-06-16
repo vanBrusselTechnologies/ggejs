@@ -2,15 +2,11 @@ const MonumentMapobject = require("../../../structures/mapobjects/MonumentMapobj
 
 module.exports.name = "gml";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
- * @param {Object} params
+ * @param {{AI: []}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    const monuments = [];
-    for (let obj of params.AI) {
-        monuments.push(new MonumentMapobject(socket.client, obj));
-    }
-    socket.client.clientUserData._userData.castleList.monuments = monuments;
+    client.clientUserData._userData.castleList.monuments = params.AI.map(o => new MonumentMapobject(client, o));
 }

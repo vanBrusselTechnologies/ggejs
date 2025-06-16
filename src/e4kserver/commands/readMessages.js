@@ -1,9 +1,9 @@
 module.exports.name = "rms";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} messageId
  */
-module.exports.execute = function (socket, messageId) {
+module.exports.execute = function (client, messageId) {
     const C2SReadMessagesVO = {MID: messageId};
-    socket.client.socketManager.sendCommand("rms", C2SReadMessagesVO);
+    client.socketManager.sendCommand("rms", C2SReadMessagesVO);
 }

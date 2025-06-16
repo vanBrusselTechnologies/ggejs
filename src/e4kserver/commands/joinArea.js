@@ -1,9 +1,9 @@
 module.exports.name = "jaa";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {InteractiveMapobject} worldMapArea
  */
-module.exports.execute = function (socket, worldMapArea) {
+module.exports.execute = function (client, worldMapArea) {
     const C2SJoinAreaVO = {PY: worldMapArea.position.Y, PX: worldMapArea.position.X, KID: worldMapArea.kingdomId};
-    socket.client.socketManager.sendCommand("jaa", C2SJoinAreaVO);
+    client.socketManager.sendCommand("jaa", C2SJoinAreaVO);
 }

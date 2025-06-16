@@ -1,11 +1,11 @@
 module.exports.name = "gpi";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
-    const cud = socket.client.clientUserData;
+module.exports.execute = function (client, errorCode, params) {
+    const cud = client.clientUserData;
     cud.userId = params["UID"];
     cud.playerId = params["PID"];
     cud.userName = params["PN"];

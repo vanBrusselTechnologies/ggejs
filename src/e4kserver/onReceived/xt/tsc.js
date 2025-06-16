@@ -1,9 +1,9 @@
 module.exports.name = "tsc";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
-module.exports.execute = function (socket, errorCode, params) {
-    console.log('tsc', errorCode, params);
+module.exports.execute = function (client, errorCode, params) {
+    client.logger.d('tsc', errorCode, params);
 }

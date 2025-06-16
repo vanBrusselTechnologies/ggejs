@@ -3,14 +3,13 @@ const ChatMessage = require("../../../structures/ChatMessage");
 
 module.exports.name = "acl";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{CM:[], acv: {H:number}}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
+module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    acv(socket, errorCode, params.acv);
-    const client = socket.client;
+    acv(client, errorCode, params.acv);
     const msgs = params.CM;
     for (let m of msgs) {
         const msg = new ChatMessage(client, m);

@@ -1,11 +1,11 @@
 module.exports.name = "clb";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {{rewards: [{dailyRewards:{rewards:[]}}], activeDay: number}} loginBonusData
  * @param {number} dailyRewardIndex
  * @param {"ALLI" | "VIP" | ""} specialRewardType
  */
-module.exports.execute = function (socket, loginBonusData, dailyRewardIndex = -1, specialRewardType = "") {
+module.exports.execute = function (client, loginBonusData, dailyRewardIndex = -1, specialRewardType = "") {
     const C2SCatchLoginBonusVO = {I: null, ID: -1, SP: null};
     if (dailyRewardIndex !== -1) {
         let id = -1;
@@ -16,9 +16,9 @@ module.exports.execute = function (socket, loginBonusData, dailyRewardIndex = -1
         C2SCatchLoginBonusVO.I = reward.type.serverName;
         C2SCatchLoginBonusVO.ID = id;
     } else if (specialRewardType !== "") {
-        if (specialRewardType === "ALLI" && socket.client.clientUserData.allianceId === -1) return;
-        if (specialRewardType === "VIP" && !socket.client.clientUserData.isVipActive) return;
+        if (specialRewardType === "ALLI" && client.clientUserData.allianceId === -1) return;
+        if (specialRewardType === "VIP" && !client.clientUserData.isVipActive) return;
         C2SCatchLoginBonusVO.SP = specialRewardType;
     }
-    socket.client.socketManager.sendCommand("clb", C2SCatchLoginBonusVO);
+    client.socketManager.sendCommand("clb", C2SCatchLoginBonusVO);
 }

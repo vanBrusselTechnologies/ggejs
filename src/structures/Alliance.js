@@ -37,7 +37,7 @@ class Alliance {
     /** @returns {(CapitalMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject)[]} */
     get landmarks() {
         if (this.#landmarks.length !== 0) return this.#landmarks;
-        console.error("get landmarks() Not Implememented");
+        //this.client.logger.w("get landmarks() Not Implememented");
         //Door de leden heen gaan en de landmarks zo verzamelen(?);
         throw this.#landmarks;
     }
@@ -51,7 +51,7 @@ class Alliance {
     }
 
     _add_or_update_landmarks(landmarks) {
-        console.error("_add_or_update_landmarks Not Implememented");
+        // this.client.logger.w("_add_or_update_landmarks Not Implememented");
     }
 }
 

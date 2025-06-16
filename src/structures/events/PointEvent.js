@@ -32,7 +32,7 @@ class PointEvent extends ActiveEvent {
         this.parseBasicParams(data)
     }
 
-    /** @param {{EID: number, RS: number, OP: number|number[], OR: number|number[], LID: number, PET: number, RSID: number, R: [][][], SC: number}} data */
+    /** @param {{TH?: number, OP: number|number[], OR: number|number[], LID?: number, PET?: number, RSID?: number, R?: [][][], ST?: number}} data */
     parseBasicParams(data) {
         if (data["LID"]) {
             this.leagueId = data["LID"];

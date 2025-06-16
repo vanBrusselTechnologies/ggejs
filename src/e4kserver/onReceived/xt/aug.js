@@ -3,13 +3,13 @@ const {execute: searchAllianceById} = require("../../commands/searchAllianceById
 
 module.exports.name = "aug";
 /**
- * @param {Socket} socket
+ * @param {Client} client
  * @param {number} errorCode
  * @param {{STO: Object, ABL:Object}} params
  */
-module.exports.execute = function (socket, errorCode, params) {
-    const cud = socket.client.clientUserData;
+module.exports.execute = function (client, errorCode, params) {
+    const cud = client.clientUserData;
     cud.myAlliance.parseStorage(params.STO);
-    abl(socket, errorCode, params.ABL);
-    searchAllianceById(socket, cud.allianceId);
+    abl(client, errorCode, params.ABL);
+    searchAllianceById(client, cud.allianceId);
 }
