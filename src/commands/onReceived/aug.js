@@ -1,5 +1,5 @@
 const {execute: abl} = require("./abl");
-const {execute: searchAllianceById} = require("../commands/searchAllianceById");
+const {getAllianceInfo} = require("../ain");
 
 module.exports.name = "aug";
 /**
@@ -11,5 +11,5 @@ module.exports.execute = function (client, errorCode, params) {
     const cud = client.clientUserData;
     cud.myAlliance.parseStorage(params.STO);
     abl(client, errorCode, params.ABL);
-    searchAllianceById(client, cud.allianceId);
+    getAllianceInfo(client, cud.allianceId).then()
 }

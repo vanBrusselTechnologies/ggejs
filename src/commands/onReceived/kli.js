@@ -5,5 +5,5 @@ module.exports.name = "kli";
  * @param {{STO: Object, ABL:Object}} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    //todo: Get kingdoms league info event
+    // TODO: Get kingdoms league info event
 }

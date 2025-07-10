@@ -5,5 +5,4 @@ module.exports.name = "tcc";
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    client.logger.d('tcc', errorCode, params);
 }

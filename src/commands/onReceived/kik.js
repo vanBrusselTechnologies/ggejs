@@ -5,5 +5,5 @@ module.exports.name = "kik";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: Kikeriki
+    // TODO: Kikeriki
 }

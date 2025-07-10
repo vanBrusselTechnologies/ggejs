@@ -5,5 +5,5 @@ module.exports.name = "lfe";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: lost and found event
+    // TODO: lost and found event
 }

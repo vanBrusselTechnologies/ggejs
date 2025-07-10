@@ -5,5 +5,5 @@ module.exports.name = "ftf";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: feature flags
+    // TODO: feature flags
 }

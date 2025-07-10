@@ -1,5 +1,4 @@
 const BasicMapobject = require("./BasicMapobject");
-const WorldMapOwnerInfoData = require("../../utils/WorldMapOwnerInfoData");
 const WorldMapOwnerInfo = require("../WorldMapOwnerInfo");
 const ConstantsIsland = require("../../utils/ConstantsIslands");
 

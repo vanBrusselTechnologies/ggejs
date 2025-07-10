@@ -5,7 +5,7 @@ module.exports.name = "gpc";
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    //todo: gpc data has to move to CastleUnlockedInfoData
+    // TODO: gpc data has to move to CastleUnlockedInfoData
     /** @type {{ UH:[], U:[], AID:number, KID:number }[]}*/
     const castleData = params.A;
     //client.logger.d("[GPC]", params);

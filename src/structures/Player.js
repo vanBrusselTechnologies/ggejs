@@ -35,7 +35,7 @@ class Player extends WorldMapOwnerInfo {
 function parseSimpleCastleList(client, data) {
     if (!data) return [];
     return data.map(d => {
-        return {areaType: d[4], position: new Coordinate(client, d.slice(2, 4)), objectId: d[1], kingdomId: d[0]}
+        return {areaType: d[4], position: new Coordinate(d.slice(2, 4)), objectId: d[1], kingdomId: d[0]}
     })
 }
 

@@ -27,9 +27,9 @@ class ActiveEvent {
     merchantId;
     /** @type {number[]} */
     mapIds = [];
-    /** @type {"Adventure" | "Trader" | null} *///TODO: EventHubTypeEnum
+    /** @type {"Adventure" | "Trader" | null} */// TODO: EventHubTypeEnum
     hubType;
-    /** @type {"Long" | "Short" | null} *///TODO: EventDurationTypeEnum
+    /** @type {"Long" | "Short" | null} */// TODO: EventDurationTypeEnum
     eventDurationType;
     /** @type {number} */
     difficultyId;

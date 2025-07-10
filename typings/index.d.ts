@@ -27,6 +27,7 @@ declare class Client extends EventEmitter {
     public externalClient: Client | null;
 
     private get _socket(): Socket;
+
     private _language: string;
 
     /**
@@ -67,6 +68,17 @@ declare class Client extends EventEmitter {
     private __x__x__relogin(): Promise<void>;
 }
 
+declare type CommandCallback<T> = {
+    id?: UUID,
+    match: (params: Object) => boolean,
+    resolve: (value: T) => void,
+    reject: (errorCode?: number) => void
+}
+
+declare class EmpireError extends Error {
+    errorCode: number;
+}
+
 //#region ClientEvents
 /** */
 interface ClientEvents {
@@ -102,6 +114,7 @@ interface ConstantsEvents {
     PRIME_TIME: "primeTime";
     EXTERNAL_CLIENT_READY: "externalClientReady";
 }
+
 //#endregion
 
 //#region Managers
@@ -657,7 +670,7 @@ declare class Coordinate {
     public X: number;
     public Y: number;
 
-    private constructor(client: Client, data: number[]);
+    private constructor(data: number[]);
 }
 
 declare class CastlePosition {
@@ -896,7 +909,7 @@ declare class WorldMapOwnerInfo {
 
     public isMainCastlePosInKingdom(castlePos: CastlePosition, kingdomId: number): boolean;
 
-    public titleVO//todo :IsleTitleViewVO
+    public titleVO// TODO: :IsleTitleViewVO
     public get prefixTitleId(): number;
 
     public get suffixTitleId(): number;
@@ -1460,8 +1473,7 @@ interface SpyLog {
         defenderBaron: Lord,
         defenderGeneral?: General,
         defenderLegendSkills: []
-    },
-    shapeshifterId?: number,
+    }
 }
 
 //#endregion
@@ -1473,8 +1485,8 @@ declare class MarketCarriageArrivedMessage extends BasicMessage {
 
 interface TradeData {
     messageId: number,
-    sourceArea: WorldMapArea,
-    targetArea: WorldMapArea,
+    sourceArea: Mapobject,
+    targetArea: Mapobject,
     goods: Good[],
 }
 
@@ -2079,7 +2091,7 @@ declare interface AllianceHighScoreItem {
     seasonRankId?: number;
     seasonMedalsData?: [number, number][];
     amountVisible?: boolean;
-    highscoreTypeId: number;
+    highScoreTypeId: number;
 }
 
 declare interface PlayerHighScoreItem {
@@ -2091,7 +2103,7 @@ declare interface PlayerHighScoreItem {
     seasonRankId?: number;
     seasonMedalsData?: [number, number][];
     rawValues?: [];
-    highscoreTypeId: number;
+    highScoreTypeId: number;
 }
 
 declare type AllianceHighScoreRankingTypes =
@@ -2163,7 +2175,6 @@ declare interface LeaderboardListItem {
 
 declare interface LeaderboardSearchList {
     listType: number,
-    leagueType: number,
     items: LeaderboardSearchListItem[]
 }
 

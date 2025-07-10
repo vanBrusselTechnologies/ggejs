@@ -5,5 +5,5 @@ module.exports.name = "core_pds";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: SET_PUSH_NOTIFICATION_DEVICE_STATUS_EVENT
+    // TODO: SET_PUSH_NOTIFICATION_DEVICE_STATUS_EVENT
 }

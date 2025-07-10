@@ -5,5 +5,5 @@ module.exports.name = "gcs";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: Get general character status event
+    // TODO: Get general character status event
 }

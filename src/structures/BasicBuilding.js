@@ -13,7 +13,7 @@ class BasicBuilding {
         /** @type {number} */
         this.objectId = data[1];
         /** @type {Coordinate} */
-        this.position = new Coordinate(client, data.slice(2, 4));
+        this.position = new Coordinate(data.slice(2, 4));
         /** @type {number} */
         this.isoRotation = data[4];
         if (data[5] > 0) /** @type {Date} */this.objectConstructionStartDate = new Date(Date.now() - data[5] * 1000);

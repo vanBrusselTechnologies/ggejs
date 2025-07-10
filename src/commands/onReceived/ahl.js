@@ -22,7 +22,7 @@ module.exports.execute = function (client, errorCode, params) {
         allianceHelpData.allianceHelpRequests = allianceHelpRequests;
      */
 
-    //todo: REMOVE below because not part of source code
+    // TODO: REMOVE below because not part of source code
     let _allianceHelpRequestList = params.AHL;
     if (_allianceHelpRequestList.length === 0) return;
     for (let i in _allianceHelpRequestList) {

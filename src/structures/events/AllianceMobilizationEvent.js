@@ -6,7 +6,7 @@ class AllianceMobilizationEvent extends PointEvent {
 
     loadFromParamObject(client, data) {
         super.loadFromParamObject(client, data);
-        this.rankingMode = "qualification"; //TODO: new LeaderboardDivisionMode("qualification",2,instantiationKey);
+        this.rankingMode = "qualification"; // TODO: new LeaderboardDivisionMode("qualification",2,instantiationKey);
         this.leaderboardRewardSetId = 1;
     }
 }

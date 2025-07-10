@@ -5,5 +5,5 @@ module.exports.name = "gbl";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: Get bookmark list
+    // TODO: Get bookmark list
 }

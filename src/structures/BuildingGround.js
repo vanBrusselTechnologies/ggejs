@@ -11,7 +11,7 @@ class BuildingGround {
         /** @type {number} */
         this.objectId = data[1];
         /** @type {Coordinate} */
-        this.position = new Coordinate(client, data.slice(2, 4));
+        this.position = new Coordinate(data.slice(2, 4));
         /** @type {number} */
         this.isoRotation = data[4];
     }

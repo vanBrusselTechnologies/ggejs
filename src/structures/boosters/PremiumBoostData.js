@@ -41,8 +41,8 @@ class PremiumBoostData {
         this.marauder = new CastleMarauderPremiumShop(client);
         this.taxBribe = new CastleTaxCollectorPremiumShop(client);
         this.instructor = new CastleInstructorPremiumShop(client);
-        //todo this.caravanOverloader = new CastleCaravanOverloaderPremiumShop()
-        //todo this.armyReturnSpeedBoosterPremiumShop = new CastleReturnSpeedBoosterPremiumShop();
+        // TODO: this.caravanOverloader = new CastleCaravanOverloaderPremiumShop()
+        // TODO: this.armyReturnSpeedBoosterPremiumShop = new CastleReturnSpeedBoosterPremiumShop();
         this.primeDayWood = new CastlePrimeDayBoostWoodPremiumShop(client);
         this.primeDayStone = new CastlePrimeDayBoostStonePremiumShop(client);
         this.primeDayFood = new CastlePrimeDayBoostFoodPremiumShop(client);
@@ -63,7 +63,7 @@ class PremiumBoostData {
         this._boosterDict[this.marauder.id] = this.marauder;
         this._boosterDict[this.taxBribe.id] = this.taxBribe;
         this._boosterDict[this.instructor.id] = this.instructor;
-        //todo  this._boosterDict[this.caravanOverloader.id] = this.caravanOverloader;
+        // TODO:  this._boosterDict[this.caravanOverloader.id] = this.caravanOverloader;
         this._boosterDict[this.primeDayWood.id] = this.primeDayWood;
         this._boosterDict[this.primeDayStone.id] = this.primeDayStone;
         this._boosterDict[this.primeDayFood.id] = this.primeDayFood;
@@ -72,7 +72,7 @@ class PremiumBoostData {
         this._boosterDict[this.khanTabletBooster.id] = this.khanTabletBooster;
         this._boosterDict[this.ragePointBooster.id] = this.ragePointBooster;
         this._boosterDict[this.khanMedalBooster.id] = this.khanMedalBooster;
-        //todo this._boosterDict[this.armyReturnSpeedBoosterPremiumShop.id] = this.armyReturnSpeedBoosterPremiumShop;
+        // TODO: this._boosterDict[this.armyReturnSpeedBoosterPremiumShop.id] = this.armyReturnSpeedBoosterPremiumShop;
         this._boosterDict[this.xpBooster.id] = this.xpBooster;
         this._boosterDict[this.gallantryPointsBooster.id] = this.gallantryPointsBooster;
         this._boosterDict[this.longTermPointEventBooster.id] = this.longTermPointEventBooster;

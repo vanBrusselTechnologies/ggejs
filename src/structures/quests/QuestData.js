@@ -48,7 +48,7 @@ class QuestData {
 
     /** @param {number} questId */
     removeQuest(questId) {
-        this._activeQuests.splice(this._activeQuests.indexOf(questId), 1);
+        this._activeQuests.splice(this._activeQuests.findIndex(q => q.questID === questId), 1);
     }
 
     /** @param {number} questId */

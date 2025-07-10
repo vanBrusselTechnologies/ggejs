@@ -5,5 +5,5 @@ module.exports.name = "dar";
  * @param {{STO: Object, ABL:Object}} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    //todo: get damaged buildings e4k
+    // TODO: get damaged buildings e4k
 }

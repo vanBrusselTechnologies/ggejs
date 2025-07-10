@@ -1,20 +1,47 @@
-const Lord = require("../../structures/Lord");
-const General = require("../../structures/General");
+const General = require("../structures/General");
+const Lord = require("../structures/Lord");
 
-module.exports.name = "blm";
+const NAME = "blm"
+/** @type {CommandCallback<BattleLog>[]}*/
+const callbacks = [];
+
+module.exports.name = NAME;
+
 /**
  * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    //todo: BattleLog Medium
+    const battleLog = parseBLM(client, params);
+    require('.').baseExecuteCommand(battleLog, errorCode, params, callbacks);
+}
+
+/**
+ * @param {Client} client
+ * @param {number} battleLogId
+ * @return {Promise<BattleLog>}
+ */
+module.exports.getBattleLogMiddle = function (client, battleLogId) {
+    const C2SBattleLogMiddleVO = {LID: battleLogId};
+    return require('.').baseSendCommand(client, NAME, C2SBattleLogMiddleVO, callbacks, (p) => p["LID"] === battleLogId);
+}
+
+module.exports.blm = parseBLM;
+
+/**
+ * @param {Client} client
+ * @param {Object} params
+ * @return {BattleLog}
+ */
+function parseBLM(client, params) {
+    if (!params) return null;
     /** @type {BattleLog} */
     const battleLog = client._socket[`${params.LID} battleLog`];
     delete client._socket[`${params.LID} battleLog`];
     const attackerLords = parseAttackerLords(client, params, battleLog);
     const defenderLords = parseDefenderLords(client, params, battleLog);
-    client._socket[`blm -> ${params.LID}`] = {
+    return {
         battleLogId: params["LID"],
         messageId: params["MID"],
         attackerCommandant: attackerLords?.commandant,

@@ -5,5 +5,5 @@ module.exports.name = "aic";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: alliance invasion camp info
+    // TODO: alliance invasion camp info
 }

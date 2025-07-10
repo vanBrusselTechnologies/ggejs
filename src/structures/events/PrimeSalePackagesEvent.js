@@ -1,3 +1,4 @@
+const {Package} = require('e4k-data');
 const PrimeSaleEvent = require("./PrimeSaleEvent");
 
 class PrimeSalePackagesEvent extends PrimeSaleEvent {
@@ -17,7 +18,7 @@ class PrimeSalePackagesEvent extends PrimeSaleEvent {
     }
 
     get offersHubType() {
-        return {name: "primeSalePackages", id: 9}//TODO: OffersHubTypeEnum.PRIME_SALE_PACKAGES;
+        return {name: "primeSalePackages", id: 9}// TODO: OffersHubTypeEnum.PRIME_SALE_PACKAGES;
     }
 }
 
@@ -45,8 +46,6 @@ function getPrimeSaleType(event) {
     const eventPackage = event.eventPackages[0];
     if (eventPackage.packageType === "tickets"/*PackageTypeEnum.LUCKY_WHEEL_TICKETS*/) return "wheel_of_fortune"//PrimeSaleTypeEnum.WHEEL_OF_FORTUNE;
     if (eventPackage.packageType === "VIP"/*PackageTypeEnum.VIP*/) return getPrimeSaleTypeForVIPPrimeSale(event.eventPackages);
-    if (eventPackage.addShapeShifterCharmBoosterKey > 0) return "shapeshifter_charm_booster"//PrimeSaleTypeEnum.SHAPESHIFTER_CHARM_BOOSTER;
-    if (eventPackage.addShapeShifterBloodpointBoosterKey > 0) return "shapeshifter_bloodpoint_booster"//PrimeSaleTypeEnum.SHAPESHIFTER_BLOODPOINT_BOOSTER;
     return "merchant"//PrimeSaleTypeEnum.MERCHANT;
 
 }

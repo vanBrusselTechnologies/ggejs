@@ -24,7 +24,7 @@ class SkinnableAlienEvent extends PointEvent {
         this.parseBasicParams(data);
         this.sourceZoneId = data["SZID"];
         this.targetZoneId = data["TZID"];
-        //todo: this.loadFromSkin(skinFactory.getSkinByEventID(this.eventId));
+        // TODO: this.loadFromSkin(skinFactory.getSkinByEventID(this.eventId));
     }
 
     loadFromSkin(skin/*TODO :IAlienProperties*/) {

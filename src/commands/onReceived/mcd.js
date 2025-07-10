@@ -5,5 +5,5 @@ module.exports.name = "mcd";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: Daily message count update
+    // TODO: Daily message count update
 }

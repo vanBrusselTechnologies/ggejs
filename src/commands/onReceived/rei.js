@@ -5,5 +5,5 @@ module.exports.name = "rei";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: research info
+    // TODO: research info
 }

@@ -2,7 +2,7 @@ const PrimeSaleEvent = require("./PrimeSaleEvent");
 
 class PrimeSaleRelicusEvent extends PrimeSaleEvent {
     get offersHubType() {
-        return {name: "primeSaleRelicus", id: 19}//TODO: OffersHubTypeEnum.PRIME_SALE_RELICUS;
+        return {name: "primeSaleRelicus", id: 19}// TODO: OffersHubTypeEnum.PRIME_SALE_RELICUS;
     }
 
     get skinId(){

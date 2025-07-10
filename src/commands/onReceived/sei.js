@@ -68,7 +68,7 @@ module.exports.execute = function (client, errorCode, params) {
             }
         } else client._activeSpecialEvents[index].loadFromParamObject(client, eventData)
     }
-    //TODO: client.events._add_or_update(_events);
+    // TODO: client.events._add_or_update(_events);
 }
 
 /**
@@ -174,7 +174,7 @@ function getEventById(client, eventId) {
             return new MobileBrowserShopSpecialEvent();
         case EventConst.EVENTTYPE_GGS_GIFT:
             return new GGSGiftEvent();
-        case 129: //TODO move to EventConst
+        case 129: // TODO: move to EventConst
             return new AllianceMobilizationEvent()
         case EventConst.EVENTTYPE_COIN_COLOSSUS:
         case EventConst.EVENTTYPE_PRIVATE_PRIME_TIME_EVENT:

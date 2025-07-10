@@ -1,12 +1,12 @@
 const {Socket} = require('node:net');
 const {NetworkInstance} = require('e4k-data');
-const {WaitUntil} = require("../tools/wait");
+const {onResponse} = require('../commands');
 const {execute: collectTax} = require('../commands/commands/collectTax');
-const {execute: pingPong} = require('../commands/commands/pingpong');
+const {execute: dql} = require('../commands/onReceived/dql');
 const {execute: generateLoginToken} = require('../commands/commands/generateLoginToken');
 const {execute: mercenaryPackage} = require('../commands/commands/mercenaryPackage');
-const {execute: dql} = require('../commands/onReceived/dql');
-const {onResponse} = require('../commands');
+const {execute: pingPong} = require('../commands/commands/pingpong');
+const EmpireError = require("../tools/EmpireError");
 const {ConnectionStatus, ServerType} = require("../utils/Constants");
 const EventConst = require("../utils/EventConst");
 
@@ -66,18 +66,19 @@ class SocketManager {
         try {
             this.connectionError = error;
             if (error !== "") return;
-
-            await WaitUntil(this.client, 'gbd finished');
+            while (this.socket['gbd finished'] !== true) {
+                await new Promise(res => setTimeout(res, 1));
+            }
             this.connectionStatus = ConnectionStatus.Connected;
             pingPong(this.client);
 
-            //todo: Below isn't in source code
+            // TODO: Below isn't in source code
             if (this.client.externalClient == null && this.serverType === ServerType.NormalServer) {
                 const activeEvents = this.client._activeSpecialEvents;
                 if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_TEMPSERVER)) generateLoginToken(this.client, ServerType.TempServer)
                 if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_ALLIANCE_BATTLEGROUND)) generateLoginToken(this.client, ServerType.AllianceBattleGround)
             }
-            this.#botting();
+            //this.#botting();
         } catch (e) {
             this.client.logger.w(e);
         }
@@ -224,9 +225,9 @@ async function waitForConnectionStatusTS(socketManager, connectionStatus, endDat
     if (socketManager.connectionError !== "") {
         const e = socketManager.connectionError;
         socketManager.connectionError = "";
-        throw `[Connection Error] ${e}`;
+        throw EmpireError(socketManager.client, `[Connection Error] ${e}`);
     }
-    if (endDateTimestamp < Date.now()) throw "[Connection Error] Exceeded max time!";
+    if (endDateTimestamp < Date.now()) throw EmpireError(socketManager.client, "[Connection Error] Exceeded max time!");
     await new Promise(resolve => setTimeout(resolve, 1));
     return await waitForConnectionStatusTS(socketManager, connectionStatus, endDateTimestamp);
 }

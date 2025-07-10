@@ -2,29 +2,27 @@
 
 const {collectorEventOptions, kingdoms, landmarks} = require('e4k-data').data;
 const BaseManager = require('./BaseManager');
-const {execute: getWorldMap} = require('../commands/commands/getWorldmap');
-const {WaitUntil} = require('../tools/wait');
+const {getArea} = require("../commands/gaa");
 const WorldMap = require('../structures/WorldMap');
 const WorldMapSector = require('../structures/WorldMapSector');
 const Coordinate = require("../structures/Coordinate");
-const Localize = require("../tools/Localize");
-const WorldMapOwnerInfoData = require("../utils/WorldMapOwnerInfoData");
 const WorldMapOwnerInfo = require("../structures/WorldMapOwnerInfo");
-const ConstantsIsland = require("../utils/ConstantsIslands");
-const DungeonConst = require("../utils/DungeonConst");
-const ConstantsCrest = require("../utils/ConstantsCrest");
-const VillageConst = require("../utils/VillageConst");
-const OutpostConst = require("../utils/OutpostConst");
 const Crest = require("../structures/Crest");
+const EmpireError = require("../tools/EmpireError");
+const Localize = require("../tools/Localize");
+const {ConnectionStatus} = require("../utils/Constants");
+const ConstantsCrest = require("../utils/ConstantsCrest");
+const ConstantsGeneral = require("../utils/ConstantsGeneral");
 const ConstantsColors = require("../utils/ConstantsColors");
-const SeaqueenConstants = require("../utils/SeaqueenConstants");
+const ConstantsIsland = require("../utils/ConstantsIslands");
 const ConstantsThornKing = require("../utils/ConstantsThornKing");
 const ConstantsUnderworld = require("../utils/ConstantsUnderworld");
+const DungeonConst = require("../utils/DungeonConst");
 const FactionConstClient = require("../utils/FactionConstClient");
-const ConstantsGeneral = require("../utils/ConstantsGeneral");
-const {ConnectionStatus} = require("../utils/Constants");
-
-const kingdomIds = [0, 1, 2, 3, 4, 10]
+const OutpostConst = require("../utils/OutpostConst");
+const SeaqueenConstants = require("../utils/SeaqueenConstants");
+const VillageConst = require("../utils/VillageConst");
+const WorldMapOwnerInfoData = require("../utils/WorldMapOwnerInfoData");
 
 class WorldMapManager extends BaseManager {
     _ownerInfoData = new WorldMapOwnerInfoData(this._client);
@@ -43,8 +41,8 @@ class WorldMapManager extends BaseManager {
     async get(kingdomId) {
         try {
             return await _getWorldMapById(this._client, new WorldMap(this._client, kingdomId), kingdomId);
-        } catch (e) {
-            throw e.toString().startsWith('errorCode_') ? Localize.text(this._client, e.toString()) : e;
+        } catch (errorCode) {
+            throw new EmpireError(this._client, errorCode)
         }
     };
 
@@ -57,8 +55,8 @@ class WorldMapManager extends BaseManager {
     async getSector(kingdomId, centerX, centerY) {
         try {
             return await _getWorldMapSector(this._client, kingdomId, centerX, centerY);
-        } catch (e) {
-            throw e.toString().startsWith('errorCode_') ? Localize.text(this._client, e.toString()) : e;
+        } catch (errorCode) {
+            throw new EmpireError(this._client, errorCode)
         }
     }
 }
@@ -69,7 +67,7 @@ class WorldMapManager extends BaseManager {
  * @param {number} kingdomId
  */
 async function _getWorldMapById(client, _worldMap, kingdomId) {
-    if (!_worldMap) throw "missing worldMap";
+    if (!_worldMap) throw "Missing worldMap";
     _worldMap._clear();
     const worldMapSize = 15;
     for (let i = 0; i < worldMapSize * worldMapSize; i++) {
@@ -89,21 +87,9 @@ async function _getWorldMapById(client, _worldMap, kingdomId) {
  * @param {number} y
  */
 async function _getWorldMapSector(client, kingdomId, x, y) {
-    const socket = client._socket;
     if (client.socketManager.connectionStatus !== ConnectionStatus.Connected) throw 'Client disconnected';
-    try {
-        const data = await _getWorldMapSectorData(client, kingdomId, x, y, 0);
-        delete socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_searching`];
-        delete socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_data`];
-        delete socket[`__worldMap_${kingdomId}_empty`];
-        return new WorldMapSector(client, kingdomId, data);
-    } catch (e) {
-        delete socket[`__worldMap__error`];
-        delete socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_searching`];
-        delete socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_data`];
-        delete socket[`__worldMap_${kingdomId}_empty`];
-        throw e;
-    }
+    const data = await _getWorldMapSectorData(client, kingdomId, x, y);
+    return new WorldMapSector(client, kingdomId, data);
 }
 
 /**
@@ -112,26 +98,13 @@ async function _getWorldMapSector(client, kingdomId, x, y) {
  * @param {number} kingdomId
  * @param {number} x
  * @param {number} y
- * @param {number} tries
- * @returns {Promise<{worldMapAreas: Mapobject[]}>}
+ * @returns {Promise<Mapobject[]>}
  */
-async function _getWorldMapSectorData(client, kingdomId, x, y, tries = 0) {
-    const socket = client._socket;
+async function _getWorldMapSectorData(client, kingdomId, x, y) {
     if (client.socketManager.connectionStatus !== ConnectionStatus.Connected) throw 'Client disconnected';
-    try {
-        if (socket[`__worldMap_${kingdomId}_searching_sectors`] === undefined) socket[`__worldMap_${kingdomId}_searching_sectors`] = [];
-        socket[`__worldMap_${kingdomId}_searching_sectors`].push({x, y});
-        if (!socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_searching`]) {
-            socket[`__worldMap_${kingdomId}_specific_sector_${x}_${y}_searching`] = true;
-            const bottomLeft = new Coordinate(client, [x - 50, y - 50]);
-            const topRight = new Coordinate(client, [x + 49, y + 49]);
-            getWorldMap(client, kingdomId, bottomLeft, topRight);
-        }
-        return await Promise.any([WaitUntil(client, `__worldMap_${kingdomId}_specific_sector_${x}_${y}_data`, `__worldMap__error`, 2500), WaitUntil(client, `__worldMap_${kingdomId}_empty`, `__worldMap__error`, 2500)]);
-    } catch (e) {
-        if (e.errors[0] === "Exceeded max time!" && tries < 3) return await _getWorldMapSectorData(client, kingdomId, x, y, tries + 1);
-        throw e;
-    }
+    const bottomLeft = new Coordinate([x - 50, y - 50]);
+    const topRight = new Coordinate([x + 49, y + 49]);
+    return await getArea(client, kingdomId, bottomLeft, topRight);
 }
 
 /**

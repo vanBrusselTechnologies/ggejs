@@ -60,7 +60,6 @@ function parseDays(cud, days) {
 function getPickedRewardIndex(wantedReward, rewardCollection) {
     let i = 0;
     const size = rewardCollection.rewards.length;
-    i = 0;
     while (i < size) {
         const reward = rewardCollection.rewards[i];
         if (compare(reward, wantedReward)) {
@@ -77,7 +76,7 @@ function getPickedRewardIndex(wantedReward, rewardCollection) {
  * @return {Boolean}
  */
 function compare(reward1, reward2) {
-    return reward1.type == reward2.type && reward1.wodID == reward2.wodID && reward1.amount == reward2.amount;
+    return reward1.type === reward2.type && reward1.wodID === reward2.wodID && reward1.amount === reward2.amount;
 }
 
 /**

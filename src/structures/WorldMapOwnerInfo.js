@@ -1,6 +1,7 @@
 const Crest = require("./Crest");
 const Coordinate = require("./Coordinate");
 const CastlePosition = require("./CastlePosition");
+const {getCrestByFactionId} = require("../utils/FactionConstClient");
 
 class WorldMapOwnerInfo {
     /** @type {Client} */
@@ -398,7 +399,7 @@ class WorldMapOwnerInfo {
     getCrestByKingdomId(kingdomId, isShadowMovement = false) {
         if (kingdomId === 10 && this.factionId !== -1 && !isShadowMovement) {
             // TODO: FactionConstClient
-            return FactionConstClient.getCrestByFactionId(this.factionId);
+            return getCrestByFactionId(this.factionId);
         }
         return this.crest;
     }
@@ -433,7 +434,7 @@ class WorldMapOwnerInfo {
         while (i < this.castlePosList.length) {
             const castlePosition = this.castlePosList[i];
             if (this.isMainCastlePosInKingdom(castlePosition, kingdomId)) {
-                return new Coordinate(this.#client, [castlePosition.xPos, castlePosition.yPos]);
+                return new Coordinate([castlePosition.xPos, castlePosition.yPos]);
             }
             i++;
         }
@@ -521,7 +522,7 @@ class WorldMapOwnerInfo {
     /** @returns {boolean} */
     isRankInfoVisible() {
         if (this.#client.clientUserData.isInAlliance && !this.isOwnOwnerInfo && this.allianceId === this.#client.clientUserData.allianceId) {
-            return /*(*/AppCore.getInstance().getModel(AllianceRankService)/* as AllianceRankService)*/.mayRerank(this.allianceRank);
+            return /*(*/AppCore.getInstance().getModel(AllianceRankService/* as AllianceRankService*/).mayRerank(this.allianceRank);
         }
         return false;
     }

@@ -8,7 +8,7 @@ module.exports.name = "uar";
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    //todo: uar, gml, gcl, kgv, gkl, opt, and vip not fully correctly working
+    // TODO: uar, gml, gcl, kgv, gkl, opt, and vip not fully correctly working
 
     const cud = client.clientUserData;
     //cud.setTitleRatingStatus(createTitleRatingStatus(params.FTM), TitleType.FAME)

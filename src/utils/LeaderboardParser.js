@@ -34,11 +34,11 @@ function parseLeaderboardItem(listType, itemData) {
 }
 
 /**
- * @param {{LT:number, L: Array<{LID: number, L: []}>, LID:number}} params
+ * @param {{LT:number, L: Array<{LID: number, L: []}>}} params
  * @returns {LeaderboardSearchList}
  */
 module.exports.parseLeaderboardSearchList = function (params) {
-    return {listType: params.LT, items: parseLeaderboardSearchListItems(params.L), leagueType: params.LID};
+    return {listType: params.LT, items: parseLeaderboardSearchListItems(params.L)};
 }
 
 /** @param {{LID: number, L: string[]}[]} items */

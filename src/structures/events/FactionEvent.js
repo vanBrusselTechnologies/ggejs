@@ -40,8 +40,8 @@ class FactionEvent extends PointEvent {
             }
         }
         if (data.AC) afd(client, 0, data)
-        //todo: this.subType = factionData.ownFactionID;
-        //todo: factionData.activeEvent = _loc2_;
+        // TODO: this.subType = factionData.ownFactionID;
+        // TODO: factionData.activeEvent = _loc2_;
     }
 
     get isPaid() {

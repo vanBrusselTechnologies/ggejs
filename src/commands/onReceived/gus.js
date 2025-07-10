@@ -5,5 +5,5 @@ module.exports.name = "gus";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: get unlocked symbol
+    // TODO: get unlocked symbol
 }

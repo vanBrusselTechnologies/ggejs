@@ -48,7 +48,7 @@ class ShoppingCartEvent extends ActiveEvent {
     }
 
     get offersHubType() {
-        return {name: "primeDayShoppingCart", id: 4}//TODO: OffersHubTypeEnum.PRIME_DAY_SHOPPING_CART;
+        return {name: "primeDayShoppingCart", id: 4}// TODO: OffersHubTypeEnum.PRIME_DAY_SHOPPING_CART;
     }
 }
 

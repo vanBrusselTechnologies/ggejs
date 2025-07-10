@@ -11,7 +11,7 @@ class PrimeDayEvent extends ActiveEvent {
     rewardCount;
     /** @type {number} */
     rewardStage;
-//TODO: PaymentRewardVO instead of {paymentReward: {}, rewards: []}
+// TODO: PaymentRewardVO instead of {paymentReward: {}, rewards: []}
     /** @type {{paymentReward: PaymentReward, rewards: any, id: number, c2ForReward: number, bonus: number, value: number}[]} */
     rewardTiers = [];
     /** @type {number} */
@@ -80,7 +80,7 @@ class PrimeDayEvent extends ActiveEvent {
     }
 
     get offersHubType() {
-        return {name: "primeDayEvent", id: 6}//TODO: OffersHubTypeEnum.PRIME_DAY_EVENT;
+        return {name: "primeDayEvent", id: 6}// TODO: OffersHubTypeEnum.PRIME_DAY_EVENT;
     }
 
     /**
@@ -92,7 +92,7 @@ class PrimeDayEvent extends ActiveEvent {
         this.subType = data.SEID;
         this.skinId = data.SKN;
         const primeDay = primeDays.find(pd => pd.primeDayID === data.SEID)
-        const rewardTiers = data.RW.map(_ => [])//TODO: rewardJSONParser.parseRewardTiers(data.RW,true);
+        const rewardTiers = data.RW.map(_ => [])// TODO: rewardJSONParser.parseRewardTiers(data.RW,true);
         const paymentRewardIds = primeDay.paymentRewardIDs.toString().split(',');
         if (rewardTiers.length !== paymentRewardIds.length) {
             client.logger.w("Reward tier count mismatch between server and items XML for prime day: " + data.SEID + "(xml says it\'s " + paymentRewardIds.length + ", server says it\'s " + rewardTiers.length + ")");

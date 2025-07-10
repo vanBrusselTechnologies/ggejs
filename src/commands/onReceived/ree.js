@@ -5,5 +5,5 @@ module.exports.name = "ree";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: relic enchanter enabled event
+    // TODO: relic enchanter enabled event
 }

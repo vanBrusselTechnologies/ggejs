@@ -5,5 +5,5 @@ module.exports.name = "pre";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: pending rewards event
+    // TODO: pending rewards event
 }

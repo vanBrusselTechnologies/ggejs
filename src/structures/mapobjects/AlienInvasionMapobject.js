@@ -29,6 +29,7 @@ class AlienInvasionMapobject extends InteractiveMapobject {
             this.lastSpyDate = new Date(Date.now() - data[4] * 1000);
     }
 
+    /** @param {Object} data */
     parseAreaInfoBattleLog(data) {
         super.parseAreaInfoBattleLog(data);
         this._dungeonLevel = data.DL;

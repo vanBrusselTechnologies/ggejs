@@ -17,7 +17,7 @@ class FactionTowerMapobject extends FactionInteractiveMapobject {
         this.ownerId = data[3];
         this.ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(this.ownerId);
         this.isDestroyed = data[4] === 1;
-        this.aliveProtectorPositions = data[5].map(p => new Coordinate(client, p));
+        this.aliveProtectorPositions = data[5].map(p => new Coordinate(p));
         if (data[6] > 0 && !this.isDestroyed) {
             /** @type {Date} */
             this.lastSpyDate = new Date(Date.now() - data[6] * 1000);
@@ -41,7 +41,7 @@ class FactionTowerMapobject extends FactionInteractiveMapobject {
 
     get levelText() {
         const attacksLeftString = `factiontower_attacksLeft${this.attacksLeft > 1 ? "_plural" : "_singular"}`;
-        return Localize.text(this.#client, attacksLeftString, [this.attacksLeft])
+        return Localize.text(this.#client, attacksLeftString, this.attacksLeft.toString())
     }
 
     parseAreaInfoBattleLog(data) {

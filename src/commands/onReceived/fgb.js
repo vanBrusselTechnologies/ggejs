@@ -5,5 +5,5 @@ module.exports.name = "fgb";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: Get faction balance
+    // TODO: Get faction balance
 }

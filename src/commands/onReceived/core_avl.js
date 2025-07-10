@@ -7,7 +7,7 @@ module.exports.name = "core_avl";
  * @param {{M:string, P:string}} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    //todo:
+    // TODO: core_avl
     switch (errorCode) {
         case -1:
             client.socketManager.connectionError = Localize.text(client, "generic_alert_connection_lost_copy");

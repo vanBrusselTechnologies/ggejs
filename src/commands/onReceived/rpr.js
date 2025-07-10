@@ -5,7 +5,7 @@ module.exports.name = "rpr";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: rage points received
+    // TODO: rage points received
     /*
         if (!params) return;
         var const:SkinnableAllianceInvasionEventVO = eventData.getActiveEventByID(params["EID"]) as SkinnableAllianceInvasionEventVO;

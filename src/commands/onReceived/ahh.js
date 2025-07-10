@@ -21,11 +21,11 @@ module.exports.execute = function (client, errorCode, params) {
         }
      */
 
-    //todo: REMOVE below because not part of source code
+    // TODO: REMOVE below because not part of source code
     // TODO: re-enable if (params["AC"] === 0) allianceHelpAll(client);
 }
 
-//todo: Move to seperate parser file
+// TODO: Move to seperate parser file
 /**
  * @param {Client} client
  * @param {AllianceHelpRequest} allianceHelpRequest

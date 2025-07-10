@@ -15,7 +15,7 @@ class SiegeMovement extends BasicMovement {
 
 /**
  * @param {Client} client
- * @param {Array} data
+ * @param {number[][]} data
  * @returns {InventoryItem<Unit>[]}
  */
 function parse(client, data) {

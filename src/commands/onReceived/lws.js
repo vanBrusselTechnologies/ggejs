@@ -26,9 +26,9 @@ module.exports.execute = function (client, errorCode, params) {
     luckyWheelEvent.nextJackpotSpinJackpotSet = params.JHID;
     if (params.hasOwnProperty("WC")) {
         luckyWheelEvent.winningCategory = params.WC;
-        //todo: localStorageModel.setValue(properties.getLocalStorageKeyById(2), String(luckyWheelEvent.winningCategory));
+        // TODO: localStorageModel.setValue(properties.getLocalStorageKeyById(2), String(luckyWheelEvent.winningCategory));
     }
-    //todo: resetRewardItem(properties);
+    // TODO: resetRewardItem(properties);
     const _loc5_ = params["R"];
     if (_loc5_ && _loc5_.length > 0) {
         /* TODO: S2C_LUCKY_WHEEL_SPIN
@@ -42,7 +42,7 @@ module.exports.execute = function (client, errorCode, params) {
     }
     if (params.OP && params.OR) {
         pep(client, 0, {
-            "OP": params.OP, "OR": params.OR, "EID": serverTypeId === 0 ? 15 : 89//TODO: properties.eventId});
+            "OP": params.OP, "OR": params.OR, "EID": serverTypeId === 0 ? 15 : 89// TODO: properties.eventId});
         })
     }
 }

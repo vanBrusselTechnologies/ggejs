@@ -5,5 +5,5 @@ module.exports.name = "nrf";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: new relics flag
+    // TODO: new relics flag
 }

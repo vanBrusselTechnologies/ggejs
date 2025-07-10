@@ -1,4 +1,4 @@
-const {execute: ain} = require('./ain');
+const {ain} = require('../ain');
 const {execute: gcu} = require('./gcu');
 const {execute: grc} = require('./grc');
 
@@ -10,7 +10,7 @@ module.exports.name = "ado";
  */
 module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    ain(client, errorCode, params.ain);
+    ain(client, params.ain);
     gcu(client, errorCode, params.gcu);
     grc(client, errorCode, params.grc);
 }

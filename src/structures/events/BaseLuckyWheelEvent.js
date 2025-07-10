@@ -36,11 +36,11 @@ class BaseLuckyWheelEvent extends PointEvent {
         this.parseBasicParams(data);
         if (data["CR"]) {
             const collectedRewards = data["CR"];
-            const ungroupedRewards = ungroupRewardsFromServer(data["R"])//TODO: RewardJSONParser.ungroupRewardsFromServer(data["R"]);
+            const ungroupedRewards = ungroupRewardsFromServer(data["R"])// TODO: RewardJSONParser.ungroupRewardsFromServer(data["R"]);
             const rewards = collectedRewards.concat(ungroupedRewards);
             this.rewards = this.parsePointEventRewards(rewards);
         }
-        //TODO: const _loc6_:IWheelOfFortuneProperties = propertiesFactory.getPropertiesByEventId(this.eventId);
+        // TODO: const _loc6_:IWheelOfFortuneProperties = propertiesFactory.getPropertiesByEventId(this.eventId);
         data["LWET"] = this.eventId === 15 ? 0 : 1//_loc6_.serverTypeId;
         lws(client, 0, data)
     }

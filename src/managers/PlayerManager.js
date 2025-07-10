@@ -1,34 +1,23 @@
 'use strict'
 
 const BaseManager = require('./BaseManager');
-const {execute: getDetailedPlayerInfo} = require('../commands/commands/getDetailedPlayerInfo');
-const {execute: searchPlayer} = require('../commands/commands/searchPlayer');
-const {WaitUntil} = require('../tools/wait');
-const Localize = require("../tools/Localize");
-const {execute: getHighScore} = require("../commands/commands/getHighScore");
+const {getDetailPlayerInfo} = require('../commands/gdi');
+const {getHighScore} = require("../commands/hgh");
+const {listLeaderboardScoresPage} = require('../commands/llsp');
+const {listLeaderboardScoresWindow} = require('../commands/llsw');
+const {searchLeaderboardScores} = require('../commands/slse');
+const {searchPlayer} = require('../commands/wsp');
+const EmpireError = require("../tools/EmpireError");
 const HighScoreConst = require("../utils/HighScoreConst");
-const {execute: listLeaderboardScoresPage} = require('../commands/commands/listLeaderboardScoresPage');
-const {execute: searchLeaderboardScores} = require('../commands/commands/searchLeaderboardScores');
-const {execute: listLeaderboardScoresWindow} = require('../commands/commands/listLeaderboardScoresWindow');
 
 class PlayerManager extends BaseManager {
     /** @param {number} id */
     async getById(id) {
-        if (this._client._socket[`__requesting_players`] === undefined) this._client._socket[`__requesting_players`] = [];
-        /** @type {Array} */
-        const reqPlayers = this._client._socket[`__requesting_players`];
         try {
-            if (!reqPlayers.includes(id)) getDetailedPlayerInfo(this._client, id);
-            reqPlayers.push(id);
-            /** @type {Player} */
-            const player = await WaitUntil(this._client, `__get_player_${id}`, "__get_player_error");
-            reqPlayers.splice(reqPlayers.indexOf(id), 1);
-            if (!reqPlayers.includes(id)) delete this._client._socket[`__get_player_${id}`];
-            return player;
-        } catch (e) {
-            reqPlayers.splice(reqPlayers.indexOf(id), 1);
-            delete this._client._socket["__get_player_error"];
-            throw Localize.text(this._client, e);
+            return await getDetailPlayerInfo(this._client, id);
+        } catch (errorCode) {
+            const overrideTextId = errorCode === 21 ? 'player_not_found' : '';
+            throw new EmpireError(this._client, errorCode, overrideTextId);
         }
     }
 
@@ -46,15 +35,24 @@ class PlayerManager extends BaseManager {
                 const hghData = await this.getRankings(name, 'might', 6);
                 playerId = hghData.items.find(item => normalizeNameLowerCase(item.playerName) === normalizedName).playerId;
             } catch (e) {
-                searchPlayer(this._client, name);
-                playerId = await WaitUntil(this._client, `__search_player_${normalizedName}`, "__search_player_error", 1000);
-                delete this._client._socket[`__search_player_${normalizedName}`];
+                const ownerInfo = await searchPlayer(this._client, name.toString());
+                playerId = ownerInfo.playerId;
             }
             return await this.getById(playerId);
-        } catch (e) {
-            delete this._client._socket[`__search_player_${normalizedName}`];
-            delete this._client._socket["__search_player_error"];
-            throw Localize.text(this._client, e);
+        } catch (errorCode) {
+            const overrideTextId = (() => {
+                switch (errorCode) {
+                    case 21:
+                        return 'player_not_found';
+                    case 28:
+                        return 'generic_register_namenotvalid';
+                    case 96:
+                        return 'player_not_on_map';
+                    default:
+                        return '';
+                }
+            })();
+            throw new EmpireError(this._client, errorCode, overrideTextId);
         }
     }
 
@@ -138,18 +136,15 @@ class PlayerManager extends BaseManager {
                     return -1;
             }
         })();
-        if (listType === -1) throw "Rankings' list type not supported";
+        if (listType === -1) throw new EmpireError(this._client, "Rankings' list type not supported");
         if (!isGlobalRanking) {
             try {
                 const searchValue = nameOrRanking.toString();
-                const normalizedName = normalizeNameLowerCase(searchValue);
-                getHighScore(this._client, searchValue, listType, leagueId);
                 /** @type {HighScore<PlayerHighScoreItem>} */
-                const hghData = await WaitUntil(this._client, `hgh_${listType}_${normalizedName}`, "", 1000);
-                delete this._client._socket[`hgh_${listType}_${normalizedName}`];
-                return convertHghLeaderboard(this._client, hghData);
-            } catch (e) {
-                throw Localize.text(this._client, e);
+                const highScore = await getHighScore(this._client, searchValue, listType, leagueId);
+                return convertHghLeaderboard(this._client, highScore);
+            } catch (errorCode) {
+                throw new EmpireError(this._client, errorCode);
             }
         }
         try {
@@ -157,41 +152,33 @@ class PlayerManager extends BaseManager {
             switch (typeof nameOrRanking) {
                 case "number":
                     const searchRank = Math.round(Math.max(1, nameOrRanking - maxResults / 2));
-                    listLeaderboardScoresPage(this._client, listType, searchRank, maxResults, leagueId);
-                    /** @type {LeaderboardList} */
-                    const leaderboardRankData = await WaitUntil(this._client, `llsp_${listType}_${leagueId}_${searchRank}`, "", 5000);
-                    delete this._client._socket[`llsp_${listType}_${leagueId}_${searchRank}`];
+                    const leaderboardRankData = await listLeaderboardScoresPage(this._client, listType, searchRank, maxResults, leagueId);
                     return convertListToLeaderboard(this._client, leaderboardRankData);
                 case "string":
-                    searchLeaderboardScores(this._client, listType, nameOrRanking);
-                    /** @type {LeaderboardSearchList} */
-                    const leaderboardSearchData = await WaitUntil(this._client, `slse_${listType}`, "", 1000);
-                    delete this._client._socket[`slse_${listType}`];
+                    const leaderboardSearchData = await searchLeaderboardScores(this._client, listType, nameOrRanking);
                     const {scoreId, leagueType} = leaderboardSearchData.items[0];
-                    listLeaderboardScoresWindow(this._client, listType, scoreId, maxResults, leagueType);
-                    /** @type {LeaderboardList} */
-                    const leaderboardWindowData = await WaitUntil(this._client, `llsw_${listType}_${leagueType}_${scoreId}`, "", 5000);
-                    delete this._client._socket[`llsw_${listType}_${leagueType}_${scoreId}`];
+                    const leaderboardWindowData = await listLeaderboardScoresWindow(this._client, listType, scoreId, maxResults, leagueType);
                     return convertListToLeaderboard(this._client, leaderboardWindowData);
             }
-        } catch (e) {
-            throw Localize.text(this._client, e);
+        } catch (errorCode) {
+            throw new EmpireError(this._client, errorCode);
         }
     }
 }
 
 /**
  * @param {Client} client
- * @param {HighScore<PlayerHighScoreItem>} hghData
+ * @param {HighScore<PlayerHighScoreItem>} highScore
  * @returns {PlayerLeaderboard}
  */
-function convertHghLeaderboard(client, hghData) {
+function convertHghLeaderboard(client, highScore) {
     return {
-        listType: hghData.listType,
-        numScores: hghData.lastRow,
-        leagueType: hghData.leagueId,
-        items: hghData.items.map(i => {
+        listType: highScore.listType,
+        numScores: highScore.lastRow,
+        leagueType: highScore.leagueId,
+        items: highScore.items.map(i => {
             return {
+                player: i.player,
                 playerName: i.playerName ?? i.player.playerName,
                 allianceName: undefined,
                 instanceId: client.socketManager.serverInstance.value,

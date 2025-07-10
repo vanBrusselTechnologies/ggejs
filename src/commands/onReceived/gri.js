@@ -16,6 +16,6 @@ module.exports.execute = function (client, errorCode, params) {
         cud.relocationDurationEndTime = new Date();
     }
     if (params["DX"] && params["DY"]) {
-        cud.relocationDestination = new Coordinate(client, [params["DX"], params["DY"]]);
+        cud.relocationDestination = new Coordinate([params["DX"], params["DY"]]);
     }
 }

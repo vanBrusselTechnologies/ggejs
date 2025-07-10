@@ -14,7 +14,7 @@ class PrimeSaleBuildingsEvent extends PrimeSaleEvent {
     }
 
     get offersHubType() {
-        return {name: "primeSaleBuildings", id: 11}//TODO: OffersHubTypeEnum.PRIME_SALE_BUILDINGS;
+        return {name: "primeSaleBuildings", id: 11}// TODO: OffersHubTypeEnum.PRIME_SALE_BUILDINGS;
     }
 
     get skinId() {

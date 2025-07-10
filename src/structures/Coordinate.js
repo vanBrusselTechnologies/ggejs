@@ -1,9 +1,6 @@
 class Coordinate {
-    /**
-     * @param {Client} client
-     * @param {Array<number>} data
-     */
-    constructor(client, data) {
+    /** @param {Array<number>} data */
+    constructor(data) {
         this.X = data[0];
         this.Y = data[1];
     }

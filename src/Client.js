@@ -2,20 +2,21 @@
 
 const EventEmitter = require('node:events');
 const {NetworkInstance, languages} = require('e4k-data');
+const {joinArea} = require('./commands/jaa');
+const {execute: registerOrLogin} = require('./commands/commands/registerOrLogin');
+const {execute: verifyLoginData} = require('./commands/commands/verifyLoginData');
 const AllianceManager = require('./managers/AllianceManager');
+const ClientUserDataManager = require("./managers/ClientUserDataManager");
 const EquipmentManager = require("./managers/EquipmentManager");
 const MovementManager = require('./managers/MovementManager');
 const PlayerManager = require('./managers/PlayerManager');
 const SocketManager = require("./managers/SocketManager");
 const WorldMapManager = require('./managers/WorldMapManager');
-const {WaitUntil} = require('./tools/wait');
-const ClientUserDataManager = require("./managers/ClientUserDataManager");
 const PremiumBoostData = require("./structures/boosters/PremiumBoostData");
 const QuestData = require("./structures/quests/QuestData");
-const {execute: verifyLoginData} = require('./commands/commands/verifyLoginData');
-const {execute: registerOrLogin} = require('./commands/commands/registerOrLogin');
-const {ConnectionStatus} = require("./utils/Constants");
+const EmpireError = require("./tools/EmpireError");
 const Logger = require("./tools/Logger");
+const {ConnectionStatus} = require("./utils/Constants");
 
 class Client extends EventEmitter {
     #name = "";
@@ -35,6 +36,7 @@ class Client extends EventEmitter {
     _mailMessages = [];
     /** @type {ActiveEvent[]} */
     _activeSpecialEvents = [];
+
 //#endregion
 
     get _socket() {
@@ -100,7 +102,7 @@ class Client extends EventEmitter {
 
     /** @param {string} message */
     sendChatMessage(message) {
-        //TODO(?): Move into MyAlliance
+        // TODO(?): Move into MyAlliance
         require('./commands/commands/sendAllianceChatMessage').execute(this, message);
     }
 
@@ -118,11 +120,12 @@ class Client extends EventEmitter {
      * @returns {Promise<Castle>}
      */
     async getCastleInfo(mapObject) {
-        if (!mapObject || !mapObject.objectId) throw "WorldMapArea is not valid";
-        require('./commands/commands/joinArea').execute(this, mapObject);
-        const data = await WaitUntil(this, `join_area_${mapObject.objectId}_data`, "join_area_error");
-        delete this._socket[`join_area_${mapObject.objectId}_data`];
-        return data;
+        if (!mapObject || !mapObject.objectId) throw new EmpireError(this, "WorldMapArea is not valid");
+        try {
+            return await joinArea(this, mapObject);
+        } catch (errorCode) {
+            throw new EmpireError(this, errorCode);
+        }
     }
 
     /** @param {{token:string, tokenExpirationDate: Date}} val */

@@ -1,21 +1,44 @@
-const Good = require("../../structures/Good");
-const Localize = require("../../tools/Localize");
-const InventoryItem = require("../../structures/InventoryItem");
-const Lord = require("../../structures/Lord");
-const General = require("../../structures/General");
-const {parseMapObject} = require("../../utils/MapObjectParser");
+const General = require("../structures/General");
+const Good = require("../structures/Good");
+const InventoryItem = require("../structures/InventoryItem");
+const Lord = require("../structures/Lord");
+const {parseMapObject} = require("../utils/MapObjectParser");
 
-module.exports.name = "bsd";
+const NAME = "bsd";
+/** @type {CommandCallback<SpyLog>[]}*/
+const callbacks = [];
+
+module.exports.name = NAME;
+
 /**
  * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    if (params == null || errorCode === 66 || errorCode === 130) {
-        client._socket[`bsd -> errorCode`] = errorCode;
-        return;
-    }
+    const spyLog = parseBSD(client, params);
+    require('.').baseExecuteCommand(spyLog, errorCode, params, callbacks);
+}
+
+/**
+ * @param {Client} client
+ * @param {number} messageId
+ * @return {Promise<SpyLog>}
+ */
+module.exports.getSpyLog = function (client, messageId) {
+    const C2SSpyLogVO = {MID: messageId};
+    return require('.').baseSendCommand(client, NAME, C2SSpyLogVO, callbacks, (p) => p["MID"] === messageId);
+}
+
+module.exports.bsd = parseBSD;
+
+/**
+ * @param {Client} client
+ * @param {Object} params
+ * @return {SpyLog}
+ */
+function parseBSD(client, params) {
+    if (params == null || params?.AI == null) return null;
     const originOwner = client.worldMaps._ownerInfoData.parseOwnerInfo(params["SO"]);
     const targetOwner = client.worldMaps._ownerInfoData.parseOwnerInfo(params["OI"]);
     const mapObject = parseWorldMapArea(client, params["AI"]);
@@ -31,15 +54,7 @@ module.exports.execute = function (client, errorCode, params) {
         }
     }
     const armyInfo = params["S"] == null ? null : parseSpyArmyInfo(client, params);
-    const shapeshifterId = params["SSID"];
-    if (shapeshifterId) {
-        const playerName = Localize.text(client, `shapeshifter_castleName_${shapeshifterId - 1}`);
-        parseInt(params["SID"]) < 0 ? (originOwner.playerName = playerName) : (targetOwner.playerName = playerName);
-        if (armyInfo && armyInfo.defenderBaron) {
-            armyInfo.defenderBaron.shapeshifterId = shapeshifterId;
-        }
-    }
-    client._socket[`bsd -> ${params.MID}`] = {
+    return {
         messageId: params.MID,
         castleId: params["CID"],
         castleAppearance: params["CI"],
@@ -52,14 +67,12 @@ module.exports.execute = function (client, errorCode, params) {
         targetOwner: targetOwner,
         spyResources: spyResources,
         armyInfo: armyInfo,
-        shapeshifterId: shapeshifterId,
     };
 }
 
 /**
  * @param {Client} client
  * @param {Object} data
- * @returns {Mapobject}
  */
 function parseWorldMapArea(client, data) {
     return parseMapObject(client, [data["AT"]]).parseAreaInfoBattleLog(data);

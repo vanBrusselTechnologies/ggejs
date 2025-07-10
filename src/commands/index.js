@@ -7,7 +7,15 @@ const commands = {};
 const commandPath = path.join(__dirname, './onReceived');
 const commandFiles = fs.readdirSync(commandPath).filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
+    if (file === "index.js") continue;
     const filePath = path.join(commandPath, file);
+    const command = require(filePath);
+    commands[command.name] = command.execute;
+}
+const commandFilesNew = fs.readdirSync(__dirname).filter(file => file.endsWith('.js'));
+for (const file of commandFilesNew) {
+    if (file === "index.js") continue;
+    const filePath = path.join(__dirname, file);
     const command = require(filePath);
     commands[command.name] = command.execute;
 }
@@ -28,7 +36,7 @@ module.exports.onResponse = function (client, params) {
         default:
             if (errorCode === 1 && commandId === "rlu") return executeResponse(client, commandId, 0, params);
             client.logger.d(`[RECEIVED ERROR] ${commandId}, ${errorCode}: ${getErrorText(errorCode)}: ${params.toString().substring(0, 100)}`);
-            //todo: replace by processError
+            // TODO: replace by processError
             executeResponse(client, commandId, errorCode, params);
             break;
     }
@@ -56,4 +64,41 @@ function executeResponse(client, commandId, errorCode, params) {
         }
     }
     handler.apply(this, [client, errorCode, paramObj]);
+}
+
+/**
+ * @param {any | void} data
+ * @param {number} errorCode
+ * @param {Object} params
+ * @param {CommandCallback<*>[]} callbacks
+ */
+module.exports.baseExecuteCommand = function (data, errorCode, params, callbacks) {
+    const success = errorCode === 0;
+    if (callbacks.length === 0) return;
+    const i = Math.max(success ? -1 : 0, callbacks.findIndex(c => c.match(params)));
+    if (i === -1) return;
+    const cb = callbacks.splice(i, 1)[0];
+    if (!success) return cb.reject(errorCode);
+    cb.resolve(data);
+}
+
+/**
+ * @param {Client} client
+ * @param {string} name
+ * @param {Object} params
+ * @param {CommandCallback<*>[]} callbacks
+ * @param {(params: Object) => boolean} match
+ * @returns {Promise}
+ */
+module.exports.baseSendCommand = function (client, name, params, callbacks, match) {
+    return new Promise((resolve, reject) => {
+        const id = require('crypto').randomUUID()
+        callbacks.push({id, match, resolve, reject})
+        client.socketManager.sendCommand(name, params);
+        setTimeout(() => {
+            const i = callbacks.findIndex(c => c.id === id);
+            if (i !== -1) callbacks.splice(i, 1);
+            reject("Exceeded max time!")
+        }, 1000)
+    })
 }

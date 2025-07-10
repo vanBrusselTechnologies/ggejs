@@ -13,7 +13,7 @@ class CastlePosition {
     areaType;
 
     get position(){
-        return new Coordinate(null, [this.xPos, this.yPos])
+        return new Coordinate([this.xPos, this.yPos])
     }
 }
 

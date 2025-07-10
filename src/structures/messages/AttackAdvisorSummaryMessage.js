@@ -1,7 +1,6 @@
 const BasicAttackAdvisorMessage = require("./BasicAttackAdvisorMessage");
 const Localize = require("../../tools/Localize");
-const {WaitUntil} = require("../../tools/wait");
-const {execute: readMessage} = require("../../commands/commands/readMessages");
+const {readMessages} = require("../../commands/rms");
 const Good = require("../Good");
 
 class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
@@ -20,7 +19,6 @@ class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
 
     async init() {
         this.advisorOverviewInfo = await parseAdvisorOverview(this.#client, this.messageId);
-        this.#client._socket[`rms -> ${this.messageId}`] = null;
     }
 
     parseMetaData(client, metaArray) {
@@ -35,9 +33,7 @@ class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
  * @returns {Promise<{}>}
  */
 async function parseAdvisorOverview(client, messageId) {
-    readMessage(client, messageId);
-    const stringData = await WaitUntil(client, `rms -> ${messageId}`);
-    delete client._socket[`rms -> ${messageId}`];
+    const stringData = await readMessages(client, messageId);
     const data = JSON.parse(stringData);
     // TODO: rewrite into separate class
     return {

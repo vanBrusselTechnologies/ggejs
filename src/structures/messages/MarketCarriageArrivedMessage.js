@@ -1,7 +1,6 @@
 const BasicMessage = require("./BasicMessage");
 const Localize = require("../../tools/Localize");
-const {WaitUntil} = require("../../tools/wait");
-const {execute: getTradeData} = require("../../commands/commands/getTradeData");
+const {marketCarriageNotify} = require("../../commands/mmn");
 
 class MarketCarriageArrivedMessage extends BasicMessage {
     /** @type{Client}*/
@@ -25,28 +24,7 @@ class MarketCarriageArrivedMessage extends BasicMessage {
     }
 
     async init() {
-        try {
-            this.tradeData = await getMessageBody(this.#client, this.messageId);
-            delete this.#client._socket[`mmn -> ${this.tradeData.messageId}`];
-        } catch (e) {
-            delete this.#client._socket[`mmn -> errorCode`];
-        }
-    }
-}
-
-/**
- * @param {Client} client
- * @param {number} messageId
- * @returns {Promise<TradeData>}
- */
-async function getMessageBody(client, messageId) {
-    try {
-        client._socket['mmn -> errorCode'] = "";
-        getTradeData(client, messageId);
-        return await WaitUntil(client, `mmn -> ${messageId}`, `mmn -> errorCode`, 30000);
-    } catch (e) {
-        client._socket['mmn -> errorCode'] = "";
-        throw e;
+        this.tradeData = await marketCarriageNotify(this.#client, this.messageId);
     }
 }
 

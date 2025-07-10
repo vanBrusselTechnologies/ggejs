@@ -1,7 +1,6 @@
 const BasicMessage = require("./BasicMessage");
 const Localize = require("../../tools/Localize");
-const {WaitUntil} = require("../../tools/wait");
-const {execute: getSpyLog} = require("../../commands/commands/getSpyLog");
+const {getSpyLog} = require("../../commands/bsd");
 
 class BasicSpyPlayerMessage extends BasicMessage {
     /** @type{Client}*/
@@ -23,12 +22,7 @@ class BasicSpyPlayerMessage extends BasicMessage {
     }
 
     async init() {
-        try {
-            this.spyLog = await getMessageBody(this.#client, this.messageId);
-            delete this.#client._socket[`bsd -> ${this.spyLog.messageId}`];
-        } catch (e) {
-            delete this.#client._socket[`bsd -> errorCode`];
-        }
+        this.spyLog = await getSpyLog(this.#client, this.messageId);
     }
 
     /**
@@ -62,22 +56,6 @@ class BasicSpyPlayerMessage extends BasicMessage {
         this.areaType = parseInt(metaArray2[0]);
         this.kingdomId = parseInt(metaArray2[1]);
         this.setSenderToAreaName(this.areaName, this.areaType, this.kingdomId);
-    }
-}
-
-/**
- * @param {Client} client
- * @param {number} messageId
- * @returns {Promise<SpyLog>}
- */
-async function getMessageBody(client, messageId) {
-    try {
-        client._socket['bsd -> errorCode'] = "";
-        getSpyLog(client, messageId);
-        return await WaitUntil(client, `bsd -> ${messageId}`, `bsd -> errorCode`, 30000);
-    } catch (e) {
-        client._socket['bsd -> errorCode'] = "";
-        throw e;
     }
 }
 

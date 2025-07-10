@@ -6,5 +6,5 @@ module.exports.name = "acv";
  */
 module.exports.execute = function (client, errorCode, params) {
     if (!params) return;
-    //todo: client.clientUserData/*.allianceData*/.miniChatHidden = params.H === 1;
+    // TODO: client.clientUserData/*.allianceData*/.miniChatHidden = params.H === 1;
 }

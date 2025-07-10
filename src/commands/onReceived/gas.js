@@ -5,5 +5,5 @@ module.exports.name = "gas";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: get predefined attack setup
+    // TODO: get predefined attack setup
 }

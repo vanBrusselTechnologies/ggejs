@@ -1,10 +1,10 @@
 'use strict'
 
+const {equipment_slots} = require('e4k-data').data;
 const BaseManager = require('./BaseManager');
-const {execute: sellEquipment} = require('../commands/commands/sellEquipment');
-const {execute: sellGem} = require('../commands/commands/sellGem');
+const {sellEquipment} = require('../commands/seq');
+const {sellGem} = require('../commands/sge');
 const Constants = require("../utils/Constants");
-const {WaitUntil} = require("../tools/wait");
 
 class EquipmentManager extends BaseManager {
     /** @type {Lord[]} */
@@ -129,14 +129,12 @@ class EquipmentManager extends BaseManager {
 
     /** @param {Equipment | RelicEquipment} equipment */
     async sellEquipment(equipment) {
-        sellEquipment(this._client, equipment.id, equipment.equippedLord?.id ?? -1);
-        await WaitUntil(this._client, "seq -> sold", 'seq -> errorCode', 10000);
+        await sellEquipment(this._client, equipment.id, equipment.equippedLord?.id ?? -1);
         let i = 0;
         for (const eq of this.#equipmentInventory) {
             if (eq.id === equipment.id) this.#equipmentInventory.splice(i, 1);
             i++;
         }
-        this._client._socket["seq -> sold"] = false;
     }
 
     /** @param {number} rarity */
@@ -156,7 +154,7 @@ class EquipmentManager extends BaseManager {
      * @private
      */
     async _autoSellEquipment(e, rarity = this.#atOrBelowDeleteRarity) {
-        if (e.slotId === require('e4k-data').data.equipment_slots.find(s => s.name === "skin").slotID) return;
+        if (e.slotId === equipment_slots.find(s => s.name === "skin").slotID) return;
         if (rarity > Constants.EquipmentRarity.Relic) return;
         if (rarity === Constants.EquipmentRarity.Unique && (e.rarityId % 10 > Constants.EquipmentRarity.Legendary)) return;
         if (rarity !== Constants.EquipmentRarity.Unique && rarity < e.rarityId % 10) return;
@@ -174,8 +172,7 @@ class EquipmentManager extends BaseManager {
     /** @param {Gem | RelicGem} gem */
     async sellGem(gem) {
         const isRelic = gem.relicTypeId != null;
-        sellGem(this._client, gem.id, isRelic);
-        await WaitUntil(this._client, "sge -> sold", 'sge -> errorCode', 10000);
+        await sellGem(this._client, gem.id, isRelic);
         let i = 0;
         if (isRelic) {
             for (const relicGem of this.#relicGemInventory) {
@@ -190,7 +187,6 @@ class EquipmentManager extends BaseManager {
                 i++;
             }
         }
-        this._client._socket["sge -> sold"] = false;
     }
 
     /** @param {number} level */

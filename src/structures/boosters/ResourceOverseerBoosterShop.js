@@ -5,7 +5,7 @@ const Good = require("../Good");
 class ResourceOverseerBoosterShop extends HeroBoosterShop {
     #client;
 
-    //todo: assetType is type GameAssetType instead of string
+    // TODO: assetType is type GameAssetType instead of string
     /**
      * @param {Client} client
      * @param {string} assetType

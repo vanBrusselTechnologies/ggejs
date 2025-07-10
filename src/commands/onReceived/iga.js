@@ -5,5 +5,5 @@ module.exports.name = "iga";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: In game announcements
+    // TODO: In game announcements
 }

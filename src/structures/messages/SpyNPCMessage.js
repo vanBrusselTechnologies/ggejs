@@ -1,7 +1,6 @@
 const BasicMessage = require("./BasicMessage");
 const Localize = require("../../tools/Localize");
-const {execute: getSpyLog} = require("../../commands/commands/getSpyLog");
-const {WaitUntil} = require("../../tools/wait");
+const {getSpyLog} = require("../../commands/bsd");
 
 class SpyNPCMessage extends BasicMessage {
     /** @type{Client}*/
@@ -40,7 +39,7 @@ class SpyNPCMessage extends BasicMessage {
      * @protected
      */
     initSubject(client, spyTypeName) {
-        let val = "";
+        let val;
         if (this.isSuccessful) {
             val = Localize.text(client, "dialog_spyLog_success");
         } else if (this.isAttacking) {
@@ -52,28 +51,7 @@ class SpyNPCMessage extends BasicMessage {
     }
 
     async init() {
-        try {
-            this.spyLog = await getMessageBody(this.#client, this.messageId);
-            delete this.#client._socket[`bsd -> ${this.spyLog.messageId}`];
-        } catch (e) {
-            delete this.#client._socket[`bsd -> errorCode`];
-        }
-    }
-}
-
-/**
- * @param {Client} client
- * @param {number} messageId
- * @returns {Promise<SpyLog>}
- */
-async function getMessageBody(client, messageId) {
-    try {
-        client._socket['bsd -> errorCode'] = "";
-        getSpyLog(client, messageId);
-        return await WaitUntil(client, `bsd -> ${messageId}`, `bsd -> errorCode`, 30000);
-    } catch (e) {
-        client._socket['bsd -> errorCode'] = "";
-        throw e;
+        this.spyLog = await getSpyLog(this.#client, this.messageId);
     }
 }
 

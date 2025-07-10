@@ -5,5 +5,5 @@ module.exports.name = "gcb";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: changed building efficiency
+    // TODO: changed building efficiency
 }

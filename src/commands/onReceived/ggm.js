@@ -17,6 +17,7 @@ module.exports.execute = function (client, errorCode, params) {
         try {
             await client.equipments.sellAllGemsAtOrBelowLevel(-1);
         } catch (e) {
+            client.logger.d('[GGM]', e);
         }
     })();
 }

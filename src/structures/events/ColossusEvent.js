@@ -36,7 +36,7 @@ class ColossusEvent extends ActiveEvent {
         if (rankIndex === 1) {
             this.offsetRank = playerRank;
         }
-        this.ranking[rankIndex] = {playerRank, playerName, allianceName, playerPoints, playerId}//TODO: .updateVO(playerRank,playerName,allianceName,playerPoints,playerId);
+        this.ranking[rankIndex] = {playerRank, playerName, allianceName, playerPoints, playerId}// TODO: .updateVO(playerRank,playerName,allianceName,playerPoints,playerId);
     }
 
     get mainDialogName() {

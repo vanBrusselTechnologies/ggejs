@@ -5,5 +5,5 @@ module.exports.name = "spl";
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    //todo: Show package list
+    // TODO: Show package list
 }

@@ -17,7 +17,7 @@ class ArtifactEvent extends ActiveEvent {
         if (data["SID"]) this.skinId = data["SID"];
         if (data["ALID"]) this.artifactLeagueId = data["ALID"];
         if (data["PF"]) this.piecesFound = data["PF"];
-        //todo: this.eventBuildingWodId = skinCreatorsManager.getSkinCreator(_loc2_.skinId).getSkinSettingsVO(_loc2_.skinId).eventBuildingWodId;
+        // TODO: this.eventBuildingWodId = skinCreatorsManager.getSkinCreator(_loc2_.skinId).getSkinSettingsVO(_loc2_.skinId).eventBuildingWodId;
     }
 
     get starterDialogName() {

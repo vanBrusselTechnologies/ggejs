@@ -14,11 +14,11 @@ class SkinnableAlienAllianceEvent extends SkinnableAlienEvent {
         this.targetZoneId = data["TZID"];
         this.rerollEnabled = data["CRE"] === 1;
         this.rerollCurrencyKeys = data["RCKS"];
-        //TODO: alienRerollData.rerollSoftCurrencyCount = data["RCSC"];
-        //TODO: alienRerollData.rerollHardCurrencyCount = data["RCHC"];
+        // TODO: alienRerollData.rerollSoftCurrencyCount = data["RCSC"];
+        // TODO: alienRerollData.rerollHardCurrencyCount = data["RCHC"];
         const singlePlayerParams = data["SP"];
         if (singlePlayerParams) this.singlePlayerPointEvent.loadFromParamObject(client, singlePlayerParams);
-        //todo: this.loadFromSkin(skinFactory.getSkinByEventID(this.eventId););
+        // TODO: this.loadFromSkin(skinFactory.getSkinByEventID(this.eventId););
         this.subType = 1;
     }
 

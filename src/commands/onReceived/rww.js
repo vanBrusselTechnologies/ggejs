@@ -5,5 +5,5 @@ module.exports.name = "rww";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: ruby wishing well
+    // TODO: ruby wishing well
 }

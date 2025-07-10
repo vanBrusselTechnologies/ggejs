@@ -5,6 +5,7 @@ exports.ConnectionStatus = {
 }
 
 exports.LogVerbosity = {
+    Off: -1,
     Error: 0,
     Warning: 1,
     Info: 2,

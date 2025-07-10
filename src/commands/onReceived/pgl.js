@@ -5,5 +5,5 @@ module.exports.name = "pgl";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: player gift list
+    // TODO: player gift list
 }

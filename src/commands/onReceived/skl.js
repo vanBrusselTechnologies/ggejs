@@ -5,5 +5,5 @@ module.exports.name = "skl";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: skill point list
+    // TODO: skill point list
 }

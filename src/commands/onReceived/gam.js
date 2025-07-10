@@ -83,7 +83,7 @@ module.exports.execute = function (client, errorCode, params) {
                 _movement = new ArmyAttackMovement(client, _movObj);
                 break;
 
-                //TODO:
+                // TODO:
             default:
                 client.logger.w(`Current movement (movementType ${_movObj.M.T}) isn't fully supported!`);
                 client.logger.d(_movObj);

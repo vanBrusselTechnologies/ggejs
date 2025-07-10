@@ -1,18 +1,45 @@
-const BattleLogUnit = require("../../structures/BattleLogUnit");
-const Unit = require("../../structures/Unit");
+const BattleLogUnit = require("../structures/BattleLogUnit");
+const Unit = require("../structures/Unit");
 
-module.exports.name = "bld";
+const NAME = "bld"
+/** @type {CommandCallback<BattleLog>[]}*/
+const callbacks = [];
+
+module.exports.name = NAME;
+
 /**
  * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    //todo: BattleLog Detailed
+    const battleLog = parseBLD(client, params);
+    require('.').baseExecuteCommand(battleLog, errorCode, params, callbacks);
+}
+
+/**
+ * @param {Client} client
+ * @param {number} battleLogId
+ * @return {Promise<BattleLog>}
+ */
+module.exports.getBattleLogDetail = function (client, battleLogId) {
+    const C2SBattleLogDetailVO = {LID: battleLogId};
+    return require('.').baseSendCommand(client, NAME, C2SBattleLogDetailVO, callbacks, (p) => p["LID"] === battleLogId);
+}
+
+module.exports.bld = parseBLD;
+
+/**
+ * @param {Client} client
+ * @param {Object} params
+ * @return {BattleLog}
+ */
+function parseBLD(client, params) {
+    if (!params) return null;
     const supportTools = parseSupportToolsDetails(client, params.S);
     const yard = parseYardDetailed(client, params.Y);
     const waves = parseWavesDetails(client, params.W);
-    client._socket[`bld -> ${params.LID}`] = {
+    return {
         courtyardAttacker: yard.attacker,
         courtyardDefender: yard.defender,
         wavesAttacker: waves.attacker,

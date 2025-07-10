@@ -5,5 +5,5 @@ module.exports.name = "dcl";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: get detailed castle list
+    // TODO: get detailed castle list
 }

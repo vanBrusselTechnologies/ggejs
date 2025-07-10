@@ -3,7 +3,7 @@ const WorldMap = require('./WorldMap')
 class WorldMapSector extends WorldMap {
     constructor(client, kingdomId, data) {
         super(client, kingdomId);
-        this.mapObjects = data.worldMapAreas;
+        this.mapObjects = data;
     }
 
     /** @param {WorldMapSector} sectors */

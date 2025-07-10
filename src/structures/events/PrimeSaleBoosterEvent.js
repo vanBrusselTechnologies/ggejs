@@ -14,7 +14,7 @@ class PrimeSaleBoosterEvent extends PrimeSaleEvent {
     }
 
     get offersHubType() {
-        return {name: "primeSaleBoosters", id: 10}//TODO: OffersHubTypeEnum.PRIME_SALE_BOOSTERS;
+        return {name: "primeSaleBoosters", id: 10}// TODO: OffersHubTypeEnum.PRIME_SALE_BOOSTERS;
     }
 
     get skinId(){

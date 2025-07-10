@@ -5,5 +5,5 @@ module.exports.name = "sie";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: Subscriptions information
+    // TODO: Subscriptions information
 }

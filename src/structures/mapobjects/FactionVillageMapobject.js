@@ -16,7 +16,7 @@ class FactionVillageMapobject extends FactionInteractiveMapobject {
         this.#client = client;
         this.ownerId = data[3];
         this.ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(this.ownerId);
-        this.aliveProtectorPositions = Array.isArray(data[4]) ? data[4].map(p => new Coordinate(client, p)) : [];
+        this.aliveProtectorPositions = Array.isArray(data[4]) ? data[4].map(p => new Coordinate(p)) : [];
         if (data[5] > 0) {
             /** @type {Date} */
             this.lastSpyDate = new Date(Date.now() - data[5] * 1000);

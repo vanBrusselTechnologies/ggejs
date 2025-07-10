@@ -4,8 +4,7 @@ const BaseManager = require('./BaseManager');
 const {execute: sendArmyAttackMovement} = require("../commands/commands/sendArmyAttackMovement");
 const {execute: sendMarketMovement} = require("../commands/commands/sendMarketMovement");
 const {execute: sendSpyMovement} = require("../commands/commands/sendSpyMovement");
-const {SpyType} = require("../utils/Constants");
-const Constants = require("../utils/Constants");
+const {SpyType, Events} = require("../utils/Constants");
 
 class MovementManager extends BaseManager {
     /** @type {Movement[]} */
@@ -102,14 +101,14 @@ class MovementManager extends BaseManager {
                 let _oldMovement = this.#movements[j];
                 if (_oldMovement.movementId === _newMovement.movementId) {
                     this.#movements[j] = _newMovement;
-                    this.emit(Constants.Events.MOVEMENT_UPDATE, _oldMovement, _newMovement);
+                    this.emit(Events.MOVEMENT_UPDATE, _oldMovement, _newMovement);
                     found = true;
                     break;
                 }
             }
             if (!found) {
                 this.#movements.push(_newMovement);
-                this.emit(Constants.Events.MOVEMENT_ADD, _newMovement);
+                this.emit(Events.MOVEMENT_ADD, _newMovement);
             }
         }
     }
@@ -119,7 +118,7 @@ class MovementManager extends BaseManager {
         for (let i = this.#movements.length - 1; i >= 0; i--) {
             const _movement = this.#movements[i];
             if (_movement.movementId === _movementId) {
-                this.emit(Constants.Events.MOVEMENT_CANCEL, _movement);
+                this.emit(Events.MOVEMENT_CANCEL, _movement);
                 this.#movements.splice(i, 1);
             }
         }

@@ -5,5 +5,5 @@ module.exports.name = "drt";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: Daily reset time
+    // TODO: Daily reset time
 }

@@ -2,7 +2,7 @@ const ActiveEvent = require("./ActiveEvent");
 const EventConst = require("../../utils/EventConst");
 
 class PrimeSaleEvent extends ActiveEvent {
-    /** @type {string} */ //todo: PrimeSaleTypeEnum
+    /** @type {string} */ // TODO: PrimeSaleTypeEnum
     primeSaleType;
     /** @type {number} */
     discount;

@@ -18,7 +18,7 @@ module.exports.execute = function (client, errorCode, params) {
  * @param {number} messageId
  */
 function removeAndEmit(client, messageId) {
-    for (let i in client._mailMessages) {
+    for (let i = client._mailMessages.length - 1; i >= 0; i--) {
         if (client._mailMessages[i].messageId === messageId) {
             client.emit(Constants.Events.MAIL_MESSAGE_REMOVE, client._mailMessages[i]);
             client._mailMessages.splice(i, 1);

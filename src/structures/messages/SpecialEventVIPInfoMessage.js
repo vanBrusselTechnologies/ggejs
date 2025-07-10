@@ -6,7 +6,7 @@ class SpecialEventVIPInfoMessage extends BasicSpecialEventMessage {
         metaArray = metaArray[0].split("#");
         super.parseMetaData(client, metaArray);
         this.vipLevel = parseInt(metaArray[1]);
-        this.subject = Localize.text(client, "dialog_VipBonus_message_header", this.vipLevel);
+        this.subject = Localize.text(client, "dialog_VipBonus_message_header", this.vipLevel.toString());
         this.senderName = Localize.text(client, "dialog_messages_system");
     }
 }

@@ -1,8 +1,7 @@
 const BasicMessage = require("./BasicMessage");
-const {WaitUntil} = require("../../tools/wait");
-const {execute: getBattleLogDetail} = require("../../commands/commands/getBattleLogDetail");
-const {execute: getBattleLogMiddle} = require("../../commands/commands/getBattleLogMiddle");
-const {execute: getBattleLogShort} = require("../../commands/commands/getBattleLogShort");
+const {getBattleLogDetail} = require("../../commands/bld");
+const {getBattleLogMiddle} = require("../../commands/blm");
+const {getBattleLogShort} = require("../../commands/bls");
 const Localize = require("../../tools/Localize");
 
 class BasicBattleLogMessage extends BasicMessage {
@@ -28,16 +27,7 @@ class BasicBattleLogMessage extends BasicMessage {
     }
 
     async init() {
-        try {
-            this.battleLog = await getMessageBody(this.#client, this.messageId, this);
-        } finally {
-            delete this.#client._socket[`bls -> ${this.messageId}`];
-            delete this.#client._socket['bls -> errorCode'];
-            if (this.battleLog) {
-                delete this.#client._socket[`blm -> ${this.battleLog.battleLogId}`];
-                delete this.#client._socket[`bld -> ${this.battleLog.battleLogId}`];
-            }
-        }
+        this.battleLog = await getMessageBody(this.#client, this.messageId);
     }
 
     /** @param {Client} _
@@ -76,25 +66,20 @@ class BasicBattleLogMessage extends BasicMessage {
 /**
  * @param {Client} client
  * @param {number} messageId
- * @param {BasicBattleLogMessage} battleLogMessage
  * @returns {Promise<BattleLog>}
  */
-async function getMessageBody(client, messageId, battleLogMessage) {
+async function getMessageBody(client, messageId) {
     /** @type {BattleLog} */
     const body = {};
     try {
-        client._socket[`${messageId} battleLogMessage`] = battleLogMessage;
-        getBattleLogShort(client, messageId);
-        const battleLogShort = await WaitUntil(client, `bls -> ${messageId}`, "bls -> errorCode", 30000);
+        const battleLogShort = await getBattleLogShort(client, messageId);
         for (const key in battleLogShort) {
             if (battleLogShort[key] == null) continue;
             body[key] = battleLogShort[key];
         }
         client._socket[`${body.battleLogId} battleLog`] = body;
-        getBattleLogMiddle(client, body.battleLogId);
-        getBattleLogDetail(client, body.battleLogId);
-        const battleLogMiddle = await WaitUntil(client, `blm -> ${body.battleLogId}`, "", 30000);
-        const battleLogDetail = await WaitUntil(client, `bld -> ${body.battleLogId}`, "", 30000);
+        const battleLogMiddle = await getBattleLogMiddle(client, body.battleLogId);
+        const battleLogDetail = await getBattleLogDetail(client, body.battleLogId);
         for (const key in battleLogMiddle) {
             if (battleLogMiddle[key] == null) continue;
             body[key] = battleLogMiddle[key];
@@ -105,7 +90,6 @@ async function getMessageBody(client, messageId, battleLogMessage) {
         }
         return body;
     } catch (e) {
-        delete client._socket[`${messageId} battleLogMessage`]
         delete client._socket[`${body.battleLogId} battleLog`]
         throw e;
     }

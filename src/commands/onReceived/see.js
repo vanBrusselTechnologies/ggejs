@@ -5,5 +5,5 @@ module.exports.name = "see";
  * @param {{EID: number}} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    //TODO: client.events._remove(params.EID);
+    // TODO: client.events._remove(params.EID);
 }

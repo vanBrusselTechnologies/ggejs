@@ -92,6 +92,7 @@ async function handleSNE(client, messages) {
                     try {
                         await client.equipments._autoSellEquipment(eq);
                     } catch (e) {
+                        client.logger.d('[SNE]', e);
                     }
                 }
                 const gem = m.battleLog.rewardGem
@@ -99,6 +100,7 @@ async function handleSNE(client, messages) {
                     try {
                         await client.equipments._autoSellGem(gem);
                     } catch (e) {
+                        client.logger.d('[SNE]', e);
                     }
                 }
                 if (m.battleLog.defender?.playerId < 0 && m.battleLog.mapobject?.areaType === Constants.WorldMapArea.Dungeon) {
@@ -130,6 +132,10 @@ async function handleSNE(client, messages) {
                 client._mailMessages.unshift(m);
             }
         } catch (e) {
+            if (e === "Socket disconnected!") {
+                client.logger.d('[SNE]', e);
+                break;
+            }
             client.logger.d('[SNE]', e, msg);
         }
     }
@@ -427,7 +433,8 @@ async function parseMessageInfo(client, messageInfo) {
     try {
         await message.init();
     } catch (e) {
-        if (e === 225) deleteMessages(client, [message.messageId])
+        if (e === 130) deleteMessages(client, [message.messageId]);
+        if (e === 225) deleteMessages(client, [message.messageId]);
         throw e;
     }
     return message;

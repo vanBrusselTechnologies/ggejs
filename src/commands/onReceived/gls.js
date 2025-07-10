@@ -5,5 +5,5 @@ module.exports.name = "gls";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: get lootbox status
+    // TODO: get lootbox status
 }

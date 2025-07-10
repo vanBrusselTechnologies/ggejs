@@ -5,5 +5,5 @@ module.exports.name = "dts";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: downtime status
+    // TODO: downtime status
 }

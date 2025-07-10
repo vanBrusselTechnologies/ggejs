@@ -5,5 +5,5 @@ module.exports.name = "kpi";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: kingdom info
+    // TODO: kingdom info
 }

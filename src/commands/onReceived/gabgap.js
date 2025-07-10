@@ -5,5 +5,5 @@ module.exports.name = "gabgap";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: GET_ALLIANCE_BATTLE_GROUND_ALLIANCE_POINTS
+    // TODO: GET_ALLIANCE_BATTLE_GROUND_ALLIANCE_POINTS
 }

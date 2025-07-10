@@ -5,5 +5,5 @@ module.exports.name = "gii";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: Get construction item inventory
+    // TODO: Get construction item inventory
 }

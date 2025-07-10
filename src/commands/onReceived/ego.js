@@ -5,5 +5,5 @@ module.exports.name = "ego";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: Get Object
+    // TODO: Get Object
 }

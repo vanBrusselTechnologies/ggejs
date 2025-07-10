@@ -7,7 +7,7 @@ module.exports.name = "core_lga";
  * @param {{D:{GDPR?: 0|1, RS?: number}}} params
  */
 module.exports.execute = async function (client, errorCode, params) {
-    //todo: Core_LGA has massive source code update
+    // TODO: Core_LGA has massive source code update
     switch (errorCode - 10005) {
         case 0:
             await client.socketManager.onLogin();

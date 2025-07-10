@@ -5,5 +5,5 @@ module.exports.name = "mre";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: monument reset
+    // TODO: monument reset
 }

@@ -19,7 +19,7 @@ class LTPointEvent extends PointEvent {
             this.upcomingEvents = [];
         }
         this.skinId = data["SID"];
-        //TODO: this.eventBuildingWodId = settingsService.getSkinSettingCreator(this.skinId).getSkinSettingsVO().eventBuildingWOD;
+        // TODO: this.eventBuildingWodId = settingsService.getSkinSettingCreator(this.skinId).getSkinSettingsVO().eventBuildingWOD;
     }
 
     get mainDialogName() {

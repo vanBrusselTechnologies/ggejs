@@ -1,13 +1,42 @@
-const WorldMapOwnerInfo = require("../../structures/WorldMapOwnerInfo");
+const WorldMapOwnerInfo = require("../structures/WorldMapOwnerInfo");
 
-module.exports.name = "hgh";
+const NAME = "hgh"
+/** @type {CommandCallback<HighScore<AllianceHighScoreItem | PlayerHighScoreItem>>[]}*/
+const callbacks = [];
+
+module.exports.name = NAME;
+
 /**
  * @param {Client} client
  * @param {number} errorCode
- * @param {{LT:number, LID: number, L: Array<Array>, LR:number, SV:string, FR: number, IGH: number}} params
+ * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    if (!params || !params.LID) return;
+    const highScore = parseHGH(client, params);
+    require('.').baseExecuteCommand(highScore, errorCode, params, callbacks);
+}
+
+/**
+ * @param {Client} client
+ * @param {string} searchValue
+ * @param {number} listType
+ * @param {number} leagueTypeId Bracket based on level, starting with 1
+ * @return {Promise<HighScore<AllianceHighScoreItem | PlayerHighScoreItem>>}
+ */
+module.exports.getHighScore = function (client, searchValue = "1", listType = 6, leagueTypeId = 1) {
+    const C2SGetHighScoreVO = {SV: searchValue, LT: listType, LID: leagueTypeId};
+    return require('.').baseSendCommand(client, NAME, C2SGetHighScoreVO, callbacks, (p) => p["LT"] === listType && normalize(p["SV"]) === normalize(searchValue));
+}
+
+module.exports.hgh = parseHGH;
+
+/**
+ * @param {Client} client
+ * @param {{LT:number, LID: number, L: Array<Array>, LR:number, SV:string, FR: number, IGH: number}} params
+ * @return {HighScore<AllianceHighScoreItem | PlayerHighScoreItem>}
+ */
+function parseHGH(client, params) {
+    if (!params || !params.LID) return null;
     const listType = params.LT;
     const leaderboard = params.L;
     const highScoreItems = [];
@@ -17,7 +46,7 @@ module.exports.execute = function (client, errorCode, params) {
             if (highScoreItem) highScoreItems.push(highScoreItem);
         }
     }
-    const output = {
+    return {
         listType: listType,
         leagueId: params.LID,
         lastRow: params.LR,
@@ -25,8 +54,6 @@ module.exports.execute = function (client, errorCode, params) {
         foundRank: params.FR,
         items: highScoreItems
     };
-    const SV = output.searchValue.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    client._socket[`hgh_${output.listType}_${SV}`] = output;
 }
 
 /**
@@ -105,7 +132,7 @@ function getHighScoreItem(client, listType, itemData) {
             highScoreItem["playerName"] = itemData[3] ?? highScoreItem["player"].playerName;
             highScoreItem["rawValues"] = itemData;
     }
-    highScoreItem["highscoreTypeId"] = listType;
+    highScoreItem["highScoreTypeId"] = listType;
     return highScoreItem;
 }
 
@@ -121,3 +148,6 @@ function parseAlliance(params) {
         allianceCurrentFame: params.shift()
     };
 }
+
+/** @param {string} name */
+normalize = (name) => typeof name !== "string" ? "" : name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");

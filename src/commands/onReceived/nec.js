@@ -5,5 +5,5 @@ module.exports.name = "nec";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: next expiring construction item event
+    // TODO: next expiring construction item event
 }

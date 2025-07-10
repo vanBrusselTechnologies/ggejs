@@ -56,7 +56,7 @@ class CompactArmy {
 
 /**
  * @param {Client} client
- * @param {Array} data
+ * @param {number[][]} data
  * @returns {InventoryItem<Unit>[]}
  */
 function parse(client, data) {

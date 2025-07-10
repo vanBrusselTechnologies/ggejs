@@ -5,7 +5,7 @@ class PointEvent extends ActiveEvent {
     eventBuildingWodId = 397
 
     /** @type {number} */
-    leageId;
+    leagueId;
     /** @type {number} */
     subType;
     /** @type {number[]} */

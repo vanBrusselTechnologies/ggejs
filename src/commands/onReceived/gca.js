@@ -1,4 +1,4 @@
-const CastleBuildings = require("../../structures/CastleBuildingInfo");
+const CastleBuildingInfo = require("../../structures/CastleBuildingInfo");
 
 module.exports.name = "gca";
 /**
@@ -7,5 +7,5 @@ module.exports.name = "gca";
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    return new CastleBuildings(client, params);
+    return new CastleBuildingInfo(client, params);
 }

@@ -5,5 +5,5 @@ module.exports.name = "gec";
  * @param {Object} ___
  */
 module.exports.execute = function (_, __, ___) {
-    //todo: gem change
+    // TODO: gem change
 }

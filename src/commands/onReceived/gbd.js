@@ -5,7 +5,7 @@ module.exports.name = "gbd";
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    //todo?: setUpActiveActionsServiceSignal.dispatch();
+    // TODO?: setUpActiveActionsServiceSignal.dispatch();
     for (let x in params) {
         switch (x.toLowerCase()) {
             case "WR".toLowerCase():
@@ -145,7 +145,7 @@ async function handlePostGBDCommandInNextFrame(client) {
      */
     requestLoginBonusInfo(client);
     requestMessagesData(client);
-    requestAllianceData(client);
+    await requestAllianceData(client);
     requestBookmarkData(client);
     requestConstructionItemInventory(client);
     requestGeneralsInnData(client);
@@ -162,7 +162,7 @@ async function handlePostGBDCommandInNextFrame(client) {
          }
      */
 
-    //todo????: Code below is added and not in source code
+    // TODO????: Code below is added and not in source code
     require('../commands/getEquipmentInventory').execute(client);
     client._socket['gbd finished'] = true;
 }
@@ -188,9 +188,9 @@ function requestMessagesData(client) {
 }
 
 /** @param {Client} client */
-function requestAllianceData(client) {
+async function requestAllianceData(client) {
     if (client.clientUserData.allianceId >= 0) {
-        require('../commands/searchAllianceById').execute(client, client.clientUserData.allianceId);
+        await require('../ain').getAllianceInfo(client, client.clientUserData.allianceId);
         require('../commands/getAllianceFame').execute(client);
         require('../commands/getAllianceChatHistory').execute(client);
     }

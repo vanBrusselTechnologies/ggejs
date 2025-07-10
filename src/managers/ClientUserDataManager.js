@@ -282,7 +282,7 @@ class ClientUserDataManager {
         this._playerInfo.userId = val;
     }
 
-    //todo: pingVO + pingDashed
+    // TODO: pingVO + pingDashed
 
     /** @returns {number} */
     get playerId() {
@@ -344,7 +344,7 @@ class ClientUserDataManager {
         this._playerInfo.hasEverChangedName = val;
     }
 
-    /** @returns {number} */
+    /** @returns {Date} */
     get registrationDate() {
         return new Date(this._playerInfo.registrationTimestamp * 1000);
     }
@@ -747,7 +747,7 @@ class ClientUserDataManager {
     /** @param {number} points */
     set vipPoints(points) {
         this._vipData._currentVIPPoints = points < 0 ? 0 : points;
-        //todo: this._vipData._currentVIPLevel = getVIPLevelInfoVOByPoints(points);
+        // TODO: this._vipData._currentVIPLevel = getVIPLevelInfoVOByPoints(points);
     }
 
     /** @return {number} */
@@ -778,7 +778,7 @@ class ClientUserDataManager {
     /** @param {number} val */
     set vipTimeExpireTimestamp(val) {
         const active = val > 0;
-        //todo: this._vipData._vipModeStatusVO.isActive = active;
+        // TODO: this._vipData._vipModeStatusVO.isActive = active;
         this._vipData._vipTimeExpireTimestamp = active ? Date.now() + val * 1000 : 0;
     }
 

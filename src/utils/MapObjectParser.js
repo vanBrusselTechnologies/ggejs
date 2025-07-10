@@ -37,7 +37,7 @@ const SeaqueenMapKrakenObject = require("../structures/mapobjects/SeaqueenMapKra
 /**
  * @param {Client} client
  * @param {[]} data
- * @returns {Mapobject}
+ * @returns {Mapobject | BasicMapobject}
  */
 module.exports.parseMapObject = (client, data) => {
     if (data == null || !Array.isArray(data)) return null;

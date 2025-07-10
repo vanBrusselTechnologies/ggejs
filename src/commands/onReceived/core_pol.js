@@ -5,5 +5,5 @@ module.exports.name = "core_pol";
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    //todo: private offer list event
+    // TODO: private offer list event
 }

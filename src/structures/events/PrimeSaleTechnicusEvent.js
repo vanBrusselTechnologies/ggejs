@@ -4,7 +4,7 @@ class PrimeSaleTechnicusEvent extends PrimeSaleEvent {
     requiredEventIds = [46];
 
     get offersHubType() {
-        return {name: "primeSaleTechnicus", id: 12}//TODO: OffersHubTypeEnum.PRIME_SALE_TECHNICUS;
+        return {name: "primeSaleTechnicus", id: 12}// TODO: OffersHubTypeEnum.PRIME_SALE_TECHNICUS;
     }
 
     get skinId() {

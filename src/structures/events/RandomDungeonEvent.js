@@ -1,3 +1,4 @@
+const {Reward} = require('e4k-data');
 const ActiveEvent = require("./ActiveEvent");
 const {parseMapObject} = require("../../utils/MapObjectParser");
 
@@ -35,7 +36,7 @@ class RandomDungeonEvent extends ActiveEvent {
 
         this.targetArea = parseMapObject(client, data.D);
         this.targetArea.skinId = data.SID;
-        this.rewards = []//TODO: eventDungeonRewardHelper.parse(data);
+        this.rewards = []// TODO: eventDungeonRewardHelper.parse(data);
         this.hasWon = this.targetArea.isDefeated;
     }
 }
