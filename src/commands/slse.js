@@ -24,7 +24,7 @@ module.exports.execute = function (client, errorCode, params) {
  */
 module.exports.searchLeaderboardScores = function (client, listType, searchValue) {
     const C2SSearchLeaderboardScoresVO = {SV: searchValue, LT: 53};
-    return require('.').baseSendCommand(client, NAME, C2SSearchLeaderboardScoresVO, callbacks, (p) => p["LT"] === listType);
+    return require('.').baseSendCommand(client, NAME, C2SSearchLeaderboardScoresVO, callbacks, (p) => p?.["LT"] === listType);
 }
 
 module.exports.slse = parseSLSE;

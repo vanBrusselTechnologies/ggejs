@@ -52,9 +52,9 @@ class MyAlliance extends Alliance {
      * @param {Object} data
      */
     parseStorage(client, data) {
-        let goods = []
-        for (let i in data) {
-            let _array = [i, data[i]];
+        const goods = [];
+        for (const i in data) {
+            const _array = [i, data[i]];
             goods.push(new Good(client, _array));
         }
         this.storage = goods;

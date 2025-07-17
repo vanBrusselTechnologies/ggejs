@@ -22,7 +22,7 @@ class ArmyTravelMovement extends BasicMovement {
  */
 function parseGoods(client, data) {
     /** @type {Good[]} */
-    const goods = []
+    const goods = [];
     for (const i in data) goods.push(new Good(client, data[i]));
     return goods;
 }

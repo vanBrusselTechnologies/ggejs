@@ -10,7 +10,7 @@ const RelicEquipment = require("../structures/RelicEquipment");
 const {parseMapObject} = require("../utils/MapObjectParser");
 const SeasonEventsConstants = require("../utils/SeasonEventsConstants");
 
-const NAME = "bls"
+const NAME = "bls";
 /** @type {CommandCallback<BattleLog>[]}*/
 const callbacks = [];
 
@@ -33,7 +33,7 @@ module.exports.execute = function (client, errorCode, params) {
  */
 module.exports.getBattleLogShort = function (client, messageId) {
     const C2SBattleLogShortVO = {MID: messageId};
-    return require('.').baseSendCommand(client, NAME, C2SBattleLogShortVO, callbacks, (p) => p["MID"] === messageId);
+    return require('.').baseSendCommand(client, NAME, C2SBattleLogShortVO, callbacks, (p) => p?.["MID"] === messageId);
 }
 
 module.exports.bls = parseBLS;

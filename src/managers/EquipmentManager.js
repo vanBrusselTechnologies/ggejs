@@ -2,8 +2,11 @@
 
 const {equipment_slots} = require('e4k-data').data;
 const BaseManager = require('./BaseManager');
+const {getEquipmentInventory} = require("../commands/gei");
+const {getGemInventory} = require("../commands/ggm");
 const {sellEquipment} = require('../commands/seq');
 const {sellGem} = require('../commands/sge');
+const EmpireError = require("../tools/EmpireError");
 const Constants = require("../utils/Constants");
 
 class EquipmentManager extends BaseManager {
@@ -13,10 +16,6 @@ class EquipmentManager extends BaseManager {
     #commandants = [];
     /** @type {General[]} */
     #generals = [];
-    /** @type {(Equipment|RelicEquipment)[]} */
-    #equipmentInventory = [];
-    /** @type {number} */
-    #atOrBelowDeleteRarity = -1;
     /** @type {number} */
     #equipmentSpaceLeft = -1;
     /** @type {number} */
@@ -26,21 +25,9 @@ class EquipmentManager extends BaseManager {
     /** @type {RelicGem[]} */
     #relicGemInventory = [];
     /** @type {number} */
-    #atOrBelowDeleteGemLevel = -1;
-    /** @type {number} */
     #gemSpaceLeft = -1;
     /** @type {number} */
     #gemTotalInventorySpace = -1;
-
-    /** @param {number} rarity */
-    set autoDeleteAtOrBelowRarity(rarity) {
-        this.#atOrBelowDeleteRarity = rarity % 10;
-    }
-
-    /** @param level */
-    set autoDeleteAtOrBelowGemLevel(level) {
-        this.#atOrBelowDeleteGemLevel = level;
-    }
 
     get equipmentSpaceLeft() {
         return this.#equipmentSpaceLeft;
@@ -92,11 +79,6 @@ class EquipmentManager extends BaseManager {
         this.#generals = generals;
     }
 
-    /** @param {Equipment[]} equipments */
-    _setEquipmentInventory(equipments) {
-        this.#equipmentInventory = equipments;
-    }
-
     /** @param {{gem: Gem, amount: number}[]} gems */
     _setRegularGemInventory(gems) {
         this.#regularGemInventory = gems;
@@ -124,24 +106,29 @@ class EquipmentManager extends BaseManager {
     /** @returns {General[]} */
     getGenerals = () => [...this.#generals];
 
-    /** @returns {(Equipment|RelicEquipment)[]} */
-    getEquipmentInventory = () => [...this.#equipmentInventory];
+    /** @returns {Promise<(Equipment|RelicEquipment)[]>} */
+    async getEquipmentInventory() {
+        try {
+            return await getEquipmentInventory(this._client);
+        } catch (errorCode) {
+            throw new EmpireError(this._client, errorCode);
+        }
+    }
 
     /** @param {Equipment | RelicEquipment} equipment */
     async sellEquipment(equipment) {
-        await sellEquipment(this._client, equipment.id, equipment.equippedLord?.id ?? -1);
-        let i = 0;
-        for (const eq of this.#equipmentInventory) {
-            if (eq.id === equipment.id) this.#equipmentInventory.splice(i, 1);
-            i++;
+        try {
+            await sellEquipment(this._client, equipment.id, equipment.equippedLord?.id ?? -1);
+        } catch (errorCode) {
+            throw new EmpireError(this._client, errorCode);
         }
     }
 
     /** @param {number} rarity */
     async sellAllEquipmentsAtOrBelowRarity(rarity) {
-        if (rarity === -1) rarity = this.#atOrBelowDeleteRarity;
+        if (rarity === -1) return;
         rarity %= 10; //hero starts with 10 instead of 0
-        const inventory = this.getEquipmentInventory();
+        const inventory = await this.getEquipmentInventory();
         for (let i = inventory.length - 1; i >= 0; i--) {
             await this._autoSellEquipment(inventory[i], rarity);
         }
@@ -153,14 +140,12 @@ class EquipmentManager extends BaseManager {
      * @return {Promise<void>}
      * @private
      */
-    async _autoSellEquipment(e, rarity = this.#atOrBelowDeleteRarity) {
+    async _autoSellEquipment(e, rarity) {
         if (e.slotId === equipment_slots.find(s => s.name === "skin").slotID) return;
         if (rarity > Constants.EquipmentRarity.Relic) return;
         if (rarity === Constants.EquipmentRarity.Unique && (e.rarityId % 10 > Constants.EquipmentRarity.Legendary)) return;
         if (rarity !== Constants.EquipmentRarity.Unique && rarity < e.rarityId % 10) return;
         if (rarity <= Constants.EquipmentRarity.Legendary && rarity === Constants.EquipmentRarity.Unique) return;
-
-        if (this.#equipmentInventory.findIndex(eq => e.id === eq.id) === -1) return;
         await this.sellEquipment(e);
     }
 
@@ -168,6 +153,17 @@ class EquipmentManager extends BaseManager {
     getRegularGemInventory = () => [...this.#regularGemInventory];
     /** @return {RelicGem[]} */
     getRelicGemInventory = () => [...this.#relicGemInventory];
+    /** @returns {Promise<{regular: {gem: Gem, amount: number}[], relic: RelicGem[]}>} */
+    getGemInventory = async () => {
+        try {
+            await getGemInventory(this._client);
+            return {
+                regular: this.getRegularGemInventory(), relic: this.getRelicGemInventory()
+            }
+        } catch (errorCode) {
+            throw new EmpireError(this._client, errorCode);
+        }
+    };
 
     /** @param {Gem | RelicGem} gem */
     async sellGem(gem) {
@@ -191,11 +187,12 @@ class EquipmentManager extends BaseManager {
 
     /** @param {number} level */
     async sellAllGemsAtOrBelowLevel(level) {
-        if (level === -1) level = this.#atOrBelowDeleteGemLevel;
-        const inventory = this.getRegularGemInventory();
-        for (let i = inventory.length - 1; i >= 0; i--) {
-            for (let j = 0; j < inventory[i].amount; j++) {
-                await this._autoSellGem(inventory[i].gem, level);
+        if (level === -1) return;
+        const inventory = await this.getGemInventory();
+        const regularInventory = inventory.regular
+        for (let i = regularInventory.length - 1; i >= 0; i--) {
+            for (let j = 0; j < regularInventory[i].amount; j++) {
+                await this._autoSellGem(regularInventory[i].gem, level);
             }
         }
     }
@@ -206,7 +203,7 @@ class EquipmentManager extends BaseManager {
      * @return {Promise<void>}
      * @private
      */
-    async _autoSellGem(gem, level = this.#atOrBelowDeleteGemLevel) {
+    async _autoSellGem(gem, level) {
         if (gem.rawData.gemLevelID > level) return;
         if (this.#regularGemInventory.findIndex(gem_amount => gem.id === gem_amount.gem.id) === -1) return;
         await this.sellGem(gem);

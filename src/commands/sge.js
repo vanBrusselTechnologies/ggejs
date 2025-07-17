@@ -1,6 +1,6 @@
-const NAME = "sge"
+const NAME = "sge";
 /** @type {CommandCallback<void>[]}*/
-const callbacks = []
+const callbacks = [];
 
 module.exports.name = NAME;
 

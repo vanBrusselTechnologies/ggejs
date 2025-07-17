@@ -1,12 +1,14 @@
 const BasicAttackAdvisorMessage = require("./BasicAttackAdvisorMessage");
-const Localize = require("../../tools/Localize");
-const {readMessages} = require("../../commands/rms");
 const Good = require("../Good");
+const {readMessages} = require("../../commands/rms");
+const EmpireError = require("../../tools/EmpireError");
+const Localize = require("../../tools/Localize");
 
 class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
     /** @type {Client} */
     #client = null;
-    advisorOverviewInfo;
+    /** @type {AdvisorOverviewInfo | undefined} */
+    _advisorOverviewInfo = undefined;
 
     /**
      * @param {Client} client
@@ -17,8 +19,14 @@ class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
         this.#client = client;
     }
 
-    async init() {
-        this.advisorOverviewInfo = await parseAdvisorOverview(this.#client, this.messageId);
+    async getAdvisorOverviewInfo() {
+        try {
+            if (this._advisorOverviewInfo !== undefined) return this._advisorOverviewInfo;
+            this._advisorOverviewInfo = await parseAdvisorOverview(this.#client, this.messageId);
+            return this._advisorOverviewInfo;
+        } catch (e) {
+            throw EmpireError(this.#client, e);
+        }
     }
 
     parseMetaData(client, metaArray) {
@@ -30,7 +38,7 @@ class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
 /**
  * @param {Client} client
  * @param {number} messageId
- * @returns {Promise<{}>}
+ * @returns {Promise<AdvisorOverviewInfo>}
  */
 async function parseAdvisorOverview(client, messageId) {
     const stringData = await readMessages(client, messageId);

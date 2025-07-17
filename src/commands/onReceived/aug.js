@@ -11,5 +11,5 @@ module.exports.execute = function (client, errorCode, params) {
     const cud = client.clientUserData;
     cud.myAlliance.parseStorage(params.STO);
     abl(client, errorCode, params.ABL);
-    getAllianceInfo(client, cud.allianceId).then()
+    getAllianceInfo(client, cud.allianceId).then();
 }

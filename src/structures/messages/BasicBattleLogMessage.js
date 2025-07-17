@@ -2,11 +2,14 @@ const BasicMessage = require("./BasicMessage");
 const {getBattleLogDetail} = require("../../commands/bld");
 const {getBattleLogMiddle} = require("../../commands/blm");
 const {getBattleLogShort} = require("../../commands/bls");
+const EmpireError = require("../../tools/EmpireError");
 const Localize = require("../../tools/Localize");
 
 class BasicBattleLogMessage extends BasicMessage {
     /** @type {Client} */
     #client = null;
+    /** @type {BattleLog | undefined} */
+    _battleLog = undefined;
 
     /**
      * @param {Client} client
@@ -26,8 +29,14 @@ class BasicBattleLogMessage extends BasicMessage {
         return this.hasAttackerWon !== this.isDefenseReport;
     }
 
-    async init() {
-        this.battleLog = await getMessageBody(this.#client, this.messageId);
+    async getBattleLog() {
+        try {
+            if (this._battleLog !== undefined) return this._battleLog;
+            this._battleLog = await getMessageBody(this.#client, this.messageId);
+            return this._battleLog;
+        } catch (e) {
+            throw EmpireError(this.#client, e);
+        }
     }
 
     /** @param {Client} _
@@ -59,7 +68,7 @@ class BasicBattleLogMessage extends BasicMessage {
             this.initSubject(client);
         }
 
-        this.setSenderToAreaName(this.areaName, this.areaType, this.kingdomId)
+        this.setSenderToAreaName(this.areaName, this.areaType, this.kingdomId);
     }
 }
 
@@ -90,7 +99,7 @@ async function getMessageBody(client, messageId) {
         }
         return body;
     } catch (e) {
-        delete client._socket[`${body.battleLogId} battleLog`]
+        delete client._socket[`${body.battleLogId} battleLog`];
         throw e;
     }
 }

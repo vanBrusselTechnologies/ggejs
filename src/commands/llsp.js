@@ -1,6 +1,6 @@
 const {parseLeaderboardList} = require("../utils/LeaderboardParser");
 
-const NAME = "llsp"
+const NAME = "llsp";
 /** @type {CommandCallback<LeaderboardList>[]}*/
 const callbacks = [];
 
@@ -26,7 +26,7 @@ module.exports.execute = function (client, errorCode, params) {
  */
 module.exports.listLeaderboardScoresPage = function (client, listType, searchRank, maxResults, leagueTypeId) {
     const C2SListLeaderboardScoresPageVO = {LT: listType, R: searchRank, M: maxResults, LID: leagueTypeId};
-    return require('.').baseSendCommand(client, NAME, C2SListLeaderboardScoresPageVO, callbacks, (p) => p["LT"] === listType && p["LID"] === leagueTypeId && p["L"]?.[0]?.["R"] === searchRank);
+    return require('.').baseSendCommand(client, NAME, C2SListLeaderboardScoresPageVO, callbacks, (p) => p?.["LT"] === listType && p?.["LID"] === leagueTypeId && p?.["L"]?.[0]?.["R"] === searchRank);
 }
 
 module.exports.llsp = parseLLSP;
@@ -38,5 +38,5 @@ module.exports.llsp = parseLLSP;
  */
 function parseLLSP(client, params) {
     if (!params) return null;
-    return parseLeaderboardList(params)
+    return parseLeaderboardList(params);
 }

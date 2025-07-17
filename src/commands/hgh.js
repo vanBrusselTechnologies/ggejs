@@ -1,6 +1,6 @@
 const WorldMapOwnerInfo = require("../structures/WorldMapOwnerInfo");
 
-const NAME = "hgh"
+const NAME = "hgh";
 /** @type {CommandCallback<HighScore<AllianceHighScoreItem | PlayerHighScoreItem>>[]}*/
 const callbacks = [];
 
@@ -25,7 +25,7 @@ module.exports.execute = function (client, errorCode, params) {
  */
 module.exports.getHighScore = function (client, searchValue = "1", listType = 6, leagueTypeId = 1) {
     const C2SGetHighScoreVO = {SV: searchValue, LT: listType, LID: leagueTypeId};
-    return require('.').baseSendCommand(client, NAME, C2SGetHighScoreVO, callbacks, (p) => p["LT"] === listType && normalize(p["SV"]) === normalize(searchValue));
+    return require('.').baseSendCommand(client, NAME, C2SGetHighScoreVO, callbacks, (p) => p?.["LT"] === listType && normalize(p?.["SV"]) === normalize(searchValue));
 }
 
 module.exports.hgh = parseHGH;

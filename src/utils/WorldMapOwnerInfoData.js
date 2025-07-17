@@ -1,5 +1,6 @@
 const Constants = require("../utils/Constants");
 const WorldMapOwnerInfo = require("../structures/WorldMapOwnerInfo");
+const EmpireError = require("../tools/EmpireError");
 
 class WorldMapOwnerInfoData {
     /** @type {Client} */
@@ -13,23 +14,17 @@ class WorldMapOwnerInfoData {
      */
     _ownerInfo = {};
 
-    /**
-     * @type {WorldMapOwnerInfo}
-     * @private
-     */
-    _ownInfo;
-
     /** @param {Client} client */
     constructor(client) {
         this.#client = client;
         this._ownInfo = new WorldMapOwnerInfo(client);
     }
 
-    /** @param {number} kID */
-    getKingdomDungeonOwnerByKingdomId = (kID) => this.getOwnerInfo(-219 - kID);
-
-    /** @param {number} kID */
-    getKingdomBossDungeonOwnerByKingdomId = (kID) => this.getOwnerInfo(-229 - kID);
+    /**
+     * @type {WorldMapOwnerInfo}
+     * @private
+     */
+    _ownInfo;
 
     get ownInfo() {
         const userData = this.#client.clientUserData._userData;
@@ -89,6 +84,12 @@ class WorldMapOwnerInfoData {
         return this._ownInfo;
     }
 
+    /** @param {number} kID */
+    getKingdomDungeonOwnerByKingdomId = (kID) => this.getOwnerInfo(-219 - kID);
+
+    /** @param {number} kID */
+    getKingdomBossDungeonOwnerByKingdomId = (kID) => this.getOwnerInfo(-229 - kID);
+
     /** @param {number} ownerId */
     getOwnerInfo = (ownerId) => this.getOwnerInfoInternal(ownerId, true);
 
@@ -100,7 +101,7 @@ class WorldMapOwnerInfoData {
     getOwnerInfoInternal(ownerId, warnIfNotExisted = false) {
         const ownerInfo = ownerId === this.#client.clientUserData.playerId ? this._ownInfo : this._ownerInfo[ownerId];
         if (!ownerInfo && warnIfNotExisted) {
-            console.warn(`No owner info (id: ${ownerId})`);
+            this.#client.logger.w(new EmpireError(this.#client, `No owner info (id: ${ownerId})`));
         }
         return ownerInfo;
     }

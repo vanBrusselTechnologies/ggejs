@@ -1,9 +1,11 @@
 const BasicMessage = require("./BasicMessage");
 const {readMessages} = require("../../commands/rms");
+const EmpireError = require("../../tools/EmpireError");
 
 class AllianceNewsMessage extends BasicMessage {
     /** @type {Client} */
     #client = null;
+    _body = "";
 
     /**
      * @param {Client} client
@@ -14,8 +16,14 @@ class AllianceNewsMessage extends BasicMessage {
         this.#client = client;
     }
 
-    async init() {
-        this.body = await readMessages(this.#client, this.messageId);
+    async getBody() {
+        try {
+            if (this._body !== "") return this._body;
+            this._body = await readMessages(this.#client, this.messageId);
+            return this._body;
+        } catch (e) {
+            throw EmpireError(this.#client, e);
+        }
     }
 
     parseMetaData(client, metaArray) {

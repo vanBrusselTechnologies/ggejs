@@ -1,8 +1,8 @@
 const Localize = require("../../tools/Localize");
 
 class CastlePremiumMarketShop {
-    #client
-    shopTypes = []
+    #client;
+    shopTypes = [];
     continuousPurchaseCount = 0;
 
     /**

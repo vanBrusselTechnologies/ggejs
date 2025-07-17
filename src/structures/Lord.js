@@ -1,8 +1,8 @@
+const {equipment_sets, effectCaps, lords} = require('e4k-data').data;
 const Equipment = require("./Equipment");
 const RelicEquipment = require("./RelicEquipment");
 const Effect = require('./Effect');
 const Gem = require("./Gem");
-const {equipment_sets: equipmentSets, effectCaps, lords} = require('e4k-data').data;
 
 class Lord {
     /**
@@ -97,6 +97,8 @@ function parseGems(client, data, equipments) {
  * @returns {Effect[] | RelicEffect[]}
  */
 function parseEffects(client, data, equipments) {
+    // TODO: Most effects got doubled! Should the effect from equipments part be removed?
+
     /** @type {Effect[] | RelicEffect[]} */
     let _effects = [];
     if (data["AIE"]) {
@@ -160,7 +162,7 @@ function parseEffects(client, data, equipments) {
     }
 
     for (let _equipSet of equipmentSetArray) {
-        for (let equipmentSet of equipmentSets) {
+        for (let equipmentSet of equipment_sets) {
             if (equipmentSet.setID === _equipSet[0] && equipmentSet.neededItems <= _equipSet[1]) {
                 let __effects = equipmentSet.effects.split(",");
                 let data = [];

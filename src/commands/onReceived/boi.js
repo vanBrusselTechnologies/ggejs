@@ -1,5 +1,5 @@
 const {execute: bfs} = require('./bfs');
-const {execute: deleteMessages} = require("../commands/deleteMessages");
+const {deleteMessages} = require("../dms");
 
 module.exports.name = "boi";
 /**
@@ -7,10 +7,10 @@ module.exports.name = "boi";
  * @param {number} errorCode
  * @param {{BO:[], PB:[], SB:[], SU: Object, ST: Object, bfs: {T:number, RT:number}}} params
  */
-module.exports.execute = function (client, errorCode, params) {
+module.exports.execute = async function (client, errorCode, params) {
     if (!params) return;
     const premiumBoostData = client.clientUserData.boostData;
-    removeBoosterExpiredMails(client, premiumBoostData, params.BO);
+    await removeBoosterExpiredMails(client, premiumBoostData, params.BO);
     parseTempBoosterObjects(premiumBoostData, params.BO);
     parsePermBoosterObjects(premiumBoostData, params.PB);
     if (params.SB) premiumBoostData.boughtBuildingSlots = params.SB.filter(s => s > 0).length;
@@ -24,7 +24,7 @@ module.exports.execute = function (client, errorCode, params) {
  * @param {PremiumBoostData} premiumBoostData
  * @param {{PC:number, ID: number, RT: number}[]} tempBoosterObjects
  */
-function removeBoosterExpiredMails(client, premiumBoostData, tempBoosterObjects) {
+async function removeBoosterExpiredMails(client, premiumBoostData, tempBoosterObjects) {
     if (!tempBoosterObjects) return;
     /** @type {number[]} */
     const boosterIds = [];
@@ -34,7 +34,7 @@ function removeBoosterExpiredMails(client, premiumBoostData, tempBoosterObjects)
     }
     if (boosterIds.length > 0) {
         const messagesIds = client._mailMessages.filter(m => boosterIds.includes(m.boosterId)).map(m => m.messageId);
-        if (messagesIds.length > 0) deleteMessages(client, messagesIds);
+        if (messagesIds.length > 0) await deleteMessages(client, messagesIds);
     }
 }
 

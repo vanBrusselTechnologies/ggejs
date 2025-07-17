@@ -619,11 +619,8 @@ class ClientUserDataManager {
         return this._goodsData.globalCurrencies;
     }
 
-    /** @param {Good} val */
-    setGlobalCurrency(val) {
-        /** @type {Good} */
-        const g = this._goodsData.globalCurrencies.find(g => g.item === val.item);
-        if (g == null) this._goodsData.globalCurrencies.push(val); else g.count = val.count;
+    get titlePrefix() {
+        return this.currentTitle(this._titlesData.prefix);
     }
 
     /** @param {number} val see Constants.TitleType for possibilities */
@@ -631,8 +628,8 @@ class ClientUserDataManager {
         this._titlesData.prefix = val;
     }
 
-    get titlePrefix() {
-        return this.currentTitle(this._titlesData.prefix);
+    get titleSuffix() {
+        return this.currentTitle(this._titlesData.suffix);
     }
 
     /** @param {number} val see Constants.TitleType for possibilities */
@@ -640,14 +637,107 @@ class ClientUserDataManager {
         this._titlesData.suffix = val;
     }
 
-    get titleSuffix() {
-        return this.currentTitle(this._titlesData.suffix);
+    /** @return {boolean} */
+    get showVIPFlagOption() {
+        return this._vipData.showVIPFlagOption;
     }
 
     //
 
 
     //
+
+    /** @param {Boolean} val */
+    set showVIPFlagOption(val) {
+        this._vipData.showVIPFlagOption = val;
+    }
+
+    /** @return {number} */
+    get vipPoints() {
+        return this._vipData._currentVIPPoints;
+    }
+
+    /** @param {number} points */
+    set vipPoints(points) {
+        this._vipData._currentVIPPoints = points < 0 ? 0 : points;
+        // TODO: this._vipData._currentVIPLevel = getVIPLevelInfoVOByPoints(points);
+    }
+
+    /** @return {number} */
+    get maxVIPLevelReached() {
+        return this._vipData._maxVIPLevelReached;
+    }
+
+    /** @param {number} level */
+    set maxVIPLevelReached(level) {
+        this._vipData._maxVIPLevelReached = level < 1 ? 1 : level;
+    }
+
+    /** @return {number} */
+    get usedPremiumGenerals() {
+        return this._vipData._usedPremiumGenerals;
+    }
+
+    /** @param {number} val */
+    set usedPremiumGenerals(val) {
+        this._vipData._usedPremiumGenerals = val;
+    }
+
+    /** @return {Date} */
+    get vipTimeExpireDate() {
+        return new Date(this._vipData._vipTimeExpireTimestamp);
+    }
+
+    /** @param {number} val */
+    set vipTimeExpireTimestamp(val) {
+        const active = val > 0;
+        // TODO: this._vipData._vipModeStatusVO.isActive = active;
+        this._vipData._vipTimeExpireTimestamp = active ? Date.now() + val * 1000 : 0;
+    }
+
+
+    /* todo: TitleRatingStatus
+     * @param {TitleRatingStatus} titleRatingStatus
+     * @param {number} titleType see Constants.TitleType for possibilities
+     * /
+    setTitleRatingStatus(titleRatingStatus, titleType){
+         this._titlesData.titlesRatingStatus[titleType] = points
+     }
+     */
+
+    /* todo: TitleRatingStatus
+     * @param {number} titleType see Constants.TitleType for possibilities
+     * @returns {TitleRatingStatus}
+     * /
+    titleRatingStatus(titleType){
+         return this._titlesData.titlesRatingStatus[titleType]
+     }
+     */
+
+    get isVIPModeActive() {
+        return this.vipTimeExpireDate.getTime() > Date.now();
+    }
+
+    get showVIPFlagOnCastle() {
+        return this.showVIPFlagOption && this.isVIPModeActive;
+    }
+
+    /** @return {MyAlliance} */
+    get myAlliance() {
+        return this._allianceData._myAlliance;
+    }
+
+    /** @param {MyAlliance} val */
+    set myAlliance(val) {
+        this._allianceData._myAlliance = val;
+    }
+
+    /** @param {Good} val */
+    setGlobalCurrency(val) {
+        /** @type {Good} */
+        const g = this._goodsData.globalCurrencies.find(g => g.item === val.item);
+        if (g == null) this._goodsData.globalCurrencies.push(val); else g.count = val.count;
+    }
 
     /** @returns {boolean} */
     isLegendLevel() {
@@ -708,96 +798,6 @@ class ClientUserDataManager {
      */
     highestTitlePoints(titleType) {
         return this._titlesData.highestPoints[titleType];
-    }
-
-
-    /* todo: TitleRatingStatus
-     * @param {TitleRatingStatus} titleRatingStatus
-     * @param {number} titleType see Constants.TitleType for possibilities
-     * /
-    setTitleRatingStatus(titleRatingStatus, titleType){
-         this._titlesData.titlesRatingStatus[titleType] = points
-     }
-     */
-
-    /* todo: TitleRatingStatus
-     * @param {number} titleType see Constants.TitleType for possibilities
-     * @returns {TitleRatingStatus}
-     * /
-    titleRatingStatus(titleType){
-         return this._titlesData.titlesRatingStatus[titleType]
-     }
-     */
-
-    /** @return {boolean} */
-    get showVIPFlagOption() {
-        return this._vipData.showVIPFlagOption;
-    }
-
-    /** @param {Boolean} val */
-    set showVIPFlagOption(val) {
-        this._vipData.showVIPFlagOption = val;
-    }
-
-    /** @return {number} */
-    get vipPoints() {
-        return this._vipData._currentVIPPoints;
-    }
-
-    /** @param {number} points */
-    set vipPoints(points) {
-        this._vipData._currentVIPPoints = points < 0 ? 0 : points;
-        // TODO: this._vipData._currentVIPLevel = getVIPLevelInfoVOByPoints(points);
-    }
-
-    /** @return {number} */
-    get maxVIPLevelReached() {
-        return this._vipData._maxVIPLevelReached;
-    }
-
-    /** @param {number} level */
-    set maxVIPLevelReached(level) {
-        this._vipData._maxVIPLevelReached = level < 1 ? 1 : level;
-    }
-
-    /** @return {number} */
-    get usedPremiumGenerals() {
-        return this._vipData._usedPremiumGenerals;
-    }
-
-    /** @param {number} val */
-    set usedPremiumGenerals(val) {
-        this._vipData._usedPremiumGenerals = val;
-    }
-
-    /** @return {Date} */
-    get vipTimeExpireDate() {
-        return new Date(this._vipData._vipTimeExpireTimestamp);
-    }
-
-    /** @param {number} val */
-    set vipTimeExpireTimestamp(val) {
-        const active = val > 0;
-        // TODO: this._vipData._vipModeStatusVO.isActive = active;
-        this._vipData._vipTimeExpireTimestamp = active ? Date.now() + val * 1000 : 0;
-    }
-
-    get isVIPModeActive() {
-        return this.vipTimeExpireDate.getTime() > Date.now();
-    }
-
-    get showVIPFlagOnCastle() {
-        return this.showVIPFlagOption && this.isVIPModeActive;
-    }
-
-    /** @return {MyAlliance} */
-    get myAlliance() {
-        return this._allianceData._myAlliance;
-    }
-
-    /** @param {MyAlliance} val */
-    set myAlliance(val) {
-        this._allianceData._myAlliance = val;
     }
 }
 

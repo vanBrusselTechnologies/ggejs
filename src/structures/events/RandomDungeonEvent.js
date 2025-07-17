@@ -3,10 +3,10 @@ const ActiveEvent = require("./ActiveEvent");
 const {parseMapObject} = require("../../utils/MapObjectParser");
 
 class RandomDungeonEvent extends ActiveEvent {
-    eventBuildingWodId = 219
+    eventBuildingWodId = 219;
 
     /** @type {Reward[]} */
-    rewards = []
+    rewards = [];
     /** @type {EventDungeonMapobject} */
     targetArea;
     hasWon = false

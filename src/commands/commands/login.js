@@ -23,7 +23,7 @@ module.exports.execute = function (client, name, password) {
             ping: (1).toString(),
             accountId: accountId.toString(),
         },
-        getCmdId: "lgn"
+        getCmdId: "lgn",
         (e.name = l.BasicModel.userData.userName,
         e.pw = l.BasicModel.userData.loginPwd,
         e.lang = a.GGSCountryController.instance.currentCountry.ggsLanguageCode,

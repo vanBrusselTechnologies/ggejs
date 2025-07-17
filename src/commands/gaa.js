@@ -1,8 +1,8 @@
 const {parseMapObject} = require("../utils/MapObjectParser");
 
-const NAME = "gaa"
+const NAME = "gaa";
 /** @type {CommandCallback<Mapobject[]>[]}*/
-const callbacks = []
+const callbacks = [];
 
 module.exports.name = NAME;
 
@@ -26,7 +26,7 @@ module.exports.execute = function (client, errorCode, params) {
  */
 module.exports.getArea = function (client, kingdomId, bottomLeftCorner, topRightCorner) {
     const C2SGetAreaVO = {
-        KID: kingdomId, AX1: bottomLeftCorner.X, AY1: bottomLeftCorner.Y, AX2: topRightCorner.X, AY2: topRightCorner.Y,
+        KID: kingdomId, AX1: bottomLeftCorner.X, AY1: bottomLeftCorner.Y, AX2: topRightCorner.X, AY2: topRightCorner.Y
     };
     return require('.').baseSendCommand(client, NAME, C2SGetAreaVO, callbacks, (p) => {
         if (p?.KID === kingdomId) {
@@ -47,14 +47,13 @@ module.exports.gaa = parseGAA;
  */
 function parseGAA(client, params) {
     if (params == null) return null;
-    let kId = params.KID;
     if (!params.AI || params.AI.length === 0) {
-        if (kId == null) return null;
+        if (params.KID == null) return null;
         return [];
     }
     client.worldMaps._ownerInfoData.parseOwnerInfoArray(params.OI);
-    if (kId == null) {
-        kId = parseMapObject(client, params.AI.find(i => i.length > 4))?.kingdomId;
+    if (params.KID == null) {
+        const kId = parseMapObject(client, params.AI.find(i => i.length > 4))?.kingdomId;
         if (kId == null) return null;
     }
     return parseWorldMapAreas(client, params.AI);

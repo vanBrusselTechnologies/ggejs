@@ -1,7 +1,7 @@
 const BattleLogUnit = require("../structures/BattleLogUnit");
 const Unit = require("../structures/Unit");
 
-const NAME = "bld"
+const NAME = "bld";
 /** @type {CommandCallback<BattleLog>[]}*/
 const callbacks = [];
 
@@ -24,7 +24,7 @@ module.exports.execute = function (client, errorCode, params) {
  */
 module.exports.getBattleLogDetail = function (client, battleLogId) {
     const C2SBattleLogDetailVO = {LID: battleLogId};
-    return require('.').baseSendCommand(client, NAME, C2SBattleLogDetailVO, callbacks, (p) => p["LID"] === battleLogId);
+    return require('.').baseSendCommand(client, NAME, C2SBattleLogDetailVO, callbacks, (p) => p?.["LID"] === battleLogId);
 }
 
 module.exports.bld = parseBLD;

@@ -172,7 +172,7 @@ exports.MessageType = {
     UserIn: MessageConst.MESSAGE_TYPE_USER_IN,
     UserOut: MessageConst.MESSAGE_TYPE_USER_OUT,
     SpyPlayer: MessageConst.MESSAGE_TYPE_SPY_PLAYER,
-    SpyNPC: MessageConst.MESSAGE_TYPE_SPY_PLAYER,
+    SpyNPC: MessageConst.MESSAGE_TYPE_SPY_NPC,
     ConquerableArea: MessageConst.MESSAGE_TYPE_CONQUERABLE_AREA,
     BattleLog: MessageConst.MESSAGE_TYPE_BATTLE_LOG,
     AllianceRequest: MessageConst.MESSAGE_TYPE_ALLIANCE_REQUEST,

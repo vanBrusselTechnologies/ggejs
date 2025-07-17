@@ -1,12 +1,32 @@
-module.exports.name = "gbd";
+const {getAllianceInfo} = require("./ain");
+const {showMessages} = require("./sne");
+
+const NAME = "gbd";
+/** @type {CommandCallback<void>[]}*/
+const callbacks = [];
+
+module.exports.name = NAME;
+
 /**
  * @param {Client} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    // TODO?: setUpActiveActionsServiceSignal.dispatch();
+    parseGBD(client, params);
+    require('.').baseExecuteCommand(undefined, errorCode, params, callbacks);
+}
+
+module.exports.gbd = parseGBD;
+
+/**
+ * @param {Client} client
+ * @param {Object} params
+ * @return {Player}
+ */
+function parseGBD(client, params) {
     for (let x in params) {
+        const msg = JSON.stringify(params[x]);
         switch (x.toLowerCase()) {
             case "WR".toLowerCase():
                 client.clientUserData.wasResetted = params[x];
@@ -78,9 +98,12 @@ module.exports.execute = function (client, errorCode, params) {
             case "gabgap":
 //#endregion
                 try {
-                    const msg = JSON.stringify(params[x]);
                     client.logger.t(`[RECEIVED-GBD] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`);
-                    require(`./${x.toLowerCase()}`).execute(client, errorCode, params[x]);
+                    try {
+                        require(`./${x.toLowerCase()}`)[x.toLowerCase()](client, params[x]);
+                    } catch (e) {
+                        require(`./onReceived/${x.toLowerCase()}`).execute(client, 0, params[x]);
+                    }
                 } catch (e) {
                     client.logger.d("[GBD]", e);
                 }
@@ -92,7 +115,6 @@ module.exports.execute = function (client, errorCode, params) {
             case "gll":
             case "scd":
                 //Not implemented in game
-                const msg = JSON.stringify(params[x]);
                 client.logger.t(`[RECEIVED-GBD-not_implemented] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`);
                 break;
             case "fii":
@@ -101,11 +123,10 @@ module.exports.execute = function (client, errorCode, params) {
             //Not implemented in game: Treasure hunt info
             case "wbie":
                 //Not implemented in game: Welcome back message info event
-                const msg2 = JSON.stringify(params[x]);
-                client.logger.t(`[RECEIVED-GBD-not_implemented] ${x} % ${msg2.substring(0, Math.min(140, msg2.length))}`);
+                client.logger.t(`[RECEIVED-GBD-not_implemented] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`);
                 break;
             default:
-                client.logger.d(`Unknown part in gbd command: ${x}: ${JSON.stringify(params[x])}`);
+                client.logger.t(`Unknown part in gbd command: ${x}: ${msg}`);
                 break;
 //#endregion
         }
@@ -120,13 +141,11 @@ async function handlePostGBDCommandInNextFrame(client) {
      *  enableIAPmanagerStartupIntervalSignal.dispatch(false);
      *  configureNotificationsSignal.dispatch();
      *  worldmapCameraData.currentCenteredWorldMapObject = castleListService.getMainCastleByKingdomId(kingdomData.activeKingdomID);
-     *  if (!_loc2_)
-     *  {
-     *     startTutorialSignal.dispatch(true);
+     *  if (!_loc2_) {
+     *      startTutorialSignal.dispatch(true);
      *  }
-     *  else
-     *  {
-     *     castleRemoveLoadingScreenSignal.dispatch();
+     *  else {
+     *      castleRemoveLoadingScreenSignal.dispatch();
      *  }
      *  restoreLastSessionGameStateSignal.dispatch();
      *  initMarketingTracking();
@@ -144,7 +163,7 @@ async function handlePostGBDCommandInNextFrame(client) {
      * requestTimeForRuinPushNotification();
      */
     requestLoginBonusInfo(client);
-    requestMessagesData(client);
+    await requestMessagesData(client);
     await requestAllianceData(client);
     requestBookmarkData(client);
     requestConstructionItemInventory(client);
@@ -162,47 +181,45 @@ async function handlePostGBDCommandInNextFrame(client) {
          }
      */
 
-    // TODO????: Code below is added and not in source code
-    require('../commands/getEquipmentInventory').execute(client);
     client._socket['gbd finished'] = true;
 }
 
 /** @param {Client} client */
 function requestGeneralsInnData(client) {
-    require('../commands/getGeneralCharacter').execute(client);
+    require('./commands/getGeneralCharacter').execute(client);
 }
 
 /** @param {Client} client */
 function requestBookmarkData(client) {
-    require('../commands/getBookmarksList').execute(client);
+    require('./commands/getBookmarksList').execute(client);
 }
 
 /** @param {Client} client */
 function requestConstructionItemInventory(client) {
-    require('../commands/getConstructionItemInventory').execute(client);
+    require('./commands/getConstructionItemInventory').execute(client);
 }
 
 /** @param {Client} client */
-function requestMessagesData(client) {
-    require('../commands/showMessages').execute(client);
+async function requestMessagesData(client) {
+    await showMessages(client);
 }
 
 /** @param {Client} client */
 async function requestAllianceData(client) {
     if (client.clientUserData.allianceId >= 0) {
-        await require('../ain').getAllianceInfo(client, client.clientUserData.allianceId);
-        require('../commands/getAllianceFame').execute(client);
-        require('../commands/getAllianceChatHistory').execute(client);
+        await getAllianceInfo(client, client.clientUserData.allianceId);
+        require('./commands/getAllianceFame').execute(client);
+        require('./commands/getAllianceChatHistory').execute(client);
     }
 }
 
 /** @param {Client} client */
 function requestSubscriptionsData(client) {
-    require('../commands/getSubscriptionInformation').execute(client);
+    require('./commands/getSubscriptionInformation').execute(client);
 }
 
 /** @param {Client} client */
 function requestLoginBonusInfo(client) {
-    require('../commands/getLoginBonus').execute(client);
-    require('../commands/getStartupLoginBonus').execute(client);
+    require('./commands/getLoginBonus').execute(client);
+    require('./commands/getStartupLoginBonus').execute(client);
 }

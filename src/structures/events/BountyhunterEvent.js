@@ -4,12 +4,12 @@ const {Reward} = require('e4k-data')
 const {rewards} = require('e4k-data').data
 
 class BountyhunterEvent extends ActiveEvent {
-    eventBuildingWodId = 218
+    eventBuildingWodId = 218;
 
-    hasWon = false
+    hasWon = false;
     /** @type {Reward[]} */
-    rewards = []
-    targetSkipCostC2 = 0
+    rewards = [];
+    targetSkipCostC2 = 0;
     /** @type {Mapobject} */
     targetArea;
 

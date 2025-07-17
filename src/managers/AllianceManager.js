@@ -83,4 +83,4 @@ class AllianceManager extends BaseManager {
     }
 }
 
-module.exports = AllianceManager
+module.exports = AllianceManager;

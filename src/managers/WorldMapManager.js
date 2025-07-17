@@ -3,11 +3,11 @@
 const {collectorEventOptions, kingdoms, landmarks} = require('e4k-data').data;
 const BaseManager = require('./BaseManager');
 const {getArea} = require("../commands/gaa");
-const WorldMap = require('../structures/WorldMap');
-const WorldMapSector = require('../structures/WorldMapSector');
 const Coordinate = require("../structures/Coordinate");
-const WorldMapOwnerInfo = require("../structures/WorldMapOwnerInfo");
 const Crest = require("../structures/Crest");
+const WorldMap = require('../structures/WorldMap');
+const WorldMapOwnerInfo = require("../structures/WorldMapOwnerInfo");
+const WorldMapSector = require('../structures/WorldMapSector');
 const EmpireError = require("../tools/EmpireError");
 const Localize = require("../tools/Localize");
 const {ConnectionStatus} = require("../utils/Constants");
@@ -87,7 +87,6 @@ async function _getWorldMapById(client, _worldMap, kingdomId) {
  * @param {number} y
  */
 async function _getWorldMapSector(client, kingdomId, x, y) {
-    if (client.socketManager.connectionStatus !== ConnectionStatus.Connected) throw 'Client disconnected';
     const data = await _getWorldMapSectorData(client, kingdomId, x, y);
     return new WorldMapSector(client, kingdomId, data);
 }
@@ -101,7 +100,6 @@ async function _getWorldMapSector(client, kingdomId, x, y) {
  * @returns {Promise<Mapobject[]>}
  */
 async function _getWorldMapSectorData(client, kingdomId, x, y) {
-    if (client.socketManager.connectionStatus !== ConnectionStatus.Connected) throw 'Client disconnected';
     const bottomLeft = new Coordinate([x - 50, y - 50]);
     const topRight = new Coordinate([x + 49, y + 49]);
     return await getArea(client, kingdomId, bottomLeft, topRight);

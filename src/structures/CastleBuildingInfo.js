@@ -16,7 +16,7 @@ class CastleBuildingInfo {
     /** @type {BasicBuilding} */
     moat = null;
     /** @type {BasicBuilding[]} */
-    fixedPositionBuildings = []
+    fixedPositionBuildings = [];
     /** @type {Mapobject} */
     mapobject = null;
     /** @type {BuildingGround[]} */
@@ -26,7 +26,7 @@ class CastleBuildingInfo {
     /** @type {number} */
     startPointY = 0;
     /** @type {ConstructionSlot[]} */
-    constructionList = []
+    constructionList = [];
     /** @type {{food: number, stone:number, wood:number}}*/
     resourceFields = {
         food: 0, stone: 0, wood: 0

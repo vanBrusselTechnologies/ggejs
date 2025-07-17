@@ -17,7 +17,7 @@ class InteractiveMapobject extends BasicMapobject {
         this.objectId = data[3];
         /** @type {number} */
         this.ownerId = data[4];
-        this.ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(this.ownerId)
+        this.ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(this.ownerId);
         /** @type {number} */
         this.keepLevel = data[5];
         /** @type {number} */

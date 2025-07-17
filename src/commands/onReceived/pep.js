@@ -6,7 +6,7 @@ module.exports.name = "pep";
  */
 module.exports.execute = function (client, errorCode, params) {
     /** @type {SkinnableAlienAllianceEvent} */
-    const pointEvent = client._activeSpecialEvents.find(e => e.eventId === params.EID)
+    const pointEvent = client._activeSpecialEvents.find(e => e.eventId === params.EID);
     if (pointEvent) {
         if ("OP" in params) {
             pointEvent.currentPoints = params["OP"];

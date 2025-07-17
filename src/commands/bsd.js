@@ -27,7 +27,7 @@ module.exports.execute = function (client, errorCode, params) {
  */
 module.exports.getSpyLog = function (client, messageId) {
     const C2SSpyLogVO = {MID: messageId};
-    return require('.').baseSendCommand(client, NAME, C2SSpyLogVO, callbacks, (p) => p["MID"] === messageId);
+    return require('.').baseSendCommand(client, NAME, C2SSpyLogVO, callbacks, (p) => p?.["MID"] === messageId);
 }
 
 module.exports.bsd = parseBSD;
@@ -128,7 +128,7 @@ function parseSpyArmyInfo(client, data) {
  */
 function parseSingleFlank(flankId, paramArray) {
     const flankUnits = [];
-    for (let unit_count of paramArray[flankId]) {
+    for (const unit_count of paramArray[flankId]) {
         flankUnits.push(new InventoryItem(unit_count[0], unit_count[1]));
     }
     return flankUnits;

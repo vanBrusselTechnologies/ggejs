@@ -1,3 +1,5 @@
+const {deleteMessages} = require("../../commands/dms");
+const EmpireError = require("../../tools/EmpireError");
 const Localize = require("../../tools/Localize");
 
 class BasicMessage {
@@ -26,9 +28,6 @@ class BasicMessage {
         this.parseMetaData(client, this.metadata.split('+'))
     }
 
-    async init() {
-    }
-
     /**
      * @param {Client} _
      * @param {Array<string>} __
@@ -42,6 +41,14 @@ class BasicMessage {
             this.senderName = areaName;
         } else {
             this.senderName = Localize.text(this.#client, getNPCMapObjectName(areaType, kingdomId));
+        }
+    }
+
+    async delete() {
+        try {
+            await deleteMessages(this.#client, [this.messageId]);
+        } catch (e) {
+            throw EmpireError(this.#client, e);
         }
     }
 }

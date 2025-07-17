@@ -1,8 +1,8 @@
 const {parseMapObject} = require("../utils/MapObjectParser");
 
-const NAME = "wsp"
+const NAME = "wsp";
 /** @type {CommandCallback<WorldMapOwnerInfo>[]}*/
-const callbacks = []
+const callbacks = [];
 
 module.exports.name = NAME;
 

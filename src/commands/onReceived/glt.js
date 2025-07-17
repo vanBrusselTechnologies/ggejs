@@ -31,7 +31,7 @@ module.exports.execute = async function (client, errorCode, params) {
     const externalClient = new (require('../../Client'))("", LoginTokenServerInfoVO.token, serverInstance);
     externalClient.logger.verbosity = client.logger.verbosity;
     externalClient.language = client._language;
-    await externalClient.connect()
+    await externalClient.connect();
     client.externalClient = externalClient
     client.emit(Constants.Events.EXTERNAL_CLIENT_READY, externalClient)
 }

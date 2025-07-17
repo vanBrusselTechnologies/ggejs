@@ -8,9 +8,9 @@ import {
     General as RawGeneral,
     Lord as RawLord,
     NetworkInstance,
+    Quest as RawQuest,
     Title,
-    Unit as RawUnit,
-    Quest as RawQuest
+    Unit as RawUnit
 } from 'e4k-data'
 
 export {Client, Horse, InventoryItem, MovementManager};
@@ -25,10 +25,7 @@ declare class Client extends EventEmitter {
     public players: PlayerManager;
     public worldMaps: WorldMapManager;
     public externalClient: Client | null;
-
-    private get _socket(): Socket;
-
-    private _language: string;
+    public logger: Logger;
 
     /**
      * @param name Your player account name
@@ -42,16 +39,18 @@ declare class Client extends EventEmitter {
      */
     public constructor(name: string, password: string, serverInstance: NetworkInstance);
 
+    private _language: string;
+
     public set language(val: string);
 
     public get mailMessages(): MailMessage[];
 
     public set reconnectTimeout(val: number);
 
+    private get _socket(): Socket;
+
     /** Login with your credentials */
     public connect(): Promise<Client>;
-
-    private _verifyLoginData(): void;
 
     public sendChatMessage(message: string): void;
 
@@ -64,6 +63,8 @@ declare class Client extends EventEmitter {
     public addListener<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
 
     public emit<K extends keyof ClientEvents>(eventName: K, ...args: ClientEvents[K]): boolean;
+
+    private _verifyLoginData(): void;
 
     private __x__x__relogin(): Promise<void>;
 }
@@ -79,6 +80,20 @@ declare class EmpireError extends Error {
     errorCode: number;
 }
 
+declare class Logger {
+    verbosity: number;
+
+    e(...message)
+
+    w(...message)
+
+    i(...message)
+
+    d(...message)
+
+    t(...message)
+}
+
 //#region ClientEvents
 /** */
 interface ClientEvents {
@@ -86,7 +101,7 @@ interface ClientEvents {
     serverShutdownEnd: [];
     connected: [];
     chatMessage: [message: ChatMessage];
-    mailMessageAdd: [message: MailMessage];
+    mailMessageAdd: [messages: MailMessage[]];
     mailMessageRemove: [message: MailMessage];
     primeTime: [primeTime: PrimeTime];
     externalClientReady: [externalClient: Client];
@@ -137,10 +152,10 @@ declare class AllianceManager extends BaseManager {
 }
 
 declare class ClientUserDataManager {
-    private constructor(client: Client);
-
     public boostData: PremiumBoostData;
     public questData: QuestData;
+
+    private constructor(client: Client);
 
     public get isXPDataInitialized(): boolean;
     private set isXPDataInitialized(val: number);
@@ -274,14 +289,14 @@ declare class ClientUserDataManager {
     public get playerCrest(): Crest;
     private set playerCrest(val: Crest);
 
-    public get globalCurrencies(): Good[]
-
-    private setGlobalCurrency(val: Good);
+    public get globalCurrencies(): Good[];
 
     public get titlePrefix(): Title
+
     private set titlePrefix(val: number);
 
     public get titleSuffix(): Title
+
     private set titleSuffix(val: number);
 
     public get level(): number;
@@ -292,13 +307,42 @@ declare class ClientUserDataManager {
 
     public get registrationDate(): Date;
 
+    public get showVIPFlagOption(): boolean
+
+    private set showVIPFlagOption(val: boolean)
+
+    public get vipPoints(): number
+
+    private set vipPoints(points: number)
+
+    public get maxVIPLevelReached(): number
+
+    private set maxVIPLevelReached(level: number)
+
+    public get usedPremiumGenerals(): number
+
+    private set usedPremiumGenerals(val: number)
+
+    public get vipTimeExpireDate(): Date
+
+    public get myAlliance(): MyAlliance
+
+    private set myAlliance(val: MyAlliance)
+
     private set userLevel(val: number);
 
     private set userParagonLevel(val: number);
 
     private set userHonor(val: number);
 
+    /* todo: TitleRatingStatus
+    setTitleRatingStatus(titleRatingStatus: TitleRatingStatus, titleType: number): void;
+    titleRatingStatus(titleType: number): TitleRatingStatus
+     */
+
     private set registrationTimestamp(val: number);
+
+    private set vipTimeExpireTimestamp(val: number)
 
     public isLegendLevel(): boolean;
 
@@ -307,6 +351,8 @@ declare class ClientUserDataManager {
     public currentTitle(titleType: number): Title
 
     public highestTitlePoints(titleType: number): number
+
+    private setGlobalCurrency(val: Good);
 
     private setKingdomNoobProtection(kingdomID: number, remainingNoobTimeInSeconds: number): void;
 
@@ -317,38 +363,10 @@ declare class ClientUserDataManager {
     private clearCurrentTitle(titleType: number): void
 
     private setHighestTitlePoints(points: number, titleType: number): void
-
-    /* todo: TitleRatingStatus
-    setTitleRatingStatus(titleRatingStatus: TitleRatingStatus, titleType: number): void;
-    titleRatingStatus(titleType: number): TitleRatingStatus
-     */
-
-    public get showVIPFlagOption(): boolean
-    private set showVIPFlagOption(val: boolean)
-
-    public get vipPoints(): number
-    private set vipPoints(points: number)
-
-    public get maxVIPLevelReached(): number
-    private set maxVIPLevelReached(level: number)
-
-    public get usedPremiumGenerals(): number
-    private set usedPremiumGenerals(val: number)
-
-    public get vipTimeExpireDate(): Date
-
-    private set vipTimeExpireTimestamp(val: number)
-
-    public get myAlliance(): MyAlliance
-    private set myAlliance(val: MyAlliance)
 }
 
 declare class EquipmentManager extends BaseManager {
     private constructor(client: Client);
-
-    public set autoDeleteAtOrBelowRarity(rarity: number);
-
-    public set autoDeleteAtOrBelowGemLevel(rarity: number);
 
     public get equipmentSpaceLeft(val: number);
     private set equipmentSpaceLeft(val: number);
@@ -371,7 +389,7 @@ declare class EquipmentManager extends BaseManager {
 
     public getGenerals(): General[];
 
-    public getEquipmentInventory(): (Equipment | RelicEquipment)[];
+    public getEquipmentInventory(): Promise<(Equipment | RelicEquipment)[]>;
 
     public sellEquipment(equipment: Equipment | RelicEquipment): Promise<void>;
 
@@ -389,23 +407,21 @@ declare class EquipmentManager extends BaseManager {
 
     private _setGenerals(generals: General[]): void;
 
-    private _setEquipmentInventory(equipments: (Equipment | RelicEquipment)[]): void;
-
-    private _autoSellEquipment(e: Equipment | RelicEquipment): Promise<void>;
+    private _autoSellEquipment(e: Equipment | RelicEquipment, rarity: number): Promise<void>;
 
     private _setRegularGemInventory(gems: { gem: Gem, amount: number }[]): void;
 
     private _setRelicGemInventory(gems: RelicGem[]): void;
 
-    private _autoSellGem(gem: Gem): Promise<void>;
+    private _autoSellGem(gem: Gem, level: number): Promise<void>;
 }
 
 declare class MovementManager extends BaseManager {
     private constructor(client: Client);
 
-    public getDistance(castle1: Mapobject | CastlePosition, castle2: Mapobject | CastlePosition): number;
-
     public static getDistance(castle1: Mapobject | CastlePosition, castle2: Mapobject | CastlePosition): number;
+
+    public getDistance(castle1: Mapobject | CastlePosition, castle2: Mapobject | CastlePosition): number;
 
     public on<K extends keyof MovementEvents>(event: K, listener: (...args: MovementEvents[K]) => void): this;
 
@@ -568,7 +584,7 @@ declare class Horse {
     isInstantSpyHorse: boolean;
     isPegasusHorse: boolean;
 
-    constructor(client: Client, castleData, horseType: number);
+    constructor(castleData: Castle, horseType: number);
 }
 
 //#endregion
@@ -843,23 +859,10 @@ declare class WorldMapOwnerInfo {
     public playerLevel: number;
     public paragonLevel: number;
     public noobEndTime: Date;
-
-    public get honor(): number;
-
     public highestFamePoints: number;
     public fameTopX: number;
-
-    public get isRuin(): boolean;
-
-    public get allianceId(): number;
-
-    public get allianceRank(): number;
-
     public peaceEndTime: Date;
     public castlePosList: CastlePosition[];
-
-    public get might(): number;
-
     public relocateDurationEndTime: Date;
     public factionId: number;
     public factionIsSpectator: boolean;
@@ -869,6 +872,18 @@ declare class WorldMapOwnerInfo {
     public isOutpostOwner: number;
     public isNPC: boolean;
     public crest: Crest;
+    public titleVO// TODO: :IsleTitleViewVO
+    public staticAreaName: string;
+
+    public get honor(): number;
+
+    public get isRuin(): boolean;
+
+    public get allianceId(): number;
+
+    public get allianceRank(): number;
+
+    public get might(): number;
 
     public get isRuin(): boolean;
 
@@ -877,11 +892,32 @@ declare class WorldMapOwnerInfo {
     public get isParagon(): boolean;
 
     public get playerName(): string;
+
     public set playerName(): string;
 
     public get isInAlliance(): boolean;
 
     public get allianceName(): string;
+
+    public get isOwnOwnerInfo(): boolean;
+
+    public get famePoints(): number;
+
+    public get achievementPoints(): number;
+
+    public get factionMainCampId(): number;
+
+    public get prefixTitleId(): number;
+
+    public get suffixTitleId(): number;
+
+    public get isNoobProtected(): boolean;
+
+    public get isPeaceProtected(): boolean;
+
+    public get isFactionNoobProtected(): boolean;
+
+    public get isFactionProtected(): boolean;
 
     public getMainCastlePositionFromPosListByKingdomId(kingdomId: number): Coordinate;
 
@@ -891,10 +927,6 @@ declare class WorldMapOwnerInfo {
 
     public getCastlePosListByKingdomId(kID: number): CastlePosition[];
 
-    public get isOwnOwnerInfo(): boolean;
-
-    public get famePoints(): number;
-
     public isSearchingAlliance(): boolean;
 
     public hasPremiumFlag(): boolean;
@@ -903,30 +935,11 @@ declare class WorldMapOwnerInfo {
 
     public isRankInfoVisible(): boolean;
 
-    public get achievementPoints(): number;
-
-    public get factionMainCampId(): number;
-
     public isMainCastlePosInKingdom(castlePos: CastlePosition, kingdomId: number): boolean;
-
-    public titleVO// TODO: :IsleTitleViewVO
-    public get prefixTitleId(): number;
-
-    public get suffixTitleId(): number;
-
-    public staticAreaName: string;
 
     public setNamesFactory(value/*todo :KingdomSkinNamesFactory*/, nameTextId: string);
 
     public getCrestByKingdomId(kingdomId: number, isShadowMovement: boolean = false): Crest;
-
-    public get isNoobProtected(): boolean;
-
-    public get isPeaceProtected(): boolean;
-
-    public get isFactionNoobProtected(): boolean;
-
-    public get isFactionProtected(): boolean;
 
     public getFactionMainCampPosition(): Coordinate;
 }
@@ -1279,17 +1292,21 @@ declare class BasicMessage {
 
     protected constructor(client: Client, data: Array<any>);
 
-    protected init(): Promise<void>;
+    public async delete(): Promise<void>;
 }
 
 declare class AllianceNewsMessage {
     public subject: string;
-    public body: string;
+    private _body: string;
+
+    public async getBody(): Promise<string>;
 }
 
 declare class UserMessage {
     public subject: string;
-    public body: string;
+    private _body: string;
+
+    public async getBody(): Promise<string>;
 }
 
 //#region BattleLogMessage
@@ -1304,7 +1321,9 @@ declare class BasicBattleLogMessage {
     public ownerId: number;
     public areaName: string;
     public subject: string;
-    public battleLog: BattleLog;
+    private _battleLog: BattleLog | undefined;
+
+    public async getBattleLog(): Promise<BattleLog>;
 }
 
 declare class BattleLogConquerMessage extends BasicBattleLogMessage {
@@ -1408,8 +1427,10 @@ declare class BattleParticipant {
 //#endregion
 //#region SpyMessage
 declare class BasicSpyPlayerMessage extends BasicMessage {
-    public spyLog: SpyLog;
     public isSuccessful: boolean;
+    private _spyLog: SpyLog | undefined;
+
+    public async getSpyLog(): Promise<SpyLog>;
 }
 
 declare class SpyPlayerSabotageSuccessfulMessage extends BasicSpyPlayerMessage {
@@ -1440,12 +1461,14 @@ declare class SpyPlayerEconomicMessage extends BasicSpyPlayerMessage {
 }
 
 declare class SpyNPCMessage extends BasicMessage {
-    public spyLog: SpyLog;
     public isSuccessful: boolean;
     public ownerId: number;
     public areaType: number;
     public areaName: string;
     public kingdomId: number;
+    private _spyLog: SpyLog | undefined;
+
+    public async getSpyLog(): Promise<SpyLog>;
 }
 
 interface SpyLog {
@@ -1479,8 +1502,10 @@ interface SpyLog {
 //#endregion
 //#region MarketCarriageMessage
 declare class MarketCarriageArrivedMessage extends BasicMessage {
-    areaName: string;
-    tradeData: TradeData;
+    public areaName: string;
+    private _tradeData: TradeData | undefined;
+
+    public async getTradeData(): Promise<TradeData>;
 }
 
 interface TradeData {
@@ -1720,16 +1745,20 @@ declare class AttackAdvisorFailedMessage extends BasicAttackAdvisorMessage {
 }
 
 declare class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
-    advisorOverviewInfo: {
-        commandersAmount: number,
-        lootGoods: Good[],
-        costsGoods: Good[],
-        lostUnitsAmount: number,
-        lostToolsAmount: number,
-        attacksAmountWin: number,
-        attacksAmountDefeat: number,
-        attacksAmountPending: number,
-    }
+    private _advisorOverviewInfo: AdvisorOverviewInfo | undefined;
+
+    public async getAdvisorOverviewInfo(): Promise<AdvisorOverviewInfo>;
+}
+
+declare interface AdvisorOverviewInfo {
+    commandersAmount: number,
+    lootGoods: Good[],
+    costsGoods: Good[],
+    lostUnitsAmount: number,
+    lostToolsAmount: number,
+    attacksAmountWin: number,
+    attacksAmountDefeat: number,
+    attacksAmountPending: number,
 }
 
 //#endregion
@@ -1922,14 +1951,14 @@ type Booster =
 
 /** */
 declare class PremiumBoostData {
-    private _boosterDict: { [key: number]: Booster };
-    private _activeBoosterDict: { [key: number]: Booster };
     public boughtBuildingSlots: number
     public boughtUnitSlots: number
     public boughtToolSlots: number
-    private _resourceOverseerBoosterMap: { [key: number]: ResourceOverseerBoosterShop };
     public feast: RunningFeast
     public feastCostReduction: number
+    private _boosterDict: { [key: number]: Booster };
+    private _activeBoosterDict: { [key: number]: Booster };
+    private _resourceOverseerBoosterMap: { [key: number]: ResourceOverseerBoosterShop };
 
     private constructor(client: Client): this
 
@@ -1942,12 +1971,12 @@ declare class RunningFeast {
 
     constructor(): this
 
-    /** @param {{T: number, RT: number}} params */
-    setData(params: { T: number, RT: number }): void
-
     get isActive(): boolean
 
     get remainingTimeInSeconds(): number
+
+    /** @param {{T: number, RT: number}} params */
+    setData(params: { T: number, RT: number }): void
 }
 
 declare class CastlePremiumMarketShop {
@@ -1962,8 +1991,6 @@ declare class CastlePremiumMarketShop {
 
     get buyQuestionText(): string;
 
-    renewText(): string;
-
     get isVisible(): boolean;
 
     get isActive(): boolean;
@@ -1975,6 +2002,8 @@ declare class CastlePremiumMarketShop {
     get iconMcClass(): string;
 
     get effectIconId(): string;
+
+    renewText(): string;
 }
 
 declare class HeroBoosterShop extends CastlePremiumMarketShop {
@@ -1988,11 +2017,11 @@ declare class HeroBoosterShop extends CastlePremiumMarketShop {
 
     public get durationInSeconds(): number;
 
-    public parseDuration(time: number): Date;
-
     public get remainingTimeInSeconds(): number;
 
     public get id(): number;
+
+    public parseDuration(time: number): Date;
 }
 
 declare class CastleInstructorPremiumShop extends HeroBoosterShop {
@@ -2048,11 +2077,11 @@ declare class RagePointBoosterShop extends HeroBoosterShop {
 }
 
 declare class ResourceOverseerBoosterShop extends HeroBoosterShop {
-    constructor(client: Client, assetType: string/* todo: type must be GameAssetType */, boostId: number, listSortPriority: number, restrictedFeature: string | null, boostValue: number, boostCostValue: number): this
-
     assetType: string; // todo: type must be GameAssetType
     boostValue: number;
     restrictedFeature: string | null;
+
+    constructor(client: Client, assetType: string/* todo: type must be GameAssetType */, boostId: number, listSortPriority: number, restrictedFeature: string | null, boostValue: number, boostCostValue: number): this
 
     get iconBoosterClass(): string;
 }

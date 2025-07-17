@@ -1,8 +1,8 @@
 const Player = require('../structures/Player');
 
-const NAME = "gdi"
+const NAME = "gdi";
 /** @type {CommandCallback<Player>[]}*/
-const callbacks = []
+const callbacks = [];
 
 module.exports.name = NAME;
 
@@ -12,7 +12,7 @@ module.exports.name = NAME;
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    const player = parseGDI(client, params)
+    const player = parseGDI(client, params);
     require('.').baseExecuteCommand(player, errorCode, params, callbacks);
 }
 

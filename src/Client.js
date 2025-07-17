@@ -141,13 +141,13 @@ class Client extends EventEmitter {
                 /*
                     const f2 = await fetch(`https://accounts.public.ggs-ep.com/players/${gameId}-${this._networkId}-${this.socketManager.serverInstance.value}-${this.clientUserData.playerId}/onetime-links/mbs`, {
                         headers: {Authorization: `Bearer ${val.token}`}
-                    })
+                    });
                     this.webshopOneTimeLink = JSON.parse(Buffer.from(await f2.arrayBuffer()).toString())["link"];
 
-                    const storeId = "googleplay" // "googleplay" || "local"
+                    const storeId = "googleplay" // "googleplay" || "local";
                     const f3 = await fetch(`https://mobile-payments.public.ggs-e4k.com/api/players/${gameId}-${this._networkId}-${this.socketManager.serverInstance.value}-${this.clientUserData.playerId}/catalog/${storeId}`, {
                         headers: {Authorization: `Bearer ${val.token}`}
-                    })
+                    });
                     this.logger.d( JSON.parse(Buffer.from(await f3.arrayBuffer()).toString()) );
                  */
             } catch (e) {

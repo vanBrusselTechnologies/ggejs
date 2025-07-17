@@ -31,14 +31,14 @@ class SocketManager {
         this.#addSocketListeners(this.socket);
     }
 
+    get connectionStatus() {
+        return this.#connectionStatus;
+    }
+
     /** @param {number} connectionStatus */
     set connectionStatus(connectionStatus) {
         this.client.logger.i("[SocketManager] Connection status:", Object.keys(ConnectionStatus).find(k => ConnectionStatus[k] === connectionStatus));
         this.#connectionStatus = connectionStatus;
-    }
-
-    get connectionStatus() {
-        return this.#connectionStatus;
     }
 
     async connect() {
@@ -69,10 +69,11 @@ class SocketManager {
             while (this.socket['gbd finished'] !== true) {
                 await new Promise(res => setTimeout(res, 1));
             }
-            this.connectionStatus = ConnectionStatus.Connected;
             pingPong(this.client);
-
             // TODO: Below isn't in source code
+
+            this.connectionStatus = ConnectionStatus.Connected;
+
             if (this.client.externalClient == null && this.serverType === ServerType.NormalServer) {
                 const activeEvents = this.client._activeSpecialEvents;
                 if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_TEMPSERVER)) generateLoginToken(this.client, ServerType.TempServer)
@@ -96,12 +97,12 @@ class SocketManager {
             i++;
         }
         const message = ["", "xt", this.serverInstance.zone, commandId, 1].concat(params, [""]).join("%");
-        this.writeToSocket(message);
+        return this.writeToSocket(message);
     }
 
     /** @param {string} msg */
     writeToSocket(msg) {
-        if (this.connectionStatus === ConnectionStatus.Disconnecting || this.connectionStatus === ConnectionStatus.Disconnected) return;
+        if (this.connectionStatus === ConnectionStatus.Disconnecting || this.connectionStatus === ConnectionStatus.Disconnected) return false;
         this.client.logger.t(`[WRITE]: ${msg.substring(0, Math.min(150, msg.length))}`);
         let _buff0 = Buffer.from(msg);
         let _buff1 = Buffer.alloc(1);
@@ -110,6 +111,7 @@ class SocketManager {
         this.socket.write(bytes, "utf-8", (err) => {
             if (err) this.client.logger.w(`\x1b[31m[SOCKET WRITE ERROR] ${err}\x1b[0m`);
         });
+        return true;
     }
 
     /** @param {net.Socket} socket */

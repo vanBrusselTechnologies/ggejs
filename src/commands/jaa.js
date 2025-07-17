@@ -1,8 +1,8 @@
 const Castle = require("../structures/Castle");
 
-const NAME = "jaa"
+const NAME = "jaa";
 /** @type {CommandCallback<Castle>[]}*/
-const callbacks = []
+const callbacks = [];
 
 module.exports.name = NAME;
 
@@ -23,7 +23,7 @@ module.exports.execute = function (client, errorCode, params) {
  */
 module.exports.joinArea = function (client, worldMapArea) {
     const C2SJoinAreaVO = {PY: worldMapArea.position.Y, PX: worldMapArea.position.X, KID: worldMapArea.kingdomId};
-    return require('.').baseSendCommand(client, NAME, C2SJoinAreaVO, callbacks, (p) => p["gca"]?.["A"]?.[3] === worldMapArea.objectId);
+    return require('.').baseSendCommand(client, NAME, C2SJoinAreaVO, callbacks, (p) => p?.["gca"]?.["A"]?.[3] === worldMapArea.objectId);
 }
 
 module.exports.jaa = parseJAA;

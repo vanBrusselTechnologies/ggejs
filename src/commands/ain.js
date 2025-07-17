@@ -1,10 +1,10 @@
-const MyAlliance = require("../structures/MyAlliance");
-const Alliance = require('../structures/Alliance');
 const {execute: abl} = require('./onReceived/abl');
+const Alliance = require('../structures/Alliance');
+const MyAlliance = require("../structures/MyAlliance");
 
-const NAME = "ain"
+const NAME = "ain";
 /** @type {CommandCallback<Alliance>[]}*/
-const callbacks = []
+const callbacks = [];
 
 module.exports.name = NAME;
 

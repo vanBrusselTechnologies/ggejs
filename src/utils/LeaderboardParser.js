@@ -44,7 +44,7 @@ module.exports.parseLeaderboardSearchList = function (params) {
 /** @param {{LID: number, L: string[]}[]} items */
 function parseLeaderboardSearchListItems(items) {
     /** @type {LeaderboardSearchListItem[]} */
-    const listItems = []
+    const listItems = [];
     for (const item of items) {
         const leagueType = item.LID;
         for (const scoreId of item.L) listItems.push({scoreId, leagueType});

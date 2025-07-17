@@ -1,19 +1,19 @@
-const {HorseType} = require("../utils/Constants");
 const {horses, buildings} = require('e4k-data').data;
+const {HorseType} = require("../utils/Constants");
 
 class Horse {
     /**
-     * @param {Client} client
      * @param {Castle} castleData
      * @param {number} horseType
      */
-    constructor(client, castleData, horseType) {
+    constructor(castleData, horseType) {
         const isPegasusHorse = horseType === HorseType.Feather;
         if (isPegasusHorse) horseType -= 1;
         this.wodId = getHorseWodId(castleData.buildingInfo.buildings, horseType);
         if (this.wodId === -1) return;
         let horse = horses.find(h => h.wodID === this.wodId);
-        if (isPegasusHorse) horse = horses.find(h => h.type === horse.type && h.isPegasusHorse === 1)
+        if (isPegasusHorse) horse = horses.find(h => h.type === horse.type && h.isPegasusHorse === 1);
+        this.wodId = horse.wodId;
         this.comment1 = horse.comment1;
         this.comment2 = horse.comment2;
         this.type = horse.type;
@@ -34,9 +34,9 @@ class Horse {
  */
 function getHorseWodId(castleBuildings, type) {
     const stableBuildings = buildings.filter(b => b.unlockHorses != null);
-    for (let k in castleBuildings) {
+    for (const k in castleBuildings) {
         const stableBuilding = stableBuildings.find(b => b.wodID === castleBuildings[k].wodId);
-        if (stableBuilding != null) return parseInt(stableBuilding.unlockHorses.split(",")[type]);
+        if (stableBuilding !== undefined) return parseInt(stableBuilding.unlockHorses.split(",")[type]);
     }
     return -1;
 }

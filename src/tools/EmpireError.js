@@ -14,10 +14,10 @@ class EmpireError extends Error {
 
 function getLocalizedError(client, errorTextId, errorCode, errorText) {
     if (errorTextId !== '') return Localize.text(client, errorTextId);
-    const textId = `errorCode_${errorCode}`
+    const textId = `errorCode_${errorCode}`;
     const localizedError = Localize.text(client, textId);
     if (localizedError === textId) return errorText;
-    return localizedError
+    return localizedError;
 }
 
 module.exports = EmpireError;

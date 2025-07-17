@@ -1,10 +1,13 @@
 const BasicMessage = require("./BasicMessage");
-const Localize = require("../../tools/Localize");
 const {marketCarriageNotify} = require("../../commands/mmn");
+const EmpireError = require("../../tools/EmpireError");
+const Localize = require("../../tools/Localize");
 
 class MarketCarriageArrivedMessage extends BasicMessage {
     /** @type{Client}*/
     #client;
+    /** @type {TradeData | undefined} */
+    _tradeData = undefined;
 
     constructor(client, data) {
         super(client, data);
@@ -23,8 +26,14 @@ class MarketCarriageArrivedMessage extends BasicMessage {
         this.setSenderToAreaName(this.areaName, this.areaType, this.kingdomId)
     }
 
-    async init() {
-        this.tradeData = await marketCarriageNotify(this.#client, this.messageId);
+    async getTradeData() {
+        try {
+            if (this._tradeData !== undefined) return this._tradeData;
+            this._tradeData = await marketCarriageNotify(this.#client, this.messageId);
+            return this._tradeData;
+        } catch (e) {
+            throw EmpireError(this.#client, e);
+        }
     }
 }
 

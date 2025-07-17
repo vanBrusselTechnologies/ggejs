@@ -5,7 +5,7 @@ class Quest {
 
     _rawData;
     /** @type {QuestCondition[]} */
-    _conditions = []
+    _conditions = [];
 
     /**
      * @param {Client} client

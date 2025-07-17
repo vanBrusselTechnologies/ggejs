@@ -1,7 +1,7 @@
 const General = require("../structures/General");
 const Lord = require("../structures/Lord");
 
-const NAME = "blm"
+const NAME = "blm";
 /** @type {CommandCallback<BattleLog>[]}*/
 const callbacks = [];
 
@@ -24,7 +24,7 @@ module.exports.execute = function (client, errorCode, params) {
  */
 module.exports.getBattleLogMiddle = function (client, battleLogId) {
     const C2SBattleLogMiddleVO = {LID: battleLogId};
-    return require('.').baseSendCommand(client, NAME, C2SBattleLogMiddleVO, callbacks, (p) => p["LID"] === battleLogId);
+    return require('.').baseSendCommand(client, NAME, C2SBattleLogMiddleVO, callbacks, (p) => p?.["LID"] === battleLogId);
 }
 
 module.exports.blm = parseBLM;

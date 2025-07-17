@@ -1,6 +1,7 @@
 const path = require('node:path');
 const fs = require('node:fs');
 const {getErrorText} = require("../utils/ErrorConst");
+const {ConnectionStatus} = require("../utils/Constants");
 
 /** @type {{[p: string]: function(Client, number, Object)}} */
 const commands = {};
@@ -73,7 +74,7 @@ function executeResponse(client, commandId, errorCode, params) {
  * @param {CommandCallback<*>[]} callbacks
  */
 module.exports.baseExecuteCommand = function (data, errorCode, params, callbacks) {
-    const success = errorCode === 0;
+    const success = errorCode === 0 || errorCode === 10005;
     if (callbacks.length === 0) return;
     const i = Math.max(success ? -1 : 0, callbacks.findIndex(c => c.match(params)));
     if (i === -1) return;
@@ -88,17 +89,18 @@ module.exports.baseExecuteCommand = function (data, errorCode, params, callbacks
  * @param {Object} params
  * @param {CommandCallback<*>[]} callbacks
  * @param {(params: Object) => boolean} match
- * @returns {Promise}
+ * @returns {Promise<*>}
  */
 module.exports.baseSendCommand = function (client, name, params, callbacks, match) {
     return new Promise((resolve, reject) => {
-        const id = require('crypto').randomUUID()
-        callbacks.push({id, match, resolve, reject})
-        client.socketManager.sendCommand(name, params);
+        const id = require('crypto').randomUUID();
+        callbacks.push({id, match, resolve, reject});
+        const success = client.socketManager.sendCommand(name, params);
+        if (success !== true) return reject("Client disconnected!");
         setTimeout(() => {
             const i = callbacks.findIndex(c => c.id === id);
             if (i !== -1) callbacks.splice(i, 1);
-            reject("Exceeded max time!")
-        }, 1000)
-    })
+            reject(client.socketManager.connectionStatus === ConnectionStatus.Disconnected ? "Client disconnected!" : "Exceeded max time!");
+        }, 1000);
+    });
 }

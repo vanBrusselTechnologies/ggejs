@@ -2,7 +2,7 @@ const PrimeSaleEvent = require("./PrimeSaleEvent");
 
 class PrimeSaleBoosterEvent extends PrimeSaleEvent {
     /** @type {number[]} */
-    boosterIds = []
+    boosterIds = [];
 
     /**
      * @param {Client} client
@@ -10,7 +10,7 @@ class PrimeSaleBoosterEvent extends PrimeSaleEvent {
      */
     loadFromParamObject(client, data) {
         super.loadFromParamObject(client, data);
-        this.boosterIds = data.BID
+        this.boosterIds = data.BID;
     }
 
     get offersHubType() {

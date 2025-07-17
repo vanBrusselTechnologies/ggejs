@@ -13,6 +13,7 @@ module.exports.name = "dql";
 module.exports.execute = async function (client, errorCode, params) {
     if (!client._socket['gbd finished']) return;
     if (!params) return;
+    return;
     try {
         /** @type {Player} */
         const thisPlayer = await client.players.getThisPlayer();
@@ -34,7 +35,7 @@ module.exports.execute = async function (client, errorCode, params) {
                         /** @type {Castle} */
                         const mainCastleInfo = await client.getCastleInfo(myMainCastle);
                         const dungeon = await getClosestDungeon(client, myMainCastle, false);
-                        const horse = new Horse(client, mainCastleInfo, HorseType.Ruby_1);
+                        const horse = new Horse(mainCastleInfo, HorseType.Ruby_1);
                         client.movements.startSpyMovement(myMainCastle, dungeon, 1, SpyType.Military, 50, horse);
                         break; //spendC2
                     case 3:
@@ -111,6 +112,8 @@ module.exports.execute = async function (client, errorCode, params) {
                         client.logger.d('[DQL]', "Unknown Daily Activity Quest!", quest);
                 }
             } catch (e) {
+                if (e.message === "Client disconnected!") return;
+                if (e.message === "Exceeded max time!") continue;
                 client.logger.d('[DQL]', quest.QID, e);
             }
         }
@@ -132,13 +135,13 @@ function getClosestRuinsOutpost(client, ClassicMap, myMainCastle) {
         if (x.areaType !== WorldMapArea.Outpost) return false;
         const owner = x.ownerInfo;
         return owner.isRuin && !owner.isInAlliance && x.sabotageCooldownEnd === undefined;
-    })
+    });
     ClassicMap = null;
     ruinedPlayerOutposts.sort((a, b) => {
         const distanceA = MovementManager.getDistance(myMainCastle, a);
         const distanceB = MovementManager.getDistance(myMainCastle, b);
         return distanceA - distanceB;
-    })
+    });
     if (ruinedPlayerOutposts.length === 0) throw "No target found!";
     return ruinedPlayerOutposts[0];
 }
@@ -157,7 +160,7 @@ async function getClosestDungeon(client, castle, attackable = true) {
         const distanceA = MovementManager.getDistance(castle, a);
         const distanceB = MovementManager.getDistance(castle, b);
         return distanceA - distanceB;
-    })
+    });
     if (attackable) {
         /** @type {Movement[]} */
         const movements = client.movements.get();
@@ -407,7 +410,7 @@ function getAttackLowerProtectionDungeon(dungeon, general, dungeonProtection, av
 
     const lordRangeDefenceBonus = dungeon.lord.effects.filter(e => e.name === "rangeBonus").map(e => e.power).reduce((sum, a) => sum + a, 0);
     for (const side in restProtection) {
-        const sideIsMiddle = side === "middle"
+        const sideIsMiddle = side === "middle";
         let toolsUsedOnSide = 0;
         const maxToolCountOnSide = sideIsMiddle ? maxToolAmountMiddle : maxToolAmountFlank;
         const availableToolBoxes = sideIsMiddle ? availableToolBoxesMiddle : availableToolBoxesFlank;
@@ -673,6 +676,6 @@ async function attackDungeon(client, thisPlayer, castle, lord) {
     const defenceStrengthTotal = getDungeonDefenceStrength(dungeon, dungeonProtection, attackLowerProtection, usedTools);
     const army = getBestArmyForDungeon(thisPlayer, dungeon, defenceStrengthTotal, availableSoldiers, lord, usedTools, availableDungeonAttackTools);
     if (army.length === 0) throw 'Not enough attacking soldiers available';
-    const horse = new Horse(client, castleData, HorseType.Coin);
+    const horse = new Horse(castleData, HorseType.Coin);
     client.movements.startAttackMovement(castle, dungeon, army, lord, horse);
 }

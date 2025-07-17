@@ -1,7 +1,7 @@
 const {parseChatJSONMessage} = require("../tools/TextValide");
 
 const NAME = "rms"
-/** @type {CommandCallback<BattleLog>[]}*/
+/** @type {CommandCallback<string>[]}*/
 const callbacks = [];
 
 module.exports.name = NAME;
@@ -23,14 +23,14 @@ module.exports.execute = function (client, errorCode, params) {
  */
 module.exports.readMessages = function (client, messageId) {
     const C2SReadMessagesVO = {MID: messageId};
-    return require('.').baseSendCommand(client, NAME, C2SReadMessagesVO, callbacks, (p) => p["MID"] === messageId);
+    return require('.').baseSendCommand(client, NAME, C2SReadMessagesVO, callbacks, (p) => p?.["MID"] === messageId);
 }
 
 module.exports.rms = parseRMS;
 
 /**
  * @param {Client} client
- * @param {Object} params
+ * @param {{MTXT: string}} params
  * @return {string | null}
  */
 function parseRMS(client, params) {

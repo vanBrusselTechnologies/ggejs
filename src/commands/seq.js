@@ -1,10 +1,10 @@
-const {execute: gli} = require("./onReceived/gli");
-const {execute: gcu} = require("./onReceived/gcu");
 const {execute: esl} = require("./onReceived/esl");
+const {execute: gcu} = require("./onReceived/gcu");
+const {execute: gli} = require("./onReceived/gli");
 
-const NAME = "seq"
+const NAME = "seq";
 /** @type {CommandCallback<void>[]}*/
-const callbacks = []
+const callbacks = [];
 
 module.exports.name = NAME;
 
@@ -23,6 +23,7 @@ module.exports.execute = function (client, errorCode, params) {
  * @param {number} equipmentId
  * @param {number} lordId
  * @param {number} lostAndFoundRewardId
+ * @returns {Promise<void>}
  */
 module.exports.sellEquipment = function (client, equipmentId, lordId = -1, lostAndFoundRewardId = -1) {
     const C2SSellEquipmentVO = {EID: equipmentId, LID: lordId, LFID: lostAndFoundRewardId};

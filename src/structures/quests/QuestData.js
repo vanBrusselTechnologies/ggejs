@@ -4,9 +4,9 @@ const Quest = require("./Quest");
 class QuestData {
     #client;
     /** @type {Quest[]} */
-    _activeQuests = []
+    _activeQuests = [];
     /** @type {{[id:number]: true}} */
-    _completedQuests = {}
+    _completedQuests = {};
 
     /** @param {Client} client */
     constructor(client) {

@@ -1,10 +1,13 @@
 const BasicMessage = require("./BasicMessage");
-const Localize = require("../../tools/Localize");
 const {getSpyLog} = require("../../commands/bsd");
+const EmpireError = require("../../tools/EmpireError");
+const Localize = require("../../tools/Localize");
 
 class SpyNPCMessage extends BasicMessage {
     /** @type{Client}*/
     #client;
+    /** @type {SpyLog | undefined} */
+    _spyLog = undefined;
 
     constructor(client, data) {
         super(client, data);
@@ -50,8 +53,14 @@ class SpyNPCMessage extends BasicMessage {
         this.subject = Localize.text(client, "value_assign_colon", spyTypeName, val);
     }
 
-    async init() {
-        this.spyLog = await getSpyLog(this.#client, this.messageId);
+    async getSpyLog() {
+        try {
+            if (this._spyLog !== undefined) return this._spyLog;
+            this._spyLog = await getSpyLog(this.#client, this.messageId);
+            return this._spyLog;
+        } catch (e) {
+            throw EmpireError(this.#client, e);
+        }
     }
 }
 
