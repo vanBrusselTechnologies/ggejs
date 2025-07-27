@@ -1,23 +1,21 @@
-const {parseMapObject} = require("../utils/MapObjectParser");
-const Unit = require("./Unit");
+const {gcl} = require("../commands/gcl");
+const InventoryItem = require("./InventoryItem");
 const VillageMapobject = require("./mapobjects/VillageMapobject");
 const KingstowerMapobject = require("./mapobjects/KingstowerMapobject");
 const MonumentMapobject = require("./mapobjects/MonumentMapobject");
-const Coordinate = require("./Coordinate");
-const InventoryItem = require("./InventoryItem");
+const Unit = require("./Unit");
 const WorldMapOwnerInfo = require("./WorldMapOwnerInfo");
 
 class Player extends WorldMapOwnerInfo {
     /**
      * @param {Client} client
-     * @param {Object} data
+     * @param {{O: Object, gcl: Object, kgv: Object, gkl: Object, gml: Object, tie: Object}} data
      */
     constructor(client, data) {
         super(client);
         super.fillFromParamObject(data.O);
-
-        /** @type {(CastleMapobject | CapitalMapobject)[]} */
-        this.castles = parseCastleList(client, data.gcl); // TODO move to GCL-parser
+        const castleList = gcl(client, data.gcl, this);
+        this.castles = Object.keys(castleList).flatMap(k => castleList[k]);
         /** @type {{public:{village:VillageMapobject,units?:InventoryItem<Unit>[]}[], private:{privateVillageId: number, uniqueId: number}[]}} */
         this.villages = parseVillageList(client, data.kgv); // TODO move to KGV-parser
         /** @type {{kingstower: KingstowerMapobject, units?: InventoryItem<Unit>[]}[]} */
@@ -26,40 +24,6 @@ class Player extends WorldMapOwnerInfo {
         this.monuments = parseMonuments(client, data.gml); // TODO move to GML-parser
         //this.allianceTowers = ; // TODO: horizon
     }
-}
-
-/**
- * @param {Client} client
- * @param {number[][]} data
- */
-function parseSimpleCastleList(client, data) {
-    if (!data) return [];
-    return data.map(d => {
-        return {areaType: d[4], position: new Coordinate(d.slice(2, 4)), objectId: d[1], kingdomId: d[0]}
-    })
-}
-
-/**
- * @param {Client} client
- * @param {Object} data
- */
-function parseCastleList(client, data) {
-    if (!data) return [];
-    /** @type {(CastleMapobject | CapitalMapobject)[]} */
-    const output = [];
-    for (let i in data.C) {
-        for (let j in data.C[i].AI) {
-            let obj = data.C[i].AI[j];
-            let mapObject = parseMapObject(client, obj.AI);
-            if (obj.OGT) mapObject["remainingOpenGateTime"] = obj.OGT;
-            if (obj.OGC) mapObject["openGateCounter"] = obj.OGC;
-            if (obj.AOT) mapObject["remainingAbandonOutpostTime"] = obj.AOT;
-            if (obj.TA) mapObject["remainingCooldownAbandonOutpostTime"] = obj.TA;
-            if (obj.CAT) mapObject["remainingCancelAbandonTime"] = obj.CAT;
-            output.push(mapObject);
-        }
-    }
-    return output;
 }
 
 /**
@@ -93,7 +57,9 @@ function parseVillageList(client, data) {
  */
 function parseUnits(client, data) {
     if (!data) return [];
-    return data.map(d => {return new InventoryItem(new Unit(client, d[0]), d[1])})
+    return data.map(d => {
+        return new InventoryItem(new Unit(client, d[0]), d[1])
+    })
 }
 
 /**

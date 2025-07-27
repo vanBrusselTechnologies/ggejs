@@ -48,7 +48,7 @@ class BasicMessage {
         try {
             await deleteMessages(this.#client, [this.messageId]);
         } catch (e) {
-            throw EmpireError(this.#client, e);
+            throw new EmpireError(this.#client, e);
         }
     }
 }

@@ -52,11 +52,11 @@ declare class Client extends EventEmitter {
     /** Login with your credentials */
     public connect(): Promise<Client>;
 
-    public sendChatMessage(message: string): void;
+    public async sendChatMessage(message: string): Promise<void>;
 
-    public sendMailMessage(playerName: string, subject: string, message: string): void;
+    public async sendMailMessage(playerName: string, subject: string, message: string): Promise<void>;
 
-    public getCastleInfo(Mapobject: InteractiveMapobject): Promise<Castle>;
+    public async getCastleInfo(Mapobject: InteractiveMapobject): Promise<Castle>;
 
     public on<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
 
@@ -65,8 +65,6 @@ declare class Client extends EventEmitter {
     public emit<K extends keyof ClientEvents>(eventName: K, ...args: ClientEvents[K]): boolean;
 
     private _verifyLoginData(): void;
-
-    private __x__x__relogin(): Promise<void>;
 }
 
 declare type CommandCallback<T> = {

@@ -2,8 +2,10 @@
 
 const EventEmitter = require('node:events');
 const {NetworkInstance, languages} = require('e4k-data');
+const {sendAllianceChat} = require("./commands/acm");
 const {joinArea} = require('./commands/jaa');
 const {execute: registerOrLogin} = require('./commands/commands/registerOrLogin');
+const {sendMessage} = require("./commands/sms");
 const {execute: verifyLoginData} = require('./commands/commands/verifyLoginData');
 const AllianceManager = require('./managers/AllianceManager');
 const ClientUserDataManager = require("./managers/ClientUserDataManager");
@@ -30,18 +32,8 @@ class Client extends EventEmitter {
     _networkId = -1;
 
     logger = new Logger();
-
-//#region TODO: MOVE TO CORRECT MANAGER
-    /** @type {MailMessage[]} */
-    _mailMessages = [];
     /** @type {ActiveEvent[]} */
     _activeSpecialEvents = [];
-
-//#endregion
-
-    get _socket() {
-        return this.socketManager.socket;
-    }
 
     /**
      * @param {string} name
@@ -64,7 +56,19 @@ class Client extends EventEmitter {
         this.worldMaps = new WorldMapManager(this);
     }
 
-    static registerNewAccount() {
+//#endregion
+
+//#region TODO: MOVE TO CORRECT MANAGER
+    /** @type {MailMessage[]} */
+    _mailMessages = [];
+
+    /** @return {MailMessage[]} */
+    get mailMessages() {
+        return this._mailMessages;
+    }
+
+    get _socket() {
+        return this.socketManager.socket;
     }
 
     _language = 'en';
@@ -78,54 +82,6 @@ class Client extends EventEmitter {
     /** @param {number} val */
     set reconnectTimeout(val) {
         this.socketManager.reconnectTimeout = val;
-    }
-
-    /** @return {MailMessage[]} */
-    get mailMessages() {
-        return this._mailMessages;
-    }
-
-    async connect() {
-        if (this.socketManager.connectionStatus === ConnectionStatus.Connected) return this;
-        await this.socketManager.connect();
-        this.emit('connected');
-        return this;
-    }
-
-    _verifyLoginData() {
-        if (this.#name === "" && this.#password !== "") {
-            registerOrLogin(this, this.#password);
-            return;
-        }
-        verifyLoginData(this, this.#name, this.#password);
-    }
-
-    /** @param {string} message */
-    sendChatMessage(message) {
-        // TODO(?): Move into MyAlliance
-        require('./commands/commands/sendAllianceChatMessage').execute(this, message);
-    }
-
-    /**
-     * @param {string} playerName
-     * @param {string} subject
-     * @param {string} message
-     */
-    sendMailMessage(playerName, subject, message) {
-        require('./commands/commands/sendMailMessage').execute(this, playerName, subject, message);
-    }
-
-    /**
-     * @param {InteractiveMapobject} mapObject
-     * @returns {Promise<Castle>}
-     */
-    async getCastleInfo(mapObject) {
-        if (!mapObject || !mapObject.objectId) throw new EmpireError(this, "WorldMapArea is not valid");
-        try {
-            return await joinArea(this, mapObject);
-        } catch (errorCode) {
-            throw new EmpireError(this, errorCode);
-        }
     }
 
     /** @param {{token:string, tokenExpirationDate: Date}} val */
@@ -154,6 +110,72 @@ class Client extends EventEmitter {
                 this.logger.d(e);
             }
         })();
+    }
+
+    static registerNewAccount() {
+    }
+
+    async connect() {
+        if (this.socketManager.connectionStatus === ConnectionStatus.Connected) return this;
+        await this.socketManager.connect();
+        this.emit('connected');
+        return this;
+    }
+
+    _verifyLoginData() {
+        if (this.#name === "" && this.#password !== "") {
+            registerOrLogin(this, this.#password);
+            return;
+        }
+        verifyLoginData(this, this.#name, this.#password);
+    }
+
+    /** @param {string} message */
+    async sendChatMessage(message) {
+        try {
+            // TODO(?): Move into MyAlliance
+            await sendAllianceChat(this, message);
+        } catch (e) {
+            throw new EmpireError(this, e);
+        }
+    }
+
+    /**
+     * @param {string} playerName
+     * @param {string} subject
+     * @param {string} message
+     */
+    async sendMailMessage(playerName, subject, message) {
+        try {
+            await sendMessage(this, playerName, subject, message);
+        } catch (errorCode) {
+            const overrideTextId = (() => {
+                switch (errorCode) {
+                    case 12:
+                        return this.clientUserData.userXp < 1080 ? 'errorCode_12' : 'alert_writeNewMessage_blocked_lowLevel';
+                    case 68:
+                        return 'dialog_receiverNotFound';
+                    case 98:
+                        return 'alert_textTooShort';
+                    default:
+                        return '';
+                }
+            })();
+            throw new EmpireError(this, errorCode, overrideTextId);
+        }
+    }
+
+    /**
+     * @param {InteractiveMapobject} mapObject
+     * @returns {Promise<Castle>}
+     */
+    async getCastleInfo(mapObject) {
+        if (!mapObject || !mapObject.objectId) throw new EmpireError(this, "WorldMapArea is not valid");
+        try {
+            return await joinArea(this, mapObject);
+        } catch (errorCode) {
+            throw new EmpireError(this, errorCode);
+        }
     }
 }
 

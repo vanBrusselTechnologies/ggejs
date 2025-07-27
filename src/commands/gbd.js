@@ -136,52 +136,55 @@ function parseGBD(client, params) {
 
 /** @param {Client} client */
 async function handlePostGBDCommandInNextFrame(client) {
-    /* todo
-     *  restoreTutorialIfRuined();
-     *  enableIAPmanagerStartupIntervalSignal.dispatch(false);
-     *  configureNotificationsSignal.dispatch();
-     *  worldmapCameraData.currentCenteredWorldMapObject = castleListService.getMainCastleByKingdomId(kingdomData.activeKingdomID);
-     *  if (!_loc2_) {
-     *      startTutorialSignal.dispatch(true);
-     *  }
-     *  else {
-     *      castleRemoveLoadingScreenSignal.dispatch();
-     *  }
-     *  restoreLastSessionGameStateSignal.dispatch();
-     *  initMarketingTracking();
-     *  trackDevice();
-     *  trackDisconnection();
-     */
-    requestSubscriptionsData(client);
-    /*todo
-     * directCommandMap.map(InitPaymentShopCommand).execute();
-     * if (!featureRestrictionsModel.isFeatureRestrictedWithType("accountCode",FeatureRestrictionType.HIDDEN))
-     * {
-     *    directCommandMap.map(WebshopGetAccountIdCommand).execute();
-     * }
-     * sendInstallerPackageSignal.dispatch();
-     * requestTimeForRuinPushNotification();
-     */
-    requestLoginBonusInfo(client);
-    await requestMessagesData(client);
-    await requestAllianceData(client);
-    requestBookmarkData(client);
-    requestConstructionItemInventory(client);
-    requestGeneralsInnData(client);
-    /* todo
-         showAccountForcedDialog();
-         directCommandMap.map(SendDeviceMetaDataCommand).execute();
-         gameStatusModel.gameIsListening = true;
-         stopCachingJsonCommandsSignal.dispatch();
-         connectionLostModel.reset();
-         if (lockConditionModel.hasCondition()) {
-            _loc1_ = lockConditionModel.hasCondition();
-            debug("client has lock condition in GBD:",_loc1_.originalConditionIds + ", find the original reason where it came from and clean");
-            lockConditionModel.conditionComplete();
-         }
-     */
+    try {
+        /* todo
+         *  restoreTutorialIfRuined();
+         *  enableIAPmanagerStartupIntervalSignal.dispatch(false);
+         *  configureNotificationsSignal.dispatch();
+         *  worldmapCameraData.currentCenteredWorldMapObject = castleListService.getMainCastleByKingdomId(kingdomData.activeKingdomID);
+         *  if (!_loc2_) {
+         *      startTutorialSignal.dispatch(true);
+         *  }
+         *  else {
+         *      castleRemoveLoadingScreenSignal.dispatch();
+         *  }
+         *  restoreLastSessionGameStateSignal.dispatch();
+         *  initMarketingTracking();
+         *  trackDevice();
+         *  trackDisconnection();
+         */
+        requestSubscriptionsData(client);
+        /*todo
+         * directCommandMap.map(InitPaymentShopCommand).execute();
+         * if (!featureRestrictionsModel.isFeatureRestrictedWithType("accountCode",FeatureRestrictionType.HIDDEN))
+         * {
+         *    directCommandMap.map(WebshopGetAccountIdCommand).execute();
+         * }
+         * sendInstallerPackageSignal.dispatch();
+         * requestTimeForRuinPushNotification();
+         */
+        requestLoginBonusInfo(client);
+        await requestMessagesData(client);
+        await requestAllianceData(client);
+        requestBookmarkData(client);
+        requestConstructionItemInventory(client);
+        requestGeneralsInnData(client);
+        /* todo
+             showAccountForcedDialog();
+             directCommandMap.map(SendDeviceMetaDataCommand).execute();
+             gameStatusModel.gameIsListening = true;
+             stopCachingJsonCommandsSignal.dispatch();
+             connectionLostModel.reset();
+             if (lockConditionModel.hasCondition()) {
+                _loc1_ = lockConditionModel.hasCondition();
+                debug("client has lock condition in GBD:",_loc1_.originalConditionIds + ", find the original reason where it came from and clean");
+                lockConditionModel.conditionComplete();
+             }
+         */
 
-    client._socket['gbd finished'] = true;
+        client._socket['gbd finished'] = true;
+    } catch (e) {
+    }
 }
 
 /** @param {Client} client */

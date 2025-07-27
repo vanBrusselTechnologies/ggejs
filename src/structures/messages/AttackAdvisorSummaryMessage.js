@@ -25,7 +25,7 @@ class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
             this._advisorOverviewInfo = await parseAdvisorOverview(this.#client, this.messageId);
             return this._advisorOverviewInfo;
         } catch (e) {
-            throw EmpireError(this.#client, e);
+            throw new EmpireError(this.#client, e);
         }
     }
 

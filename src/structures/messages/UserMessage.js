@@ -22,7 +22,7 @@ class UserMessage extends BasicMessage {
             this._body = await readMessages(this.#client, this.messageId);
             return this._body;
         } catch (e) {
-            throw EmpireError(this.#client, e);
+            throw new EmpireError(this.#client, e);
         }
     }
 

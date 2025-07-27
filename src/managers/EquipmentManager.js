@@ -167,21 +167,25 @@ class EquipmentManager extends BaseManager {
 
     /** @param {Gem | RelicGem} gem */
     async sellGem(gem) {
-        const isRelic = gem.relicTypeId != null;
-        await sellGem(this._client, gem.id, isRelic);
-        let i = 0;
-        if (isRelic) {
-            for (const relicGem of this.#relicGemInventory) {
-                if (relicGem.id === gem.id) this.#relicGemInventory.splice(i, 1);
-                i++;
-            }
-        } else {
-            for (const gem_amount of this.#regularGemInventory) {
-                if (gem_amount.gem.id === gem.id) {
-                    if (gem_amount.amount === 1) this.#regularGemInventory.splice(i, 1); else gem_amount.amount -= 1;
+        try {
+            const isRelic = gem.relicTypeId != null;
+            await sellGem(this._client, gem.id, isRelic);
+            let i = 0;
+            if (isRelic) {
+                for (const relicGem of this.#relicGemInventory) {
+                    if (relicGem.id === gem.id) this.#relicGemInventory.splice(i, 1);
+                    i++;
                 }
-                i++;
+            } else {
+                for (const gem_amount of this.#regularGemInventory) {
+                    if (gem_amount.gem.id === gem.id) {
+                        if (gem_amount.amount === 1) this.#regularGemInventory.splice(i, 1); else gem_amount.amount -= 1;
+                    }
+                    i++;
+                }
             }
+        } catch (e) {
+            throw new EmpireError(this._client, e);
         }
     }
 

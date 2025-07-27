@@ -35,7 +35,7 @@ class BasicBattleLogMessage extends BasicMessage {
             this._battleLog = await getMessageBody(this.#client, this.messageId);
             return this._battleLog;
         } catch (e) {
-            throw EmpireError(this.#client, e);
+            throw new EmpireError(this.#client, e);
         }
     }
 

@@ -96,7 +96,11 @@ module.exports.baseSendCommand = function (client, name, params, callbacks, matc
         const id = require('crypto').randomUUID();
         callbacks.push({id, match, resolve, reject});
         const success = client.socketManager.sendCommand(name, params);
-        if (success !== true) return reject("Client disconnected!");
+        if (success !== true) {
+            const i = callbacks.findIndex(c => c.id === id);
+            if (i !== -1) callbacks.splice(i, 1);
+            return reject("Client disconnected!");
+        }
         setTimeout(() => {
             const i = callbacks.findIndex(c => c.id === id);
             if (i !== -1) callbacks.splice(i, 1);

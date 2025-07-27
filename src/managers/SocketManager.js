@@ -5,7 +5,7 @@ const {execute: collectTax} = require('../commands/commands/collectTax');
 const {execute: dql} = require('../commands/onReceived/dql');
 const {execute: generateLoginToken} = require('../commands/commands/generateLoginToken');
 const {execute: mercenaryPackage} = require('../commands/commands/mercenaryPackage');
-const {execute: pingPong} = require('../commands/commands/pingpong');
+const {pingpong} = require("../commands/pin");
 const EmpireError = require("../tools/EmpireError");
 const {ConnectionStatus, ServerType} = require("../utils/Constants");
 const EventConst = require("../utils/EventConst");
@@ -69,7 +69,7 @@ class SocketManager {
             while (this.socket['gbd finished'] !== true) {
                 await new Promise(res => setTimeout(res, 1));
             }
-            pingPong(this.client);
+            await pingpong(this.client);
             // TODO: Below isn't in source code
 
             this.connectionStatus = ConnectionStatus.Connected;
@@ -227,9 +227,9 @@ async function waitForConnectionStatusTS(socketManager, connectionStatus, endDat
     if (socketManager.connectionError !== "") {
         const e = socketManager.connectionError;
         socketManager.connectionError = "";
-        throw EmpireError(socketManager.client, `[Connection Error] ${e}`);
+        throw new EmpireError(socketManager.client, `[Connection Error] ${e}`);
     }
-    if (endDateTimestamp < Date.now()) throw EmpireError(socketManager.client, "[Connection Error] Exceeded max time!");
+    if (endDateTimestamp < Date.now()) throw new EmpireError(socketManager.client, "[Connection Error] Exceeded max time!");
     await new Promise(resolve => setTimeout(resolve, 1));
     return await waitForConnectionStatusTS(socketManager, connectionStatus, endDateTimestamp);
 }

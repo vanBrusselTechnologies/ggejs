@@ -30,7 +30,7 @@ class BasicSpyPlayerMessage extends BasicMessage {
             this._spyLog = await getSpyLog(this.#client, this.messageId);
             return this._spyLog;
         } catch (e) {
-            throw EmpireError(this.#client, e);
+            throw new EmpireError(this.#client, e);
         }
     }
 

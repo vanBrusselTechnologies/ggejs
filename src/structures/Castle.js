@@ -55,7 +55,7 @@ class Castle {
                 - uap: UserAttackProtection
                 - gsm: GetStatusMines
                 - abpi: AreaBuildingProductionInfo
-                - crin: CraftingInfo
+                - crai: CraftingInfo
                 - rci: ResourceCartsInfo
                 - mot: AllianceBattleGroundMineOutTime
         */
