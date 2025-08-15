@@ -4,9 +4,8 @@ const EventEmitter = require('node:events');
 const {NetworkInstance, languages} = require('e4k-data');
 const {sendAllianceChat} = require("./commands/acm");
 const {joinArea} = require('./commands/jaa');
-const {execute: registerOrLogin} = require('./commands/commands/registerOrLogin');
+const {pingpong} = require("./commands/pin");
 const {sendMessage} = require("./commands/sms");
-const {execute: verifyLoginData} = require('./commands/commands/verifyLoginData');
 const AllianceManager = require('./managers/AllianceManager');
 const ClientUserDataManager = require("./managers/ClientUserDataManager");
 const EquipmentManager = require("./managers/EquipmentManager");
@@ -18,32 +17,21 @@ const PremiumBoostData = require("./structures/boosters/PremiumBoostData");
 const QuestData = require("./structures/quests/QuestData");
 const EmpireError = require("./tools/EmpireError");
 const Logger = require("./tools/Logger");
-const {ConnectionStatus} = require("./utils/Constants");
 
-class Client extends EventEmitter {
-    #name = "";
-    #password = "";
+class BaseClient extends EventEmitter {
     /** @type {{token:string, tokenExpirationDate: Date}} */
     #apiToken;
     uniqueAccountId = "";
-    /** @type {Client | null} */
-    externalClient = null;
+    bannedUntil = new Date(0);
 
     _networkId = -1;
 
     logger = new Logger();
-    /** @type {ActiveEvent[]} */
-    _activeSpecialEvents = [];
 
-    /**
-     * @param {string} name
-     * @param {string} password
-     * @param {NetworkInstance} serverInstance
-     */
-    constructor(name, password, serverInstance) {
+    /** @param {NetworkInstance} serverInstance */
+    constructor(serverInstance) {
         super();
-        this.#name = name;
-        this.#password = password;
+        this._id = require('crypto').randomUUID();
         this.socketManager = new SocketManager(this, serverInstance);
 
         this.alliances = new AllianceManager(this);
@@ -56,16 +44,17 @@ class Client extends EventEmitter {
         this.worldMaps = new WorldMapManager(this);
     }
 
-//#endregion
-
 //#region TODO: MOVE TO CORRECT MANAGER
     /** @type {MailMessage[]} */
     _mailMessages = [];
-
     /** @return {MailMessage[]} */
     get mailMessages() {
         return this._mailMessages;
     }
+
+    /** @type {ActiveEvent[]} */
+    _activeSpecialEvents = [];
+//#endregion
 
     get _socket() {
         return this.socketManager.socket;
@@ -112,22 +101,14 @@ class Client extends EventEmitter {
         })();
     }
 
-    static registerNewAccount() {
-    }
+    async _reconnect(){}
 
-    async connect() {
-        if (this.socketManager.connectionStatus === ConnectionStatus.Connected) return this;
-        await this.socketManager.connect();
-        this.emit('connected');
-        return this;
-    }
-
-    _verifyLoginData() {
-        if (this.#name === "" && this.#password !== "") {
-            registerOrLogin(this, this.#password);
-            return;
+    async _sendPingPong() {
+        try {
+            await pingpong(this);
+        } catch (errorCode) {
+            throw new EmpireError(this, errorCode);
         }
-        verifyLoginData(this, this.#name, this.#password);
     }
 
     /** @param {string} message */
@@ -135,8 +116,8 @@ class Client extends EventEmitter {
         try {
             // TODO(?): Move into MyAlliance
             await sendAllianceChat(this, message);
-        } catch (e) {
-            throw new EmpireError(this, e);
+        } catch (errorCode) {
+            throw new EmpireError(this, errorCode);
         }
     }
 
@@ -179,4 +160,4 @@ class Client extends EventEmitter {
     }
 }
 
-module.exports = Client;
+module.exports = BaseClient;

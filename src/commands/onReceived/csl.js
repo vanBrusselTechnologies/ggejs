@@ -1,6 +1,6 @@
 module.exports.name = "csl";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{SL:number}} params
  */

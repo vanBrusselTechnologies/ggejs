@@ -3,7 +3,7 @@ class WorldMap {
     mapObjects = [];
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {number} kingdomId
      */
     constructor(client, kingdomId) {

@@ -3,7 +3,7 @@ const Good = require("../Good");
 
 class MarketMovement extends BasicMovement {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Object} data
      */
     constructor(client, data) {
@@ -18,12 +18,12 @@ class MarketMovement extends BasicMovement {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
  */
 function parseGoods(client, data) {
     if (!data) return [];
-    return data.map(d => new Good(client, d));
+    return data.map(d => new Good(d));
 }
 
 module.exports = MarketMovement;

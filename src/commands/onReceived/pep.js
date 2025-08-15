@@ -1,6 +1,6 @@
 module.exports.name = "pep";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{EID: number, OP: number[], OR:number[]}} params
  */

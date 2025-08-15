@@ -8,7 +8,7 @@ class Quest {
     _conditions = [];
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Quest} data
      */
     constructor(client, data) {

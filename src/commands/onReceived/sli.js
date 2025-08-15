@@ -2,7 +2,7 @@ const {execute: collectStartupLoginBonus} = require('../commands/collectStartupL
 
 module.exports.name = "sli";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{NRR: number, CC: number}} params
  */

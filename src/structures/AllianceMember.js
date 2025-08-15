@@ -6,7 +6,7 @@ class AllianceMember extends WorldMapOwnerInfo {
     activityStatus;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {*} data
      * @param {Alliance} alliance
      */

@@ -1,6 +1,6 @@
 module.exports.name = "gmu";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{MP:number, HMP:number}} params
  */

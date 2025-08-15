@@ -7,21 +7,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
-    const playerId = client.clientUserData.playerId;
-    client.clientUserData._userData.castleList.ownerId = playerId;
-    const ownerInfo = client.worldMaps._ownerInfoData.getOwnerInfo(playerId);
-    const castleList = parseGCL(client, params, ownerInfo);
-    client.clientUserData._userData.castleList.castles = castleList;
-    require('.').baseExecuteCommand(castleList, errorCode, params, callbacks);
+    const castleList = parseGCL(client, params);
+    require('.').baseExecuteCommand(client, castleList, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @return {Promise<{[kId: number]: (CastleMapobject | CapitalMapobject)[]}>}
  */
 module.exports.getCastleList = function (client) {
@@ -32,12 +28,18 @@ module.exports.getCastleList = function (client) {
 module.exports.gcl = parseGCL;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{PID: number, C: {KID: number, AI: {AI: [], AOT?: number, CAT?: number, OGC?: number, OGT?: number, TA?: number}[]}[]}} params
  * @param {WorldMapOwnerInfo} ownerInfo
  * @return {{[kId: number]: (CastleMapobject | CapitalMapobject)[]}}
  */
-function parseGCL(client, params, ownerInfo) {
+function parseGCL(client, params, ownerInfo = undefined) {
+    if (client.clientUserData.playerId === -1) return {};
+    const playerId = params.PID;
+    if (client.clientUserData.playerId === playerId) {
+        client.clientUserData._userData.castleList.ownerId = playerId;
+        ownerInfo = ownerInfo ?? client.worldMaps._ownerInfoData.getOwnerInfo(playerId);
+    }
     if (!params) return {};
     const castleList = {};
     for (const castle of params.C) {
@@ -53,6 +55,9 @@ function parseGCL(client, params, ownerInfo) {
             mapObjects.push(mapObject);
         }
         castleList[castle.KID] = mapObjects;
+    }
+    if (client.clientUserData.playerId === playerId) {
+        client.clientUserData._userData.castleList.castles = castleList;
     }
     return castleList;
 }

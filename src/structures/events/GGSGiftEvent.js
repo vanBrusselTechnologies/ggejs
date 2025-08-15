@@ -7,7 +7,7 @@ class GGSGiftEvent extends ActiveEvent {
     hasBeenCollected
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID: number, RS: number, SID: number, AC: number}} data
      */
     loadFromParamObject(client, data) {

@@ -58,7 +58,7 @@ class Alliance {
 module.exports = Alliance;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object[]} members
  * @param {Alliance} _alliance
  * @returns {AllianceMember[]}

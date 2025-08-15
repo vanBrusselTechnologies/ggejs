@@ -1,6 +1,6 @@
 module.exports.name = "kli";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{STO: Object, ABL:Object}} params
  */

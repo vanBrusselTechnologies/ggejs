@@ -6,7 +6,7 @@ const Gem = require("./Gem");
 
 class Lord {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Object} data
      * @returns
      */
@@ -16,13 +16,9 @@ class Lord {
         if (this.isDummy) {
             /** @type {number} */
             this.id = data.DLID;
-            /** @type {Object} */
             this.rawData = getDummyData(this.id);
-            /** @type {string} */
             this.name = this.rawData.type
-            /** @type {number} */
             this.wearerId = this.rawData.wearerID;
-            /** @type {Effect[]} */
             this.effects = parseDummyEffects(client, this.rawData.effects);
             return;
         }
@@ -56,207 +52,102 @@ class Lord {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
  * @param {Lord} lord
  * @returns {Equipment[] | RelicEquipment[]}
  */
 function parseEquipments(client, data, lord) {
-    let _equipments = [];
-    if (data) {
-        for (let d of data) {
-            if (d[11] === 3) _equipments.push(new RelicEquipment(client, d, lord)); else _equipments.push(new Equipment(client, d, lord));
-        }
-    }
-    return _equipments;
+    return (data ?? []).map(d => d[11] === 3 ? new RelicEquipment(client, d, lord) : new Equipment(client, d, lord));
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {[]} data
  * @param {Equipment[] | RelicEquipment[]} equipments
  * @returns {Gem[] | RelicGem[]}
  */
 function parseGems(client, data, equipments) {
     /** @type {Gem[] | RelicGem[]} */
-    let _gems = [];
-    if (data && data.length !== 0) {
-        for (const gemId of data) _gems.push(new Gem(client, gemId));
-    }
-    for (let equipment of equipments) {
-        let _gem = equipment.attachedGem;
-        if (_gem) _gems.push(_gem);
-    }
-    return _gems;
+    const gems = (data ?? []).map(id => new Gem(client, id));
+    equipments.filter(e => e.attachedGem != null).forEach(e => gems.push(e.attachedGem))
+    return gems;
 }
 
 /**
- * @param {Client} client
- * @param {*} data
+ * @param {BaseClient} client
+ * @param {{AIE: [], HME: [], TAE: [], AE: [], E: []}} data
  * @param {Equipment[] | RelicEquipment[]} equipments
  * @returns {Effect[] | RelicEffect[]}
  */
 function parseEffects(client, data, equipments) {
-    // TODO: Most effects got doubled! Should the effect from equipments part be removed?
-
     /** @type {Effect[] | RelicEffect[]} */
-    let _effects = [];
-    if (data["AIE"]) {
-        for (let d of data["AIE"]) {
-            _effects.push(new Effect(client, [d[0], d[1][0]]));
-        }
-    }
-    if (data["HME"]) {
-        for (let d of data["HME"]) {
-            _effects.push(new Effect(client, [d[0], d[1][0]]));
-        }
-    }
-    if (data["TAE"]) {
-        for (let d of data["TAE"]) {
-            _effects.push(new Effect(client, [d[0], d[1][0]]));
-        }
-    }
-    if (data["AE"]) {
-        for (let d of data["AE"]) {
-            _effects.push(new Effect(client, [d[0], d[1][0]]));
-        }
-    }
-    if (data["E"]) {
-        for (let d of data["E"]) {
-            _effects.push(new Effect(client, [d[0], d[1][0]]));
-        }
-    }
-    let equipmentSetArray = [];
-    for (let equipment of equipments) {
-        for (let j in equipment.effects) {
-            _effects.push(equipment.effects[j]);
-        }
+    const _effects = [];
+    if (!data.E) _effects.push(...(data.AIE ?? []).map(d => new Effect(client, [d[0], d[1][0]])))
+    _effects.push(...(data.HME ?? []).map(d => new Effect(client, [d[0], d[1][0]])))
+    _effects.push(...(data.TAE ?? []).map(d => new Effect(client, [d[0], d[1][0]])))
+    _effects.push(...(data.AE ?? []).map(d => new Effect(client, [d[0], d[1][0]])))
+    _effects.push(...(data.E ?? []).map(d => new Effect(client, [d[0], d[1][0]])))
+
+    const equipmentSetArray = [];
+    if (!data.E) for (const equipment of equipments) {
+        equipment.effects.forEach(e => _effects.push(e))
         if (equipment.setId) {
-            let found = false
-            for (let equipmentSet of equipmentSetArray) {
-                if (equipmentSet[0] === equipment.setId) {
-                    equipmentSet[1] += 1;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) equipmentSetArray.push([equipment.setId, 1]);
+            const set = equipmentSetArray.find(eSet => eSet[0] === equipment.setId);
+            if (set !== undefined) set[1] += 1; else equipmentSetArray.push([equipment.setId, 1]);
         }
-        let _gem = equipment.attachedGem;
-        if (_gem && _gem.effects) {
-            for (let j in _gem.effects) {
-                _effects.push(_gem.effects[j]);
-            }
-            if (_gem.setId) {
-                let found = false;
-                for (let equipmentSet of equipmentSetArray) {
-                    if (equipmentSet[0] === _gem.setId) {
-                        equipmentSet[1] += 1;
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) equipmentSetArray.push([_gem.setId, 1]);
+        const gem = equipment.attachedGem;
+        if (gem && gem.effects) {
+            gem.effects.forEach(e => _effects.push(e))
+            if (gem.setId) {
+                const set = equipmentSetArray.find(eSet => eSet[0] === gem.setId);
+                if (set !== undefined) set[1] += 1; else equipmentSetArray.push([gem.setId, 1]);
             }
         }
     }
 
-    for (let _equipSet of equipmentSetArray) {
-        for (let equipmentSet of equipment_sets) {
-            if (equipmentSet.setID === _equipSet[0] && equipmentSet.neededItems <= _equipSet[1]) {
-                let __effects = equipmentSet.effects.split(",");
-                let data = [];
-                for (let effect of __effects) {
-                    data.push(effect.split("&amp;"));
-                }
-                for (let d of data) {
-                    _effects.push(new Effect(client, d));
-                }
-            }
-        }
+    for (const _equipSet of equipmentSetArray) {
+        equipment_sets.filter(s => s.setID === _equipSet[0] && s.neededItems <= _equipSet[1]).forEach(set => {
+            _effects.push(...set.effects.split(",").map(e => e.split("&amp;")).map(d => new Effect(client, d)));
+        })
     }
     /** @type {Effect[] | RelicEffect[]} */
-    let effects = [];
-    for (let i in _effects) {
-        let _effect = _effects[i];
-        let found = false;
-        for (let effect of effects) {
-            if (_effect.effectId === effect.effectId) {
-                found = true;
-                effect.power += _effect.power;
-                break;
-            }
-        }
-        if (!found) effects.push(_effect);
-    }
+    const effects = [];
+    _effects.forEach(e1 => {
+        const effect = effects.find(e => e.effectId === e1.effectId);
+        if (effect !== undefined) effect.power += e1.power; else effects.push(e1);
+    })
 
-    for (let i in effects) {
-        let _effect = effects[i];
-        _effect.uncappedPower = _effect.power;
-        for (let effectCap of effectCaps) {
-            if (effectCap.capID === _effect.capId) {
-                if (effectCap.maxTotalBonus && effectCap.maxTotalBonus < _effect.power) {
-                    _effect.power = effectCap.maxTotalBonus;
-                }
-            }
-        }
-    }
+    effects.forEach(e => {
+        e.uncappedPower = e.power;
+        e.power = Math.min(e.power, effectCaps.find(c => c.capID === e.capId)?.maxTotalBonus ?? Infinity);
+    })
 
     return effects;
 }
 
-/**
- * @param {number} id
- * @returns {Object}
- */
+/** @param {number} id */
 function getDummyData(id) {
-    for (let lord of lords) {
-        if (lord.lordID === id) return lord;
-    }
+    return lords.find(l => l.lordID === id);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} effectsData
- * @returns {Effect[]}
  */
 function parseDummyEffects(client, effectsData) {
     if (!effectsData) return [];
-    /** @type {Effect[]} */
-    let _effects = [];
-    let __effects = effectsData.split(",");
-    let data = [];
-    for (let e of __effects) {
-        data.push(e.split("&amp;"));
-    }
-    for (let d of data) {
-        _effects.push(new Effect(client, d));
-    }
+    /** @type {Effect[] | RelicEffect[]} */
+    const effects = [];
+    effectsData.split(",").map(e => e.split("&amp;")).map(d => new Effect(client, d)).forEach(e1 => {
+        const effect = effects.find(e => e.effectId === e1.effectId);
+        if (effect !== undefined) effect.power += e1.power; else effects.push(e1);
+    })
 
-    /** @type {Effect[]} */
-    let effects = [];
-    for (let _effect of _effects) {
-        let found = false;
-        for (let effect of effects) {
-            if (_effect.effectId === effect.effectId) {
-                found = true;
-                effect.power += _effect.power;
-                break;
-            }
-        }
-        if (!found) effects.push(_effect);
-    }
-
-    for (let _effect of effects) {
-        _effect.uncappedPower = _effect.power;
-        for (let effectCap of effectCaps) {
-            if (effectCap.capID === _effect.capId) {
-                if (effectCap.maxTotalBonus && effectCap.maxTotalBonus < _effect.power) {
-                    _effect.power = effectCap.maxTotalBonus;
-                }
-            }
-        }
-    }
+    effects.forEach(e => {
+        e.uncappedPower = e.power;
+        e.power = Math.min(e.power, effectCaps.find(c => c.capID === e.capId)?.maxTotalBonus ?? Infinity);
+    })
 
     return effects;
 }

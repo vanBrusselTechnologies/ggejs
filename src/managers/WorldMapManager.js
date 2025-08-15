@@ -27,7 +27,7 @@ const WorldMapOwnerInfoData = require("../utils/WorldMapOwnerInfoData");
 class WorldMapManager extends BaseManager {
     _ownerInfoData = new WorldMapOwnerInfoData(this._client);
 
-    /** @param {Client} client */
+    /** @param {BaseClient} client */
     constructor(client) {
         super(client);
         loadNPCOwnerInfo(this._client, this._ownerInfoData);
@@ -62,7 +62,7 @@ class WorldMapManager extends BaseManager {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {WorldMap} _worldMap
  * @param {number} kingdomId
  */
@@ -81,7 +81,7 @@ async function _getWorldMapById(client, _worldMap, kingdomId) {
 
 /**
  * Returns a 100x100 worldMapSector
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} kingdomId
  * @param {number} x
  * @param {number} y
@@ -93,7 +93,7 @@ async function _getWorldMapSector(client, kingdomId, x, y) {
 
 /**
  * Returns a 100x100 worldMapSector
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} kingdomId
  * @param {number} x
  * @param {number} y
@@ -106,7 +106,7 @@ async function _getWorldMapSectorData(client, kingdomId, x, y) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {WorldMapOwnerInfoData} ownerInfoData
  */
 function loadNPCOwnerInfo(client, ownerInfoData) {
@@ -229,7 +229,7 @@ function loadNPCOwnerInfo(client, ownerInfoData) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} playerId
  * @param {number|null} playerLevel
  * @param {string} playerNameTextId

@@ -1,6 +1,6 @@
 module.exports.name = "rgg";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {boolean} collectReward
  */
 module.exports.execute = function (client, collectReward = false) {

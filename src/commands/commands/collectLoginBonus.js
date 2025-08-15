@@ -1,6 +1,6 @@
 module.exports.name = "clb";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{rewards: [{dailyRewards:{rewards:[]}}], activeDay: number}} loginBonusData
  * @param {number} dailyRewardIndex
  * @param {"ALLI" | "VIP" | ""} specialRewardType

@@ -1,7 +1,7 @@
 const {languages} = require('e4k-data');
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} textId
  * @param {string} args
  */
@@ -21,7 +21,7 @@ module.exports.text = (client, textId, ...args) => {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} textId
  * @return {string}
  * @private

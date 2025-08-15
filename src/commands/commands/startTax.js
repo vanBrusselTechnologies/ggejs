@@ -1,6 +1,6 @@
 module.exports.name = "txs";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} taxType
  * @param {number} taxes
  */

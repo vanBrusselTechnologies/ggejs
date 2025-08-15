@@ -7,17 +7,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     parseDMS(client, params);
-    require('.').baseExecuteCommand(undefined, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, undefined, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number[]} messageIds
  * @return {Promise<void>}
  */
@@ -29,7 +29,7 @@ module.exports.deleteMessages = function (client, messageIds) {
 module.exports.dms = parseDMS;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} params
  */
 function parseDMS(client, params) {
@@ -39,7 +39,7 @@ function parseDMS(client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} messageId
  */
 function removeAndEmit(client, messageId) {

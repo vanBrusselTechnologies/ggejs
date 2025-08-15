@@ -63,28 +63,28 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = async function (client, errorCode, params) {
     const mailMessages = await parseSNE(client, params);
-    require('.').baseExecuteCommand(mailMessages, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, mailMessages, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @return {Promise<MailMessage[]>}
  */
 module.exports.showMessages = function (client) {
     const C2SShowMessagesVO = {};
-    return require('.').baseSendCommand(client, NAME, C2SShowMessagesVO, callbacks, (_) => true);
+    return require('.').baseSendCommand(client, NAME, C2SShowMessagesVO, callbacks, () => true);
 }
 
 module.exports.sne = parseSNE;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{MSG: [][]}} params
  * @returns {Promise<MailMessage[]>}
  */
@@ -99,7 +99,7 @@ async function parseSNE(client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} messageInfo
  * @return {MailMessage}
  */

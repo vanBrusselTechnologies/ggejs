@@ -167,7 +167,7 @@ class PlayerManager extends BaseManager {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {HighScore<PlayerHighScoreItem>} highScore
  * @returns {PlayerLeaderboard}
  */
@@ -193,7 +193,7 @@ function convertHghLeaderboard(client, highScore) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {LeaderboardList} leaderBoardList
  * @returns {PlayerLeaderboard}
  */

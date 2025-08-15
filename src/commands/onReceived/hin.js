@@ -1,6 +1,6 @@
 module.exports.name = "hin";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{FB:number, WSR:number}} params
  */

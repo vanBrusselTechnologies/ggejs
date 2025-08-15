@@ -2,7 +2,7 @@ const Crest = require("../../structures/Crest");
 
 module.exports.name = "gem";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

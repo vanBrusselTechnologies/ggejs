@@ -1,6 +1,6 @@
 module.exports.name = "abl";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{A:Object}} params
  */

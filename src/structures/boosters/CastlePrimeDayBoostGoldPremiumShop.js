@@ -2,9 +2,9 @@ const HeroBoosterShop = require("./HeroBoosterShop");
 const Good = require("../Good");
 
 class CastlePrimeDayBoostGoldPremiumShop extends HeroBoosterShop {
-    /** @param {Client} client*/
+    /** @param {BaseClient} client*/
     constructor(client) {
-        super(client, "titleID", "shortInfoTextID", "buyQuestionTextID", new Good(client, ["C2", 0]), "heroName", 12, 1);
+        super(client, "titleID", "shortInfoTextID", "buyQuestionTextID", new Good(["C2", 0]), "heroName", 12, 1);
     }
 }
 

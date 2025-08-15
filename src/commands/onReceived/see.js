@@ -1,6 +1,6 @@
 module.exports.name = "see";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{EID: number}} params
  */

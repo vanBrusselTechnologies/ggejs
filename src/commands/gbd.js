@@ -1,6 +1,3 @@
-const {getAllianceInfo} = require("./ain");
-const {showMessages} = require("./sne");
-
 const NAME = "gbd";
 /** @type {CommandCallback<void>[]}*/
 const callbacks = [];
@@ -8,40 +5,112 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     parseGBD(client, params);
-    require('.').baseExecuteCommand(undefined, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, undefined, errorCode, params, callbacks);
+}
+
+/**
+ * @param {BaseClient} client
+ * @returns {Promise<void>}
+ */
+module.exports.registerGbdListener = function (client) {
+    return new Promise((resolve, reject) => {
+        const id = require('crypto').randomUUID();
+        callbacks.push({id, clientId: client._id, match: () => true, resolve, reject});
+        setTimeout(() => {
+            const i = callbacks.findIndex(c => c.id === id);
+            if (i !== -1) callbacks.splice(i, 1);
+            resolve();
+        }, 1000);
+    });
 }
 
 module.exports.gbd = parseGBD;
 
 /**
- * @param {Client} client
- * @param {Object} params
+ * @param {BaseClient} client
+ * @param {{WR: number, LA: number, ch: {HID: number}, [p: string]: Object}} params
  * @return {Player}
  */
 function parseGBD(client, params) {
-    for (let x in params) {
+    client.clientUserData.wasResetted = params.WR === 1;
+    client.clientUserData.lastUserActivity = params.LA;
+    client.clientUserData.selectedHeroID = params.ch["HID"];
+    // castleUserData.parse_GAL(paramObj.gal);
+    // parseNestedJsonResponse("gcu");
+    // parseNestedJsonResponse("gho");
+    // parseNestedJsonResponse("gxp");
+    require('./gpi').gpi(client, params.gpi);
+    // parseNestedJsonResponse("upi");
+    // parseNestedJsonResponse("ufa");
+    // parseNestedJsonResponse("ufp");
+    // parseNestedJsonResponse("uar");
+    // parseNestedJsonResponse("gem");
+    // parseNestedJsonResponse("gpf");
+    // parseNestedJsonResponse("gms");
+    // parseNestedJsonResponse("gpc");
+    require('./gcl').gcl(client, params.gcl);
+    // parseNestedJsonResponse("kgv");
+    // parseNestedJsonResponse("uap");
+    // parseNestedJsonResponse("gri");
+    // parseNestedJsonResponse("gkl");
+    // parseNestedJsonResponse("vip");
+    // parseNestedJsonResponse("opt");
+    // parseNestedJsonResponse("pgl");
+    // parseNestedJsonResponse("boi");
+    // parseNestedJsonResponse("sei");
+    // parseNestedJsonResponse("tei");
+    // parseNestedJsonResponse("txi");
+    // parseNestedJsonResponse("rei");
+    // parseNestedJsonResponse("kpi");
+    // parseNestedJsonResponse("mpe");
+    // parseNestedJsonResponse("vli");
+    // parseNestedJsonResponse("dql");
+    // parseNestedJsonResponse("gli");
+    // parseNestedJsonResponse("drt");
+    // parseNestedJsonResponse("tmp");
+    // parseNestedJsonResponse("sce");
+    // parseNestedJsonResponse("esl");
+    // parseNestedJsonResponse("ggm");
+    // parseNestedJsonResponse("lts");
+    // parseNestedJsonResponse("skl");
+    // parseNestedJsonResponse("rww");
+    // parseNestedJsonResponse("dcl");
+    // parseNestedJsonResponse("ahl");
+    // parseNestedJsonResponse("gai");
+    // if (!_loc2_) {
+    //     parseNestedJsonResponse("mre");
+    //     parseNestedJsonResponse("gml");
+    // }
+    // parseNestedJsonResponse("sin");
+    // parseNestedJsonResponse("nrf");
+    // parseNestedJsonResponse("gatp");
+    // parseNestedJsonResponse("bie");
+    // parseNestedJsonResponse("ree");
+    // parseNestedJsonResponse("DTS");
+    // parseNestedJsonResponse("mvf");
+    // parseNestedJsonResponse("pre");
+    // parseNestedJsonResponse("gls");
+    // parseNestedJsonResponse("mcd");
+    for (const x in params) {
         const msg = JSON.stringify(params[x]);
         switch (x.toLowerCase()) {
             case "WR".toLowerCase():
-                client.clientUserData.wasResetted = params[x];
-                break;
             case "LA".toLowerCase():
-                client.clientUserData.lastUserActivity = params[x];
-                break;
             case "ch":
-                client.clientUserData.selectedHeroId = params[x]["HID"];
+            case "gpi":
+            case "gcl":
+                // Handled before for-loop
                 break;
             case "gal":
             case "gcu":
             case "gho":
             case "gxp":
-            case "gpi":
             case "upi":
             case "ufa":
             case "ufp":
@@ -50,7 +119,6 @@ function parseGBD(client, params) {
             case "gpf":
             case "gms":
             case "gpc":
-            case "gcl":
             case "kgv":
             case "uap":
             case "gri":
@@ -131,11 +199,11 @@ function parseGBD(client, params) {
 //#endregion
         }
     }
-    setTimeout(async () => await handlePostGBDCommandInNextFrame(client), 10);
+    setTimeout(() => handlePostGBDCommandInNextFrame(client), 10);
 }
 
-/** @param {Client} client */
-async function handlePostGBDCommandInNextFrame(client) {
+/** @param {BaseClient} client */
+function handlePostGBDCommandInNextFrame(client) {
     try {
         /* todo
          *  restoreTutorialIfRuined();
@@ -164,8 +232,8 @@ async function handlePostGBDCommandInNextFrame(client) {
          * requestTimeForRuinPushNotification();
          */
         requestLoginBonusInfo(client);
-        await requestMessagesData(client);
-        await requestAllianceData(client);
+        requestMessagesData(client);
+        requestAllianceData(client);
         requestBookmarkData(client);
         requestConstructionItemInventory(client);
         requestGeneralsInnData(client);
@@ -181,47 +249,45 @@ async function handlePostGBDCommandInNextFrame(client) {
                 lockConditionModel.conditionComplete();
              }
          */
-
-        client._socket['gbd finished'] = true;
     } catch (e) {
     }
 }
 
-/** @param {Client} client */
+/** @param {BaseClient} client */
 function requestGeneralsInnData(client) {
     require('./commands/getGeneralCharacter').execute(client);
 }
 
-/** @param {Client} client */
+/** @param {BaseClient} client */
 function requestBookmarkData(client) {
     require('./commands/getBookmarksList').execute(client);
 }
 
-/** @param {Client} client */
+/** @param {BaseClient} client */
 function requestConstructionItemInventory(client) {
     require('./commands/getConstructionItemInventory').execute(client);
 }
 
-/** @param {Client} client */
-async function requestMessagesData(client) {
-    await showMessages(client);
+/** @param {BaseClient} client */
+function requestMessagesData(client) {
+    require('./sne').showMessages(client).then().catch();
 }
 
-/** @param {Client} client */
-async function requestAllianceData(client) {
+/** @param {BaseClient} client */
+function requestAllianceData(client) {
     if (client.clientUserData.allianceId >= 0) {
-        await getAllianceInfo(client, client.clientUserData.allianceId);
+        require('./ain').getAllianceInfo(client, client.clientUserData.allianceId).then().catch();
         require('./commands/getAllianceFame').execute(client);
         require('./commands/getAllianceChatHistory').execute(client);
     }
 }
 
-/** @param {Client} client */
+/** @param {BaseClient} client */
 function requestSubscriptionsData(client) {
     require('./commands/getSubscriptionInformation').execute(client);
 }
 
-/** @param {Client} client */
+/** @param {BaseClient} client */
 function requestLoginBonusInfo(client) {
     require('./commands/getLoginBonus').execute(client);
     require('./commands/getStartupLoginBonus').execute(client);

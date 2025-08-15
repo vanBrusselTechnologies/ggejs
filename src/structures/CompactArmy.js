@@ -6,7 +6,7 @@ class CompactArmy {
     toolCount = 0;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Object} data
      */
     constructor(client, data) {
@@ -55,7 +55,7 @@ class CompactArmy {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number[][]} data
  * @returns {InventoryItem<Unit>[]}
  */

@@ -5,7 +5,7 @@ class GlobalPrimeTimeSkinEvent extends ActiveEvent {
     skinName;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID:number, RS: number, S: string}} data
      */
     loadFromParamObject(client, data) {

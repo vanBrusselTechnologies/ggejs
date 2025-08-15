@@ -4,7 +4,7 @@ const Localize = require("../../tools/Localize");
 class FactionCampMapobject extends FactionInteractiveMapobject {
     #client;
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {

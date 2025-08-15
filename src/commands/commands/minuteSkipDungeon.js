@@ -1,6 +1,6 @@
 module.exports.name = "msd";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} minuteSkipType
  * @param {number} kingdomId
  * @param {number} xPos

@@ -10,7 +10,7 @@ const TreasureMapMovement = require("../../structures/movements/TreasureMapMovem
 
 module.exports.name = "gam";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

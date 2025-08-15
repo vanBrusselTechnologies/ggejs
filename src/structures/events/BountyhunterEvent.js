@@ -30,7 +30,7 @@ class BountyhunterEvent extends ActiveEvent {
     }
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{OI:Object, A: [], HW: 0|1}} data
      */
     loadFromParamObject(client, data) {

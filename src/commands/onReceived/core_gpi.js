@@ -1,6 +1,6 @@
 module.exports.name = "core_gpi";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{networkId: number}} params
  */

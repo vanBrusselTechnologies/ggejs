@@ -8,7 +8,7 @@ class BasicMessage {
     #client;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {
@@ -29,7 +29,7 @@ class BasicMessage {
     }
 
     /**
-     * @param {Client} _
+     * @param {BaseClient} _
      * @param {Array<string>} __
      */
     parseMetaData(_, __) {

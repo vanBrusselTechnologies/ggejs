@@ -3,12 +3,12 @@ const {readMessages} = require("../../commands/rms");
 const EmpireError = require("../../tools/EmpireError");
 
 class AllianceNewsMessage extends BasicMessage {
-    /** @type {Client} */
+    /** @type {BaseClient} */
     #client = null;
     _body = "";
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {

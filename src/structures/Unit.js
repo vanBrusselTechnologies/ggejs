@@ -3,7 +3,7 @@ const {units} = require('e4k-data').data;
 
 class Unit {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {number} wodId
      */
     constructor(client, wodId) {
@@ -75,7 +75,7 @@ function isSoldier(rawData) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} wodId
  */
 function getData(client, wodId) {

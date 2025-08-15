@@ -7,17 +7,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     const highScore = parseHGH(client, params);
-    require('.').baseExecuteCommand(highScore, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, highScore, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} searchValue
  * @param {number} listType
  * @param {number} leagueTypeId Bracket based on level, starting with 1
@@ -31,7 +31,7 @@ module.exports.getHighScore = function (client, searchValue = "1", listType = 6,
 module.exports.hgh = parseHGH;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{LT:number, LID: number, L: Array<Array>, LR:number, SV:string, FR: number, IGH: number}} params
  * @return {HighScore<AllianceHighScoreItem | PlayerHighScoreItem>}
  */
@@ -57,7 +57,7 @@ function parseHGH(client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} listType
  * @param {Array} itemData
  */

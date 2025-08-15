@@ -5,7 +5,7 @@ class PrimeSaleBoosterEvent extends PrimeSaleEvent {
     boosterIds = [];
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID:number, RS: number, BID: number[], DIS: number}} data
      */
     loadFromParamObject(client, data) {

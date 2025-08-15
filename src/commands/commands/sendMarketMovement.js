@@ -1,6 +1,6 @@
 module.exports.name = "crm";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {InteractiveMapobject} source
  * @param {Mapobject | CastlePosition} target
  * @param {["W" | "S" | "F" | "C" | "O" | "G" | "I" | "A" | "HONEY" | "MEAD", number][]} goods

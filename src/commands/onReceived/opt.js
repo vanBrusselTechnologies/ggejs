@@ -1,6 +1,6 @@
 module.exports.name = "opt";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{SVF: number, OFF:number, CC2T:number}} params
  */

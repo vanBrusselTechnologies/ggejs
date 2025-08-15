@@ -2,7 +2,7 @@ const {TitleType} = require("../../utils/Constants");
 
 module.exports.name = "ufa";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

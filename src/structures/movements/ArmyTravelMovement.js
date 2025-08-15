@@ -4,7 +4,7 @@ const Unit = require("../Unit");
 
 class ArmyTravelMovement extends BasicMovement {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {*} data
      */
     constructor(client, data) {
@@ -17,18 +17,18 @@ class ArmyTravelMovement extends BasicMovement {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {*} data
  */
 function parseGoods(client, data) {
     /** @type {Good[]} */
     const goods = [];
-    for (const i in data) goods.push(new Good(client, data[i]));
+    for (const i in data) goods.push(new Good(data[i]));
     return goods;
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {*} data
  */
 function parseArmy(client, data) {

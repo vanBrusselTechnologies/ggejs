@@ -24,7 +24,7 @@ class PointEvent extends ActiveEvent {
     customProperties;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID: number, RS: number, OP: number|number[], OR: number|number[], LID: number, PET: number, RSID: number, R: [][][], SC: number}} data
      */
     loadFromParamObject(client, data) {

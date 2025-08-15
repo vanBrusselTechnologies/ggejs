@@ -5,7 +5,7 @@ class PrimeSaleBuildingsEvent extends PrimeSaleEvent {
     wodId;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID:number, RS: number, WID: number, DIS: number}} data
      */
     loadFromParamObject(client, data){

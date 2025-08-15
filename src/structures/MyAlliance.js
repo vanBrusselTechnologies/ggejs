@@ -10,7 +10,7 @@ const {parseChatJSONMessage} = require("../tools/TextValide");
 
 class MyAlliance extends Alliance {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Object} data
      */
     constructor(client, data) {
@@ -48,21 +48,21 @@ class MyAlliance extends Alliance {
 
     /**
      * @private
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Object} data
      */
     parseStorage(client, data) {
         const goods = [];
         for (const i in data) {
             const _array = [i, data[i]];
-            goods.push(new Good(client, _array));
+            goods.push(new Good(_array));
         }
         this.storage = goods;
     }
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
  */
 function parseStatusList(client, data) {
@@ -74,7 +74,7 @@ function parseStatusList(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array<Array>} data
  * @param {AllianceMember[]} memberList
  */
@@ -89,7 +89,7 @@ function parseAdditionalMemberInformation(client, data, memberList) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
  */
 function parseCapitals(client, data) {
@@ -97,7 +97,7 @@ function parseCapitals(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
  */
 function parseMetropols(client, data) {
@@ -105,7 +105,7 @@ function parseMetropols(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
  */
 function parseKingstowers(client, data) {
@@ -113,7 +113,7 @@ function parseKingstowers(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
  */
 function parseMonuments(client, data) {

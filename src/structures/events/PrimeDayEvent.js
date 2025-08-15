@@ -84,7 +84,7 @@ class PrimeDayEvent extends ActiveEvent {
     }
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID:number, RS: number, SEID: number, SKN: number, RW: *[], BC2: number}} data
      */
     loadFromParamObject(client, data) {

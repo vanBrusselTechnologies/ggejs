@@ -2,7 +2,7 @@ const BasicMessage = require("./BasicMessage");
 const Localize = require("../../tools/Localize");
 class HighScoreBonusMessage extends BasicMessage {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {

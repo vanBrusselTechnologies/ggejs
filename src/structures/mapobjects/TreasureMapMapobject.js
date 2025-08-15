@@ -14,7 +14,7 @@ class TreasureMapMapobject extends InteractiveMapobject {
     tMapPosition = -1;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {number} type
      * @param {number} x
      * @param {number} y

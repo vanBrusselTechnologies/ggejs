@@ -2,7 +2,7 @@ const {execute: allianceHelpAll} = require("../commands/allianceHelpAll");
 
 module.exports.name = "ahh";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{LID:number, AC:number, PN:string, P:number, PID: number, TID: number, OP: Object, RT: number, TSL: number}} params
  */
@@ -27,7 +27,7 @@ module.exports.execute = function (client, errorCode, params) {
 
 // TODO: Move to seperate parser file
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {AllianceHelpRequest} allianceHelpRequest
  * @param {{AC: number, LID:number, PN:string, P:number, PID: number, TID: number, OP: Object, RT: number, TSL: number}} helpRequest
  */

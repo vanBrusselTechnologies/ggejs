@@ -2,7 +2,7 @@ const CastleResourceStorage = require("../../structures/CastleResourceStorage");
 
 module.exports.name = "grc";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

@@ -7,18 +7,18 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     const mapObjects = parseGAA(client, params);
-    require('.').baseExecuteCommand(mapObjects, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, mapObjects, errorCode, params, callbacks);
 }
 
 /**
  * Requests all Mapobjects for the area between topX and bottomY
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} kingdomId
  * @param {Coordinate} bottomLeftCorner
  * @param {Coordinate} topRightCorner
@@ -41,7 +41,7 @@ module.exports.getArea = function (client, kingdomId, bottomLeftCorner, topRight
 module.exports.gaa = parseGAA;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} params
  * @return {Mapobject[]}
  */
@@ -60,7 +60,7 @@ function parseGAA(client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {[]} _data
  */
 function parseWorldMapAreas(client, _data) {

@@ -2,7 +2,7 @@ const InvasionMapobject = require("./InvasionMapobject");
 
 class NomadKhanInvasionMapobject extends InvasionMapobject {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {

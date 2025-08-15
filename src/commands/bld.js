@@ -8,17 +8,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     const battleLog = parseBLD(client, params);
-    require('.').baseExecuteCommand(battleLog, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, battleLog, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} battleLogId
  * @return {Promise<BattleLog>}
  */
@@ -30,7 +30,7 @@ module.exports.getBattleLogDetail = function (client, battleLogId) {
 module.exports.bld = parseBLD;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} params
  * @return {BattleLog}
  */
@@ -51,7 +51,7 @@ function parseBLD(client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} params
  */
 function parseSupportToolsDetails(client, params) {
@@ -67,7 +67,7 @@ function parseSupportToolsDetails(client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} params
  */
 function parseYardDetailed(client, params) {
@@ -83,7 +83,7 @@ function parseYardDetailed(client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} params
  */
 function parseWavesDetails(client, params) {
@@ -108,7 +108,7 @@ function parseWavesDetails(client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} params
  */
 function parseFinalWaveDetails(client, params) {
@@ -122,7 +122,7 @@ function parseFinalWaveDetails(client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number[][]} param
  */
 function parseUnits(client, param) {
@@ -142,7 +142,7 @@ function parseUnits(client, param) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number[][]} param
  */
 function parseTools(client, param) {
@@ -156,7 +156,7 @@ function parseTools(client, param) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
  */
 function parseData(client, data) {

@@ -5,7 +5,7 @@ class PrimeTimeAllianceEvent extends ActiveEvent {
     premiumBonus;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID:number, RS: number, APP: number}} data
      */
     loadFromParamObject(client, data) {

@@ -4,7 +4,7 @@ const EmpireError = require("../../tools/EmpireError");
 const Localize = require("../../tools/Localize");
 
 class MarketCarriageArrivedMessage extends BasicMessage {
-    /** @type{Client}*/
+    /** @type{BaseClient}*/
     #client;
     /** @type {TradeData | undefined} */
     _tradeData = undefined;

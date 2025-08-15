@@ -1,6 +1,6 @@
 module.exports.name = "qli";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{QL:{QID:number, P:number[]}[]}} params
  */

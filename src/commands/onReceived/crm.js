@@ -2,7 +2,7 @@ const {execute: gam} = require('./gam');
 
 module.exports.name = "crm";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

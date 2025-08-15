@@ -1,6 +1,6 @@
 module.exports.name = "alb";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{D:number, R:Object[]}} params
  */

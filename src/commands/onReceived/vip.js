@@ -1,6 +1,6 @@
 module.exports.name = "vip";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{VP:number,VRS:number,UPG:number,VRL:number}} params
  */

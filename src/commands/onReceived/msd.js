@@ -3,7 +3,7 @@ const {execute: sce} = require('./sce');
 
 module.exports.name = "msd";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{sce: [string, number][], AI:[]}} params
  */

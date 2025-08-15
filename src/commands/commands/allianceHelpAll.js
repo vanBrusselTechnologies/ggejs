@@ -1,6 +1,6 @@
 module.exports.name = "aha";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} kingdomId
  */
 module.exports.execute = function (client, kingdomId = 15) {

@@ -6,9 +6,9 @@ class CastleMarauderPremiumShop extends HeroBoosterShop {
     #client;
     bonusValue = 0.9;
 
-    /** @param {Client} client*/
+    /** @param {BaseClient} client*/
     constructor(client) {
-        super(client, "dialog_recuit_hireMarauder", "dialog_marauderHire_copy", "dialog_buyMarauder_copy", new Good(client, ["C2", 990]), "marauder", 6);
+        super(client, "dialog_recuit_hireMarauder", "dialog_marauderHire_copy", "dialog_buyMarauder_copy", new Good(["C2", 990]), "marauder", 6);
         this.#client = client
     }
 

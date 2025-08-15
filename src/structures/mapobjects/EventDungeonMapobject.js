@@ -2,14 +2,14 @@ const InteractiveMapobject = require("./InteractiveMapobject");
 const Localize = require("../../tools/Localize");
 
 class EventDungeonMapobject extends InteractiveMapobject {
-    /** @type {Client} */
+    /** @type {BaseClient} */
     #client;
     eventId = 26;
     /** @type {number} */
     skinId;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {

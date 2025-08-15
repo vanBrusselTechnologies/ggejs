@@ -8,15 +8,11 @@ class DonationEvent extends ActiveEvent {
     leaderboardRewardSetId;
 
     get mailStarterDialogName() {
-        return "DonationEventStartDialog";
+        return "MailStarterFullscreenDialog";
     }
 
     get eventStarterDescTextId() {
         return "dialog_mainDonationEvent_title";
-    }
-
-    get starterDialogName() {
-        return "DonationEventStartDialog";
     }
 
     get mainDialogName() {
@@ -24,7 +20,7 @@ class DonationEvent extends ActiveEvent {
     }
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{DSI: number, LRSI: number}} data
      */
     loadFromParamObject(client, data) {

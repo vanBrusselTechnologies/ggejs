@@ -1,6 +1,6 @@
 module.exports.name = "ado";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} areaId
  * @param {number} kingdomId
  * @param {{[key: string]: number}} goodsObject

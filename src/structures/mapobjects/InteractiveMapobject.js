@@ -4,7 +4,7 @@ const ConstantsIsland = require("../../utils/ConstantsIslands");
 
 class InteractiveMapobject extends BasicMapobject {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {
@@ -64,7 +64,7 @@ class InteractiveMapobject extends BasicMapobject {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {InteractiveMapobject} mapobject
  */
 function getDefaultOwnerInfo(client, mapobject) {

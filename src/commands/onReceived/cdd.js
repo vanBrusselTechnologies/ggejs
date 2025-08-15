@@ -3,7 +3,7 @@ const {execute: gcu} = require("./gcu");
 
 module.exports.name = "cdd";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{gcu: {C1: number, C2: number}, A:{}, O:[]}} params
  */

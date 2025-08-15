@@ -9,7 +9,7 @@ class StarveInfoMessage extends BasicMessage {
         this.kingdomId = parseInt(metaArray[2]);
         this.areaId = parseInt(metaArray[3]);
         this.areaType = metaArray.length > 4 ? parseInt(metaArray[4]) : -1;
-        this.resourceName = new Good(client, [metaArray.length > 5 ? metaArray[5] : "F", 0]).item;
+        this.resourceName = new Good([metaArray.length > 5 ? metaArray[5] : "F", 0]).item;
         this.initSubject(client);
         this.senderName = parseInt(this.areaName) === -24 ? Localize.text(client, "monthevents_expeditioncamp") : this.areaName;
 

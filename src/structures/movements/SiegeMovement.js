@@ -3,7 +3,7 @@ const BasicMovement = require("./BasicMovement");
 
 class SiegeMovement extends BasicMovement {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Object} data
      */
     constructor(client, data) {
@@ -14,7 +14,7 @@ class SiegeMovement extends BasicMovement {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number[][]} data
  * @returns {InventoryItem<Unit>[]}
  */

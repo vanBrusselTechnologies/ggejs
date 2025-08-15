@@ -1,6 +1,6 @@
 module.exports.name = "ego";
 /**
- * @param {Client} _
+ * @param {BaseClient} _
  * @param {number} __
  * @param {Object} ___
  */

@@ -4,7 +4,7 @@ const EmpireError = require("../../tools/EmpireError");
 const Localize = require("../../tools/Localize");
 
 class SpyNPCMessage extends BasicMessage {
-    /** @type{Client}*/
+    /** @type{BaseClient}*/
     #client;
     /** @type {SpyLog | undefined} */
     _spyLog = undefined;
@@ -37,7 +37,7 @@ class SpyNPCMessage extends BasicMessage {
     }
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {string} spyTypeName
      * @protected
      */

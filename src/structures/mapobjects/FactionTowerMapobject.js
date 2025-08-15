@@ -7,7 +7,7 @@ class FactionTowerMapobject extends FactionInteractiveMapobject {
     travelDistance = 5;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {

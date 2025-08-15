@@ -8,7 +8,7 @@ const WorldMapOwnerInfo = require("./WorldMapOwnerInfo");
 
 class Player extends WorldMapOwnerInfo {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{O: Object, gcl: Object, kgv: Object, gkl: Object, gml: Object, tie: Object}} data
      */
     constructor(client, data) {
@@ -27,7 +27,7 @@ class Player extends WorldMapOwnerInfo {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} data
  */
 function parseVillageList(client, data) {
@@ -51,7 +51,7 @@ function parseVillageList(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array<[number, number]>} data
  * @returns {InventoryItem<Unit>[]}
  */
@@ -63,7 +63,7 @@ function parseUnits(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} data
  */
 function parseKingstowers(client, data) {
@@ -80,7 +80,7 @@ function parseKingstowers(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} data
  */
 function parseMonuments(client, data) {

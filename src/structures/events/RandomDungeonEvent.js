@@ -28,7 +28,7 @@ class RandomDungeonEvent extends ActiveEvent {
     }
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{D: [], SID: number}} data
      */
     loadFromParamObject(client, data) {

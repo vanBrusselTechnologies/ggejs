@@ -8,17 +8,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     const battleLog = parseBLM(client, params);
-    require('.').baseExecuteCommand(battleLog, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, battleLog, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} battleLogId
  * @return {Promise<BattleLog>}
  */
@@ -30,7 +30,7 @@ module.exports.getBattleLogMiddle = function (client, battleLogId) {
 module.exports.blm = parseBLM;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} params
  * @return {BattleLog}
  */
@@ -54,7 +54,7 @@ function parseBLM(client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} data
  * @param {BattleLog} battleLog
  * @return {{commandant: Lord, general: Lord, legendSkills: number[]}}
@@ -79,7 +79,7 @@ function parseAttackerLords(client, data, battleLog) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} data
  * @param {BattleLog} battleLog
  * @return {{baron: Lord, general: Lord, legendSkills: number[]}}

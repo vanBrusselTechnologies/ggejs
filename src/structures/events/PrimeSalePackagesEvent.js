@@ -6,7 +6,7 @@ class PrimeSalePackagesEvent extends PrimeSaleEvent {
     skinId;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID:number, RS: number, DIS:number, PID: number[], T: number}} data
      */
     loadFromParamObject(client, data) {

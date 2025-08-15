@@ -2,7 +2,7 @@ const RelicEffect = require("./RelicEffect");
 
 class RelicGem {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      * @param {RelicEquipment} equipment
      */
@@ -28,7 +28,7 @@ class RelicGem {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
  * @returns {RelicEffect[]}
  */

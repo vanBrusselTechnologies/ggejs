@@ -1,6 +1,6 @@
 module.exports.name = "nrf";
 /**
- * @param {Client} _
+ * @param {BaseClient} _
  * @param {number} __
  * @param {Object} ___
  */

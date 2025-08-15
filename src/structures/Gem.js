@@ -3,7 +3,7 @@ const {gems} = require('e4k-data').data;
 
 class Gem {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {number} id
      * @param {Equipment} equipment
      */
@@ -40,7 +40,7 @@ function getDataFromJson(id) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} _data
  * @returns {Effect[]}
  */

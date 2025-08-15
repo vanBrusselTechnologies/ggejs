@@ -1,6 +1,6 @@
 module.exports.name = "gai";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{AC:number, ACTH: number, ACGR:number}} params
  */

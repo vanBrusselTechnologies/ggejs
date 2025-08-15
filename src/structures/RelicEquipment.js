@@ -3,7 +3,7 @@ const RelicGem = require("./RelicGem");
 
 class RelicEquipment {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      * @param {Lord} lord
      */
@@ -38,7 +38,7 @@ class RelicEquipment {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
  * @param {RelicEquipment} equipment
  */
@@ -47,7 +47,7 @@ function parseGem(client, data, equipment) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
  * @returns {RelicEffect[]}
  */

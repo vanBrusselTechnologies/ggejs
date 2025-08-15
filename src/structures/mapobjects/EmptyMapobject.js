@@ -2,7 +2,7 @@ const BasicMapobject = require("./BasicMapobject");
 
 class EmptyMapobject extends BasicMapobject {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {

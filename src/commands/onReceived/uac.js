@@ -1,6 +1,6 @@
 module.exports.name = "uac";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

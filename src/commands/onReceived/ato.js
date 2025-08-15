@@ -1,6 +1,6 @@
 module.exports.name = "ato";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{ABT:string, ABTV2:string, ES:number, ZNID: number}} params
  */

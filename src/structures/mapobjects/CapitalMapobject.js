@@ -3,7 +3,7 @@ const {getCapitalDefaultOwnerFor} = require("../../utils/OutpostConst");
 
 class CapitalMapobject extends InteractiveMapobject {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {

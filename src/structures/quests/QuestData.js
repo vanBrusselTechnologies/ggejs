@@ -8,7 +8,7 @@ class QuestData {
     /** @type {{[id:number]: true}} */
     _completedQuests = {};
 
-    /** @param {Client} client */
+    /** @param {BaseClient} client */
     constructor(client) {
         this.#client = client;
     }

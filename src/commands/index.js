@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const {getErrorText} = require("../utils/ErrorConst");
 const {ConnectionStatus} = require("../utils/Constants");
 
-/** @type {{[p: string]: function(Client, number, Object)}} */
+/** @type {{[p: string]: function(BaseClient, number, Object)}} */
 const commands = {};
 const commandPath = path.join(__dirname, './onReceived');
 const commandFiles = fs.readdirSync(commandPath).filter(file => file.endsWith('.js'));
@@ -22,7 +22,7 @@ for (const file of commandFilesNew) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string[]} params
  */
 module.exports.onResponse = function (client, params) {
@@ -44,7 +44,7 @@ module.exports.onResponse = function (client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} commandId
  * @param {number} errorCode
  * @param {string[]} params
@@ -68,15 +68,16 @@ function executeResponse(client, commandId, errorCode, params) {
 }
 
 /**
+ * @param {BaseClient} client
  * @param {any | void} data
  * @param {number} errorCode
  * @param {Object} params
  * @param {CommandCallback<*>[]} callbacks
  */
-module.exports.baseExecuteCommand = function (data, errorCode, params, callbacks) {
+module.exports.baseExecuteCommand = function (client, data, errorCode, params, callbacks) {
     const success = errorCode === 0 || errorCode === 10005;
     if (callbacks.length === 0) return;
-    const i = Math.max(success ? -1 : 0, callbacks.findIndex(c => c.match(params)));
+    const i = Math.max(success ? -1 : 0, callbacks.findIndex(c => c.clientId === client._id && c.match(params)));
     if (i === -1) return;
     const cb = callbacks.splice(i, 1)[0];
     if (!success) return cb.reject(errorCode);
@@ -84,7 +85,7 @@ module.exports.baseExecuteCommand = function (data, errorCode, params, callbacks
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} name
  * @param {Object} params
  * @param {CommandCallback<*>[]} callbacks
@@ -94,7 +95,7 @@ module.exports.baseExecuteCommand = function (data, errorCode, params, callbacks
 module.exports.baseSendCommand = function (client, name, params, callbacks, match) {
     return new Promise((resolve, reject) => {
         const id = require('crypto').randomUUID();
-        callbacks.push({id, match, resolve, reject});
+        callbacks.push({id, clientId: client._id, match, resolve, reject});
         const success = client.socketManager.sendCommand(name, params);
         if (success !== true) {
             const i = callbacks.findIndex(c => c.id === id);

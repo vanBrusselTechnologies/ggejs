@@ -2,7 +2,7 @@ const {generals} = require('e4k-data').data;
 
 class General {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Object} data
      * @returns
      */

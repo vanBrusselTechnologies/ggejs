@@ -1,6 +1,6 @@
 module.exports.name = "core_pol";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

@@ -17,7 +17,7 @@ class BasicConquerableMessage extends BasicMessage {
     }
 
     /**
-     * @param {Client} _
+     * @param {BaseClient} _
      * @param {number} __
      */
     initSubject(_, __) {

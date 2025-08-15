@@ -35,7 +35,7 @@ const SeaqueenMapShipObject = require("../structures/mapobjects/SeaqueenMapShipO
 const SeaqueenMapKrakenObject = require("../structures/mapobjects/SeaqueenMapKrakenObject");
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {[]} data
  * @returns {Mapobject | BasicMapobject}
  */
@@ -119,7 +119,7 @@ module.exports.parseMapObject = (client, data) => {
 
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} mapId
  * @param {number} type
  * @param {number} position

@@ -5,9 +5,9 @@ const Good = require("../Good");
 class CastleTaxCollectorPremiumShop extends HeroBoosterShop {
     #client;
 
-    /** @param {Client} client*/
+    /** @param {BaseClient} client*/
     constructor(client) {
-        super(client, "bribe_taxcollector", "bribe_taxcollector_copy", "dialog_bribetaxcollector_copy", new Good(client, ["C2", 750]), "taxcollector", 8);
+        super(client, "bribe_taxcollector", "bribe_taxcollector_copy", "dialog_bribetaxcollector_copy", new Good(["C2", 750]), "taxcollector", 8);
         this.#client = client
     }
 

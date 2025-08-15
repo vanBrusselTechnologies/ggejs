@@ -2,7 +2,7 @@ const {execute: pep} = require('./pep');
 
 module.exports.name = "lws";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{LWET: number, OP: number[], OR:number[], R: [], CWC: number, WCP: number, HFS: number, HVPM: number, JSID: number, JHID: number, PMA: number}} params
  */

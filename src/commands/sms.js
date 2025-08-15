@@ -5,17 +5,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     parseSMS(client, params);
-    require('.').baseExecuteCommand(undefined, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, undefined, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} receiverName
  * @param {string} subject
  * @param {string} msg
@@ -27,13 +27,13 @@ module.exports.sendMessage = function (client, receiverName, subject, msg) {
         MH: getValideSmartFoxJSONMailMessage(subject),
         TXT: getValideSmartFoxJSONMailMessage(msg)
     };
-    return require('.').baseSendCommand(client, NAME, C2SSendMessageVO, callbacks, (_) => true);
+    return require('.').baseSendCommand(client, NAME, C2SSendMessageVO, callbacks, () => true);
 }
 
 module.exports.sms = parseSMS;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{}} params
  */
 function parseSMS(client, params) {

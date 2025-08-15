@@ -45,10 +45,11 @@ const ColossusRiderEvent = require("../../structures/events/ColossusRiderEvent")
 const EasterGachaEvent = require("../../structures/events/EasterGachaEvent");
 const SummerGachaEvent = require("../../structures/events/SummerGachaEvent");
 const AllianceMobilizationEvent = require("../../structures/events/AllianceMobilizationEvent");
+const AnniversaryGachaEvent = require("../../structures/events/AnniversaryGachaEvent");
 
 module.exports.name = "sei";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
@@ -72,7 +73,7 @@ module.exports.execute = function (client, errorCode, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} eventId
  * @return {ActiveEvent}
  */
@@ -174,8 +175,8 @@ function getEventById(client, eventId) {
             return new MobileBrowserShopSpecialEvent();
         case EventConst.EVENTTYPE_GGS_GIFT:
             return new GGSGiftEvent();
-        case 129: // TODO: move to EventConst
-            return new AllianceMobilizationEvent()
+        case 131: // TODO: move to EventConst
+            return new AnniversaryGachaEvent()
         case EventConst.EVENTTYPE_COIN_COLOSSUS:
         case EventConst.EVENTTYPE_PRIVATE_PRIME_TIME_EVENT:
         case EventConst.EVENTTYPE_UNIT_PRIME_SALE:

@@ -1,6 +1,6 @@
 module.exports.name = "csm";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {InteractiveMapobject} source
  * @param {Mapobject | CastlePosition} target
  * @param {number} spyCount

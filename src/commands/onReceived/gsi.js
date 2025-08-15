@@ -2,7 +2,7 @@ const Unit = require("../../structures/Unit");
 
 module.exports.name = "gsi";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{T:number, TT: number, SI: [number, number][]}} params
  */
@@ -15,7 +15,7 @@ module.exports.execute = function (client, errorCode, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {[number, number][]} data
  * @return {InventoryItem<Unit>[]}
  */

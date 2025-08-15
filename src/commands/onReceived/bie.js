@@ -1,6 +1,6 @@
 module.exports.name = "bie";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{GE:Array}} params
  */

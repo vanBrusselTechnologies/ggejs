@@ -1,26 +1,19 @@
 const {Socket} = require('node:net');
 const {NetworkInstance} = require('e4k-data');
 const {onResponse} = require('../commands');
-const {execute: collectTax} = require('../commands/commands/collectTax');
-const {execute: dql} = require('../commands/onReceived/dql');
-const {execute: generateLoginToken} = require('../commands/commands/generateLoginToken');
-const {execute: mercenaryPackage} = require('../commands/commands/mercenaryPackage');
-const {pingpong} = require("../commands/pin");
 const EmpireError = require("../tools/EmpireError");
-const {ConnectionStatus, ServerType} = require("../utils/Constants");
-const EventConst = require("../utils/EventConst");
+const {ConnectionStatus} = require("../utils/Constants");
 
-const versionDateGame = 1749809954089;
+const versionDateGame = 1754473264783;
 
 class SocketManager {
     #connectionStatus = ConnectionStatus.Disconnected;
 
-    connectionError = "";
     reconnectTimeout = 300;
     serverType = 1;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {NetworkInstance} serverInstance
      */
     constructor(client, serverInstance) {
@@ -48,6 +41,7 @@ class SocketManager {
     }
 
     async reconnect() {
+        if (this.reconnectTimeout === -1) return;
         if (this.connectionStatus === ConnectionStatus.Connected) {
             await this.disconnect();
             await new Promise(resolve => setTimeout(resolve, this.reconnectTimeout * 1000));
@@ -62,27 +56,8 @@ class SocketManager {
         await waitForConnectionStatus(this, ConnectionStatus.Disconnected);
     }
 
-    async onLogin(error = "") {
-        try {
-            this.connectionError = error;
-            if (error !== "") return;
-            while (this.socket['gbd finished'] !== true) {
-                await new Promise(res => setTimeout(res, 1));
-            }
-            await pingpong(this.client);
-            // TODO: Below isn't in source code
-
-            this.connectionStatus = ConnectionStatus.Connected;
-
-            if (this.client.externalClient == null && this.serverType === ServerType.NormalServer) {
-                const activeEvents = this.client._activeSpecialEvents;
-                if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_TEMPSERVER)) generateLoginToken(this.client, ServerType.TempServer)
-                if (activeEvents.map(e => e.eventId).includes(EventConst.EVENTTYPE_ALLIANCE_BATTLEGROUND)) generateLoginToken(this.client, ServerType.AllianceBattleGround)
-            }
-            //this.#botting();
-        } catch (e) {
-            this.client.logger.w(e);
-        }
+    onConnection() {
+        this.connectionStatus = ConnectionStatus.Connected;
     }
 
     /**
@@ -104,10 +79,10 @@ class SocketManager {
     writeToSocket(msg) {
         if (this.connectionStatus === ConnectionStatus.Disconnecting || this.connectionStatus === ConnectionStatus.Disconnected) return false;
         this.client.logger.t(`[WRITE]: ${msg.substring(0, Math.min(150, msg.length))}`);
-        let _buff0 = Buffer.from(msg);
-        let _buff1 = Buffer.alloc(1);
+        const _buff0 = Buffer.from(msg);
+        const _buff1 = Buffer.alloc(1);
         _buff1.writeInt8(0);
-        let bytes = Buffer.concat([_buff0, _buff1]);
+        const bytes = Buffer.concat([_buff0, _buff1]);
         this.socket.write(bytes, "utf-8", (err) => {
             if (err) this.client.logger.w(`\x1b[31m[SOCKET WRITE ERROR] ${err}\x1b[0m`);
         });
@@ -138,7 +113,9 @@ class SocketManager {
             socket.removeAllListeners();
             this.currentData = "";
 
+            if (this.reconnectTimeout === -1) return;
             setTimeout(async () => {
+                if (this.reconnectTimeout === -1) return;
                 const new_socket = new Socket();
                 this.#addSocketListeners(new_socket);
                 this.socket = new_socket;
@@ -146,7 +123,7 @@ class SocketManager {
                 this.client.logger.i("[SocketManager] Reconnecting!");
                 while (true) {
                     try {
-                        await this.client.connect();
+                        await this.client._reconnect();
                         break;
                     } catch (e) {
                         await new Promise(res => setTimeout(res, 10000));
@@ -154,24 +131,6 @@ class SocketManager {
                 }
             }, this.reconnectTimeout * 1000);
         });
-    }
-
-    // TODO: REMOVE
-    isIntervalSetup = false;
-
-    #botting() {
-        collectTax(this.client);
-        mercenaryPackage(this.client, -1);
-        if (!this.isIntervalSetup) {
-            this.isIntervalSetup = true;
-            if (this.serverType !== ServerType.AllianceBattleGround) {
-                dql(this.client, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]}).then();
-                setInterval(() => {
-                    if (this.connectionStatus !== ConnectionStatus.Connected) return;
-                    dql(this.client, 0, {RDQ: [{QID: 7}, {QID: 8}, {QID: 9}, {QID: 10}]}).then();
-                }, 5 * 60 * 1010); // 5 minutes
-            }
-        }
     }
 }
 
@@ -190,7 +149,7 @@ function onSocketReady(socketManager) {
 
 /**
  * @param {net.Socket} socket
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Buffer} data
  */
 function onSocketData(socket, client, data) {
@@ -224,11 +183,6 @@ async function waitForConnectionStatus(socketManager, connectionStatus, maxMs = 
  */
 async function waitForConnectionStatusTS(socketManager, connectionStatus, endDateTimestamp) {
     if (socketManager.connectionStatus === connectionStatus) return;
-    if (socketManager.connectionError !== "") {
-        const e = socketManager.connectionError;
-        socketManager.connectionError = "";
-        throw new EmpireError(socketManager.client, `[Connection Error] ${e}`);
-    }
     if (endDateTimestamp < Date.now()) throw new EmpireError(socketManager.client, "[Connection Error] Exceeded max time!");
     await new Promise(resolve => setTimeout(resolve, 1));
     return await waitForConnectionStatusTS(socketManager, connectionStatus, endDateTimestamp);

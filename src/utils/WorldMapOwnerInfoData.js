@@ -3,7 +3,7 @@ const WorldMapOwnerInfo = require("../structures/WorldMapOwnerInfo");
 const EmpireError = require("../tools/EmpireError");
 
 class WorldMapOwnerInfoData {
-    /** @type {Client} */
+    /** @type {BaseClient} */
     #client;
 
     isInitialized = false;
@@ -14,7 +14,7 @@ class WorldMapOwnerInfoData {
      */
     _ownerInfo = {};
 
-    /** @param {Client} client */
+    /** @param {BaseClient} client */
     constructor(client) {
         this.#client = client;
         this._ownInfo = new WorldMapOwnerInfo(client);

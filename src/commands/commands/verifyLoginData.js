@@ -1,6 +1,6 @@
 module.exports.name = "core_avl";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} name
  * @param {string} password
  */

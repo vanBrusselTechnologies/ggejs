@@ -1,5 +1,5 @@
 module.exports.name = "core_rld";
-/** @param {Client} client */
+/** @param {BaseClient} client */
 module.exports.execute = function (client) {
     let accountId = Date.now().toString() + (Math.random() * 999999).toFixed();
     const CoreC2SRequestLoginDataVO = {

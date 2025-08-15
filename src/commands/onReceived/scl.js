@@ -2,7 +2,7 @@ const ConstructionSlot = require("../../structures/ConstructionSlot");
 
 module.exports.name = "scl";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{OIDL: []}} params
  */

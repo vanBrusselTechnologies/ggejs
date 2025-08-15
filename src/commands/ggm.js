@@ -8,25 +8,25 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     parseGGM(client, params);
-    require('.').baseExecuteCommand(undefined, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, undefined, errorCode, params, callbacks);
 }
 
-/** @param {Client} client */
+/** @param {BaseClient} client */
 module.exports.getGemInventory = function (client) {
     const C2SGetGemInventory = {};
-    return require('.').baseSendCommand(client, NAME, C2SGetGemInventory, callbacks, (_) => true);
+    return require('.').baseSendCommand(client, NAME, C2SGetGemInventory, callbacks, () => true);
 }
 
 module.exports.ggm = parseGGM;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{GEM: [number, number][], RGEM: (number | number[])[]}} params
  */
 function parseGGM(client, params) {

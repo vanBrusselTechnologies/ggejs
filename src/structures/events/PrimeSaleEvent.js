@@ -10,7 +10,7 @@ class PrimeSaleEvent extends ActiveEvent {
     requiredEventIds = [];
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID:number, RS: number, DIS: number}} data
      */
     loadFromParamObject(client, data) {

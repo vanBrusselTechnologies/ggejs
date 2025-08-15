@@ -3,7 +3,7 @@ const {titles} = require('e4k-data').data;
 
 module.exports.name = "uar";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

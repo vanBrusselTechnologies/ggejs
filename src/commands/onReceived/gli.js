@@ -2,7 +2,7 @@ const Lord = require("../../structures/Lord");
 
 module.exports.name = "gli";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{B: Object[], C: Object[]}} params
  */
@@ -13,7 +13,7 @@ module.exports.execute = function (client, errorCode, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object[]} data
  * @return {Lord[]}
  */

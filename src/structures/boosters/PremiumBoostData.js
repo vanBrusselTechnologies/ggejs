@@ -28,7 +28,7 @@ class PremiumBoostData {
     _resourceOverseerBoosterMap = {};
     feastCostReduction = 0;
 
-    /** @param {Client} client */
+    /** @param {BaseClient} client */
     constructor(client) {
         this.feast = new RunningFeast();
 

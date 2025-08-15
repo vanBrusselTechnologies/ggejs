@@ -35,7 +35,7 @@ class CastleBuildingInfo {
     constructionItemsPerBuilding = [];
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{}} data
      */
     constructor(client, data) {
@@ -63,7 +63,7 @@ class CastleBuildingInfo {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {[]} data
  * @returns {BasicBuilding[]}
  */
@@ -76,7 +76,7 @@ function parseBuildings(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {[]} data
  * @returns {BuildingGround[]}
  */
@@ -89,7 +89,7 @@ function parseBuildingGround(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {[{OID:number, CIL:[]}]} data
  * @param {BasicBuilding[]} buildings
  * @returns {{building: number, constructionItems: CastleConstructionItemBuilding[]}[]}

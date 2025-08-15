@@ -7,29 +7,29 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     const chatMessage = parseACM(client, params);
-    require('.').baseExecuteCommand(chatMessage, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, chatMessage, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} message
  * @return {Promise<ChatMessage>}
  */
 module.exports.sendAllianceChat = function (client, message) {
     const C2SAllianceChatVO = {M: validateMessage(message)};
-    return require('.').baseSendCommand(client, NAME, C2SAllianceChatVO, callbacks, (_) => true);
+    return require('.').baseSendCommand(client, NAME, C2SAllianceChatVO, callbacks, () => true);
 }
 
 module.exports.acm = parseACM;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{CM: Object}} params
  * @return {ChatMessage}
  */

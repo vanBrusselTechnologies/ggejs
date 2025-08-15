@@ -1,6 +1,6 @@
 module.exports.name = "cra";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {InteractiveMapobject} source
  * @param {Mapobject | CastlePosition} target
  * @param {{L: {T: [number, number][], U: [number, number][]}, M: {T: [number, number][], U: [number, number][]}, R: {T: [number, number][], U: [number, number][]}}[]} army

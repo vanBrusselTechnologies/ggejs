@@ -1,6 +1,6 @@
 {
   "name": "ggejs",
-  "version": "1.2.0",
+  "version": "2.0.2",
   "description": "A powerful Node.js module for interacting with the server of Goodgame Empire: Four Kingdoms",
   "main": "./src/index.js",
   "types": "./typings/index.d.ts",
@@ -29,11 +29,9 @@
   "license": "ISC",
   "exports": "./src/index.js",
   "dependencies": {
-    "discord.js": "^14.19.3",
-    "e4k-data": "*",
-    "undici": "^6.21.3"
+    "e4k-data": "*"
   },
   "devDependencies": {
-    "@types/node": "^22.15.30"
+    "@types/node": "^24.2.1"
   }
 }

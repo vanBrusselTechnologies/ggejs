@@ -7,9 +7,9 @@ class CastleInstructorPremiumShop extends HeroBoosterShop {
 
     bonusValue = 0.8;
 
-    /** @param {Client} client*/
+    /** @param {BaseClient} client*/
     constructor(client) {
-        super(client, "instructor_title", "instructor_copy_short", "dialog_buyInstructor_copy", new Good(client, ["C2", 990]), "instructor", 10);
+        super(client, "instructor_title", "instructor_copy_short", "dialog_buyInstructor_copy", new Good(["C2", 990]), "instructor", 10);
         this.#client = client
     }
 

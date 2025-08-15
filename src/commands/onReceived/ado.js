@@ -4,7 +4,7 @@ const {execute: grc} = require('./grc');
 
 module.exports.name = "ado";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{gcu:{C1: number, C2: number}, grc: Object, ain: Object}} params
  */

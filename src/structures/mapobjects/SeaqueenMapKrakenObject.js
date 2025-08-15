@@ -5,7 +5,7 @@ class SeaqueenMapKrakenObject extends SeaqueenMapObject {
     #client;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {number} type
      * @param {number} x
      * @param {number} y

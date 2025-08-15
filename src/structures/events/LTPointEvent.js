@@ -7,7 +7,7 @@ class LTPointEvent extends PointEvent {
     skinId;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID: number, RS: number, OP: number[], OR:number[], UE: number[], LID: number, SID: number, RSID: number}} data
      */
     loadFromParamObject(client, data) {

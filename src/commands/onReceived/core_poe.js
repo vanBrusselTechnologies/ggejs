@@ -3,7 +3,7 @@ const {Events} = require("../../utils/Constants");
 
 module.exports.name = "core_poe";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

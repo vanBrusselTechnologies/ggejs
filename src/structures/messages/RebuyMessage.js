@@ -17,7 +17,7 @@ class RebuyMessage extends BasicMessage {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {HeroBoosterShop} booster
  * @return {string}
  */

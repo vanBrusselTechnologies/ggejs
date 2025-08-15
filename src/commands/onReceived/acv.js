@@ -1,6 +1,6 @@
 module.exports.name = "acv";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{H:number}} params
  */

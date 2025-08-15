@@ -32,7 +32,7 @@ class Castle {
     mapobject;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Object} data
      */
     constructor(client, data) {

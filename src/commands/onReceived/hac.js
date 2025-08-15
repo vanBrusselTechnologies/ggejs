@@ -1,6 +1,6 @@
 module.exports.name = "hac";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{CP:[[number,number]]}} params
  */

@@ -2,7 +2,7 @@ const {execute: gam} = require('./gam');
 
 module.exports.name = "cra";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{AAM:Object}} params
  */

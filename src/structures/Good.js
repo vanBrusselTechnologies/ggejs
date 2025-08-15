@@ -17,11 +17,8 @@ const goodNames = {
 }
 
 class Good extends InventoryItem {
-    /**
-     * @param {Client} client
-     * @param {[string, number]} data
-     */
-    constructor(client, data) {
+    /** @param {[string, number]} data */
+    constructor(data) {
         /** @type {string | null} */
         let _name = goodNames[data[0]];
         if (!_name) {

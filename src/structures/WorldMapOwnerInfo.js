@@ -4,7 +4,7 @@ const CastlePosition = require("./CastlePosition");
 const {getCrestByFactionId} = require("../utils/FactionConstClient");
 
 class WorldMapOwnerInfo {
-    /** @type {Client} */
+    /** @type {BaseClient} */
     #client;
 
     /** @type {number} */
@@ -199,7 +199,7 @@ class WorldMapOwnerInfo {
      */
     _staticAreaName;
 
-    /** @param {Client} client */
+    /** @param {BaseClient} client */
     constructor(client) {
         this.#client = client
     }

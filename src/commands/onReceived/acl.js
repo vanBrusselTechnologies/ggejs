@@ -3,7 +3,7 @@ const ChatMessage = require("../../structures/ChatMessage");
 
 module.exports.name = "acl";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{CM:[], acv: {H:number}}} params
  */

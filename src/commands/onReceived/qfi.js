@@ -6,7 +6,7 @@ const {execute: gui} = require('./gui');
 
 module.exports.name = "qfi";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{QID:number, GEQ: [], gxp:Object, gcu:{C1: number, C2: number}, grc:Object, gpa:Object, gui:Object}} params
  */

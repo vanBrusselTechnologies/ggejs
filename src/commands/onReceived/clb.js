@@ -2,7 +2,7 @@ const {execute: alb} = require('./alb.js');
 
 module.exports.name = "clb";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{alb:{D:number, R:Object[]}}} params
  */

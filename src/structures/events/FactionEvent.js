@@ -18,7 +18,7 @@ class FactionEvent extends PointEvent {
     isSeasonLeagueModeEnabled;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID: number, RS: number, OP: number[], OR: number[], FN: { MC: number, FID: number, TID: number, NS: number, PMS: number, PMT: number, SPC: number}, UL: number, MS: number, LID: number, RSID: number, AC: number[], KL: number, KLAP: number}} data
      */
     loadFromParamObject(client, data) {

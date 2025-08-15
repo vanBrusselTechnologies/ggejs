@@ -3,7 +3,7 @@ const {deleteMessages} = require("../dms");
 
 module.exports.name = "boi";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{BO:[], PB:[], SB:[], SU: Object, ST: Object, bfs: {T:number, RT:number}}} params
  */
@@ -20,7 +20,7 @@ module.exports.execute = async function (client, errorCode, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {PremiumBoostData} premiumBoostData
  * @param {{PC:number, ID: number, RT: number}[]} tempBoosterObjects
  */

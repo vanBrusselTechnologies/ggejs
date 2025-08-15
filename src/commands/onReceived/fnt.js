@@ -1,6 +1,6 @@
 module.exports.name = "fnt";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{X:number, Y: number, gaa: Object}} params
  */

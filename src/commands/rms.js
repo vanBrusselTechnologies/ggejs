@@ -7,17 +7,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     const message = parseRMS(client, params);
-    require('.').baseExecuteCommand(message, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, message, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} messageId
  * @return {Promise<string>}
  */
@@ -29,7 +29,7 @@ module.exports.readMessages = function (client, messageId) {
 module.exports.rms = parseRMS;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{MTXT: string}} params
  * @return {string | null}
  */

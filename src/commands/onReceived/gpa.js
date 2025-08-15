@@ -2,7 +2,7 @@ const CastleProductionData = require("../../structures/CastleProductionData");
 
 module.exports.name = "gpa";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

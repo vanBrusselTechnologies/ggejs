@@ -3,14 +3,14 @@ const {ConnectionStatus} = require("../../utils/Constants");
 
 module.exports.name = "mpe";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{NM:number, M:{D:number, RD:number, P:number, Q:number, S:number, R:[], ID: number}[]}} params
  */
 module.exports.execute = function (client, errorCode, params) {
     if (!params?.M) return;
+    return;
     if (params.M.length === 0) return refreshMissions(client, params.NM + 5);
-
     /** @type {{missionId: number, duration: number, remainingDuration: number, price: number, quality: number, state: number, rewards: [], rewardsChanged: boolean}[]} */
     const mercenaryCampMissions = params.M.map(m => {
         return /* MercenariesCampMissionItemVO */{
@@ -54,7 +54,7 @@ module.exports.execute = function (client, errorCode, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} seconds
  */
 function refreshMissions(client, seconds) {

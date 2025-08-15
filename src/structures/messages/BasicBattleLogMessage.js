@@ -6,13 +6,13 @@ const EmpireError = require("../../tools/EmpireError");
 const Localize = require("../../tools/Localize");
 
 class BasicBattleLogMessage extends BasicMessage {
-    /** @type {Client} */
+    /** @type {BaseClient} */
     #client = null;
     /** @type {BattleLog | undefined} */
     _battleLog = undefined;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {
@@ -39,7 +39,7 @@ class BasicBattleLogMessage extends BasicMessage {
         }
     }
 
-    /** @param {Client} _
+    /** @param {BaseClient} _
      @protected */
     initSubject(_) {
         this.subject = "";
@@ -73,7 +73,7 @@ class BasicBattleLogMessage extends BasicMessage {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} messageId
  * @returns {Promise<BattleLog>}
  */
@@ -105,7 +105,7 @@ async function getMessageBody(client, messageId) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {BasicBattleLogMessage} thisMessage
  * @return {string}
  */

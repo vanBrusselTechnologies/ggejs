@@ -39,7 +39,6 @@ class ClientUserDataManager {
         userHonor: 0,
         userRanking: 0,
         minUserNameLength: 0,
-        xpBuildingBoost: 0,
         allianceId: -1,
         allianceRank: 0,
         allianceCurrentFame: 0,

@@ -1,6 +1,6 @@
 module.exports.name = "dar";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{STO: Object, ABL:Object}} params
  */

@@ -2,7 +2,7 @@ const SamuraiInvasionMapobject = require("./SamuraiInvasionMapobject");
 
 class DaimyoMapobject extends SamuraiInvasionMapobject {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {

@@ -7,7 +7,7 @@ class HeroBoosterShop extends CastlePremiumMarketShop {
     bonusValue = 0
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {string} titleId
      * @param {string} shortInfoTextId
      * @param {string} buyQuestionTextId

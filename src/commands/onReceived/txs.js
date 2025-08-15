@@ -2,7 +2,7 @@ const {execute: collectTax} = require('../commands/collectTax');
 
 module.exports.name = "txs";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

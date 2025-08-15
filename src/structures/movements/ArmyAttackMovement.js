@@ -5,7 +5,7 @@ class ArmyAttackMovement extends BasicMovement {
     armyState = 0;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {*} data
      */
     constructor(client, data) {
@@ -32,7 +32,7 @@ class ArmyAttackMovement extends BasicMovement {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} data
  */
 function parseArmy(client, data) {

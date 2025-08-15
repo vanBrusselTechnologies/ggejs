@@ -9,17 +9,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     const alliance = parseAIN(client, params);
-    require('.').baseExecuteCommand(alliance, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, alliance, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} allianceId
  * @return {Promise<Alliance>}
  */
@@ -31,7 +31,7 @@ module.exports.getAllianceInfo = function (client, allianceId) {
 module.exports.ain = parseAIN;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{A: Object}} params
  * @returns {Alliance}
  */

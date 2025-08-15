@@ -3,7 +3,7 @@ const {getAllianceInfo} = require("../ain");
 
 module.exports.name = "aug";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{STO: Object, ABL:Object}} params
  */

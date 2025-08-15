@@ -1,6 +1,6 @@
 module.exports.name = "tcc";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

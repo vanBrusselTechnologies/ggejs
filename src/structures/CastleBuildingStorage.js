@@ -14,7 +14,7 @@ class CastleBuildingStorage {
 
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{SID:number, RD:[number[]], CD:[number[]], UD:[number[]]}[]} data
      */
     constructor(client, data) {
@@ -32,7 +32,7 @@ class CastleBuildingStorage {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number[]} data
  * @returns {InventoryItem<BasicBuilding>[]}
  */
@@ -41,7 +41,7 @@ function parseBuildings(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number[]} data
  * @param {boolean} isUnique
  * @returns {InventoryItem<BasicBuilding>[]}

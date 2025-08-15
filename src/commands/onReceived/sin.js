@@ -2,7 +2,7 @@ const CastleBuildingStorage = require("../../structures/CastleBuildingStorage");
 
 module.exports.name = "sin";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {[]} params
  */

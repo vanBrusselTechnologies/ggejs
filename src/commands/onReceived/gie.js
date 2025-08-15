@@ -2,7 +2,7 @@ const General = require("../../structures/General");
 
 module.exports.name = "gie";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

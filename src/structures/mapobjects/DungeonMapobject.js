@@ -11,7 +11,7 @@ class DungeonMapobject extends InteractiveMapobject {
     _rawData = null;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {
@@ -101,7 +101,7 @@ class DungeonMapobject extends InteractiveMapobject {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} _data
  * @returns {InventoryItem<Unit>[]}
  */

@@ -1,6 +1,6 @@
 module.exports.name = "gms";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{MS: number}} params
  */

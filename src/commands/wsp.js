@@ -7,17 +7,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     const ownerInfo = parseWSP(client, params);
-    require('.').baseExecuteCommand(ownerInfo, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, ownerInfo, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {string} playerName
  * @return {Promise<WorldMapOwnerInfo>}
  */
@@ -29,7 +29,7 @@ module.exports.searchPlayer = function (client, playerName) {
 module.exports.wsp = parseWSP;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{X: number, Y: number, gaa: {AI: [][], OI: Object[]}}} params
  * @return {WorldMapOwnerInfo}
  */

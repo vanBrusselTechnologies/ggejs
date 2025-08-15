@@ -1,6 +1,6 @@
 module.exports.name = "mpe";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} missionId
  */
 module.exports.execute = function (client, missionId) {

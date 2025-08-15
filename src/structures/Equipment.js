@@ -4,7 +4,7 @@ const {equipment_effects: equipmentEffects} = require('e4k-data').data;
 
 class Equipment {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      * @param {Lord} lord
      */
@@ -37,7 +37,7 @@ class Equipment {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
  * @returns {Effect[]}
  */
@@ -55,7 +55,7 @@ function parseEffects(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} data
  * @param {Equipment} equipment
  * @returns {Gem}

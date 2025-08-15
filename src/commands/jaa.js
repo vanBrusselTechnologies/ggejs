@@ -7,17 +7,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     const castle = parseJAA(client, params);
-    require('.').baseExecuteCommand(castle, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, castle, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {InteractiveMapobject} worldMapArea
  * @returns {Promise<Castle>}
  */
@@ -29,7 +29,7 @@ module.exports.joinArea = function (client, worldMapArea) {
 module.exports.jaa = parseJAA;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} params
  * @return {Castle}
  */

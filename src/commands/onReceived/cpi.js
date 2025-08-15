@@ -1,6 +1,6 @@
 module.exports.name = "cpi";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{MC:number}} params
  */

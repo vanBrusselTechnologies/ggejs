@@ -5,7 +5,7 @@ class CollectorShopEvent extends ActiveEvent {
     optionId
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID: number, RS: number, PIDS: string, EOID: number}} data
      */
     loadFromParamObject(client, data) {

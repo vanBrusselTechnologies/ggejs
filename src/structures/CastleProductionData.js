@@ -24,7 +24,7 @@ class CastleProductionData {
     maxAuxiliaryCap = 0
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{}} data
      */
     constructor(client, data) {
@@ -33,18 +33,18 @@ class CastleProductionData {
             let count = data[i];
             if (i.startsWith("D")) {
                 if (i.length >= 3 && i.endsWith("C")) {
-                    this.consumption.push(new Good(client, [i.substring(1, i.length - 1), count / 10]));
+                    this.consumption.push(new Good([i.substring(1, i.length - 1), count / 10]));
                 } else {
-                    this.production.push(new Good(client, [i.substring(1), count / 10]));
+                    this.production.push(new Good([i.substring(1), count / 10]));
                 }
             } else if (i.endsWith("CR")) {
-                this.consumptionReduction.push(new Good(client, [i.substring(0, i.length - 2), (100 - count) / 100]));
+                this.consumptionReduction.push(new Good([i.substring(0, i.length - 2), (100 - count) / 100]));
             } else if (i.startsWith("MR")) {
-                this.maxCapacity.push(new Good(client, [i.substring(2), count]));
+                this.maxCapacity.push(new Good([i.substring(2), count]));
             } else if (i.startsWith("SAFE_")) {
-                this.safeStorage.push(new Good(client, [i.substring(5), count]));
+                this.safeStorage.push(new Good([i.substring(5), count]));
             } else if (i.endsWith("M") && i !== "M") {
-                this.productionBoost.push(new Good(client, [i.substring(0, i.length - 1), count / 100]));
+                this.productionBoost.push(new Good([i.substring(0, i.length - 1), count / 100]));
             }
         }
 

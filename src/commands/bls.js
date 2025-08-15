@@ -17,17 +17,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     const battleLog = parseBLS(client, params);
-    require('.').baseExecuteCommand(battleLog, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, battleLog, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} messageId
  * @return {Promise<BattleLog>}
  */
@@ -39,24 +39,24 @@ module.exports.getBattleLogShort = function (client, messageId) {
 module.exports.bls = parseBLS;
 
 /**
- * @param {Client} client
- * @param {Object} params
+ * @param {BaseClient} client
+ * @param {{AI: Object, AL: Object, ALS: number[], DW: number, PBI: [], PI: []}} params
  * @return {BattleLog}
  */
 function parseBLS(client, params) {
-    if (!params) return null;
-    client.worldMaps._ownerInfoData.parseOwnerInfoArray(params["PI"]);
-    const pbiInfo = parsePbiInfo(client, params["PBI"], params);
+    if (!params || !params.PI) return null;
+    client.worldMaps._ownerInfoData.parseOwnerInfoArray(params.PI);
+    const pbiInfo = parsePbiInfo(client, params.PBI, params.DW === 1);
     const attackerLords = parseAttackerLords(client, params, {attacker: pbiInfo.attacker});
     const defenderLords = parseDefenderLords(client, params, {defender: pbiInfo.defender});
     const autoSkips = parseAutoSkip(client, params);
 
-    const mapObject = parseWorldMapArea(client, params["AI"]);
+    const mapObject = parseWorldMapArea(client, params.AI);
     if (mapObject instanceof TreasureMapMapobject) {
         const mapSeed = String(params["MS"]).split("+").map(s => parseInt(s));
         /** @type {TreasureMapMapobject} */
         let treasureMapMapObject = mapObject;
-        treasureMapMapObject.mapId = params["AI"]["MID"] ?? mapSeed[3];
+        treasureMapMapObject.mapId = params.AI["MID"] ?? mapSeed[3];
         const tMap = tmaps.find(m => m.mapID === treasureMapMapObject.mapId);
         const tMapNode = tmapnodes.find(n => n.tmapnodeID === treasureMapMapObject.nodeId);
         treasureMapMapObject.isSurroundingDungeon = SeasonEventsConstants.isSurroundingDungeon(tMapNode.ownerID);
@@ -72,7 +72,7 @@ function parseBLS(client, params) {
         defender: pbiInfo.defender,
         winner: pbiInfo.winner,
         loser: pbiInfo.loser,
-        defWon: params["DW"] === 1,
+        defWon: params.DW === 1,
         honor: params["H"],
         survivalRate: params["SR"],
         ragePoints: params["RP"],
@@ -106,7 +106,7 @@ function parseBLS(client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} data
  */
 function parseWorldMapArea(client, data) {
@@ -114,19 +114,16 @@ function parseWorldMapArea(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array} data
- * @param {Object} battleLogParams
+ * @param {boolean} deffWon
  * @return {{winner: BattleParticipant, loser: BattleParticipant, attacker: BattleParticipant, defender: BattleParticipant}}
  */
-function parsePbiInfo(client, data, battleLogParams) {
-    /** @type {BattleParticipant[]} */
-    const battleParticipants = [];
-    for (let p of data) {
-        battleParticipants.push(new BattleParticipant(client, p));
-    }
-    let winnerIndex = battleLogParams["DW"] && battleParticipants[0].front === 1 || !battleLogParams["DW"] && battleParticipants[0].front === 0 ? 0 : 1;
-    let loserIndex = 1 - winnerIndex;
+function parsePbiInfo(client, data, deffWon) {
+    if (data == null) return undefined;
+    const battleParticipants = data.map(p => new BattleParticipant(client, p))
+    const winnerIndex = deffWon && battleParticipants[0].front === 1 || deffWon && battleParticipants[0].front === 0 ? 0 : 1;
+    const loserIndex = 1 - winnerIndex;
     return {
         winner: battleParticipants[winnerIndex],
         loser: battleParticipants[loserIndex],
@@ -137,65 +134,59 @@ function parsePbiInfo(client, data, battleLogParams) {
 
 
 /**
- * @param {Client} client
- * @param {Object} data
+ * @param {BaseClient} client
+ * @param {{AL: Object, ALS: number[]}} data
  * @param {BattleLog} battleLog
- * @return {{commandant: Lord, general: Lord, legendSkills: number[]}}
+ * @return {{commandant: Lord, general: Lord | null, legendSkills: number[]}}
  */
 function parseAttackerLords(client, data, battleLog) {
-    if (data["AL"]) {
-        const lord = new Lord(client, data["AL"]);
-        if (battleLog.attacker.playerId === client.clientUserData.playerId) {
-            const lord2 = client.equipments.getCommandants().find(c => c.id === lord.id);
-            lord.name = !!lord2 ? lord2.name : "";
-        }
-        let general = null;
-        if (lord.generalId != null && lord.generalId !== -1) {
-            general = new General(client, data["AL"]);
-            lord.generalId = general.generalId;
-        }
-        return {commandant: lord, general: general, legendSkills: data["ALS"] ?? []};
+    if (data.AL === undefined) return undefined;
+    const lord = new Lord(client, data.AL);
+    if (battleLog.attacker.playerId === client.clientUserData.playerId) {
+        const lord2 = client.equipments.getCommandants().find(c => c.id === lord.id);
+        lord.name = !!lord2 ? lord2.name : "";
     }
+    let general = null;
+    if (lord.generalId != null && lord.generalId !== -1) {
+        general = new General(client, data.AL);
+        lord.generalId = general.generalId;
+    }
+    return {commandant: lord, general: general, legendSkills: data.ALS ?? []};
 }
 
 /**
- * @param {Client} client
- * @param {Object} data
+ * @param {BaseClient} client
+ * @param {{DB: Object, DLS: number[]}} data
  * @param {BattleLog} battleLog
  * @return {{baron: Lord, general: Lord, legendSkills: number[]}}
  */
 function parseDefenderLords(client, data, battleLog) {
-    if (data["DB"]) {
-        const lord = new Lord(client, data["DB"]);
-        if (battleLog.defender.playerId === client.clientUserData.playerId) {
-            const lord2 = client.equipments.getBarons().find(b => b.id === lord.id);
-            lord.name = lord2 ? lord2.name : "";
-        }
-        let general = null;
-        if (lord.generalId != null && lord.generalId !== -1) {
-            general = new General(client, data["DB"]);
-            lord.generalId = general.generalId;
-        }
-        return {baron: lord, general: general, legendSkills: data["DLS"] ?? []};
+    if (data.DB === undefined) return undefined;
+    const lord = new Lord(client, data.DB);
+    if (battleLog.defender.playerId === client.clientUserData.playerId) {
+        const lord2 = client.equipments.getBarons().find(b => b.id === lord.id);
+        lord.name = lord2 ? lord2.name : "";
     }
+    let general = null;
+    if (lord.generalId != null && lord.generalId !== -1) {
+        general = new General(client, data.DB);
+        lord.generalId = general.generalId;
+    }
+    return {baron: lord, general: general, legendSkills: data.DLS ?? []};
 }
 
 /**
- * @param {Client} client
- * @param {Object} data
- * @return {{autoSkipCooldownType:number, autoSkipMinuteSkips: Good[], autoSkipC2: number, autoSkipSeconds: number}}
+ * @param {BaseClient} client
+ * @param {{ASCT: number, ASMS: [string, number][], ASC: number, ASS: number, [p:string]: any}} data
+ * @return {{autoSkipCooldownType: number, autoSkipMinuteSkips: Good[], autoSkipC2: number, autoSkipSeconds: number}}
  */
 function parseAutoSkip(client, data) {
-    if (data["ASCT"] !== undefined) {
-        let minuteSkips = [];
-        for (const minuteSkipData of data["ASMS"]) {
-            minuteSkips.push(new Good(minuteSkipData[0], minuteSkipData[1]));
-        }
+    if (data.ASCT !== undefined) {
         return {
-            autoSkipCooldownType: data["ASCT"],
-            autoSkipMinuteSkips: minuteSkips,
-            autoSkipC2: data["ASC"],
-            autoSkipSeconds: data["ASS"]
+            autoSkipCooldownType: data.ASCT,
+            autoSkipMinuteSkips: data.ASMS.map(ms => new Good(ms)),
+            autoSkipC2: data.ASC,
+            autoSkipSeconds: data.ASS
         };
     } else return {
         autoSkipCooldownType: -1, autoSkipMinuteSkips: [], autoSkipC2: -1, autoSkipSeconds: -1

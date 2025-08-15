@@ -1,6 +1,6 @@
 module.exports.name = "gal";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{AID: number, R:number, ACF: number, SA: number}} params
  */

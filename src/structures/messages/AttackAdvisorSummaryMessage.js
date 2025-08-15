@@ -5,13 +5,13 @@ const EmpireError = require("../../tools/EmpireError");
 const Localize = require("../../tools/Localize");
 
 class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
-    /** @type {Client} */
+    /** @type {BaseClient} */
     #client = null;
     /** @type {AdvisorOverviewInfo | undefined} */
     _advisorOverviewInfo = undefined;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {
@@ -36,7 +36,7 @@ class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} messageId
  * @returns {Promise<AdvisorOverviewInfo>}
  */
@@ -46,8 +46,8 @@ async function parseAdvisorOverview(client, messageId) {
     // TODO: rewrite into separate class
     return {
         commandersAmount: data["C"],
-        lootGoods: data.G.map(g => new Good(client, g)),
-        costsGoods: data.L.map(g => new Good(client, g)),
+        lootGoods: data.G.map(g => new Good(g)),
+        costsGoods: data.L.map(g => new Good(g)),
         lostUnitsAmount: data["LU"],
         lostToolsAmount: data["LT"],
         attacksAmountWin: data["W"],

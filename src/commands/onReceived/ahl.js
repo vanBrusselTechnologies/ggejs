@@ -2,7 +2,7 @@ const {execute: allianceHelpAll} = require("../commands/allianceHelpAll");
 
 module.exports.name = "ahl";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{AHL: {AC: number, LID:number, PN:string, P:number, PID: number, TID: number, OP: Object, RT: number, TSL: number}[]}} params
  */

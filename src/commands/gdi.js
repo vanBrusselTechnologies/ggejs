@@ -7,17 +7,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     const player = parseGDI(client, params);
-    require('.').baseExecuteCommand(player, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, player, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} playerId
  * @return {Promise<Player>}
  */
@@ -29,7 +29,7 @@ module.exports.getDetailPlayerInfo = function (client, playerId) {
 module.exports.gdi = parseGDI;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{O: Object}} params
  * @return {Player}
  */

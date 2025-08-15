@@ -11,17 +11,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     const spyLog = parseBSD(client, params);
-    require('.').baseExecuteCommand(spyLog, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, spyLog, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} messageId
  * @return {Promise<SpyLog>}
  */
@@ -33,7 +33,7 @@ module.exports.getSpyLog = function (client, messageId) {
 module.exports.bsd = parseBSD;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} params
  * @return {SpyLog}
  */
@@ -50,7 +50,7 @@ function parseBSD(client, params) {
     const spyResources = [];
     if (params["R"]) {
         for (let r of params["R"]) {
-            spyResources.push(new Good(client, r));
+            spyResources.push(new Good(r));
         }
     }
     const armyInfo = params["S"] == null ? null : parseSpyArmyInfo(client, params);
@@ -71,7 +71,7 @@ function parseBSD(client, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} data
  */
 function parseWorldMapArea(client, data) {
@@ -79,7 +79,7 @@ function parseWorldMapArea(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Object} data
  * @returns {{army: { left: InventoryItem<Unit>[], middle: InventoryItem<Unit>[], right: InventoryItem<Unit>[], keep: InventoryItem<Unit>[], unitsKeepInventory: InventoryItem<Unit>[], stronghold: InventoryItem<Unit>[]}, spyTime: Date, defenderBaron: Lord, defenderGeneral?: General, defenderLegendSkills: []}}
  */

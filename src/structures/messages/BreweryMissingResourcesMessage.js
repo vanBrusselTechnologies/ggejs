@@ -12,7 +12,7 @@ const AREA_TYPE_INDEX = 6;
 
 class BreweryMissingResourcesMessage extends BasicMessage {
     parseMetaData(client, metaArray) {
-        this.resourceName = new Good(client, [metaArray[RESOURCE_KEY_INDEX], 0]).item;
+        this.resourceName = new Good([metaArray[RESOURCE_KEY_INDEX], 0]).item;
         this.areaId = parseInt(metaArray[AREA_ID_INDEX]);
         this.kingdomId = parseInt(metaArray[KINGDOM_ID_INDEX]);
         this.areaName = metaArray[AREA_NAME_INDEX];

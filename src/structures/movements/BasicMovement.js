@@ -5,7 +5,7 @@ const Coordinate = require("../Coordinate");
 
 class BasicMovement {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Object} data
      */
     constructor(client, data) {

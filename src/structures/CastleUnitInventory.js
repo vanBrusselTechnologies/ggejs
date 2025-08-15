@@ -19,7 +19,7 @@ class CastleUnitInventory {
     shadowUnits = [];
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{I:[], HI:[],SHI:[],TU:[],gsi:Object}} data
      */
     constructor(client, data) {
@@ -38,7 +38,7 @@ class CastleUnitInventory {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {[]} data
  * @return {InventoryItem<Unit>[]}
  */

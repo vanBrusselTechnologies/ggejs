@@ -1,6 +1,6 @@
 module.exports.name = "bfs";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{T:number, RT:number}} params
  */

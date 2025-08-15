@@ -3,7 +3,7 @@ const {villages, buildings} = require('e4k-data').data;
 
 class VillageMapobject extends InteractiveMapobject {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {

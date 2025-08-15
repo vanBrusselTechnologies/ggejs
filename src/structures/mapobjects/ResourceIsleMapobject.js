@@ -2,7 +2,7 @@ const InteractiveMapobject = require("./InteractiveMapobject");
 
 class ResourceIsleMapobject extends InteractiveMapobject {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {

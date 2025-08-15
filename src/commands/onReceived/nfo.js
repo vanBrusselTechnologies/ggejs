@@ -1,6 +1,6 @@
 module.exports.name = "nfo";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{"XML_E4K":string,"XML_EP":string,"minNameSize":number,"sectorCountY":number,"sectorCountX":number}} params
  */

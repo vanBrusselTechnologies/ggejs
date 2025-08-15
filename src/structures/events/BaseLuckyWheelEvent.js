@@ -28,7 +28,7 @@ class BaseLuckyWheelEvent extends PointEvent {
     hasLevelUp;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Object} data
      */
     loadFromParamObject(client, data) {

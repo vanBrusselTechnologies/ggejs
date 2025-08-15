@@ -9,17 +9,17 @@ const callbacks = [];
 module.exports.name = NAME;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
     parseSEQ(client, params);
-    require('.').baseExecuteCommand(undefined, errorCode, params, callbacks);
+    require('.').baseExecuteCommand(client, undefined, errorCode, params, callbacks);
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} equipmentId
  * @param {number} lordId
  * @param {number} lostAndFoundRewardId
@@ -27,13 +27,13 @@ module.exports.execute = function (client, errorCode, params) {
  */
 module.exports.sellEquipment = function (client, equipmentId, lordId = -1, lostAndFoundRewardId = -1) {
     const C2SSellEquipmentVO = {EID: equipmentId, LID: lordId, LFID: lostAndFoundRewardId};
-    return require('.').baseSendCommand(client, NAME, C2SSellEquipmentVO, callbacks, (_) => true);
+    return require('.').baseSendCommand(client, NAME, C2SSellEquipmentVO, callbacks, () => true);
 }
 
 module.exports.seq = parseSEQ;
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{gli:{B: Object[], C: Object[]}, gcu:{C1: number, C2: number}, esl:{E: number, TE: number, G: number, TG: number}}} params
  */
 function parseSEQ(client, params) {

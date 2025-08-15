@@ -1,6 +1,6 @@
 module.exports.name = "afa";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{CF:number, HF:number}} params
  */

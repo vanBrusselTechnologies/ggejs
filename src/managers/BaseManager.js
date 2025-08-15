@@ -1,7 +1,7 @@
 const {EventEmitter} = require('node:events');
 
 class BaseManager extends EventEmitter {
-    /** @param {Client} client */
+    /** @param {BaseClient} client */
     constructor(client) {
         super();
         this._client = client;

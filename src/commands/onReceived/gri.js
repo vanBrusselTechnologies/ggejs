@@ -2,7 +2,7 @@ const {Coordinate} = require("../../structures/Coordinate");
 
 module.exports.name = "gri";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

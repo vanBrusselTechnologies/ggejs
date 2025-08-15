@@ -3,7 +3,7 @@ const {relicEffects} = require('e4k-data').data;
 
 class RelicEffect extends Effect {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array} data
      */
     constructor(client, data) {

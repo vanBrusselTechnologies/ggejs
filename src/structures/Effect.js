@@ -2,7 +2,7 @@ const {effects} = require('e4k-data').data;
 
 class Effect {
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {Array | number} data
      */
     constructor(client, data) {
@@ -14,8 +14,11 @@ class Effect {
             /** @type {number} */
             this.power = parseFloat(data[1]);
         }
-        let _data = getDataFromJson(client, this.effectId);
-        if (_data === null || _data === undefined) return;
+        const _data = getDataFromJson(client, this.effectId);
+        if (_data === undefined) {
+            client.logger.w(`Unknown effect id:  ${this.effectId}`);
+            return;
+        }
         /** @type {Object} */
         this.rawData = _data;
         /** @type {string} */
@@ -28,18 +31,12 @@ class Effect {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} id
  * @returns {Object}
  */
 function getDataFromJson(client, id) {
-    for (let effect of effects) {
-        if (effect.effectID === id) {
-            return effect;
-        }
-    }
-    client.logger.w(`Unknown effect id: ${id}`);
-    return null;
+    return effects.find(e => e.effectID === id);
 }
 
 module.exports = Effect;

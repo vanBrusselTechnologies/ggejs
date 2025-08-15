@@ -6,12 +6,11 @@ const CombatConst = require('../../utils/CombatConst');
 
 module.exports.name = "dql";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{PQL: number, RDQ:{QID:number, P:[number]}[], FDQ: number[], RS: [string,number|number[]][][]}} params
  */
 module.exports.execute = async function (client, errorCode, params) {
-    if (!client._socket['gbd finished']) return;
     if (!params) return;
     return;
     try {
@@ -30,7 +29,7 @@ module.exports.execute = async function (client, errorCode, params) {
                         client._socket["dailySabotageAt"] = -1;
                         client._socket["dailyGoodsTravelTryCount"] = 0;
                         await client.socketManager.reconnect();
-                        break; //login;
+                        break; //_login;
                     case 2:
                         /** @type {Castle} */
                         const mainCastleInfo = await client.getCastleInfo(myMainCastle);
@@ -124,7 +123,7 @@ module.exports.execute = async function (client, errorCode, params) {
 
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {WorldMap} ClassicMap
  * @param {CastleMapobject} myMainCastle
  * @returns {CastleMapobject}
@@ -147,7 +146,7 @@ function getClosestRuinsOutpost(client, ClassicMap, myMainCastle) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {CastleMapobject} castle
  * @param {boolean} attackable
  * @returns {Promise<DungeonMapobject>}
@@ -653,7 +652,7 @@ function getBestArmyForDungeon(player, dungeon, defenceStrength, availableSoldie
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Player} thisPlayer
  * @param {CastleMapobject} castle
  * @param {Lord} lord

@@ -1,6 +1,6 @@
 module.exports.name = "gap";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{A:number, P: number, O:number, DP:number}} params
  */

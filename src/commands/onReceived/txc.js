@@ -2,7 +2,7 @@ const {execute: startTax} = require('../commands/startTax');
 
 module.exports.name = "txc";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} _
  * @param {Object} __
  */

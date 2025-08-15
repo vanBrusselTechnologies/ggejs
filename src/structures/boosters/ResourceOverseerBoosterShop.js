@@ -7,7 +7,7 @@ class ResourceOverseerBoosterShop extends HeroBoosterShop {
 
     // TODO: assetType is type GameAssetType instead of string
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {string} assetType
      * @param {number} boostId
      * @param {number} listSortPriority
@@ -16,7 +16,7 @@ class ResourceOverseerBoosterShop extends HeroBoosterShop {
      * @param {number} boostCostValue
      */
     constructor(client, assetType, boostId, listSortPriority = 0, restrictedFeature = null, boostValue = 25, boostCostValue = 625) {
-        super(client, "dialog_resourcesBoost_hireOverseer", `overseer_${assetType/*todo .balancingName*/}_copy_short`, "dialog_buyResourceBoost_copy", new Good(client, ["C2", boostCostValue]), "overseer",boostId);
+        super(client, "dialog_resourcesBoost_hireOverseer", `overseer_${assetType/*todo .balancingName*/}_copy_short`, "dialog_buyResourceBoost_copy", new Good(["C2", boostCostValue]), "overseer",boostId);
         this.#client = client
         this.assetType = assetType;
         this.boostValue = boostValue;

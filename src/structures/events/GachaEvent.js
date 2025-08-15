@@ -6,6 +6,14 @@ class GachaEvent extends PointEvent {
     get starterDialogName() {
         return "";
     }
+
+    get mailStarterDialogName() {
+        return "MailStarterFullscreenDialog";
+    }
+
+    get webShopTabId() {
+        return "supersale";
+    }
 }
 
 module.exports = GachaEvent;

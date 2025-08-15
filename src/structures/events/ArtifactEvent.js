@@ -9,7 +9,7 @@ class ArtifactEvent extends ActiveEvent {
     skinId;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID:number, RS: number, SID:number, ALID:number, PF:number}} data
      */
     loadFromParamObject(client, data) {

@@ -23,7 +23,7 @@ class ShoppingCartEvent extends ActiveEvent {
     cartsPaid;
 
     /**
-     * @param {Client} client
+     * @param {BaseClient} client
      * @param {{EID: number, RS: number, P: number, LTS: number, SND: number, L: number, SC: [], SKN: number, C2: number, TID: number[], LIM: number, UNDS: number}} data
      */
     loadFromParamObject(client, data) {

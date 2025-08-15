@@ -2,7 +2,7 @@ const {execute: collectTownsfolkGoods} = require('../commands/collectTownsfolkGo
 
 module.exports.name = "irc";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */

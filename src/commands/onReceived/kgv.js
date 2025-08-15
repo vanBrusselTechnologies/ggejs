@@ -4,7 +4,7 @@ const Unit = require("../../structures/Unit");
 
 module.exports.name = "kgv";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {Object} params
  */
@@ -16,7 +16,7 @@ module.exports.execute = function (client, errorCode, params) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {{VI:[][], PV: {VID: number, XID: number}[]}} data
  * @returns {{ public: { village: VillageMapobject, units?: InventoryItem<Unit>[] }[], private: { privateVillageId: number, uniqueId: number }[]}}
  */
@@ -39,7 +39,7 @@ function parseVillageList(client, data) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {Array<[number, number]>} data
  * @returns {InventoryItem<Unit>[]}
  */

@@ -13,44 +13,48 @@ import {
     Unit as RawUnit
 } from 'e4k-data'
 
-export {Client, Horse, InventoryItem, MovementManager};
 export const Constants: IConstants;
 
 /** Base class for a player account */
-declare class Client extends EventEmitter {
+export class BaseClient extends EventEmitter {
+    public socketManager: SocketManager;
+
     public alliances: AllianceManager;
     public clientUserData: ClientUserDataManager;
     public equipments: EquipmentManager;
     public movements: MovementManager;
     public players: PlayerManager;
     public worldMaps: WorldMapManager;
-    public externalClient: Client | null;
+
+    public bannedUntil: Date = new Date(0);
+    public uniqueAccountId: string;
     public logger: Logger;
 
+    private _id: UUID;
+    private _networkId: number;
+
     /**
-     * @param name Your player account name
-     * @param password Your player account password
      * @param serverInstance Your player account serverInstance
      * @example ```js
-     * const e4kNetworkInstances = require('e4k-data').network.instances.instance;
-     * const worldNetworkInstance = e4kNetworkInstances.find(i => i.instanceLocaId === "generic_country_world");
-     * const client = new Client(playername, password, worldNetworkInstance);
+     *     const e4kNetworkInstances = require('e4k-data').network.instances.instance;
+     *     const worldNetworkInstance = e4kNetworkInstances.find(i => i.instanceLocaId === "generic_country_world");
+     *     const client = new MainClient(worldNetworkInstance);
+     *     client.connect(playername, password)
      * ```
      */
-    public constructor(name: string, password: string, serverInstance: NetworkInstance);
+    public constructor(serverInstance: NetworkInstance);
 
     private _language: string;
 
     public set language(val: string);
+
+    private _mailMessages: MailMessage[];
 
     public get mailMessages(): MailMessage[];
 
     public set reconnectTimeout(val: number);
 
     private get _socket(): Socket;
-
-    /** Login with your credentials */
-    public connect(): Promise<Client>;
 
     public async sendChatMessage(message: string): Promise<void>;
 
@@ -64,21 +68,61 @@ declare class Client extends EventEmitter {
 
     public emit<K extends keyof ClientEvents>(eventName: K, ...args: ClientEvents[K]): boolean;
 
-    private _verifyLoginData(): void;
+    private _sendPingPong(): Promise<void>;
+
+    private abstract _reconnect();
 }
 
-declare type CommandCallback<T> = {
-    id?: UUID,
+export class MainClient extends BaseClient {
+    private _externalClient: ExternalClient;
+
+    /**
+     * Login with your credentials
+     * @param name Your player account name
+     * @param password Your player account password
+     */
+    public connect(name: string, password: string): Promise<MainClient>;
+
+    public getExternalClient(serverType: IConstants.ServerType.TempServer | IConstants.ServerType.AllianceBattleGround): Promise<ExternalClient>;
+
+    private _generateExternalServerLoginToken(serverType: IConstants.ServerType.TempServer | IConstants.ServerType.AllianceBattleGround): Promise<{
+        token: string,
+        ip: string,
+        port: string,
+        zone: string,
+        zoneId: string,
+        instanceId: string,
+        isCrossPlay: boolean
+    }>;
+
+    private _login(name: string, password: string): Promise<void>;
+
+    private _reconnect(): Promise<MainClient>;
+
+    private _verifyLoginData(name: string, password: string): Promise<{ M: string, P: string }>;
+}
+
+export class ExternalClient extends BaseClient {
+    public connect(loginToken: string): Promise<ExternalClient>;
+
+    private _loginWithToken(loginToken: string): Promise<void>;
+
+    private _reconnect(): Promise<ExternalClient>;
+}
+
+export private type CommandCallback<T> = {
+    id: UUID,
+    clientId: UUID,
     match: (params: Object) => boolean,
     resolve: (value: T) => void,
     reject: (errorCode?: number) => void
 }
 
-declare class EmpireError extends Error {
-    errorCode: number;
+export class EmpireError extends Error {
+    errorCode: number | string;
 }
 
-declare class Logger {
+export class Logger {
     verbosity: number;
 
     e(...message)
@@ -102,7 +146,7 @@ interface ClientEvents {
     mailMessageAdd: [messages: MailMessage[]];
     mailMessageRemove: [message: MailMessage];
     primeTime: [primeTime: PrimeTime];
-    externalClientReady: [externalClient: Client];
+    externalClientReady: [externalClient: ExternalClient];
 }
 
 interface MovementEvents {
@@ -131,14 +175,14 @@ interface ConstantsEvents {
 //#endregion
 
 //#region Managers
-declare class BaseManager extends EventEmitter {
-    protected _client: Client;
+export class BaseManager extends EventEmitter {
+    protected _client: BaseClient;
 
-    protected constructor(client: Client);
+    protected constructor(client: BaseClient);
 }
 
-declare class AllianceManager extends BaseManager {
-    private constructor(client: Client);
+export class AllianceManager extends BaseManager {
+    private constructor(client: BaseClient);
 
     public async getById(id: number): Promise<Alliance>;
 
@@ -149,11 +193,11 @@ declare class AllianceManager extends BaseManager {
     public async getRankings(nameOrRanking: string | number, rankingType: AllianceHighScoreRankingTypes = "might", leagueId: number = 1): Promise<HighScore<AllianceHighScoreItem>>
 }
 
-declare class ClientUserDataManager {
+export class ClientUserDataManager {
     public boostData: PremiumBoostData;
     public questData: QuestData;
 
-    private constructor(client: Client);
+    private constructor(client: BaseClient);
 
     public get isXPDataInitialized(): boolean;
     private set isXPDataInitialized(val: number);
@@ -363,8 +407,8 @@ declare class ClientUserDataManager {
     private setHighestTitlePoints(points: number, titleType: number): void
 }
 
-declare class EquipmentManager extends BaseManager {
-    private constructor(client: Client);
+export class EquipmentManager extends BaseManager {
+    private constructor(client: BaseClient);
 
     public get equipmentSpaceLeft(val: number);
     private set equipmentSpaceLeft(val: number);
@@ -414,8 +458,8 @@ declare class EquipmentManager extends BaseManager {
     private _autoSellGem(gem: Gem, level: number): Promise<void>;
 }
 
-declare class MovementManager extends BaseManager {
-    private constructor(client: Client);
+export class MovementManager extends BaseManager {
+    private constructor(client: BaseClient);
 
     public static getDistance(castle1: Mapobject | CastlePosition, castle2: Mapobject | CastlePosition): number;
 
@@ -441,8 +485,8 @@ declare class MovementManager extends BaseManager {
     private _remove(_movementId: number): void;
 }
 
-declare class PlayerManager extends BaseManager {
-    private constructor(client: Client);
+export class PlayerManager extends BaseManager {
+    private constructor(client: BaseClient);
 
     public async getById(id: number): Promise<Player>;
 
@@ -453,7 +497,7 @@ declare class PlayerManager extends BaseManager {
     public async getRankings(nameOrRanking: string | number, rankingType: PlayerHighScoreRankingTypes = "might", leagueId: number = 1): Promise<LeaderboardList>
 }
 
-declare class WorldMapManager extends BaseManager {
+export class WorldMapManager extends BaseManager {
     private _ownerInfoData
 
     /**
@@ -484,7 +528,7 @@ type Movement =
     | MarketMovement
     | SpyMovement;
 
-declare class BasicMovement {
+export class BasicMovement {
     public movementId: number;
     public movementType: number;
     public arrivalTime: Date;
@@ -500,10 +544,10 @@ declare class BasicMovement {
     public lord?: Lord;
     public general?: General;
 
-    protected constructor(client: Client, data: object);
+    protected constructor(client: BaseClient, data: object);
 }
 
-declare class ArmyAttackMovement extends BasicMovement {
+export class ArmyAttackMovement extends BasicMovement {
     public army?: CompactArmy;
     public armyState: number;
     public attackType: AttackType;
@@ -511,50 +555,50 @@ declare class ArmyAttackMovement extends BasicMovement {
     public isForceCancelable: boolean;
     public isShadowMovement: boolean;
 
-    protected constructor(client: Client, data);
+    protected constructor(client: BaseClient, data);
 }
 
-declare class ArmyTravelMovement extends BasicMovement {
+export class ArmyTravelMovement extends BasicMovement {
     public army: InventoryItem<Unit>[];
     public goods?: Good[];
 
-    protected constructor(client: Client, data);
+    protected constructor(client: BaseClient, data);
 }
 
-declare class SiegeMovement extends BasicMovement {
+export class SiegeMovement extends BasicMovement {
     public army: InventoryItem<Unit>[];
 
-    protected constructor(client: Client, data);
+    protected constructor(client: BaseClient, data);
 }
 
-declare class MarketMovement extends BasicMovement {
+export class MarketMovement extends BasicMovement {
     public goods: Good[];
     public carriages: number;
 
-    protected constructor(client: Client, data);
+    protected constructor(client: BaseClient, data);
 }
 
-declare class SpyMovement extends BasicMovement {
+export class SpyMovement extends BasicMovement {
     public spyType: number;
     public spyCount: number;
     public spyRisk: number;
     public spyAccuracy?: number;
     public sabotageDamage?: number;
 
-    protected constructor(client: Client, data);
+    protected constructor(client: BaseClient, data);
 }
 
-declare class SupportDefenceMovement extends ArmytravelMovement {
+export class SupportDefenceMovement extends ArmytravelMovement {
 }
 
-declare class InventoryItem<T> {
+export class InventoryItem<T> {
     item: T;
     count: number;
 
     constructor(item: T, count: number);
 }
 
-declare class ArmyWave {
+export class ArmyWave {
     left: {
         units: InventoryItem<Unit>[],
         tools: InventoryItem<Tool>[],
@@ -569,7 +613,7 @@ declare class ArmyWave {
     }
 }
 
-declare class Horse {
+export class Horse {
     wodId: number;
     comment1: string;
     comment2: string;
@@ -589,7 +633,7 @@ declare class Horse {
 
 //#region Alliance
 /** */
-declare class Alliance {
+export class Alliance {
     public allianceId: number;
     public allianceName: string;
     public allianceDescription: string;
@@ -606,7 +650,7 @@ declare class Alliance {
     public freeRenames: number;
     public might: number;
 
-    protected constructor(client: Client, data);
+    protected constructor(client: BaseClient, data);
 
     public get landmarks(): (CapitalMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject)[];
 
@@ -615,7 +659,7 @@ declare class Alliance {
     private _add_or_update_landmarks(landmarks: Mapobject[]): void;
 }
 
-declare class MyAlliance extends Alliance {
+export class MyAlliance extends Alliance {
     public isAutoWarOn: boolean;
     public applicationAmount: number;
     public announcement: string;
@@ -630,35 +674,35 @@ declare class MyAlliance extends Alliance {
     public highestMight: number;
     public highestFamePoints: number;
 
-    private parseStorage(client: Client, data: Object): void;
+    private parseStorage(client: BaseClient, data: Object): void;
 }
 
-declare class AllianceMember extends WorldMapOwnerInfo {
+export class AllianceMember extends WorldMapOwnerInfo {
     public alliance: Alliance;
     public donations?: AllianceDonations;
     public activityStatus?: number;
 
-    private constructor(client: Client, data, alliance: Alliance);
+    private constructor(client: BaseClient, data, alliance: Alliance);
 }
 
-declare class AllianceStatusListItem {
+export class AllianceStatusListItem {
     public allianceId: number;
     public allianceName: string;
     public allianceStatus: number;
     public allianceStatusConfirmed: boolean;
 
-    private constructor(client: Client, data);
+    private constructor(client: BaseClient, data);
 }
 
-declare class AllianceDonations {
+export class AllianceDonations {
     public coins: number
     public rubies: number;
     public res: number;
 
-    private constructor(client: Client, data: Array<number>);
+    private constructor(client: BaseClient, data: Array<number>);
 }
 
-declare class ChatMessage {
+export class ChatMessage {
     public message: string;
     public sendDate: Date;
     public senderPlayerId: number;
@@ -667,7 +711,7 @@ declare class ChatMessage {
 
 //#endregion
 
-declare class CompactArmy {
+export class CompactArmy {
     public left: InventoryItem<Unit>[];
     public middle: InventoryItem<Unit>[];
     public right: InventoryItem<Unit>[];
@@ -677,17 +721,17 @@ declare class CompactArmy {
     public soldierCount: number;
     public toolCount: number;
 
-    private constructor(client: Client, data: object);
+    private constructor(client: BaseClient, data: object);
 }
 
-declare class Coordinate {
+export class Coordinate {
     public X: number;
     public Y: number;
 
     private constructor(data: number[]);
 }
 
-declare class CastlePosition {
+export class CastlePosition {
     public kingdomId: number;
     public objectId: number;
     public xPos: number;
@@ -697,13 +741,13 @@ declare class CastlePosition {
     public get position(): Coordinate;
 }
 
-declare class Good extends InventoryItem<string> {
-    private constructor(client: Client, data: [string, number]);
+export class Good extends InventoryItem<string> {
+    private constructor(data: [string, number]);
 }
 
 //#region Lord and Equipment
 /** */
-declare class Lord {
+export class Lord {
     public id: number;
     public isDummy: boolean;
     public name: string;
@@ -721,7 +765,7 @@ declare class Lord {
     public rawData: RawLord;
 }
 
-declare class General {
+export class General {
     public generalId: number;
     public rawData: RawGeneral;
     public level: number;
@@ -738,7 +782,7 @@ declare class General {
     public abilitiesPerWave: { [key: number]: { abilityId: number, waveId: number, abilityValue: number } };
 }
 
-declare class Equipment {
+export class Equipment {
     public id: number;
     public slotId: number;
     public wearerId: number;
@@ -752,7 +796,7 @@ declare class Equipment {
     public equippedLord?: Lord;
 }
 
-declare class RelicEquipment {
+export class RelicEquipment {
     public id: number;
     public slotId: number;
     public wearerId: number;
@@ -767,7 +811,7 @@ declare class RelicEquipment {
     public equippedLord?: Lord;
 }
 
-declare class Gem {
+export class Gem {
     public id: number;
     public setId?: number;
     public effects: Effect[];
@@ -775,7 +819,7 @@ declare class Gem {
     public rawData: RawGem;
 }
 
-declare class RelicGem {
+export class RelicGem {
     public id: number;
     public slotId: number;
     public enhancementLevel: number;
@@ -788,7 +832,7 @@ declare class RelicGem {
 
 //#endregion
 
-declare class Effect {
+export class Effect {
     public effectId: number;
     public power: number;
     public name: string;
@@ -797,11 +841,11 @@ declare class Effect {
     public rawData: RawEffect;
 }
 
-declare class RelicEffect extends Effect {
+export class RelicEffect extends Effect {
     public relicEffectId: number;
 }
 
-declare class Player extends WorldMapOwnerInfo {
+export class Player extends WorldMapOwnerInfo {
     public castles: (CastleMapobject | CapitalMapobject)[];
     public villages: {
         public: {
@@ -820,7 +864,7 @@ declare class Player extends WorldMapOwnerInfo {
     }[];
 }
 
-declare class Unit {
+export class Unit {
     public wodId: number;
     public isSoldier: boolean;
     public rangeAttack?: number;
@@ -832,14 +876,14 @@ declare class Unit {
     public meleeDefence?: number;
     public rawData: RawUnit;
 
-    constructor(client: Client, wodId: number);
+    constructor(client: BaseClient, wodId: number);
 }
 
-declare class Tool extends Unit {
+export class Tool extends Unit {
 
 }
 
-declare class WorldMap {
+export class WorldMap {
     public kingdomId: number;
     public mapObjects: Mapobject[];
 
@@ -848,11 +892,11 @@ declare class WorldMap {
     private _clear(): void;
 }
 
-declare class WorldMapSector extends WorldMap {
+export class WorldMapSector extends WorldMap {
     public combine(...sectors: WorldMapSector[]): WorldMapSector
 }
 
-declare class WorldMapOwnerInfo {
+export class WorldMapOwnerInfo {
     public playerId: number;
     public playerLevel: number;
     public paragonLevel: number;
@@ -974,7 +1018,7 @@ type Mapobject =
     | VillageMapobject
     | WolfKingMapobject;
 
-declare class AlienInvasionMapobject extends InteractiveMapobject {
+export class AlienInvasionMapobject extends InteractiveMapobject {
     public dungeonLevel: number;
     public hasPeaceMode: boolean;
     public wasRerolled: boolean;
@@ -982,52 +1026,52 @@ declare class AlienInvasionMapobject extends InteractiveMapobject {
     public eventId: number;
 }
 
-declare class BasicMapobject {
+export class BasicMapobject {
     public areaType: number;
     public position: Coordinate;
     public mapId?: number;
     public kingdomId?: number;
 
-    protected constructor(client: Client, data: Array<string | number | object>);
+    protected constructor(client: BaseClient, data: Array<string | number | object>);
 
     protected parseAreaInfoBattleLog(data): this;
 }
 
-declare class BossDungeonMapobject extends InteractiveMapobject {
+export class BossDungeonMapobject extends InteractiveMapobject {
     public dungeonLevel: number;
     public defeaterPlayerId: number;
 }
 
-declare class CapitalMapobject extends InteractiveMapobject {
+export class CapitalMapobject extends InteractiveMapobject {
     public depletionTimeEnd?: Date;
     public influencePoints: number;
 }
 
-declare class CastleMapobject extends InteractiveMapobject {
+export class CastleMapobject extends InteractiveMapobject {
 }
 
-declare class DaimyoMapobject extends SamuraiInvasionMapobject {
+export class DaimyoMapobject extends SamuraiInvasionMapobject {
     daimyoId: number;
     totalCooldown: number;
     skipCost: number;
 }
 
-declare class DaimyoCastleMapobject extends DaimyoMapobject {
+export class DaimyoCastleMapobject extends DaimyoMapobject {
 
 }
 
-declare class DaimyoTownshipMapobject extends DaimyoMapobject {
+export class DaimyoTownshipMapobject extends DaimyoMapobject {
 
 }
 
-declare class DungeonIsleMapobject extends InteractiveMapobject {
+export class DungeonIsleMapobject extends InteractiveMapobject {
     public isleId: number;
     public attackCount: number;
     public reappearDate?: Date;
     public isVisibleOnMap: boolean;
 }
 
-declare class DungeonMapobject extends InteractiveMapobject {
+export class DungeonMapobject extends InteractiveMapobject {
     public attackCount: number;
     public level: number;
     public resources: number;
@@ -1068,15 +1112,15 @@ declare class DungeonMapobject extends InteractiveMapobject {
     public get lord(): Lord;
 }
 
-declare class DynamicMapobject extends BasicMapobject {
+export class DynamicMapobject extends BasicMapobject {
 
 }
 
-declare class EmptyMapobject extends BasicMapobject {
+export class EmptyMapobject extends BasicMapobject {
 
 }
 
-declare class EventDungeonMapobject extends InteractiveMapobject {
+export class EventDungeonMapobject extends InteractiveMapobject {
     public dungeonLevel: number;
     public isDefeated: boolean;
     public skinId: number;
@@ -1084,18 +1128,18 @@ declare class EventDungeonMapobject extends InteractiveMapobject {
     get areaName(): string;
 }
 
-declare class FactionCampMapobject extends FactionInteractiveMapobject {
+export class FactionCampMapobject extends FactionInteractiveMapobject {
     get areaName(): string;
 }
 
-declare class FactionCapitalMapobject extends FactionInteractiveMapobject {
+export class FactionCapitalMapobject extends FactionInteractiveMapobject {
     travelDistance: number;
     dungeonLevel: number;
 
     get areaName(): string;
 }
 
-declare class FactionInteractiveMapobject extends InteractiveMapobject {
+export class FactionInteractiveMapobject extends InteractiveMapobject {
     isDestroyed: boolean;
     aliveProtectorPositions: Array<Coordinate>
 
@@ -1106,7 +1150,7 @@ declare class FactionInteractiveMapobject extends InteractiveMapobject {
     get specialCampId(): number
 }
 
-declare class FactionTowerMapobject extends FactionInteractiveMapobject {
+export class FactionTowerMapobject extends FactionInteractiveMapobject {
     travelDistance: number;
     dungeonLevel: number;
     attacksLeft: number;
@@ -1116,14 +1160,14 @@ declare class FactionTowerMapobject extends FactionInteractiveMapobject {
     get areaName(): string;
 }
 
-declare class FactionVillageMapobject extends FactionInteractiveMapobject {
+export class FactionVillageMapobject extends FactionInteractiveMapobject {
     travelDistance: number;
     dungeonLevel: number;
 
     get areaName(): string;
 }
 
-declare class InteractiveMapobject extends BasicMapobject {
+export class InteractiveMapobject extends BasicMapobject {
     public objectId: number;
     public ownerId: number;
     public ownerInfo: WorldMapOwnerInfo;
@@ -1141,7 +1185,7 @@ declare class InteractiveMapobject extends BasicMapobject {
     public outpostType: number;
 }
 
-declare class InvasionMapobject extends InteractiveMapobject {
+export class InvasionMapobject extends InteractiveMapobject {
     public victoryCount: number;
     public difficultyCampId: number;
     public baseWallBonus: number;
@@ -1152,41 +1196,41 @@ declare class InvasionMapobject extends InteractiveMapobject {
     public travelDistance: number;
 }
 
-declare class KingstowerMapobject extends InteractiveMapobject {
+export class KingstowerMapobject extends InteractiveMapobject {
 }
 
-declare class MonumentMapobject extends InteractiveMapobject {
+export class MonumentMapobject extends InteractiveMapobject {
     public monumentType: number;
     public monumentLevel: number;
 }
 
-declare class MetropolMapobject extends CapitalMapobject {
+export class MetropolMapobject extends CapitalMapobject {
 }
 
-declare class NomadInvasionMapobject extends InvasionMapobject {
+export class NomadInvasionMapobject extends InvasionMapobject {
 }
 
-declare class NomadKhanInvasionMapobject extends InvasionMapobject {
+export class NomadKhanInvasionMapobject extends InvasionMapobject {
     public allianceCampId: number;
     public totalCooldown: number;
     public skipCost: number;
 }
 
-declare class RedAlienInvasionMapobject extends AlienInvasionMapobject {
+export class RedAlienInvasionMapobject extends AlienInvasionMapobject {
 }
 
-declare class ResourceIsleMapobject extends InteractiveMapobject {
+export class ResourceIsleMapobject extends InteractiveMapobject {
     public isleId: number;
     public occupationFinishedDate: Date;
 }
 
-declare class SamuraiInvasionMapobject extends InvasionMapobject {
+export class SamuraiInvasionMapobject extends InvasionMapobject {
 }
 
-declare class ShadowAreaMapobject extends InteractiveMapobject {
+export class ShadowAreaMapobject extends InteractiveMapobject {
 }
 
-declare class ShapeshifterMapobject extends InteractiveMapobject {
+export class ShapeshifterMapobject extends InteractiveMapobject {
     public campLevel: number;
     public playerAttacked: boolean;
     public shapeshifterAttacked: boolean;
@@ -1195,7 +1239,7 @@ declare class ShapeshifterMapobject extends InteractiveMapobject {
     public travelDistance: number;
 }
 
-declare class VillageMapobject extends InteractiveMapobject {
+export class VillageMapobject extends InteractiveMapobject {
     public villageType: number;
     public unitWallCount: number;
     public peasants: number;
@@ -1205,7 +1249,7 @@ declare class VillageMapobject extends InteractiveMapobject {
     public productivityFoodBoost: number;
 }
 
-declare class WolfKingMapobject extends InteractiveMapobject {
+export class WolfKingMapobject extends InteractiveMapobject {
     public level: number;
     public isDefeated: boolean;
     public isVisibleOnMap: boolean;
@@ -1218,7 +1262,7 @@ declare class WolfKingMapobject extends InteractiveMapobject {
 //#endregion
 //#region MailMessage
 /** All types of MailMessages */
-type MailMessage =
+export type MailMessage =
     BasicMessage
     | BattleLogConquerMessage
     | BattleLogNormalAttackMessage
@@ -1274,7 +1318,7 @@ type MailMessage =
     | AttackAdvisorSummaryMessage
     | AttackCountThresholdMessage;
 
-declare class BasicMessage {
+export class BasicMessage {
     public messageId: number;
     public messageType: number;
     public subType: number;
@@ -1288,19 +1332,19 @@ declare class BasicMessage {
     public isForwarded: boolean;
     public canBeForwarded: boolean;
 
-    protected constructor(client: Client, data: Array<any>);
+    protected constructor(client: BaseClient, data: Array<any>);
 
     public async delete(): Promise<void>;
 }
 
-declare class AllianceNewsMessage {
+export class AllianceNewsMessage {
     public subject: string;
     private _body: string;
 
     public async getBody(): Promise<string>;
 }
 
-declare class UserMessage {
+export class UserMessage {
     public subject: string;
     private _body: string;
 
@@ -1308,7 +1352,7 @@ declare class UserMessage {
 }
 
 //#region BattleLogMessage
-declare class BasicBattleLogMessage {
+export class BasicBattleLogMessage {
     public areaType: number;
     public subType: number;
     public hasAttackerWon: boolean;
@@ -1324,16 +1368,16 @@ declare class BasicBattleLogMessage {
     public async getBattleLog(): Promise<BattleLog>;
 }
 
-declare class BattleLogConquerMessage extends BasicBattleLogMessage {
+export class BattleLogConquerMessage extends BasicBattleLogMessage {
 }
 
-declare class BattleLogNormalAttackMessage extends BasicBattleLogMessage {
+export class BattleLogNormalAttackMessage extends BasicBattleLogMessage {
 }
 
-declare class BattleLogNPCAttackMessage extends BasicBattleLogMessage {
+export class BattleLogNPCAttackMessage extends BasicBattleLogMessage {
 }
 
-declare class BattleLogOccupyMessage extends BasicBattleLogMessage {
+export class BattleLogOccupyMessage extends BasicBattleLogMessage {
 }
 
 interface BattleLog {
@@ -1384,13 +1428,13 @@ interface BattleLog {
     autoSkipSeconds: number;
 }
 
-declare class BattleLogUnit<Unit> extends InventoryItem<Unit> {
+export class BattleLogUnit<Unit> extends InventoryItem<Unit> {
     lost: number;
 
     constructor(item: Unit, count: number, lost: number);
 }
 
-declare class BattleLogArmyWave {
+export class BattleLogArmyWave {
     public left: {
         soldiers: BattleLogUnit<Unit>[],
         tools: BattleLogUnit<Tool>[],
@@ -1405,7 +1449,7 @@ declare class BattleLogArmyWave {
     }
 }
 
-declare class BattleParticipant {
+export class BattleParticipant {
     public playerId: number;
     public ownerInfo: WorldMapOwnerInfo;
     public front: number;
@@ -1424,41 +1468,41 @@ declare class BattleParticipant {
 
 //#endregion
 //#region SpyMessage
-declare class BasicSpyPlayerMessage extends BasicMessage {
+export class BasicSpyPlayerMessage extends BasicMessage {
     public isSuccessful: boolean;
     private _spyLog: SpyLog | undefined;
 
     public async getSpyLog(): Promise<SpyLog>;
 }
 
-declare class SpyPlayerSabotageSuccessfulMessage extends BasicSpyPlayerMessage {
+export class SpyPlayerSabotageSuccessfulMessage extends BasicSpyPlayerMessage {
     public areaId: number;
     public areaType: number;
     public areaName: string;
 }
 
-declare class SpyPlayerSabotageFailedMessage extends BasicSpyPlayerMessage {
+export class SpyPlayerSabotageFailedMessage extends BasicSpyPlayerMessage {
     public ownerId: number;
     public areaType: number;
     public areaName: string;
     public kingdomId: number;
 }
 
-declare class SpyPlayerDefenceMessage extends BasicSpyPlayerMessage {
+export class SpyPlayerDefenceMessage extends BasicSpyPlayerMessage {
     public ownerId: number;
     public areaType: number;
     public areaName: string;
     public kingdomId: number;
 }
 
-declare class SpyPlayerEconomicMessage extends BasicSpyPlayerMessage {
+export class SpyPlayerEconomicMessage extends BasicSpyPlayerMessage {
     public ownerId: number;
     public areaType: number;
     public areaName: string;
     public kingdomId: number;
 }
 
-declare class SpyNPCMessage extends BasicMessage {
+export class SpyNPCMessage extends BasicMessage {
     public isSuccessful: boolean;
     public ownerId: number;
     public areaType: number;
@@ -1499,7 +1543,7 @@ interface SpyLog {
 
 //#endregion
 //#region MarketCarriageMessage
-declare class MarketCarriageArrivedMessage extends BasicMessage {
+export class MarketCarriageArrivedMessage extends BasicMessage {
     public areaName: string;
     private _tradeData: TradeData | undefined;
 
@@ -1515,7 +1559,7 @@ interface TradeData {
 
 //#endregion
 
-declare class BreweryMissingResourcesMessage extends BasicMessage {
+export class BreweryMissingResourcesMessage extends BasicMessage {
     resourceName: string;
     areaId: number;
     kingdomId: number;
@@ -1525,10 +1569,10 @@ declare class BreweryMissingResourcesMessage extends BasicMessage {
     breweryWodId: number;
 }
 
-declare class DoubleRubiesMessage extends BasicMessage {
+export class DoubleRubiesMessage extends BasicMessage {
 }
 
-declare class StarveInfoMessage extends BasicMessage {
+export class StarveInfoMessage extends BasicMessage {
     numberOfDesertedTroops: number;
     areaName: string;
     kingdomId: number;
@@ -1537,41 +1581,41 @@ declare class StarveInfoMessage extends BasicMessage {
     resourceName: string;
 }
 
-declare class ProductionDowntimeMessage extends BasicMessage {
+export class ProductionDowntimeMessage extends BasicMessage {
     downtimeStatus: number;
     messageScope: number;
 }
 
-declare class PlayerGiftMessage extends BasicMessage {
+export class PlayerGiftMessage extends BasicMessage {
     senderId: number;
     packageId: number;
     packageAmount: number;
 }
 
-declare class UserSurveyMessage extends BasicMessage {
+export class UserSurveyMessage extends BasicMessage {
     surveyId?: number;
 }
 
-declare class RebuyMessage extends BasicMessage {
+export class RebuyMessage extends BasicMessage {
     boosterId: number;
     description: string
 }
 
-declare class RuinInfoMessage extends BasicMessage {
+export class RuinInfoMessage extends BasicMessage {
     position: Coordinate;
     remainingRuinTime: Date;
 }
 
-declare class AllianceRequestMessage extends BasicMessage {
+export class AllianceRequestMessage extends BasicMessage {
     allianceId: number;
     allianceName: string;
 }
 
-declare class AttackCountThresholdMessage extends BasicMessage {
+export class AttackCountThresholdMessage extends BasicMessage {
 }
 
 //#region AttackCancelledMessage
-declare class BasicAttackCancelledMessage extends BasicMessage {
+export class BasicAttackCancelledMessage extends BasicMessage {
     kingdomId: number;
     targetPlayerId: number;
     areaName: string;
@@ -1580,121 +1624,121 @@ declare class BasicAttackCancelledMessage extends BasicMessage {
     reason: number;
 }
 
-declare class AttackCancelledAbortedMessage extends BasicAttackCancelledMessage {
+export class AttackCancelledAbortedMessage extends BasicAttackCancelledMessage {
 }
 
-declare class AttackCancelledAutoRetreatMessage extends BasicAttackCancelledMessage {
+export class AttackCancelledAutoRetreatMessage extends BasicAttackCancelledMessage {
 }
 
-declare class AttackCancelledAutoRetreatEnemyMessage extends BasicAttackCancelledMessage {
+export class AttackCancelledAutoRetreatEnemyMessage extends BasicAttackCancelledMessage {
 }
 
-declare class SpyCancelledAbortedMessage extends AttackCancelledAbortedMessage {
+export class SpyCancelledAbortedMessage extends AttackCancelledAbortedMessage {
 }
 
 //#endregion
 //#region PrivateOfferMessage
-declare class BasicPrivateOfferMessage extends BasicMessage {
+export class BasicPrivateOfferMessage extends BasicMessage {
 }
 
-declare class PrivateOfferBestsellerShopMessage extends BasicPrivateOfferMessage {
+export class PrivateOfferBestsellerShopMessage extends BasicPrivateOfferMessage {
     privateOfferId: number;
     privateOfferIteration: number;
 }
 
-declare class PrivateOfferDungeonChestMessage extends BasicPrivateOfferMessage {
+export class PrivateOfferDungeonChestMessage extends BasicPrivateOfferMessage {
     privateOfferId: number;
     privateOfferIteration: number;
 }
 
-declare class PrivateOfferTimeChallengeMessage extends BasicPrivateOfferMessage {
+export class PrivateOfferTimeChallengeMessage extends BasicPrivateOfferMessage {
     privateOfferId: number;
     privateOfferIteration: number;
 }
 
-declare class PrivateOfferTippMessage extends BasicPrivateOfferMessage {
+export class PrivateOfferTippMessage extends BasicPrivateOfferMessage {
     helpMailImageId: number;
     helpMailTextId: number;
 }
 
-declare class PrivateOfferWhaleChestMessage extends BasicPrivateOfferMessage {
+export class PrivateOfferWhaleChestMessage extends BasicPrivateOfferMessage {
     privateOfferId: number;
     privateOfferIteration: number;
 }
 
 //#endregion
 //#region SpecialEventMessage
-declare class BasicSpecialEventMessage extends BasicMessage {
+export class BasicSpecialEventMessage extends BasicMessage {
 }
 
-declare class SpecialEventStartMessage extends BasicSpecialEventMessage {
+export class SpecialEventStartMessage extends BasicSpecialEventMessage {
     eventId: number;
 }
 
-declare class SpecialEventUpdateMessage extends BasicSpecialEventMessage {
+export class SpecialEventUpdateMessage extends BasicSpecialEventMessage {
     eventId: number;
 }
 
-declare class SpecialEventEndMessage extends BasicSpecialEventMessage {
+export class SpecialEventEndMessage extends BasicSpecialEventMessage {
     eventId: number;
 }
 
-declare class SpecialEventMonumentResetMessage extends BasicSpecialEventMessage {
+export class SpecialEventMonumentResetMessage extends BasicSpecialEventMessage {
 }
 
-declare class SpecialEventVIPInfoMessage extends BasicSpecialEventMessage {
+export class SpecialEventVIPInfoMessage extends BasicSpecialEventMessage {
     vipLevel: number;
 }
 
-declare class SpecialEventHospitalCapacityExceededMessage extends BasicSpecialEventMessage {
+export class SpecialEventHospitalCapacityExceededMessage extends BasicSpecialEventMessage {
     capacity: number
 }
 
 //#endregion
 //#region AllianceWarMessage
-declare class BasicAllianceWarMessage extends BasicMessage {
+export class BasicAllianceWarMessage extends BasicMessage {
     enemyAllianceId: number;
     enemyAllianceName: string;
 }
 
-declare class AllianceWarEnemyAttackMessage extends BasicAllianceWarMessage {
+export class AllianceWarEnemyAttackMessage extends BasicAllianceWarMessage {
     attackedPlayerId: number;
     attackedPlayerName: string;
 }
 
-declare class AllianceWarEnemyDeclarationMessage extends BasicAllianceWarMessage {
+export class AllianceWarEnemyDeclarationMessage extends BasicAllianceWarMessage {
     ownAllianceId: number;
     ownAllianceName: string;
 }
 
-declare class AllianceWarEnemyEndMessage extends BasicAllianceWarMessage {
+export class AllianceWarEnemyEndMessage extends BasicAllianceWarMessage {
     ownAllianceId: number;
     ownAllianceName: string;
 }
 
-declare class AllianceWarEnemySabotageMessage extends BasicAllianceWarMessage {
+export class AllianceWarEnemySabotageMessage extends BasicAllianceWarMessage {
     sabotagedPlayerId: number;
     sabotagedPlayerName: string;
 }
 
-declare class AllianceWarOwnAttackMessage extends BasicAllianceWarMessage {
+export class AllianceWarOwnAttackMessage extends BasicAllianceWarMessage {
     ownAllianceId: number;
     ownAllianceName: string;
 }
 
-declare class AllianceWarOwnDeclarationMessage extends BasicAllianceWarMessage {
+export class AllianceWarOwnDeclarationMessage extends BasicAllianceWarMessage {
     ownAllianceLeaderId: number;
     ownAllianceLeaderName: string;
 }
 
-declare class AllianceWarOwnSabotageMessage extends BasicAllianceWarMessage {
+export class AllianceWarOwnSabotageMessage extends BasicAllianceWarMessage {
     ownAllianceId: number;
     ownAllianceName: string;
 }
 
 //#endregion
 //#region ConquerableMessage
-declare class BasicConquerableMessage extends BasicMessage {
+export class BasicConquerableMessage extends BasicMessage {
     areaType: number;
     ownerId: number;
     areaName: string;
@@ -1703,52 +1747,52 @@ declare class BasicConquerableMessage extends BasicMessage {
     kingdomId: number;
 }
 
-declare class ConquerableSiegeCancelledMessage extends BasicConquerableMessage {
+export class ConquerableSiegeCancelledMessage extends BasicConquerableMessage {
 }
 
-declare class ConquerableNewSiegeMessage extends BasicConquerableMessage {
+export class ConquerableNewSiegeMessage extends BasicConquerableMessage {
 }
 
-declare class ConquerableAreaConqueredMessage extends BasicConquerableMessage {
+export class ConquerableAreaConqueredMessage extends BasicConquerableMessage {
 }
 
-declare class ConquerableAreaLostMessage extends BasicConquerableMessage {
+export class ConquerableAreaLostMessage extends BasicConquerableMessage {
 }
 
 //#endregion
 //#region PopupMessage
-declare class BasicPopupMessage extends BasicMessage {
+export class BasicPopupMessage extends BasicMessage {
 }
 
-declare class PopupFacebookConnectionMessage extends BasicPopupMessage {
+export class PopupFacebookConnectionMessage extends BasicPopupMessage {
 }
 
-declare class PopupLoginBonusMessage extends BasicPopupMessage {
+export class PopupLoginBonusMessage extends BasicPopupMessage {
 }
 
-declare class PopupRegistrationGiftMessage extends BasicPopupMessage {
+export class PopupRegistrationGiftMessage extends BasicPopupMessage {
     isCollectable: boolean
     nextCollectableDayReward: number
 }
 
 //#endregion
 //#region AttackAdvisorMessage
-declare class BasicAttackAdvisorMessage extends BasicMessage {
+export class BasicAttackAdvisorMessage extends BasicMessage {
     advisorType: { id: number, name: string };
 }
 
-declare class AttackAdvisorFailedMessage extends BasicAttackAdvisorMessage {
+export class AttackAdvisorFailedMessage extends BasicAttackAdvisorMessage {
     lordId: number;
     reasonId: number;
 }
 
-declare class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
+export class AttackAdvisorSummaryMessage extends BasicAttackAdvisorMessage {
     private _advisorOverviewInfo: AdvisorOverviewInfo | undefined;
 
     public async getAdvisorOverviewInfo(): Promise<AdvisorOverviewInfo>;
 }
 
-declare interface AdvisorOverviewInfo {
+export interface AdvisorOverviewInfo {
     commandersAmount: number,
     lootGoods: Good[],
     costsGoods: Good[],
@@ -1767,7 +1811,7 @@ declare interface AdvisorOverviewInfo {
 //#endregion
 //#region Castle
 /** */
-declare class Castle {
+export class Castle {
     kingdomId: number;
     areaType: number;
     slumLevel: number;
@@ -1787,7 +1831,7 @@ declare class Castle {
     mapobject: Mapobject;
 }
 
-declare class CastleBuildingInfo {
+export class CastleBuildingInfo {
     public buildings: BasicBuilding[];
     public towers: BasicBuilding[];
     public gates: BasicBuilding[];
@@ -1803,7 +1847,7 @@ declare class CastleBuildingInfo {
     public constructionItemsPerBuilding: { building: number, constructionItems: CastleConstructionItemBuilding[] }[];
 }
 
-declare class BasicBuilding {
+export class BasicBuilding {
     public wodId: number;
     public objectId: number;
     public position: Coordinate;
@@ -1820,23 +1864,23 @@ declare class BasicBuilding {
     public isInDistrict: boolean;
     public districtSlotId: number;
 
-    private constructor(client: Client, data);
+    private constructor(client: BaseClient, data);
 }
 
-declare class BuildingGround {
+export class BuildingGround {
     public wodId: number;
     public objectId: number;
     public position: Coordinate;
     public isoRotation: number;
 }
 
-declare class ConstructionSlot {
+export class ConstructionSlot {
     public objectId: number;
     public isFree: boolean;
     public isLocked: boolean;
 }
 
-declare class CastleConstructionItemBuilding {
+export class CastleConstructionItemBuilding {
     constructionItem: ConstructionItem;
     constructionItemId: number;
     slotIndex: number;
@@ -1844,7 +1888,7 @@ declare class CastleConstructionItemBuilding {
     remainingTime?: Date;
 }
 
-declare class CastleUnitInventory {
+export class CastleUnitInventory {
     public units: InventoryItem<Unit>[];
     public unitsTraveling: InventoryItem<Unit>[];
     public unitsInHospital: InventoryItem<Unit>[];
@@ -1854,7 +1898,7 @@ declare class CastleUnitInventory {
     public shadowUnits: InventoryItem<Unit>[];
 }
 
-declare class CastleResourceStorage {
+export class CastleResourceStorage {
     public wood: Good;
     public stone: Good;
     public food: Good;
@@ -1867,7 +1911,7 @@ declare class CastleResourceStorage {
     public mead: Good;
 }
 
-declare class CastleProductionData {
+export class CastleProductionData {
     public production: Good[];
     public consumption: Good[];
     public consumptionReduction: Good[];
@@ -1890,7 +1934,7 @@ declare class CastleProductionData {
     public maxAuxiliaryCap?: number;
 }
 
-declare class CastleBuildingStorage {
+export class CastleBuildingStorage {
     globalStorage: {
         regularBuildings: InventoryItem<BasicBuilding> [],
         customBuildings: InventoryItem<BasicBuilding> [],
@@ -1903,7 +1947,7 @@ declare class CastleBuildingStorage {
 
 //#endregion
 
-declare class PrimeTime {
+export class PrimeTime {
     type: number;
     premiumBonus: number;
     standardBonus: number;
@@ -1914,7 +1958,7 @@ declare class PrimeTime {
     get isActive(): boolean;
 }
 
-declare class Crest {
+export class Crest {
     public backgroundType: number;
     public backgroundColor1: number;
     public backgroundColor2: number;
@@ -1948,7 +1992,7 @@ type Booster =
     XPBooster;
 
 /** */
-declare class PremiumBoostData {
+export class PremiumBoostData {
     public boughtBuildingSlots: number
     public boughtUnitSlots: number
     public boughtToolSlots: number
@@ -1958,12 +2002,12 @@ declare class PremiumBoostData {
     private _activeBoosterDict: { [key: number]: Booster };
     private _resourceOverseerBoosterMap: { [key: number]: ResourceOverseerBoosterShop };
 
-    private constructor(client: Client): this
+    private constructor(client: BaseClient): this
 
     public getBoosterById(id: number): HeroBoosterShop
 }
 
-declare class RunningFeast {
+export class RunningFeast {
     festivalType: number
     endDate: Date
 
@@ -1977,11 +2021,11 @@ declare class RunningFeast {
     setData(params: { T: number, RT: number }): void
 }
 
-declare class CastlePremiumMarketShop {
+export class CastlePremiumMarketShop {
     public shopTypes = []
     public continuousPurchaseCount = 0;
 
-    protected constructor(client: Client, titleId: string, shortInfoTextId: string, buyQuestionTextId: string, costs: Good, minLevel: number): this;
+    protected constructor(client: BaseClient, titleId: string, shortInfoTextId: string, buyQuestionTextId: string, costs: Good, minLevel: number): this;
 
     get title(): string;
 
@@ -2004,12 +2048,12 @@ declare class CastlePremiumMarketShop {
     renewText(): string;
 }
 
-declare class HeroBoosterShop extends CastlePremiumMarketShop {
+export class HeroBoosterShop extends CastlePremiumMarketShop {
     public endTime: Date;
     public level: number;
     public bonusValue: number;
 
-    protected constructor(client: Client, titleId: string, shortInfoTextId: string, buyQuestionTextId: string, costs: Good, heroName: string, boosterId: number, minLevel: number): this;
+    protected constructor(client: BaseClient, titleId: string, shortInfoTextId: string, buyQuestionTextId: string, costs: Good, heroName: string, boosterId: number, minLevel: number): this;
 
     public static get rebuyBonusFactor(): number;
 
@@ -2022,81 +2066,81 @@ declare class HeroBoosterShop extends CastlePremiumMarketShop {
     public parseDuration(time: number): Date;
 }
 
-declare class CastleInstructorPremiumShop extends HeroBoosterShop {
-    protected constructor(client: Client): this
+export class CastleInstructorPremiumShop extends HeroBoosterShop {
+    protected constructor(client: BaseClient): this
 }
 
-declare class CastleMarauderPremiumShop extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class CastleMarauderPremiumShop extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class CastlePersonalGloryBoostShop extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class CastlePersonalGloryBoostShop extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class CastlePrimeDayBoostFoodPremiumShop extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class CastlePrimeDayBoostFoodPremiumShop extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class CastlePrimeDayBoostGoldPremiumShop extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class CastlePrimeDayBoostGoldPremiumShop extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class CastlePrimeDayBoostStonePremiumShop extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class CastlePrimeDayBoostStonePremiumShop extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class CastlePrimeDayBoostWoodPremiumShop extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class CastlePrimeDayBoostWoodPremiumShop extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class CastleTaxCollectorPremiumShop extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class CastleTaxCollectorPremiumShop extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class GallantryPointsBooster extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class GallantryPointsBooster extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class KhanMedalBoosterShop extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class KhanMedalBoosterShop extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class KhanTabletBoosterShop extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class KhanTabletBoosterShop extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class LongTermPointEventBooster extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class LongTermPointEventBooster extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class RagePointBoosterShop extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class RagePointBoosterShop extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class ResourceOverseerBoosterShop extends HeroBoosterShop {
+export class ResourceOverseerBoosterShop extends HeroBoosterShop {
     assetType: string; // todo: type must be GameAssetType
     boostValue: number;
     restrictedFeature: string | null;
 
-    constructor(client: Client, assetType: string/* todo: type must be GameAssetType */, boostId: number, listSortPriority: number, restrictedFeature: string | null, boostValue: number, boostCostValue: number): this
+    constructor(client: BaseClient, assetType: string/* todo: type must be GameAssetType */, boostId: number, listSortPriority: number, restrictedFeature: string | null, boostValue: number, boostCostValue: number): this
 
     get iconBoosterClass(): string;
 }
 
-declare class SamuraiTokenBoosterShop extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class SamuraiTokenBoosterShop extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
-declare class XPBooster extends HeroBoosterShop {
-    constructor(client: Client): this;
+export class XPBooster extends HeroBoosterShop {
+    constructor(client: BaseClient): this;
 }
 
 //#endregion
 
 //#region HighScore
 /** */
-declare interface HighScore<Item> {
+export interface HighScore<Item> {
     listType: number;
     leagueId: number;
     lastRow: number;
@@ -2105,7 +2149,7 @@ declare interface HighScore<Item> {
     items: Item[];
 }
 
-declare interface AllianceHighScoreItem {
+export interface AllianceHighScoreItem {
     alliance: {
         allianceId: number;
         allianceName: string;
@@ -2121,7 +2165,7 @@ declare interface AllianceHighScoreItem {
     highScoreTypeId: number;
 }
 
-declare interface PlayerHighScoreItem {
+export interface PlayerHighScoreItem {
     player?: WorldMapOwnerInfo;
     rank: number;
     points?: number;
@@ -2133,7 +2177,7 @@ declare interface PlayerHighScoreItem {
     highScoreTypeId: number;
 }
 
-declare type AllianceHighScoreRankingTypes =
+export type AllianceHighScoreRankingTypes =
     "honor"
     | "might"
     | "landMarks"
@@ -2149,7 +2193,7 @@ declare type AllianceHighScoreRankingTypes =
     | "allianceBattleGroundCollector"
     | "allianceBattleGroundTower"
     | "allianceBattleGroundPreviousRun";
-declare type PlayerHighScoreRankingTypes =
+export type PlayerHighScoreRankingTypes =
     "achievementPoints"
     | "loot"
     | "honor"
@@ -2181,7 +2225,7 @@ declare type PlayerHighScoreRankingTypes =
     | "easterGachaEvent"
     | "summerGachaEvent";
 
-declare interface LeaderboardList {
+export interface LeaderboardList {
     listType: number,
     scoreId?: string,
     numScores: number,
@@ -2189,7 +2233,7 @@ declare interface LeaderboardList {
     items: LeaderboardListItem[]
 }
 
-declare interface LeaderboardListItem {
+export interface LeaderboardListItem {
     listType: number;
     playerName: string;
     allianceName: string;
@@ -2200,17 +2244,17 @@ declare interface LeaderboardListItem {
     playerId: number;
 }
 
-declare interface LeaderboardSearchList {
+export interface LeaderboardSearchList {
     listType: number,
     items: LeaderboardSearchListItem[]
 }
 
-declare interface LeaderboardSearchListItem {
+export interface LeaderboardSearchListItem {
     leagueType: number;
     scoreId: string;
 }
 
-declare public interface PlayerLeaderboard {
+export interface PlayerLeaderboard {
     /** Leaderboard list ID */
     listType: number,
     /** Total entries in the leaderboard */
@@ -2221,7 +2265,7 @@ declare public interface PlayerLeaderboard {
     items: PlayerLeaderboardItem[]
 }
 
-declare public interface PlayerLeaderboardItem {
+export interface PlayerLeaderboardItem {
     playerName: string;
     /** The alliance the player is in, only set in global leaderboards */
     allianceName?: string;
@@ -2238,11 +2282,11 @@ declare public interface PlayerLeaderboardItem {
 
 //#region Quests
 /** */
-declare class QuestData {
+export class QuestData {
     private _activeQuests: Array<Quest>
     private _completedQuests: { [id: number]: Quest }
 
-    constructor(client: Client): this
+    constructor(client: BaseClient): this
 
     createQuest(questId: number): Quest | null
 
@@ -2261,10 +2305,10 @@ declare class QuestData {
     getActiveQuests(): Quest[]
 }
 
-declare class Quest {
+export class Quest {
     private _rawData: RawQuest;
 
-    constructor(client: Client, data: RawQuest): this
+    constructor(client: BaseClient, data: RawQuest): this
 
     fillProgress(data: number[]): void
 }
@@ -2274,6 +2318,8 @@ declare class Quest {
 //#region Constants
 /** */
 interface IConstants {
+    ConnectionStatus: ConnectionStatus;
+    LogVerbosity: LogVerbosity;
     Events: ConstantsEvents;
     Kingdom: Kingdom;
     WorldMapArea: WorldMapArea;
@@ -2288,6 +2334,22 @@ interface IConstants {
     MessageSubType: MessageSubType;
     EquipmentRarity: EquipmentRarity;
     TitleType: TitleType;
+}
+
+interface ConnectionStatus {
+    Disconnected: 0,
+    Connecting: 1,
+    Connected: 2,
+    Disconnecting: 3,
+}
+
+interface LogVerbosity {
+    Off: -1,
+    Error: 0,
+    Warning: 1,
+    Info: 2,
+    Debug: 3,
+    Trace: 4
 }
 
 interface Kingdom {

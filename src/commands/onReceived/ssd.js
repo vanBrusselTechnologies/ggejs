@@ -1,6 +1,6 @@
 module.exports.name = "ssd";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} _
  * @param {Object} __
  */
@@ -10,7 +10,7 @@ module.exports.execute = function (client, _, __) {
 }
 
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @returns {Promise<void>}
  */
 async function checkMaintenanceOver(client) {
@@ -19,7 +19,7 @@ async function checkMaintenanceOver(client) {
         let response = await fetch(`https://media.goodgamestudios.com/games-config/network/status/${gameId}/maint.json`);
         let json = await response.json();
         if (json.toString() === "") {
-            await client.connect();
+            await client._reconnect();
             client.emit('serverShutdownEnd');
         } else {
             setTimeout(checkMaintenanceOver, 10000, client);

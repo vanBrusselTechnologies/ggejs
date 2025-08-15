@@ -1,6 +1,6 @@
 module.exports.name = "txc";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} taxRemaining
  */
 module.exports.execute = function (client, taxRemaining = 29) {

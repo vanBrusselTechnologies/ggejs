@@ -1,6 +1,6 @@
 module.exports.name = "ahd";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{LID:number, }} params
  */

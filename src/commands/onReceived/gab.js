@@ -1,6 +1,6 @@
 module.exports.name = "gab";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{B:number}} params
  * @returns {number}

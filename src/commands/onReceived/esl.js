@@ -1,6 +1,6 @@
 module.exports.name = "esl";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{E: number, TE: number, G: number, TG: number}} params
  */

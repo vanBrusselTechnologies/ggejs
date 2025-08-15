@@ -2,7 +2,7 @@ const MonumentMapobject = require("../../structures/mapobjects/MonumentMapobject
 
 module.exports.name = "gml";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{AI: []}} params
  */

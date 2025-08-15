@@ -1,6 +1,6 @@
 module.exports.name = "lts";
 /**
- * @param {Client} client
+ * @param {BaseClient} client
  * @param {number} errorCode
  * @param {{LTS:number}} params
  */
