@@ -112,7 +112,7 @@ module.exports.execute = async function (client, errorCode, params) {
                 }
             } catch (e) {
                 if (e.message === "Client disconnected!") return;
-                if (e.message === "Exceeded max time!") continue;
+                if (e.message?.startsWith("Exceeded max time")) continue;
                 client.logger.d('[DQL]', quest.QID, e);
             }
         }

@@ -32,7 +32,7 @@ class MainClient extends BaseClient {
     }
 
     async _reconnect() {
-        const bannedSecLeft = this.client.bannedUntil.getTime() - Date.now();
+        const bannedSecLeft = this.bannedUntil.getTime() - Date.now();
         await new Promise(res => setTimeout(res, Math.max(bannedSecLeft, 0)));
         return await this.connect(this.#name, this.#password);
     }

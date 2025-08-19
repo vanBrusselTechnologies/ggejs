@@ -35,12 +35,12 @@ module.exports.gcl = parseGCL;
  */
 function parseGCL(client, params, ownerInfo = undefined) {
     if (client.clientUserData.playerId === -1) return {};
+    if (!params) return {};
     const playerId = params.PID;
     if (client.clientUserData.playerId === playerId) {
         client.clientUserData._userData.castleList.ownerId = playerId;
         ownerInfo = ownerInfo ?? client.worldMaps._ownerInfoData.getOwnerInfo(playerId);
     }
-    if (!params) return {};
     const castleList = {};
     for (const castle of params.C) {
         const mapObjects = [];

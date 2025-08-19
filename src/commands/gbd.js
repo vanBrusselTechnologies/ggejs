@@ -1,3 +1,5 @@
+const {EmpireError} = require("../tools/EmpireError");
+
 const NAME = "gbd";
 /** @type {CommandCallback<void>[]}*/
 const callbacks = [];
@@ -270,13 +272,13 @@ function requestConstructionItemInventory(client) {
 
 /** @param {BaseClient} client */
 function requestMessagesData(client) {
-    require('./sne').showMessages(client).then().catch();
+    require('./sne').showMessages(client).catch(e => client.logger.w(new EmpireError(e)));
 }
 
 /** @param {BaseClient} client */
 function requestAllianceData(client) {
     if (client.clientUserData.allianceId >= 0) {
-        require('./ain').getAllianceInfo(client, client.clientUserData.allianceId).then().catch();
+        require('./ain').getAllianceInfo(client, client.clientUserData.allianceId).catch(e => client.logger.w(new EmpireError(e)));
         require('./commands/getAllianceFame').execute(client);
         require('./commands/getAllianceChatHistory').execute(client);
     }

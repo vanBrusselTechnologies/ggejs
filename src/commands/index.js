@@ -105,7 +105,7 @@ module.exports.baseSendCommand = function (client, name, params, callbacks, matc
         setTimeout(() => {
             const i = callbacks.findIndex(c => c.id === id);
             if (i !== -1) callbacks.splice(i, 1);
-            reject(client.socketManager.connectionStatus === ConnectionStatus.Disconnected ? "Client disconnected!" : "Exceeded max time!");
+            reject(client.socketManager.connectionStatus === ConnectionStatus.Disconnected ? "Client disconnected!" : `Exceeded max time requesting '${name}'!`);
         }, 1000);
     });
 }
