@@ -5,5 +5,5 @@ module.exports.name = "rlu";
  * @param {Array} __
  */
 module.exports.execute = function (client, _, __) {
-    client.socketManager.onConnection()
+    client.socketManager.setConnected()
 }

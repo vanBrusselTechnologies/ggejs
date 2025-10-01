@@ -1,10 +1,10 @@
-const {Socket} = require('node:net');
+const {WebSocket} = require('ws')
 const {NetworkInstance} = require('e4k-data');
 const {onResponse} = require('../commands');
 const EmpireError = require("../tools/EmpireError");
 const {ConnectionStatus} = require("../utils/Constants");
 
-const versionDateGame = 1754473264783;
+const versionDateGame = 1756306047494;
 
 class SocketManager {
     #connectionStatus = ConnectionStatus.Disconnected;
@@ -19,8 +19,10 @@ class SocketManager {
     constructor(client, serverInstance) {
         this.client = client;
         this.serverInstance = serverInstance;
-        this.socket = new Socket();
-        // this.socket = new (require('ws').WebSocket)(`wss://${serverInstance.server}:${serverInstance.port}`); //empire? WebSocket ipv net.Socket
+        serverInstance.server
+        const protocol = serverInstance.zone.startsWith('EmpirefourkingdomsExGG') ? 'ws' : 'wss';
+        this.url = `${protocol}://${serverInstance.server}`
+        this.socket = new WebSocket(this.url);
         this.#addSocketListeners(this.socket);
     }
 
@@ -36,7 +38,6 @@ class SocketManager {
 
     async connect() {
         this.connectionStatus = ConnectionStatus.Connecting;
-        this.socket.connect(this.serverInstance.port, this.serverInstance.server);
         await waitForConnectionStatus(this, ConnectionStatus.Connected);
     }
 
@@ -52,11 +53,11 @@ class SocketManager {
     async disconnect() {
         if (this.connectionStatus === ConnectionStatus.Disconnected) return;
         this.connectionStatus = ConnectionStatus.Disconnecting;
-        this.socket.end();
+        this.socket.close();
         await waitForConnectionStatus(this, ConnectionStatus.Disconnected);
     }
 
-    onConnection() {
+    setConnected() {
         this.connectionStatus = ConnectionStatus.Connected;
     }
 
@@ -78,51 +79,39 @@ class SocketManager {
     /** @param {string} msg */
     writeToSocket(msg) {
         if (this.connectionStatus === ConnectionStatus.Disconnecting || this.connectionStatus === ConnectionStatus.Disconnected) return false;
-        this.client.logger.t(`[WRITE]: ${msg.substring(0, Math.min(150, msg.length))}`);
-        const _buff0 = Buffer.from(msg);
-        const _buff1 = Buffer.alloc(1);
-        _buff1.writeInt8(0);
-        const bytes = Buffer.concat([_buff0, _buff1]);
-        this.socket.write(bytes, "utf-8", (err) => {
+        this.client.logger.t('[WRITE]', msg.substring(0, Math.min(150, msg.length)));
+        this.socket.send(msg, {}, (err) => {
             if (err) this.client.logger.w(`\x1b[31m[SOCKET WRITE ERROR] ${err}\x1b[0m`);
         });
         return true;
     }
 
-    /** @param {net.Socket} socket */
+    /** @param {WebSocket} socket */
     #addSocketListeners(socket) {
-        socket.addListener('ready', () => onSocketReady(this));
-        socket.addListener('data', (data) => onSocketData(socket, this.client, data));
+        socket.addListener('open', () => onSocketReady(this));
+        socket.addListener('message', (data) => onSocketData(socket, this.client, data));
         socket.addListener('error', (err) => {
             this.client.logger.w(`\x1b[31m[SOCKET ERROR] ${err}\x1b[0m`);
             this.client.logger.d(err);
-            socket.end();
+            socket.close();
         });
-        socket.addListener('timeout', () => {
-            this.client.logger.d("[SocketManager] Socket Timeout!");
-            socket.end();
-        });
-        socket.addListener('end', () => {
-            if (this.connectionStatus === ConnectionStatus.Disconnected) return;
-            this.client.logger.d("[SocketManager] Socket Ended!");
-        });
-        socket.addListener('close', _ => {
+        socket.addListener('close', () => {
             if (this.connectionStatus === ConnectionStatus.Disconnected) return;
             this.connectionStatus = ConnectionStatus.Disconnected;
             this.client.logger.d(`[SocketManager] Socket Closed!`);
             socket.removeAllListeners();
-            this.currentData = "";
 
             if (this.reconnectTimeout === -1) return;
             setTimeout(async () => {
                 if (this.reconnectTimeout === -1) return;
-                const new_socket = new Socket();
-                this.#addSocketListeners(new_socket);
-                this.socket = new_socket;
                 socket = null;
                 this.client.logger.i("[SocketManager] Reconnecting!");
                 while (true) {
                     try {
+                        const new_socket = new WebSocket(this.url);
+                        this.#addSocketListeners(new_socket);
+                        this.socket = new_socket;
+                        socket = null;
                         await this.client._reconnect();
                         break;
                     } catch (e) {
@@ -148,23 +137,16 @@ function onSocketReady(socketManager) {
 }
 
 /**
- * @param {net.Socket} socket
+ * @param {WebSocket} socket
  * @param {BaseClient} client
  * @param {Buffer} data
  */
 function onSocketData(socket, client, data) {
-    if (socket["currentData"] === undefined) socket["currentData"] = "";
-    const newData = data.toString('utf-8');
-    const totalData = socket["currentData"] + newData;
-    const commands = totalData.split(String.fromCharCode(0)).filter(c => c !== "");
-    socket["currentData"] = totalData.charCodeAt(totalData.length - 1) !== 0 ? commands.pop() : "";
-
-    commands.forEach(command => {
-        client.logger.t("[RECEIVED]", command.substring(0, Math.min(150, command.length)));
-        const params = command.substring(1, command.length - 1).split("%");
-        if (params[0] === "xt") return onResponse(client, params.splice(1, params.length - 1));
-        client.logger.w("[DATA] Cannot handle command:", command);
-    })
+    const command = data.toString('utf-8')
+    client.logger.t("[RECEIVED]", command.substring(0, Math.min(150, command.length)));
+    const params = command.substring(1, command.length - 1).split("%");
+    if (params[0] === "xt") return onResponse(client, params.splice(1, params.length - 1));
+    client.logger.w("[DATA] Cannot handle command:", command);
 }
 
 /**

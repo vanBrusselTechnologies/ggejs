@@ -34,7 +34,9 @@ module.exports.execute = function (client, source, target, army, lord, horse = n
         BKS: [],
         AST: [],
         RW: [],
-        ASCT: 0
+        ASCT: 0,
+        AAC: 0,
+        AASM: 0,
     };
     client.socketManager.sendCommand("cra", C2SCreateArmyAttackMovementVO);
 }

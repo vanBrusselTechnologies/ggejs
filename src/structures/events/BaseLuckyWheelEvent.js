@@ -1,5 +1,5 @@
 const PointEvent = require("./PointEvent");
-const {execute: lws} = require("../../commands/onReceived/lws.js");
+const {lws} = require("../../commands/lws.js");
 
 class BaseLuckyWheelEvent extends PointEvent {
     eventBuildingWodId = 48
@@ -41,8 +41,8 @@ class BaseLuckyWheelEvent extends PointEvent {
             this.rewards = this.parsePointEventRewards(rewards);
         }
         // TODO: const _loc6_:IWheelOfFortuneProperties = propertiesFactory.getPropertiesByEventId(this.eventId);
-        data["LWET"] = this.eventId === 15 ? 0 : 1//_loc6_.serverTypeId;
-        lws(client, 0, data)
+        data["LWET"] = this.serverTypeId;
+        lws(client, data);
     }
 
     get eventTitleTextId() {
@@ -91,6 +91,10 @@ class BaseLuckyWheelEvent extends PointEvent {
 
     get eventStarterCharacterId() {
         return "";
+    }
+
+    get serverTypeId(){
+        return 0;
     }
 }
 

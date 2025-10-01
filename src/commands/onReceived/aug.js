@@ -1,6 +1,6 @@
 const {execute: abl} = require("./abl");
 const {getAllianceInfo} = require("../ain");
-const {EmpireError} = require("../../tools/EmpireError");
+const EmpireError = require("../../tools/EmpireError");
 
 module.exports.name = "aug";
 /**

@@ -3,6 +3,7 @@
 const {NetworkInstance} = require('e4k-data');
 const BaseClient = require("./BaseClient");
 const ExternalClient = require("./ExternalClient");
+const {verifyLoginData} = require('./commands/core_avl');
 const {login} = require('./commands/core_lga');
 const {requestLoginData} = require("./commands/core_rld");
 const {registerGbdListener} = require("./commands/gbd");
@@ -10,7 +11,7 @@ const {generateLoginToken} = require('./commands/glt');
 const EmpireError = require("./tools/EmpireError");
 const {ConnectionStatus, LogVerbosity, Events} = require("./utils/Constants");
 
-class MainClient extends BaseClient {
+class E4KClient extends BaseClient {
     #name = ""
     #password = ""
     /** @type {ExternalClient | null} */
@@ -22,7 +23,7 @@ class MainClient extends BaseClient {
      * @param {NetworkInstance} serverInstance
      */
     static async registerNewAccount(mail, password, serverInstance) {
-        const client = new MainClient(serverInstance);
+        const client = new E4KClient(serverInstance);
         client.logger.verbosity = LogVerbosity.Trace
         await client.socketManager.connect();
         const loginData = await requestLoginData(client);
@@ -102,7 +103,7 @@ class MainClient extends BaseClient {
      */
     async _verifyLoginData(name, password) {
         try {
-            return await require('./commands/core_avl').verifyLoginData(this, name, password);
+            return await verifyLoginData(this, name, password);
         } catch (errorCode) {
             const overrideTextId = (() => {
                 switch (errorCode) {
@@ -132,4 +133,4 @@ class MainClient extends BaseClient {
     }
 }
 
-module.exports = MainClient;
+module.exports = E4KClient;

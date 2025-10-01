@@ -1,5 +1,5 @@
-import {EventEmitter} from "node:events";
-import {Socket} from 'node:net';
+import {EventEmitter} from 'node:events';
+import {WebSocket} from 'ws';
 import {
     ConstructionItem,
     Dungeon as RawDungeon,
@@ -38,7 +38,7 @@ export class BaseClient extends EventEmitter {
      * @example ```js
      *     const e4kNetworkInstances = require('e4k-data').network.instances.instance;
      *     const worldNetworkInstance = e4kNetworkInstances.find(i => i.instanceLocaId === "generic_country_world");
-     *     const client = new MainClient(worldNetworkInstance);
+     *     const client = new E4KClient(worldNetworkInstance);
      *     client.connect(playername, password)
      * ```
      */
@@ -54,7 +54,7 @@ export class BaseClient extends EventEmitter {
 
     public set reconnectTimeout(val: number);
 
-    private get _socket(): Socket;
+    private get _socket(): WebSocket;
 
     public async sendChatMessage(message: string): Promise<void>;
 
@@ -73,7 +73,7 @@ export class BaseClient extends EventEmitter {
     private abstract _reconnect();
 }
 
-export class MainClient extends BaseClient {
+export class E4KClient extends BaseClient {
     private _externalClient: ExternalClient;
 
     /**
@@ -81,7 +81,7 @@ export class MainClient extends BaseClient {
      * @param name Your player account name
      * @param password Your player account password
      */
-    public connect(name: string, password: string): Promise<MainClient>;
+    public connect(name: string, password: string): Promise<E4KClient>;
 
     public getExternalClient(serverType: IConstants.ServerType.TempServer | IConstants.ServerType.AllianceBattleGround): Promise<ExternalClient>;
 
@@ -97,7 +97,7 @@ export class MainClient extends BaseClient {
 
     private _login(name: string, password: string): Promise<void>;
 
-    private _reconnect(): Promise<MainClient>;
+    private _reconnect(): Promise<E4KClient>;
 
     private _verifyLoginData(name: string, password: string): Promise<{ M: string, P: string }>;
 }
@@ -108,6 +108,33 @@ export class ExternalClient extends BaseClient {
     private _loginWithToken(loginToken: string): Promise<void>;
 
     private _reconnect(): Promise<ExternalClient>;
+}
+
+export class EmpireClient extends BaseClient {
+    private _externalClient: ExternalClient;
+
+    /**
+     * Login with your credentials
+     * @param name Your player account name
+     * @param password Your player account password
+     */
+    public connect(name: string, password: string): Promise<E4KClient>;
+
+    public getExternalClient(serverType: IConstants.ServerType.TempServer | IConstants.ServerType.AllianceBattleGround): Promise<ExternalClient>;
+
+    private _generateExternalServerLoginToken(serverType: IConstants.ServerType.TempServer | IConstants.ServerType.AllianceBattleGround): Promise<{
+        token: string,
+        ip: string,
+        port: string,
+        zone: string,
+        zoneId: string,
+        instanceId: string,
+        isCrossPlay: boolean
+    }>;
+
+    private _login(name: string, password: string): Promise<void>;
+
+    private _reconnect(): Promise<E4KClient>;
 }
 
 export private type CommandCallback<T> = {
@@ -125,15 +152,15 @@ export class EmpireError extends Error {
 export class Logger {
     verbosity: number;
 
-    e(...message)
+    e(...message: any[]): void;
 
-    w(...message)
+    w(...message: any[]): void;
 
-    i(...message)
+    i(...message: any[]): void;
 
-    d(...message)
+    d(...message: any[]): void;
 
-    t(...message)
+    t(...message: any[]): void;
 }
 
 //#region ClientEvents
@@ -175,6 +202,29 @@ interface ConstantsEvents {
 //#endregion
 
 //#region Managers
+
+export class SocketManager {
+    reconnectTimeout: number = 300;
+    serverType: number = 1;
+
+    constructor(client: BaseClient, serverInstance: NetworkInstance);
+
+    get connectionStatus(): number;
+    private set connectionStatus(connectionStatus: number);
+
+    async connect(): Promise<void>;
+
+    async reconnect(): Promise<void>;
+
+    async disconnect(): Promise<void>;
+
+    sendCommand(commandId: string, paramObject: Object): boolean;
+
+    setConnected(): void;
+
+    private writeToSocket(msg: string): boolean;
+}
+
 export class BaseManager extends EventEmitter {
     protected _client: BaseClient;
 

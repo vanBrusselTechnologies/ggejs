@@ -29,10 +29,8 @@ class ExternalClient extends BaseClient {
     /** @param {string} loginToken ExternalServer _login token */
     async _loginWithToken(loginToken) {
         try {
-            const gbdListener = registerGbdListener(this);
             this.#loginToken = loginToken;
-            await registerOrLogin(this, loginToken);
-            await gbdListener;
+            await Promise.all([registerGbdListener(this), registerOrLogin(this, loginToken)])
         } catch (errorCode) {
             if (errorCode === 423) this.#loginToken = "";
             throw new EmpireError(this, errorCode);

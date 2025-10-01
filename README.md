@@ -12,11 +12,11 @@ npm install ggejs
 ### Example usage
 
 ```js
-const {Constants, MainClient} = require('ggejs');
+const {Constants, E4KClient} = require('ggejs');
 const networkInstances = require('e4k-data').network.instances.instance;
 const worldNetworkInstance = networkInstances.find(i => i.instanceLocaId === "generic_country_world");
 
-const client = new MainClient(worldNetworkInstance);
+const client = new E4KClient(worldNetworkInstance);
 
 client.on('connected', () => {
     console.log("Client connected!");

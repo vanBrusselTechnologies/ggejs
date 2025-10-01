@@ -26,6 +26,10 @@ class SaleDaysLuckyWheelEvent extends BaseLuckyWheelEvent {
     get eventStarterCharacterId() {
         return "char_event_harlequin_salesday";
     }
+
+    get serverTypeId() {
+        return 1;
+    }
 }
 
 module.exports = SaleDaysLuckyWheelEvent;

@@ -1,12 +1,39 @@
-const {execute: pep} = require('./pep');
+const {execute: pep} = require("./onReceived/pep");
 
-module.exports.name = "lws";
+const NAME = "lws";
+/** @type {CommandCallback<any>[]}*/
+const callbacks = [];
+
+module.exports.name = NAME;
+
 /**
  * @param {BaseClient} client
  * @param {number} errorCode
- * @param {{LWET: number, OP: number[], OR:number[], R: [], CWC: number, WCP: number, HFS: number, HVPM: number, JSID: number, JHID: number, PMA: number}} params
+ * @param {Object} params
  */
 module.exports.execute = function (client, errorCode, params) {
+    parseLWS(client, params);
+    require('.').baseExecuteCommand(client, undefined, errorCode, params, callbacks);
+}
+
+/**
+ * @param {BaseClient} client
+ * @param {number} wheelOfFortuneServerTypeId
+ * @return {Promise<any>}
+ */
+module.exports.spinWheelOfFortune = function (client, wheelOfFortuneServerTypeId) {
+    const C2SWheelOfFortuneSpinVO = {LWET: wheelOfFortuneServerTypeId};
+    return require('.').baseSendCommand(client, NAME, C2SWheelOfFortuneSpinVO, callbacks, (p) => p?.LWET === wheelOfFortuneServerTypeId);
+}
+
+module.exports.lws = parseLWS;
+
+/**
+ * @param {BaseClient} client
+ * @param {{LWET: number, OP: number[], OR:number[], R: [], CWC: number, WCP: number, HFS: number, HVPM: number, JSID: number, JHID: number, PMA: number}} params
+ * @returns {any}
+ */
+function parseLWS(client, params) {
     if (!params) return;
     const serverTypeId = params.LWET;
     /* TODO: S2C_LUCKY_WHEEL_SPIN
@@ -29,21 +56,20 @@ module.exports.execute = function (client, errorCode, params) {
         // TODO: localStorageModel.setValue(properties.getLocalStorageKeyById(2), String(luckyWheelEvent.winningCategory));
     }
     // TODO: resetRewardItem(properties);
-    const _loc5_ = params["R"];
-    if (_loc5_ && _loc5_.length > 0) {
+    const rewards = params["R"];
+    if (rewards && rewards.length > 0) {
         /* TODO: S2C_LUCKY_WHEEL_SPIN
-            loc4_ = RewardJSONParser.ungroupRewardsFromServer(_loc5_);
+            loc4_ = RewardJSONParser.ungroupRewardsFromServer(rewards);
             if ((_loc7_ = rewardParser.parseRewards(_loc4_).rewards).length > 0) {
                 wheelOfFortuneData.rewardedItem = _loc7_[0];
                 _loc3_ = properties.getLocalStorageKeyById(1);
-                localStorageHelper.saveObjectToLocalStorage(_loc5_, _loc3_);
+                localStorageHelper.saveObjectToLocalStorage(rewards, _loc3_);
             }
         */
+        console.log("Rewards:", rewards)
     }
-    if (params.OP && params.OR) {
-        pep(client, 0, {
-            "OP": params.OP, "OR": params.OR, "EID": serverTypeId === 0 ? 15 : 89// TODO: properties.eventId});
-        })
+    if (params.OP != null && params.OR != null) {
+        pep(client, 0, {"OP": params.OP, "OR": params.OR, "EID": luckyWheelEvent.eventId});
     }
 }
 

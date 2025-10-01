@@ -26,6 +26,10 @@ class LuckyWheelEvent extends BaseLuckyWheelEvent {
     get eventStarterCharacterId() {
         return "char_event_harlequin";
     }
+
+    get serverTypeId() {
+        return 0;
+    }
 }
 
 module.exports = LuckyWheelEvent;

@@ -1,4 +1,4 @@
-const {EmpireError} = require("../tools/EmpireError");
+const EmpireError = require("../tools/EmpireError");
 
 const NAME = "gbd";
 /** @type {CommandCallback<void>[]}*/
@@ -162,13 +162,14 @@ function parseGBD(client, params) {
             case "gls":
             case "mcd":
 //#region not handled in gbd source code
-            case "gmu":
             case "cpi":
             case "gas":
             case "gabgap":
+            case "gmu":
+            case "sne":
 //#endregion
                 try {
-                    client.logger.t(`[RECEIVED-GBD] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`);
+                    client.logger.t('[RECEIVED-GBD]', x, '%', msg.substring(0, Math.min(140, msg.length)));
                     try {
                         require(`./${x.toLowerCase()}`)[x.toLowerCase()](client, params[x]);
                     } catch (e) {
@@ -185,7 +186,7 @@ function parseGBD(client, params) {
             case "gll":
             case "scd":
                 //Not implemented in game
-                client.logger.t(`[RECEIVED-GBD-not_implemented] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`);
+                client.logger.t('[RECEIVED-GBD-not_implemented]', x, '%', msg.substring(0, Math.min(140, msg.length)));
                 break;
             case "fii":
             //Not implemented in game: Friend invite info
@@ -193,10 +194,10 @@ function parseGBD(client, params) {
             //Not implemented in game: Treasure hunt info
             case "wbie":
                 //Not implemented in game: Welcome back message info event
-                client.logger.t(`[RECEIVED-GBD-not_implemented] ${x} % ${msg.substring(0, Math.min(140, msg.length))}`);
+                client.logger.t('[RECEIVED-GBD-not_implemented]', x, '%', msg.substring(0, Math.min(140, msg.length)));
                 break;
             default:
-                client.logger.t(`Unknown part in gbd command: ${x}: ${msg}`);
+                client.logger.t('[GBD Unknown] Unknown part in gbd command:', x, msg);
                 break;
 //#endregion
         }

@@ -2,8 +2,9 @@ const fs = require('node:fs');
 
 // TODO: https://github.com/danadum/empire-api
 exports.BaseClient = require('./BaseClient');
+exports.EmpireClient = require('./EmpireClient');
 exports.ExternalClient = require('./ExternalClient');
-exports.MainClient = require('./MainClient');
+exports.E4KClient = require('./E4KClient');
 
 //Managers
 fs.readdirSync(__dirname + '/managers/').forEach(function (file) {
@@ -23,7 +24,6 @@ fs.readdirSync(__dirname + '/structures/').forEach(function (file) {
                 }
             });
         } catch (e) {
-
         }
     }
 });
