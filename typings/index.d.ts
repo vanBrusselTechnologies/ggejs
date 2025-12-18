@@ -1066,7 +1066,8 @@ type Mapobject =
     | ShadowAreaMapobject
     | ShapeshifterMapobject
     | VillageMapobject
-    | WolfKingMapobject;
+    | WolfKingMapobject
+    | AllianceRaidPortalMapobject;
 
 export class AlienInvasionMapobject extends InteractiveMapobject {
     public dungeonLevel: number;
@@ -1306,6 +1307,10 @@ export class WolfKingMapobject extends InteractiveMapobject {
     public baseWallBonus: number;
     public baseGateBonus: number;
     public baseMoatBonus: number;
+    public travelDistance: number;
+}
+
+export class AllianceRaidPortalMapobject extends InteractiveMapobject {
     public travelDistance: number;
 }
 

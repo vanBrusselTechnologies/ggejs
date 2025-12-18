@@ -16,7 +16,7 @@ class BasicBattleLogMessage extends BasicMessage {
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data);
+        super(client, data, false);
         this.#client = client;
         this.parseMetaData(client, this.metadata.split('#'))
     }
@@ -127,7 +127,7 @@ function getExceptionalSenderName(client, thisMessage) {
         case 40:
             return Localize.text(client, "resourceTower");
         default:
-            return thisMessage.areaName;
+            return thisMessage.areaName ?? client.worldMaps._ownerInfoData.getOwnerInfo(thisMessage.ownerId)?.playerName;
     }
 }
 

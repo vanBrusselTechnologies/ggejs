@@ -12,5 +12,5 @@ module.exports.execute = function (client, errorCode, params) {
     const cud = client.clientUserData;
     cud.myAlliance.parseStorage(params.STO);
     abl(client, errorCode, params.ABL);
-    getAllianceInfo(client, cud.allianceId).catch(e => client.logger.w(new EmpireError(e)));
+    getAllianceInfo(client, cud.allianceId).catch(e => client.logger.w(new EmpireError(client, e)));
 }

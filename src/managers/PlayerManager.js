@@ -133,7 +133,7 @@ class PlayerManager extends BaseManager {
                 case "summerGachaEvent":
                     return HighScoreConst.SUMMER_GACHA_EVENT;
                 default:
-                    return -1;
+                    return rankingType;
             }
         })();
         if (listType === -1) throw new EmpireError(this._client, "Rankings' list type not supported");
@@ -152,12 +152,12 @@ class PlayerManager extends BaseManager {
             switch (typeof nameOrRanking) {
                 case "number":
                     const searchRank = Math.round(Math.max(1, nameOrRanking - maxResults / 2));
-                    const leaderboardRankData = await listLeaderboardScoresPage(this._client, listType, searchRank, maxResults, leagueId);
+                    const leaderboardRankData = await listLeaderboardScoresPage(this._client, listType, searchRank, maxResults, leagueId, -1);
                     return convertListToLeaderboard(this._client, leaderboardRankData);
                 case "string":
-                    const leaderboardSearchData = await searchLeaderboardScores(this._client, listType, nameOrRanking);
+                    const leaderboardSearchData = await searchLeaderboardScores(this._client, listType, nameOrRanking, -1, -1);
                     const {scoreId, leagueType} = leaderboardSearchData.items[0];
-                    const leaderboardWindowData = await listLeaderboardScoresWindow(this._client, listType, scoreId, maxResults, leagueType);
+                    const leaderboardWindowData = await listLeaderboardScoresWindow(this._client, listType, scoreId, maxResults, leagueType, -1);
                     return convertListToLeaderboard(this._client, leaderboardWindowData);
             }
         } catch (errorCode) {

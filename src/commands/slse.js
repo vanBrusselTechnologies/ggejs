@@ -20,10 +20,17 @@ module.exports.execute = function (client, errorCode, params) {
  * @param {BaseClient} client
  * @param {number} listType
  * @param {string} searchValue
+ * @param {number} leagueTypeId
+ * @param {number} subdivisionId
  * @return {Promise<LeaderboardSearchList>}
  */
-module.exports.searchLeaderboardScores = function (client, listType, searchValue) {
-    const C2SSearchLeaderboardScoresVO = {SV: searchValue, LT: 53};
+module.exports.searchLeaderboardScores = function (client, listType, searchValue, leagueTypeId, subdivisionId) {
+    const C2SSearchLeaderboardScoresVO = {
+        SV: searchValue,
+        LT: listType,
+        LID: leagueTypeId > 0 ? String(leagueTypeId) : "",
+        SDI: subdivisionId
+    };
     return require('.').baseSendCommand(client, NAME, C2SSearchLeaderboardScoresVO, callbacks, (p) => p?.["LT"] === listType);
 }
 

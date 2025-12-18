@@ -273,13 +273,13 @@ function requestConstructionItemInventory(client) {
 
 /** @param {BaseClient} client */
 function requestMessagesData(client) {
-    require('./sne').showMessages(client).catch(e => client.logger.w(new EmpireError(e)));
+    require('./sne').showMessages(client).catch(e => client.logger.w(new EmpireError(client, e)));
 }
 
 /** @param {BaseClient} client */
 function requestAllianceData(client) {
     if (client.clientUserData.allianceId >= 0) {
-        require('./ain').getAllianceInfo(client, client.clientUserData.allianceId).catch(e => client.logger.w(new EmpireError(e)));
+        require('./ain').getAllianceInfo(client, client.clientUserData.allianceId).catch(e => client.logger.w(new EmpireError(client, e)));
         require('./commands/getAllianceFame').execute(client);
         require('./commands/getAllianceChatHistory').execute(client);
     }

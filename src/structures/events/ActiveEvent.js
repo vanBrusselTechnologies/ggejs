@@ -70,7 +70,7 @@ class ActiveEvent {
     /** @param {number} packageId */
     _addEventPackageById(packageId) {
         if (this.eventPackages.map(p => p.packageID).includes(packageId)) return;
-        let _package = packages.find(p => p.packageID === packageId)
+        const _package = packages.find(p => p.packageID === packageId)
         if (_package) this.eventPackages.push(_package);
     }
 

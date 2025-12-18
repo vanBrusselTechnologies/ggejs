@@ -33,6 +33,7 @@ const SeaqueenMapBigCastleObject = require("../structures/mapobjects/SeaqueenMap
 const SeaqueenMapCampObject = require("../structures/mapobjects/SeaqueenMapCampObject");
 const SeaqueenMapShipObject = require("../structures/mapobjects/SeaqueenMapShipObject");
 const SeaqueenMapKrakenObject = require("../structures/mapobjects/SeaqueenMapKrakenObject");
+const AllianceRaidPortalMapobject = require("../structures/mapobjects/AllianceRaidPortalMapobject");
 
 /**
  * @param {BaseClient} client
@@ -111,6 +112,8 @@ module.exports.parseMapObject = (client, data) => {
             return new DaimyoTownshipMapobject(client, data);
         case 42:
             return new WolfKingMapobject(client, data);
+        case 43:
+            return new AllianceRaidPortalMapobject(client, data);
         default:
             client.logger.w(`Current mapobject (areatype ${areaType}) isn't fully supported!`, data);
             return new BasicMapobject(client, data);

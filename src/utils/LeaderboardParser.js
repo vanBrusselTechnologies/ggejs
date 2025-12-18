@@ -29,9 +29,19 @@ function parseLeaderboardItem(listType, itemData) {
         allianceName: itemData.A,
         instanceId: itemData.I,
         scoreId: scoreId,
+        // TODO metadata
+        // metadataVO: parseItemMetadata(itemData)
         playerId: parseInt(scoreIdParts[3])
     };
 }
+/*  TODO LeaderboardScoreMetadataVO
+    function parseItemMetadata(paramsObj) : LeaderboardScoreMetadataVO
+    {
+        var _loc2_:LeaderboardScoreMetadataVO = new LeaderboardScoreMetadataVO();
+        _loc2_.allianceCrestLayoutVO = allianceCrestInfoParser.parseSingleCrestLayout(paramsObj["SM"]);
+        return _loc2_;
+    }
+ */
 
 /**
  * @param {{LT:number, L: Array<{LID: number, L: []}>}} params

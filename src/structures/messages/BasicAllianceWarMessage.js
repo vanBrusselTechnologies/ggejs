@@ -8,7 +8,7 @@ class BasicAllianceWarMessage extends BasicMessage {
      * @param {Array} data
      */
     constructor(client, data) {
-        super(client, data);
+        super(client, data, false);
         this.parseMetaData(client, data[2].split('*'))
     }
 

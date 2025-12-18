@@ -6,8 +6,6 @@ class FactionEvent extends PointEvent {
 
     /** @type {boolean} */
     unlocked;
-    /** @type {number} */
-    payPartPriceId;
     /** @type {boolean} */
     isFinished;
     /** @type {number} */
@@ -25,7 +23,6 @@ class FactionEvent extends PointEvent {
         super.loadFromParamObject(client, data);
         if (data.FN) this.isSpectator = data.FN.SPC === 1;
         this.isSeasonLeagueModeEnabled = data.KL === 1;
-        this.payPartPriceId = this.rawData.partPayPriceID;
 
         this.parseBasicParams(data);
         if (data.UL) this.unlocked = data.UL === 1;

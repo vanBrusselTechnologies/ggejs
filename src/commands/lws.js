@@ -66,7 +66,7 @@ function parseLWS(client, params) {
                 localStorageHelper.saveObjectToLocalStorage(rewards, _loc3_);
             }
         */
-        console.log("Rewards:", rewards)
+        // console.log("Rewards:", rewards)
     }
     if (params.OP != null && params.OR != null) {
         pep(client, 0, {"OP": params.OP, "OR": params.OR, "EID": luckyWheelEvent.eventId});

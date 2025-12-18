@@ -10,8 +10,9 @@ class BasicMessage {
     /**
      * @param {BaseClient} client
      * @param {Array} data
+     * @param {boolean} parseBaseMetadata
      */
-    constructor(client, data) {
+    constructor(client, data, parseBaseMetadata = true) {
         this.#client = client;
         /** @type {number} */
         this.messageId = data[0];
@@ -25,7 +26,7 @@ class BasicMessage {
         this.isArchived = data[7] === 1;
         this.isForwarded = data[8] === 1;
         this.canBeForwarded = false;
-        this.parseMetaData(client, this.metadata.split('+'))
+        if (parseBaseMetadata) this.parseMetaData(client, this.metadata.split('+'))
     }
 
     /**

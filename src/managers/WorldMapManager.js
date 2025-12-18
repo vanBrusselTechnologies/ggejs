@@ -205,6 +205,19 @@ function loadNPCOwnerInfo(client, ownerInfoData) {
 
     ownerInfoData.addOwnerInfo(createWorldMapOwnerInfo(client, -1201, -1, `wolfgard_playerName`, ConstantsGeneral.NPC_CREST_WOLFKING, true));
 
+    const allianceRaidCrest = (function () {
+        const crest = new Crest(client, null);
+        crest.backgroundColor1 = ConstantsColors.ALLIANCE_RAID_PORTAL_BACKGROUND_1;
+        crest.backgroundColor2 = ConstantsColors.ALLIANCE_RAID_PORTAL_BACKGROUND_2;
+        crest.backgroundType = 3;
+        crest.symbolColor1 = ConstantsColors.ALLIANCE_RAID_PORTAL_SYMBOL;
+        crest.symbolPosType = 1;
+        crest.symbolType1 = 101110;
+        crest.fillClipColor();
+        return crest;
+    });
+    ownerInfoData.addOwnerInfo(createWorldMapOwnerInfo(client, -1202, -1, `dialogue_are_title`, allianceRaidCrest(), true));
+
     for (const collectorEventOption of collectorEventOptions) {
         const collectorEventSkinName = collectorEventOption.collectorEventSkinName;
         const colors = collectorEventOption.crestColors.split(',').map(c => parseInt(c, 16));

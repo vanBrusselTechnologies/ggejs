@@ -30,6 +30,8 @@ class MyAlliance extends Alliance {
         this.statusList = parseStatusList(client, data.ADL);
         /** @type {AllianceMember[]} */
         this.memberList = parseAdditionalMemberInformation(client, data.AMI, this.memberList);
+        // TODO: RelicEQForgeUses
+        // parseRelicEQForgeUses(paramObject);
         /** @type {CapitalMapobject[]} */
         this.capitals = parseCapitals(client, data.ACA);
         /** @type {MetropolMapobject[]} */

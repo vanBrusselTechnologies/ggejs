@@ -244,6 +244,12 @@ class WorldMapOwnerInfo {
             if (params.FN && params.FN.FID !== -1) {
                 this.fillFromFactionParamObject(params.FN);
             }
+            /* TODO allianceCrest
+               if(params["aee"])
+               {
+                   this.allianceCrestLayoutVO = allianceCrestInfoParser.parseActiveCrest(paramObj["aee"]);
+               }
+             */
         }
         return this;
     }

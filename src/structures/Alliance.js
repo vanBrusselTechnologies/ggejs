@@ -32,6 +32,17 @@ class Alliance {
         if (data.FR) /** @type {number} */ this.freeRenames = data.FR;
         /** @type {number} */
         this.might = parseInt(data.MP);
+        /** TODO: allianceCrest
+            if(data["aee"])
+            {
+                this.activeCrestLayoutVO = allianceCrestInfoParser.parseActiveCrest(data["aee"]);
+                this.fallbackCrestLayoutVO = allianceCrestInfoParser.parseFallbackCrest(data["aee"]);
+            }
+            if(data["ACLS"])
+            {
+                this.crestDataVOs = allianceCrestInfoParser.parseCrestData(data["ACLS"]);
+            }
+         */
     }
 
     /** @returns {(CapitalMapobject | KingstowerMapobject | MetropolMapobject | MonumentMapobject)[]} */

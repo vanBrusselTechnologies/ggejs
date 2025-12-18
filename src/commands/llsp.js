@@ -22,10 +22,17 @@ module.exports.execute = function (client, errorCode, params) {
  * @param {number} searchRank
  * @param {number} maxResults
  * @param {number} leagueTypeId Bracket based on level, starting with 1
+ * @param {number} subdivisionId
  * @return {Promise<LeaderboardList>}
  */
-module.exports.listLeaderboardScoresPage = function (client, listType, searchRank, maxResults, leagueTypeId) {
-    const C2SListLeaderboardScoresPageVO = {LT: listType, R: searchRank, M: maxResults, LID: leagueTypeId};
+module.exports.listLeaderboardScoresPage = function (client, listType, searchRank, maxResults, leagueTypeId, subdivisionId) {
+    const C2SListLeaderboardScoresPageVO = {
+        LT: listType,
+        R: searchRank,
+        M: maxResults,
+        LID: leagueTypeId > 0 ? String(leagueTypeId) : "",
+        SDI: subdivisionId
+    };
     return require('.').baseSendCommand(client, NAME, C2SListLeaderboardScoresPageVO, callbacks, (p) => p?.["LT"] === listType && p?.["LID"] === leagueTypeId && p?.["L"]?.[0]?.["R"] === searchRank);
 }
 
