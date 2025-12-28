@@ -141,7 +141,7 @@ class WorldMapOwnerInfoData {
 
     /** @param {Array} ownerInfoArray */
     parseOwnerInfoArray(ownerInfoArray) {
-        if (!ownerInfoArray) return;
+        if (ownerInfoArray == null) return;
         for (const ownerInfo of ownerInfoArray) this.parseOwnerInfo(ownerInfo);
     }
 

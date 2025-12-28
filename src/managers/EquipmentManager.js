@@ -13,7 +13,7 @@ class EquipmentManager extends BaseManager {
     /** @type {Lord[]} */
     #barons = [];
     /** @type {Lord[]} */
-    #commandants = [];
+    #commanders = [];
     /** @type {General[]} */
     #generals = [];
     /** @type {number} */
@@ -67,11 +67,11 @@ class EquipmentManager extends BaseManager {
 
     /**
      * @param {Lord[]} barons
-     * @param {Lord[]} commandants
+     * @param {Lord[]} commanders
      */
-    _setCommandantsAndBarons(barons, commandants) {
+    _setCommandersAndBarons(barons, commanders) {
         this.#barons = barons;
-        this.#commandants = commandants;
+        this.#commanders = commanders;
     }
 
     /** @param {General[]} generals */
@@ -90,14 +90,14 @@ class EquipmentManager extends BaseManager {
     }
 
     /** @returns {Lord[]} */
-    getCommandants = () => [...this.#commandants];
+    getCommanders = () => [...this.#commanders];
 
-    /** Returns all idle commandants */
-    getAvailableCommandants() {
+    /** Returns all idle commanders */
+    getAvailableCommanders() {
         const thisPlayerId = this._client.clientUserData.playerId;
         const myMovements = this._client.movements.get().filter(m => (m.direction === 0 && m.sourceArea?.ownerId === thisPlayerId) || (m.direction === 1 && m.targetArea?.ownerId === thisPlayerId));
-        if (myMovements.length === 0) return this.#commandants;
-        return this.#commandants.filter(l => myMovements.every(m => m.lord?.id !== l.id));
+        if (myMovements.length === 0) return this.#commanders;
+        return this.#commanders.filter(l => myMovements.every(m => m.lord?.id !== l.id));
     }
 
     /** @returns {Lord[]} */

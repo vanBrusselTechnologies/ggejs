@@ -12,7 +12,7 @@ class Horse {
         this.wodId = getHorseWodId(castleData.buildingInfo.buildings, horseType);
         if (this.wodId === -1) return;
         const horse = horses.find(h => h.wodID === this.wodId);
-        this.wodId = horse.wodID;
+        this.wodId = isPegasusHorse ? -1 : horse.wodID;
         this.comment1 = horse.comment1;
         this.comment2 = horse.comment2;
         this.type = horse.type;

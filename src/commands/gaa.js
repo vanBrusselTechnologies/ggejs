@@ -61,15 +61,10 @@ function parseGAA(client, params) {
 
 /**
  * @param {BaseClient} client
- * @param {[]} _data
+ * @param {[][]} data
  */
-function parseWorldMapAreas(client, _data) {
-    /** @type {Mapobject[]} */
-    const worldMapAreas = [];
-    for (const data of (_data ?? [])) {
-        worldMapAreas.push(parseMapObject(client, data));
-    }
-    return worldMapAreas;
+function parseWorldMapAreas(client, data) {
+    return (data ?? []).map(d => parseMapObject(client, d));
 }
 
 /**@param {[][]} areaInfo */

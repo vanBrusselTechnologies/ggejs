@@ -143,7 +143,7 @@ function parseAttackerLords(client, data, battleLog) {
     if (data.AL === undefined) return undefined;
     const lord = new Lord(client, data.AL);
     if (battleLog.attacker.playerId === client.clientUserData.playerId) {
-        const lord2 = client.equipments.getCommandants().find(c => c.id === lord.id);
+        const lord2 = client.equipments.getCommanders().find(c => c.id === lord.id);
         lord.name = !!lord2 ? lord2.name : "";
     }
     let general = null;

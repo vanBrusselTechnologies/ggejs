@@ -472,10 +472,10 @@ export class EquipmentManager extends BaseManager {
     public get gemTotalInventorySpace(val: number);
     private set gemTotalInventorySpace(val: number);
 
-    public getCommandants(): Lord[];
+    public getCommanders(): Lord[];
 
-    /** Returns Array with all idle commandants.*/
-    public getAvailableCommandants(): Lord[];
+    /** Returns Array with all idle commanders.*/
+    public getAvailableCommanders(): Lord[];
 
     public getBarons(): Lord[];
 
@@ -495,7 +495,7 @@ export class EquipmentManager extends BaseManager {
 
     public sellAllGemsAtOrBelowLevel(level: number): Promise<void>;
 
-    private _setCommandantsAndBarons(barons: Lord[], commandants: Lord[]): void;
+    private _setCommandersAndBarons(barons: Lord[], commanders: Lord[]): void;
 
     private _setGenerals(generals: General[]): void;
 
@@ -524,11 +524,11 @@ export class MovementManager extends BaseManager {
     /** Returns all movements */
     public get(): Movement[];
 
-    public startAttackMovement(castleFrom: InteractiveMapobject, castleTo: Mapobject | CastlePosition, army: ArmyWave[], lord: Lord, horse?: Horse): void;
+    public async createAttackMovement(castleFrom: InteractiveMapobject, castleTo: Mapobject | CastlePosition, army: ArmyWave[], lord: Lord, horse?: Horse): Promise<ArmyAttackMovement>;
 
-    public startSpyMovement(castleFrom: InteractiveMapobject, castleTo: Mapobject | CastlePosition, spyCount: number, spyType: number, spyEffect: number, horse?: Horse): void;
+    public async createSpyMovement(castleFrom: InteractiveMapobject, castleTo: Mapobject | CastlePosition, spyCount: number, spyType: number, spyEffect: number, horse?: Horse): Promise<SpyMovement>;
 
-    public startMarketMovement(castleFrom: InteractiveMapobject, castleTo: Mapobject | CastlePosition, goods: Good[], horse?: Horse): void;
+    public async createMarketMovement(castleFrom: InteractiveMapobject, castleTo: Mapobject | CastlePosition, goods: Good[], horse?: Horse): Promise<MarketMovement>;
 
     private _add_or_update(_movements: Movement[]): void;
 
@@ -1586,7 +1586,7 @@ interface SpyLog {
             middle: InventoryItem<Unit>[],
             right: InventoryItem<Unit>[],
             keep: InventoryItem<Unit>[],
-            unitsKeepInventory: InventoryItem<Unit>[],
+            supportTools: InventoryItem<Unit>[],
             stronghold: InventoryItem<Unit>[]
         },
         spyTime: Date,

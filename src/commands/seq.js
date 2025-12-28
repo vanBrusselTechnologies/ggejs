@@ -38,7 +38,7 @@ module.exports.seq = parseSEQ;
  */
 function parseSEQ(client, params) {
     if (!params) return;
-    if (params?.gli) gli(client, 0, params.gli);
-    if (params?.gcu) gcu(client, 0, params.gcu);
-    if (params?.esl) esl(client, 0, params.esl);
+    if (params.gli) gli(client, 0, params.gli);
+    if (params.gcu) gcu(client, 0, params.gcu);
+    if (params.esl) esl(client, 0, params.esl);
 }

@@ -8,8 +8,8 @@ module.exports.name = "gli";
  */
 module.exports.execute = function (client, errorCode, params) {
     const barons = parseLords(client, params.B).sort((l1, l2) => l1.pictureId - l2.pictureId);
-    const commandants = parseLords(client, params.C).sort((l1, l2) => l1.pictureId - l2.pictureId);
-    client.equipments._setCommandantsAndBarons(barons, commandants);
+    const commanders = parseLords(client, params.C).sort((l1, l2) => l1.pictureId - l2.pictureId);
+    client.equipments._setCommandersAndBarons(barons, commanders);
 }
 
 /**

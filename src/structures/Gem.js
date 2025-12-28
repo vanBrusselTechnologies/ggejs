@@ -8,7 +8,7 @@ class Gem {
      * @param {Equipment} equipment
      */
     constructor(client, id, equipment = null) {
-        let _data = getDataFromJson(id);
+        const _data = getDataFromJson(id);
         if (!_data) {
             client.logger.w(`gem id ${id} without data`);
             return;
@@ -27,34 +27,19 @@ class Gem {
     }
 }
 
-/**
- * @param {number} id
- * @returns {Object}
- */
+/** @param {number} id */
 function getDataFromJson(id) {
-    for (let g of gems) {
-        if (g.gemID === id) {
-            return g;
-        }
-    }
+    return gems.find(g => g.gemID === id);
 }
 
 /**
  * @param {BaseClient} client
  * @param {string} _data
- * @returns {Effect[]}
  */
 function parseEffects(client, _data) {
-    let _effects = _data.split(",");
-    const data = [];
-    for (let e of _effects) {
-        data.push(e.split("&amp;"));
-    }
-    const effects = [];
-    for (let d of data) {
-        effects.push(new Effect(client, d));
-    }
-    return effects;
+    const _effects = _data.split(",");
+    const data = _effects.map(e => e.split("&amp;"));
+    return data.map(d => new Effect(client, d));
 }
 
 module.exports = Gem;

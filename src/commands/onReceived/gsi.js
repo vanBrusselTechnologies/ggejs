@@ -1,4 +1,5 @@
 const Unit = require("../../structures/Unit");
+const {InventoryItem} = require("../../structures/InventoryItem");
 
 module.exports.name = "gsi";
 /**
@@ -20,9 +21,5 @@ module.exports.execute = function (client, errorCode, params) {
  * @return {InventoryItem<Unit>[]}
  */
 function parseUnits(client, data) {
-    const units = [];
-    for (let u of data) {
-        units.push({item: new Unit(client, u[0]), count: u[1]})
-    }
-    return units;
+    return data.map(u => new InventoryItem(new Unit(client, u[0]), u[1]));
 }

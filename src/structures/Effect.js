@@ -16,7 +16,7 @@ class Effect {
         }
         const _data = getDataFromJson(client, this.effectId);
         if (_data === undefined) {
-            client.logger.w(`Unknown effect id:  ${this.effectId}`);
+            client.logger.w(`Unknown effect id: ${this.effectId}`);
             return;
         }
         /** @type {Object} */

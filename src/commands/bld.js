@@ -146,13 +146,7 @@ function parseUnits(client, param) {
  * @param {number[][]} param
  */
 function parseTools(client, param) {
-    /** @type {BattleLogUnit[]} */
-    const tools = [];
-    if (param == null) return tools;
-    for (let data of param) {
-        if (data.length >= 3) tools.push(parseData(client, data));
-    }
-    return tools;
+    return (param ?? []).filter(t => t.length >= 3).map(t => parseData(client, t))
 }
 
 /**
