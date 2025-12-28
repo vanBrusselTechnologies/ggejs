@@ -1,4 +1,4 @@
-const {equipment_sets, effectCaps, lords} = require('e4k-data').data;
+const {equipment_effects, equipment_sets, effectCaps, lords} = require('e4k-data').data;
 const Equipment = require("./Equipment");
 const RelicEquipment = require("./RelicEquipment");
 const Effect = require('./Effect');
@@ -85,7 +85,7 @@ function parseEffects(client, data, equipments) {
     const _effects = [];
     if (!data.E) _effects.push(...(data.AIE ?? []).map(d => new Effect(client, [d[0], d[1][0]])))
     _effects.push(...(data.HME ?? []).map(d => new Effect(client, [d[0], d[1][0]])))
-    _effects.push(...(data.TAE ?? []).map(d => new Effect(client, [d[0], d[1][0]])))
+    _effects.push(...(data.TAE?.[0] ?? []).map(d => new Effect(client, [d[0], d[1][0]])))
     _effects.push(...(data.AE ?? []).map(d => new Effect(client, [d[0], d[1][0]])))
     _effects.push(...(data.E ?? []).map(d => new Effect(client, [d[0], d[1][0]])))
 
@@ -108,8 +108,11 @@ function parseEffects(client, data, equipments) {
 
     for (const _equipSet of equipmentSetArray) {
         equipment_sets.filter(s => s.setID === _equipSet[0] && s.neededItems <= _equipSet[1]).forEach(set => {
-            _effects.push(...set.effects.split(",").map(e => e.split("&amp;")).map(d => new Effect(client, d)));
-        })
+            _effects.push(...set.effects.split(",").map(e => e.split("&amp;")).map(d =>{
+            const effectData = [...d]
+            effectData[0] = eqEffectIdToEffectId(parseInt(d[0]))
+            return new Effect(client, effectData);
+        }))})
     }
     /** @type {Effect[] | RelicEffect[]} */
     const effects = [];
@@ -139,7 +142,11 @@ function parseDummyEffects(client, effectsData) {
     if (!effectsData) return [];
     /** @type {Effect[] | RelicEffect[]} */
     const effects = [];
-    effectsData.split(",").map(e => e.split("&amp;")).map(d => new Effect(client, d)).forEach(e1 => {
+    effectsData.split(",").map(e => e.split("&amp;")).map(d => {
+        const effectData = [...d]
+        effectData[0] = eqEffectIdToEffectId(parseInt(d[0]))
+        return new Effect(client, effectData)
+    }).forEach(e1 => {
         const effect = effects.find(e => e.effectId === e1.effectId);
         if (effect !== undefined) effect.power += e1.power; else effects.push(e1);
     })
@@ -150,6 +157,11 @@ function parseDummyEffects(client, effectsData) {
     })
 
     return effects;
+}
+
+/** @param {number} eqEffectId */
+function eqEffectIdToEffectId(eqEffectId) {
+    return equipment_effects.find(e => e.equipmentEffectID === eqEffectId).effectID
 }
 
 module.exports = Lord;
